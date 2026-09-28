@@ -35,12 +35,47 @@ const CONFIG = {
   hitDelay: 190,          // ms fins que l'envestida "impacta" (efectes visuals)
 };
 
+// Pixel: el gatet gris, cap especial dels Carreronets de Sogorb
+const PIXEL_SVG = `<svg viewBox="0 0 140 144" aria-label="Pixel">
+  <path d="M104 124 Q138 118 132 84 Q128 66 114 72" stroke="#868c95" stroke-width="12" fill="none" stroke-linecap="round"/>
+  <ellipse cx="70" cy="110" rx="38" ry="28" fill="#9ca2ab"/>
+  <ellipse cx="70" cy="116" rx="20" ry="16" fill="#dde1e6"/>
+  <polygon points="34,46 38,10 64,34" fill="#9ca2ab"/><polygon points="106,46 102,10 76,34" fill="#9ca2ab"/>
+  <polygon points="40,40 42,20 56,34" fill="#f5a9ba"/><polygon points="100,40 98,20 84,34" fill="#f5a9ba"/>
+  <ellipse cx="70" cy="62" rx="42" ry="35" fill="#9ca2ab"/>
+  <g stroke="#7b8089" stroke-width="4" stroke-linecap="round"><path d="M62 30 L65 41"/><path d="M70 28 L70 41"/><path d="M78 30 L75 41"/></g>
+  <circle cx="53" cy="60" r="11" fill="#fff"/><circle cx="87" cy="60" r="11" fill="#fff"/>
+  <circle cx="51" cy="61" r="8.5" fill="#8fd16a"/><circle cx="85" cy="61" r="8.5" fill="#8fd16a"/>
+  <ellipse cx="50" cy="61" rx="3" ry="6.5" fill="#23262d"/><ellipse cx="84" cy="61" rx="3" ry="6.5" fill="#23262d"/>
+  <circle cx="54" cy="56" r="2.6" fill="#fff"/><circle cx="88" cy="56" r="2.6" fill="#fff"/>
+  <ellipse cx="42" cy="76" rx="7" ry="4.5" fill="#f5a9ba" opacity="0.7"/><ellipse cx="98" cy="76" rx="7" ry="4.5" fill="#f5a9ba" opacity="0.7"/>
+  <polygon points="65,72 75,72 70,78" fill="#f28aa6"/>
+  <path d="M70 78 Q66 85 60 82 M70 78 Q74 85 80 82" stroke="#4a4d54" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <g stroke="#5b5f66" stroke-width="1.6" stroke-linecap="round">
+    <line x1="30" y1="72" x2="8" y2="68"/><line x1="30" y1="77" x2="8" y2="79"/>
+    <line x1="110" y1="72" x2="132" y2="68"/><line x1="110" y1="77" x2="132" y2="79"/>
+  </g>
+  <rect x="44" y="92" width="52" height="7" rx="3" fill="#e0453e"/>
+  <rect x="64" y="97" width="12" height="12" fill="#3fb6e8" stroke="#1d7fa8" stroke-width="2"/>
+  <ellipse cx="54" cy="136" rx="11" ry="7" fill="#dde1e6"/><ellipse cx="86" cy="136" rx="11" ry="7" fill="#dde1e6"/>
+</svg>`;
+const PIXEL_BOSS = {
+  name: "Pixel",
+  icon: PIXEL_SVG,
+  desc: "Un gatet gris que viu als carreronets de Sogorb. Tan adorable que no li pots tocar el clàxon... i ell ho sap perfectament.",
+};
+
 // img: imatge de fons de l'escenari (es pot substituir per un .png/.jpg amb el mateix nom de camp)
+// boss (opcional): cap especial de l'escenari en lloc de l'Examinador de Trànsit
 const SCENES = [
   { name: "Afores d'Eslida",                bg: "#3a4a3f", img: "img/escenari-1.svg" },
   { name: "Polígon industrial",             bg: "#4a4450", img: "img/escenari-2.svg" },
   { name: "Afores de Castelló",             bg: "#6b5a3a", img: "img/escenari-3.svg" },
   { name: "Avinguda València (Violència)",  bg: "#3a2440", img: "img/escenari-4.svg" },
+  { name: "La Vall d'Uixó",                 bg: "#5a6b52", img: "img/escenari-5.svg" },
+  { name: "Carreronets de Sogorb",          bg: "#6b5f53", img: "img/escenari-6.svg", boss: PIXEL_BOSS },
+  { name: "La Vall d'Alba",                 bg: "#6b7a4a", img: "img/escenari-7.svg" },
+  { name: "València Centre",                bg: "#4a5a6b", img: "img/escenari-8.svg" },
 ];
 const DEFAULT_SCENE_BG = "#3a4250";
 
@@ -164,7 +199,10 @@ function pickEnemyType(level) {
 function makeEnemy(level) {
   const e = CONFIG.enemy;
   const isBoss = level % CONFIG.bossEvery === 0;
-  const type = isBoss ? { name: BOSS_NAME, mult: CONFIG.bossMultiplier, icon: BOSS_ICON } : pickEnemyType(level);
+  const sceneBoss = sceneOf(level).boss;
+  const type = !isBoss ? pickEnemyType(level)
+    : sceneBoss ? { ...sceneBoss, mult: CONFIG.bossMultiplier }
+    : { name: BOSS_NAME, mult: CONFIG.bossMultiplier, icon: BOSS_ICON };
   const mult = type.mult;
   const hp = Math.round(e.baseHp * Math.pow(e.hpGrowth, level - 1) * mult);
   return {
@@ -402,6 +440,8 @@ const examOpen = () => !$("exam-screen").hidden;
 function showExamIntro() {
   const max = CONFIG.exam.maxErrors;
   $("exam-current").textContent = sceneOf(state.level).name;
+  const boss = sceneOf(state.level).boss;
+  $("exam-boss").textContent = boss ? boss.name : "l'Examinador de Trànsit";
   $("exam-next").textContent = sceneOf(state.level + 1).name;
   $("exam-rules").textContent =
     `${CONFIG.exam.questions} preguntes. Pots tindre com a màxim ${max} ${max === 1 ? "errada" : "errades"}.`;
@@ -573,8 +613,11 @@ function renderBestiary() {
   const availableNow = 2 + sceneIndex(state.level);
   const entries = [
     ...ENEMY_TYPES.map((t, i) => ({ ...t, from: `Des del nivell ${typeFromLevel(i)}`, now: i < availableNow })),
-    { name: BOSS_NAME, icon: BOSS_ICON, mult: CONFIG.bossMultiplier, desc: BOSS_DESC, now: true,
+    { name: BOSS_NAME, icon: BOSS_ICON, mult: CONFIG.bossMultiplier, desc: BOSS_DESC, now: !sceneOf(state.level).boss,
       from: `Cap dels nivells ${CONFIG.bossEvery}, ${CONFIG.bossEvery * 2}...` },
+    // Caps especials d'alguns escenaris
+    ...SCENES.map((sc, i) => sc.boss && { ...sc.boss, mult: CONFIG.bossMultiplier,
+      now: sceneIndex(state.level) === i, from: `Cap de «${sc.name}»` }).filter(Boolean),
   ];
   // Variants amb estreles que ja s'han vist
   for (const name of Object.keys(state.bestiary)) {
@@ -621,7 +664,8 @@ function renderEnemySprite(e) {
   registerSeen(e);
   const type = ENEMY_TYPES.find(t => e.name.startsWith(t.name)); // partides antigues sense icona
   const sprite = $("enemy-sprite");
-  sprite.innerHTML = e.icon || (e.name.includes(BOSS_NAME) ? BOSS_ICON : type ? type.icon : "❓");
+  const special = SCENES.find(sc => sc.boss && sc.boss.name === e.name);
+  sprite.innerHTML = e.icon || (e.name.includes(BOSS_NAME) ? BOSS_ICON : special ? special.boss.icon : type ? type.icon : "❓");
   sprite.style.setProperty("--size", e.size || 1);
   restartAnim(sprite, "spawn");
 }
@@ -658,6 +702,8 @@ function render() {
 }
 
 // animateFrom: índex a partir del qual les millores són noves (per animar-les)
+let openInfo = null; // mòbil: millora amb la info de la L desplegada (botó ⓘ)
+
 function renderUpgrades(animateFrom = Infinity) {
   const list = $("upgrade-list");
   const upgrades = visibleUpgrades();
@@ -672,7 +718,7 @@ function renderUpgrades(animateFrom = Infinity) {
     const step = CONFIG.levelCap.step;
 
     const div = document.createElement("div");
-    div.className = "upgrade" + (maxed ? " maxed" : "") + (i >= animateFrom ? " new" : "");
+    div.className = "upgrade" + (maxed ? " maxed" : "") + (i >= animateFrom ? " new" : "") + (openInfo === u.id ? " show-ltip" : "");
     div.innerHTML = `
       <div class="upgrade-head">
         <span class="upgrade-icon">${u.icon}</span>
@@ -685,6 +731,7 @@ function renderUpgrades(animateFrom = Infinity) {
       <div class="upgrade-next">${maxed ? "🔒 Límit assolit: amplia'l amb L" : `Següent nivell: ${u.per(e)}`}</div>
       <div class="upgrade-buttons">
         <button id="buy-${u.id}" class="buy">${maxed ? "Màxim" : `Millorar · ${fmt(upgradeCost(u))} 💰`}</button>
+        <button class="linfo" aria-label="Què fa l'ampliació amb L">ⓘ</button>
         <span class="lwrap">
           <button id="expand-${u.id}" class="lbtn">${L_ICON} ${expandCost(u)}</button>
           <div class="ltip">
@@ -699,6 +746,10 @@ function renderUpgrades(animateFrom = Infinity) {
       </div>`;
     div.querySelector(`#buy-${u.id}`).addEventListener("click", () => buyUpgrade(u.id));
     div.querySelector(`#expand-${u.id}`).addEventListener("click", () => expandUpgrade(u.id));
+    div.querySelector(".linfo").addEventListener("click", () => {
+      openInfo = openInfo === u.id ? null : u.id;
+      renderUpgrades();
+    });
     list.appendChild(div);
   });
 }

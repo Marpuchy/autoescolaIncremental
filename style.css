@@ -515,14 +515,100 @@ button.lbtn:disabled { background: #555c68; color: #8893a3; }
   vertical-align: middle;
 }
 
+/* ===== MÒBIL I PANTALLES XICOTETES ===== */
+
+/* Botó ⓘ de la L: només en pantalles tàctils (on no hi ha "hover") */
+.linfo { display: none; }
+@media (hover: none) {
+  .linfo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
+    font-size: 1.1rem;
+    background: #555c68;
+    color: #fff;
+  }
+  .upgrade.show-ltip .linfo { background: var(--l-green); }
+  /* el tooltip no s'obri en tocar: s'obri amb ⓘ i es mostra dins de la targeta */
+  .lwrap:hover .ltip { opacity: 0; }
+  .upgrade { position: relative; }
+  .upgrade .lwrap { position: static; }
+  .upgrade.show-ltip .ltip {
+    position: static;
+    order: 10;
+    width: auto;
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+    margin-top: 4px;
+  }
+  .upgrade.show-ltip .ltip::after { display: none; }
+  .upgrade.show-ltip .upgrade-buttons { flex-wrap: wrap; }
+  .upgrade.show-ltip .lwrap { display: contents; } /* el tooltip passa a ocupar una fila sencera */
+  .upgrade.show-ltip .ltip { flex-basis: 100%; }
+}
+
+/* Pantalles baixes (mòbil en horitzontal): es pot fer scroll */
+@media (max-height: 520px) {
+  body { overflow: auto; height: auto; }
+  #middle { min-height: 360px; }
+  #upgrades { min-height: 0; }
+}
+
 @media (max-width: 700px) {
   body { overflow: auto; height: auto; }
-  #middle { flex-direction: column; }
-  #side { width: auto; border-left: none; border-top: 3px solid #f2c200; }
-  #scene { flex: none; }
-  .arena { flex-direction: column; }
-  .avatar { min-height: 90px; }
-  #upgrades { min-height: 0; }
-  #upgrade-list { grid-template-columns: repeat(2, 1fr); }
-  .toast { white-space: normal; text-align: center; }
+
+  header { padding: 6px 10px; gap: 4px; }
+  header h1 { font-size: 1rem; }
+  .stats-top { width: 100%; justify-content: space-between; gap: 6px; font-size: 0.85rem; }
+  #debug-badge { display: none; }
+
+  #middle { flex-direction: column; flex: none; }
+
+  /* Escenari: alçada fixa, combatents l'un al costat de l'altre */
+  #scene { flex: none; height: max(270px, 46vh); padding: 8px 10px; gap: 6px; }
+  .scene-top { font-size: 0.75rem; }
+  .arena { gap: 8px; }
+  .fighter { padding: 4px; }
+  .fighter-name { font-size: 0.78rem; padding: 2px 8px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sprite { --h: clamp(3.2rem, 12vh, 6rem); }
+  .dmg { font-size: 1.3rem; }
+  .toast { white-space: normal; text-align: center; font-size: 0.8rem; padding: 4px 10px; max-width: 90vw; }
+  #toasts { width: 100%; }
+
+  /* Panell (Botiga / Tests / Compendi) davall de l'escenari */
+  #side { width: auto; border-left: none; border-top: 3px solid #f2c200; overflow: visible; }
+  #side.collapsed { width: auto; }
+  #side.collapsed .tabs { flex-direction: row; }
+  #side.collapsed .tab { border-left: none; padding: 10px 4px; font-size: 1.1rem; }
+  #side.collapsed .tab.active { border-left: none; }
+  #side.collapsed .side-toggle { order: 0; padding: 10px 14px; }
+  .side-toggle { transform: rotate(90deg); }
+  #side.collapsed .side-toggle { transform: rotate(90deg); }
+  .tab { font-size: 0.85rem; min-width: 0; }
+  .tabs { overflow: hidden; }
+  .tab, #side.collapsed .tab { padding: 10px 2px; }
+  .side-toggle, #side.collapsed .side-toggle { padding: 10px 8px; flex-shrink: 0; }
+  html, body { overflow-x: hidden; }
+
+  /* Millores */
+  #upgrades { min-height: 0; padding: 10px 10px 16px; }
+  .upgrades-head h2 { font-size: 1.1rem; }
+  #upgrade-list { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .upgrade { padding: 10px; }
+  .upgrade-title { font-size: 0.95rem; }
+  .upgrade-icon { width: 1.9rem; height: 1.9rem; font-size: 1.1rem; }
+  .upgrade-total { font-size: 1.15rem; }
+  .upgrade-buttons .buy { padding: 10px 6px; font-size: 0.85rem; }
+  .lwrap .lbtn { padding: 10px; font-size: 0.85rem; }
+
+  /* Examen */
+  #exam-screen { padding: 16px 10px; }
+  #exam-intro h2 { font-size: 1.3rem; }
+  .exam-big { font-size: 3.5rem; }
+}
+
+@media (max-width: 480px) {
+  #upgrade-list { grid-template-columns: 1fr; }
 }

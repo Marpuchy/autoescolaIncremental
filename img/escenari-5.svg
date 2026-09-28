@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice">
+  <!-- La Vall d'Uixó: les Coves de Sant Josep, el riu subterrani i tarongers -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7cc3ea"/>
+      <stop offset="1" stop-color="#e3f4fb"/>
+    </linearGradient>
+    <linearGradient id="riu" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2f7fa6"/>
+      <stop offset="1" stop-color="#5cc0dd"/>
+    </linearGradient>
+    <symbol id="taronger" viewBox="0 0 100 100">
+      <rect x="45" y="62" width="10" height="38" fill="#6b4a2f"/>
+      <circle cx="50" cy="44" r="38" fill="#2f6b33"/>
+      <circle cx="36" cy="36" r="20" fill="#387a3b"/>
+      <g fill="#f28c28"><circle cx="30" cy="48" r="6"/><circle cx="58" cy="30" r="6"/><circle cx="68" cy="54" r="6"/><circle cx="46" cy="20" r="5"/></g>
+    </symbol>
+    <symbol id="palmera" viewBox="0 0 120 260">
+      <path d="M58 260 Q54 160 62 60" stroke="#8a6a44" stroke-width="12" fill="none"/>
+      <g fill="#3f8a3a">
+        <path d="M62 60 Q20 40 0 70 Q30 52 62 64Z"/><path d="M62 60 Q100 36 120 66 Q92 50 62 64Z"/>
+        <path d="M62 58 Q40 10 12 20 Q44 24 60 62Z"/><path d="M62 58 Q86 8 112 22 Q80 26 64 62Z"/>
+        <path d="M62 56 Q62 20 64 0 Q70 30 64 60Z"/>
+      </g>
+    </symbol>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <g fill="#fff" opacity="0.9">
+    <ellipse cx="300" cy="120" rx="100" ry="26"/><ellipse cx="360" cy="104" rx="60" ry="26"/>
+    <ellipse cx="1250" cy="90" rx="90" ry="22"/>
+  </g>
+
+  <!-- serra de fons -->
+  <path d="M0 430 L200 330 L380 400 L560 300 L760 380 L1000 280 L1220 370 L1420 300 L1600 360 V900 H0 Z" fill="#9fb8a3"/>
+
+  <!-- muntanya calcària amb la cova -->
+  <path d="M380 700 Q420 470 620 380 Q760 320 900 360 Q1080 400 1180 520 Q1240 600 1260 700 Z" fill="#b59a78"/>
+  <path d="M620 380 Q760 320 900 360 Q820 380 760 420 Q680 460 640 520 Z" fill="#c9b08e"/>
+  <g stroke="#9c8263" stroke-width="5" fill="none" opacity="0.7">
+    <path d="M500 560 Q560 520 600 540"/><path d="M1020 480 Q1080 500 1120 560"/><path d="M880 420 Q940 430 980 470"/>
+  </g>
+  <!-- vegetació a la muntanya -->
+  <g fill="#5d8a4a">
+    <circle cx="560" cy="470" r="22"/><circle cx="600" cy="455" r="16"/><circle cx="1100" cy="500" r="20"/>
+    <circle cx="1140" cy="540" r="16"/><circle cx="700" cy="400" r="14"/>
+  </g>
+  <!-- boca de la cova -->
+  <path d="M700 700 Q700 560 800 530 Q900 560 910 700 Z" fill="#241c18"/>
+  <path d="M720 700 Q722 590 800 560 Q880 590 890 700 Z" fill="#120d0b"/>
+  <!-- rètol -->
+  <rect x="930" y="600" width="8" height="100" fill="#6b4a2f"/>
+  <rect x="890" y="590" width="220" height="44" rx="4" fill="#8a5a33" stroke="#5c3a1e" stroke-width="4"/>
+  <text x="1000" y="620" text-anchor="middle" font-family="Georgia, serif" font-size="20" font-weight="bold" fill="#fdf0d5">COVES DE SANT JOSEP</text>
+
+  <!-- el riu que ix de la cova -->
+  <path d="M740 700 Q800 690 870 700 L1000 760 L560 760 Z" fill="url(#riu)"/>
+  <g stroke="#bfe9f5" stroke-width="4" opacity="0.8">
+    <line x1="700" y1="730" x2="760" y2="730"/><line x1="820" y1="745" x2="900" y2="745"/><line x1="640" y1="752" x2="690" y2="752"/>
+  </g>
+  <!-- barqueta -->
+  <path d="M770 716 L850 716 L838 732 L782 732 Z" fill="#c9793a"/>
+  <rect x="805" y="700" width="6" height="16" fill="#5c3a1e"/>
+
+  <!-- camps amb tarongers i palmeres -->
+  <path d="M0 640 Q300 610 560 650 L560 760 H0 Z" fill="#8fb45a"/>
+  <path d="M1000 760 L1260 650 Q1450 620 1600 640 V760 Z" fill="#8fb45a"/>
+  <use href="#taronger" x="40" y="600" width="120" height="120"/><use href="#taronger" x="180" y="610" width="110" height="110"/>
+  <use href="#taronger" x="320" y="620" width="100" height="100"/><use href="#taronger" x="1300" y="610" width="110" height="110"/>
+  <use href="#taronger" x="1440" y="600" width="120" height="120"/>
+  <use href="#palmera" x="440" y="470" width="110" height="240"/>
+  <use href="#palmera" x="1180" y="480" width="100" height="230"/>
+
+  <!-- carretera -->
+  <rect y="760" width="1600" height="140" fill="#5a5e63"/>
+  <rect y="760" width="1600" height="7" fill="#d9d2b8"/>
+  <line x1="0" y1="836" x2="1600" y2="836" stroke="#f3f3f3" stroke-width="7" stroke-dasharray="70 55"/>
+</svg>

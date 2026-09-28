@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice">
+  <!-- Carreronets de Sogorb: carrerons de pedra, balcons amb flors i l'aqüeducte al fons -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6db4e0"/>
+      <stop offset="1" stop-color="#d5ecf8"/>
+    </linearGradient>
+    <pattern id="llambordes" width="60" height="30" patternUnits="userSpaceOnUse">
+      <rect width="60" height="30" fill="#7d7063"/>
+      <rect x="2" y="2" width="26" height="12" rx="4" fill="#9a8b7b"/>
+      <rect x="32" y="2" width="26" height="12" rx="4" fill="#a39584"/>
+      <rect x="-13" y="17" width="26" height="12" rx="4" fill="#958674"/>
+      <rect x="17" y="17" width="26" height="12" rx="4" fill="#a8998a"/>
+      <rect x="47" y="17" width="26" height="12" rx="4" fill="#958674"/>
+    </pattern>
+    <pattern id="pedra" width="80" height="40" patternUnits="userSpaceOnUse">
+      <rect width="80" height="40" fill="#c8b394"/>
+      <path d="M0 20 H80 M40 0 V20 M20 20 V40 M60 20 V40" stroke="#b29c7c" stroke-width="3"/>
+    </pattern>
+    <symbol id="finestra" viewBox="0 0 80 110">
+      <rect x="14" y="10" width="52" height="80" fill="#3b2e28"/>
+      <rect x="0" y="10" width="16" height="80" fill="#3e7d52"/>
+      <rect x="64" y="10" width="16" height="80" fill="#3e7d52"/>
+      <rect x="6" y="88" width="68" height="6" fill="#2b2b2b"/>
+      <g stroke="#2b2b2b" stroke-width="3"><line x1="10" y1="94" x2="10" y2="110"/><line x1="40" y1="94" x2="40" y2="110"/><line x1="70" y1="94" x2="70" y2="110"/></g>
+      <rect x="14" y="74" width="52" height="14" fill="#b3542e"/>
+      <g fill="#e23b4e"><circle cx="22" cy="72" r="6"/><circle cx="36" cy="70" r="7"/><circle cx="52" cy="72" r="6"/><circle cx="62" cy="70" r="5"/></g>
+      <g fill="#3f8a3a"><circle cx="28" cy="76" r="4"/><circle cx="46" cy="76" r="4"/></g>
+    </symbol>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#sky)"/>
+
+  <!-- campanar de la catedral -->
+  <rect x="930" y="170" width="70" height="300" fill="#d9c29c"/>
+  <rect x="938" y="200" width="16" height="40" fill="#5b4a3a"/><rect x="976" y="200" width="16" height="40" fill="#5b4a3a"/>
+  <polygon points="922,172 965,120 1008,172" fill="#b9854f"/>
+
+  <!-- l'aqüeducte -->
+  <rect x="380" y="360" width="840" height="60" fill="url(#pedra)"/>
+  <g fill="url(#pedra)">
+    <rect x="380" y="420" width="50" height="280"/><rect x="560" y="420" width="50" height="280"/>
+    <rect x="740" y="420" width="50" height="280"/><rect x="920" y="420" width="50" height="280"/>
+    <rect x="1100" y="420" width="50" height="280"/>
+  </g>
+  <g fill="#c8b394">
+    <path d="M430 420 H560 V470 Q495 420 430 470 Z"/><path d="M610 420 H740 V470 Q675 420 610 470 Z"/>
+    <path d="M790 420 H920 V470 Q855 420 790 470 Z"/><path d="M970 420 H1100 V470 Q1035 420 970 470 Z"/>
+  </g>
+  <!-- cases blanques del fons, sota els arcs -->
+  <g fill="#f1ebe0">
+    <rect x="440" y="560" width="110" height="140"/><rect x="620" y="590" width="110" height="110"/>
+    <rect x="800" y="570" width="110" height="130"/><rect x="980" y="600" width="110" height="100"/>
+  </g>
+  <g fill="#b9603f">
+    <polygon points="434,562 495,530 556,562"/><polygon points="614,592 675,566 736,592"/>
+    <polygon points="794,572 855,544 916,572"/><polygon points="974,602 1035,578 1096,602"/>
+  </g>
+
+  <!-- façanes dels costats -->
+  <rect x="0" y="80" width="400" height="640" fill="#e8dcc4"/>
+  <rect x="1200" y="60" width="400" height="660" fill="#efe2c9"/>
+  <rect x="380" y="140" width="40" height="580" fill="#d7c9ae"/>
+  <rect x="1180" y="120" width="40" height="600" fill="#d9ccb2"/>
+  <rect x="0" y="70" width="410" height="20" fill="#b9603f"/><rect x="1190" y="50" width="410" height="20" fill="#b9603f"/>
+  <use href="#finestra" x="60" y="160" width="100" height="138"/><use href="#finestra" x="230" y="160" width="100" height="138"/>
+  <use href="#finestra" x="60" y="380" width="100" height="138"/><use href="#finestra" x="230" y="380" width="100" height="138"/>
+  <use href="#finestra" x="1270" y="140" width="100" height="138"/><use href="#finestra" x="1440" y="140" width="100" height="138"/>
+  <use href="#finestra" x="1270" y="370" width="100" height="138"/><use href="#finestra" x="1440" y="370" width="100" height="138"/>
+  <!-- portes -->
+  <path d="M130 720 V620 Q180 580 230 620 V720 Z" fill="#6b3f24"/>
+  <path d="M1350 720 V620 Q1400 580 1450 620 V720 Z" fill="#5b3a26"/>
+  <!-- roba estesa -->
+  <path d="M420 250 Q800 310 1180 240" stroke="#555" stroke-width="2" fill="none"/>
+  <g>
+    <rect x="560" y="262" width="40" height="50" fill="#e9546b"/><rect x="680" y="276" width="50" height="36" fill="#f5f5f5"/>
+    <rect x="820" y="278" width="36" height="46" fill="#4f8fd6"/><rect x="960" y="270" width="44" height="32" fill="#f2c200"/>
+  </g>
+  <!-- fanal de paret -->
+  <rect x="396" y="300" width="30" height="6" fill="#2b2b2b"/>
+  <path d="M420 306 L408 340 L432 340 Z" fill="#2b2b2b"/><rect x="410" y="316" width="20" height="18" fill="#ffe7a0" opacity="0.8"/>
+
+  <!-- terra empedrat -->
+  <rect y="700" width="1600" height="200" fill="url(#llambordes)"/>
+  <rect y="700" width="1600" height="8" fill="#6b5f53"/>
+</svg>
