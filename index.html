@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Autoescola Incremental</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Filtre del cop: barreja els colors amb un poc de roig (sense tocar la saturació ni la forma) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <filter id="hurt-tint" color-interpolation-filters="sRGB">
+      <feColorMatrix type="matrix" values="0.45 0 0 0 0.55
+                                           0 0.45 0 0 0.03
+                                           0 0 0.45 0 0.03
+                                           0 0 0 1 0"/>
+    </filter>
+  </svg>
+  <header>
+    <h1>Autoescola Incremental <span id="debug-badge" hidden>🧪 MODE PROVA</span></h1>
+    <div class="stats-top">
+      <span>💰 Diners: <strong id="money">0</strong></span>
+      <span class="l-stat"><span class="lplate">L</span> <strong id="lcoins">0</strong></span>
+      <span>🏁 Nivell: <strong id="level">1</strong></span>
+      <span>🏆 Rècord: <strong id="best">1</strong></span>
+    </div>
+  </header>
+
+  <div id="middle">
+    <!-- ESCENARI -->
+    <section id="scene">
+      <div class="scene-top">
+        <div class="scene-label">Escenari <span id="scene-num">1</span>: <strong id="scene-name">…</strong></div>
+        <div class="scene-progress">Nivell <span id="scene-level">1</span> / <span id="scene-size">10</span></div>
+      </div>
+
+      <div class="arena">
+        <!-- PERSONATGE PRINCIPAL: la granoteta -->
+        <div class="fighter" id="player">
+          <div class="fighter-name">Granoteta</div>
+          <div class="avatar" id="player-avatar">
+            <div class="sprite" id="player-sprite">
+              <svg class="frog" viewBox="0 0 140 124" aria-label="Granoteta">
+                <!-- potes posteriors -->
+                <ellipse cx="24" cy="100" rx="22" ry="14" fill="#4fa64d"/>
+                <ellipse cx="116" cy="100" rx="22" ry="14" fill="#4fa64d"/>
+                <!-- cos -->
+                <ellipse cx="70" cy="80" rx="52" ry="38" fill="#6cc96a"/>
+                <!-- panxa -->
+                <ellipse cx="70" cy="92" rx="32" ry="22" fill="#d4f5b5"/>
+                <!-- ulls -->
+                <circle cx="40" cy="38" r="21" fill="#6cc96a"/>
+                <circle cx="100" cy="38" r="21" fill="#6cc96a"/>
+                <g class="frog-eyes">
+                  <circle cx="40" cy="36" r="14" fill="#fff"/>
+                  <circle cx="100" cy="36" r="14" fill="#fff"/>
+                  <circle cx="45" cy="37" r="8" fill="#23262d"/>
+                  <circle cx="105" cy="37" r="8" fill="#23262d"/>
+                  <circle cx="48" cy="33" r="3" fill="#fff"/>
+                  <circle cx="108" cy="33" r="3" fill="#fff"/>
+                </g>
+                <!-- galtes -->
+                <ellipse cx="30" cy="70" rx="9" ry="6" fill="#ff8fa3" opacity="0.75"/>
+                <ellipse cx="110" cy="70" rx="9" ry="6" fill="#ff8fa3" opacity="0.75"/>
+                <!-- somriure -->
+                <path d="M54 66 Q70 80 86 66" stroke="#2c5e2c" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+                <!-- potes davanteres -->
+                <ellipse cx="46" cy="114" rx="12" ry="7" fill="#4fa64d"/>
+                <ellipse cx="94" cy="114" rx="12" ry="7" fill="#4fa64d"/>
+                <!-- placa L de novell -->
+                <rect x="59" y="84" width="22" height="22" rx="3" fill="#009b48" stroke="#fff" stroke-width="2"/>
+                <text x="70" y="101" text-anchor="middle" font-size="17" font-weight="900" fill="#fff" font-family="system-ui, sans-serif">L</text>
+              </svg>
+            </div>
+          </div>
+          <div class="bar"><div class="bar-fill hp" id="player-hp-bar"></div></div>
+        </div>
+
+  
+        <!-- ENEMIC -->
+        <div class="fighter" id="enemy">
+          <div class="fighter-name" id="enemy-name">Enemic</div>
+          <div class="avatar" id="enemy-avatar">
+            <div class="sprite" id="enemy-sprite"></div>
+          </div>
+          <div class="bar"><div class="bar-fill hp enemy" id="enemy-hp-bar"></div></div>
+        </div>
+
+        <div id="toasts"></div>
+      </div>
+    </section>
+
+    <!-- PANELL DRET: pestanyes Botiga / Tests -->
+    <aside id="side">
+      <div class="tabs">
+        <button class="tab active" data-tab="shop"><span class="tab-icon">🏪</span><span class="tab-label"> Botiga</span></button>
+        <button class="tab" data-tab="test"><span class="tab-icon">📝</span><span class="tab-label"> Tests</span></button>
+        <button class="tab" data-tab="bestiary"><span class="tab-icon">📖</span><span class="tab-label"> Compendi</span></button>
+        <button id="btn-side-toggle" class="side-toggle" title="Plegar">»</button>
+      </div>
+
+      <div class="tab-panel" id="tab-shop">
+        <h2>🏪 Botiga</h2>
+        <p>Canvia <span class="lplate sm">L</span> per diners.</p>
+        <div class="shop-offer">
+          <div class="shop-amount">+<span id="shop-coins">0</span> 💰</div>
+          <button id="btn-shop-buy" class="big"></button>
+        </div>
+        <p class="muted" id="shop-info"></p>
+      </div>
+
+      <div class="tab-panel" id="tab-test" hidden>
+        <h2>📝 He fet un test</h2>
+        <p>Quantes errades has tingut en el test?</p>
+        <div class="test-options" id="test-options"></div>
+        <p class="muted" id="streak-info"></p>
+        <p class="muted">Tests registrats: <span id="tests-done">0</span></p>
+      </div>
+
+      <div class="tab-panel" id="tab-bestiary" hidden>
+        <h2>📖 Compendi <span class="muted" id="bestiary-count"></span></h2>
+        <p class="muted">Enemics que has vist en totes les partides.</p>
+        <div id="bestiary-list"></div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- MENÚ DE MILLORES (franja inferior completa) -->
+  <section id="upgrades">
+    <div class="upgrades-head">
+      <h2>Millores</h2>
+      <button id="btn-reset" class="danger small">Reiniciar la partida</button>
+    </div>
+    <div id="upgrade-list"></div>
+  </section>
+
+  <!-- PANTALLA COMPLETA: fi d'escenari + examen (no es pot tancar fins aprovar) -->
+  <div id="exam-screen" hidden>
+    <div class="exam-inner">
+      <div id="exam-intro">
+        <div class="exam-big">🚦</div>
+        <h2>Fi de l'escenari «<span id="exam-current"></span>»</h2>
+        <p>Has derrotat l'Examinador de Trànsit. Per a arribar a «<strong id="exam-next"></strong>» has d'aprovar l'examen.</p>
+        <p class="muted" id="exam-rules"></p>
+        <button id="btn-exam-start" class="big">Començar l'examen</button>
+      </div>
+
+      <div id="exam-body" hidden>
+        <h2>Examen d'escenari</h2>
+        <form id="exam-form"></form>
+        <div id="exam-result"></div>
+        <div class="exam-actions">
+          <button id="btn-exam-submit" class="big">Corregir</button>
+          <button id="btn-exam-retry" class="big" hidden>Tornar a començar</button>
+          <button id="btn-exam-continue" class="big" hidden>Continuar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="questions.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

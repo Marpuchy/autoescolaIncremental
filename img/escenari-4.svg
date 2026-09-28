@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice">
+  <!-- Avinguda València (Violència): avinguda urbana al capvespre, caos i un contenidor cremant -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#23163a"/>
+      <stop offset="0.65" stop-color="#8e3a3a"/>
+      <stop offset="1" stop-color="#e0703f"/>
+    </linearGradient>
+    <pattern id="finA" width="46" height="56" patternUnits="userSpaceOnUse">
+      <rect width="46" height="56" fill="#3b3048"/>
+      <rect x="10" y="12" width="24" height="30" fill="#ffd76a"/>
+    </pattern>
+    <pattern id="finB" width="46" height="56" patternUnits="userSpaceOnUse">
+      <rect width="46" height="56" fill="#2f2a3d"/>
+      <rect x="10" y="12" width="24" height="30" fill="#1f1b29"/>
+      <rect x="10" y="12" width="12" height="30" fill="#8fb4d9" opacity="0.35"/>
+    </pattern>
+    <radialGradient id="llum">
+      <stop offset="0" stop-color="#ffe9a8" stop-opacity="0.8"/>
+      <stop offset="1" stop-color="#ffe9a8" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="foc">
+      <stop offset="0" stop-color="#ffb347" stop-opacity="0.7"/>
+      <stop offset="1" stop-color="#ff5a1f" stop-opacity="0"/>
+    </radialGradient>
+    <symbol id="fanal" viewBox="0 0 60 320">
+      <rect x="27" y="20" width="6" height="300" fill="#1c1a24"/>
+      <path d="M30 22 Q30 8 50 8 L56 8" stroke="#1c1a24" stroke-width="5" fill="none"/>
+      <rect x="44" y="6" width="16" height="8" rx="2" fill="#fff1b8"/>
+    </symbol>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <circle cx="800" cy="120" r="34" fill="#f6e7d0" opacity="0.8"/>
+
+  <!-- blocs de pisos -->
+  <rect x="0" y="140" width="300" height="620" fill="url(#finA)"/>
+  <rect x="300" y="260" width="230" height="500" fill="url(#finB)"/>
+  <rect x="530" y="360" width="170" height="400" fill="url(#finA)" opacity="0.85"/>
+  <rect x="900" y="330" width="190" height="430" fill="url(#finB)"/>
+  <rect x="1090" y="220" width="250" height="540" fill="url(#finA)"/>
+  <rect x="1340" y="120" width="260" height="640" fill="url(#finB)"/>
+  <g fill="#1d1827">
+    <rect x="0" y="130" width="300" height="14"/><rect x="1340" y="110" width="260" height="14"/>
+    <rect x="1090" y="210" width="250" height="14"/>
+  </g>
+
+  <!-- baixos comercials amb grafit -->
+  <rect x="0" y="640" width="700" height="100" fill="#5a4a5e"/>
+  <rect x="900" y="640" width="700" height="100" fill="#4d4458"/>
+  <text x="330" y="712" text-anchor="middle" transform="rotate(-4 330 700)" font-family="Impact, 'Arial Black', sans-serif" font-size="64" fill="#e3342f" stroke="#1a1a1a" stroke-width="3">VIOLÈNCIA</text>
+  <text x="1250" y="705" text-anchor="middle" transform="rotate(3 1250 700)" font-family="Impact, 'Arial Black', sans-serif" font-size="40" fill="#39d0ff" opacity="0.85">AV. VALÈNCIA</text>
+  <rect x="740" y="560" width="120" height="180" fill="#2a2433"/>
+
+  <!-- fanals i semàfor -->
+  <circle cx="648" cy="440" r="90" fill="url(#llum)"/>
+  <circle cx="1188" cy="440" r="90" fill="url(#llum)"/>
+  <use href="#fanal" x="620" y="430" width="60" height="320"/>
+  <use href="#fanal" x="1160" y="430" width="60" height="320"/>
+  <rect x="1497" y="560" width="8" height="190" fill="#1c1a24"/>
+  <rect x="1482" y="500" width="38" height="92" rx="6" fill="#1c1a24"/>
+  <circle cx="1501" cy="518" r="11" fill="#ff3b30"/>
+  <circle cx="1501" cy="546" r="11" fill="#4a3a1a"/>
+  <circle cx="1501" cy="574" r="11" fill="#1a3a22"/>
+  <circle cx="1501" cy="518" r="30" fill="#ff3b30" opacity="0.25"/>
+
+  <!-- contenidor cremant -->
+  <circle cx="820" cy="690" r="120" fill="url(#foc)"/>
+  <rect x="770" y="690" width="100" height="56" rx="6" fill="#2e6b3a"/>
+  <path d="M780 692 Q790 640 805 668 Q812 610 830 660 Q842 628 850 670 Q862 648 862 692 Z" fill="#ff8c1a"/>
+  <path d="M795 692 Q805 660 815 676 Q822 648 835 680 Q845 668 848 692 Z" fill="#ffd23f"/>
+  <g fill="#3a3340" opacity="0.6">
+    <ellipse cx="830" cy="580" rx="40" ry="26"/><ellipse cx="860" cy="530" rx="55" ry="32"/><ellipse cx="900" cy="470" rx="70" ry="36"/>
+  </g>
+
+  <!-- avinguda -->
+  <rect y="740" width="1600" height="160" fill="#2b2a30"/>
+  <rect y="740" width="1600" height="6" fill="#77707e"/>
+  <g fill="#e9e9e9" opacity="0.9">
+    <rect x="1040" y="752" width="22" height="140"/><rect x="1080" y="752" width="22" height="140"/>
+    <rect x="1120" y="752" width="22" height="140"/><rect x="1160" y="752" width="22" height="140"/>
+    <rect x="1200" y="752" width="22" height="140"/>
+  </g>
+  <line x1="0" y1="826" x2="1000" y2="826" stroke="#f3f3f3" stroke-width="6" stroke-dasharray="60 60"/>
+  <line x1="1250" y1="826" x2="1600" y2="826" stroke="#f3f3f3" stroke-width="6" stroke-dasharray="60 60"/>
+  <!-- con caigut -->
+  <polygon points="140,860 190,860 165,800" fill="#ff7a1a"/>
+  <rect x="152" y="826" width="26" height="8" fill="#fff"/>
+</svg>

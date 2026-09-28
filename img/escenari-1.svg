@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice">
+  <!-- Afores d'Eslida: Serra d'Espadà, rodeno roig i sureres -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5eaee6"/>
+      <stop offset="1" stop-color="#d6efff"/>
+    </linearGradient>
+    <symbol id="surera" viewBox="0 0 120 150">
+      <path d="M52 150 L56 90 Q50 70 38 62 L44 58 Q56 66 60 80 Q66 64 80 58 L84 62 Q70 72 66 90 L70 150 Z" fill="#7a5132"/>
+      <ellipse cx="60" cy="52" rx="56" ry="36" fill="#35602f"/>
+      <ellipse cx="34" cy="60" rx="30" ry="22" fill="#2e5629"/>
+      <ellipse cx="86" cy="58" rx="32" ry="24" fill="#3d6d35"/>
+      <ellipse cx="62" cy="34" rx="34" ry="22" fill="#467a3c"/>
+    </symbol>
+    <symbol id="casa" viewBox="0 0 60 50">
+      <rect x="4" y="18" width="52" height="32" fill="#f4efe6"/>
+      <polygon points="0,20 30,4 60,20" fill="#c2603f"/>
+      <rect x="12" y="28" width="9" height="10" fill="#6b8fb5"/>
+      <rect x="36" y="30" width="10" height="20" fill="#8a5a3c"/>
+    </symbol>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <circle cx="1320" cy="140" r="64" fill="#fff6c4"/>
+  <circle cx="1320" cy="140" r="90" fill="#fff6c4" opacity="0.25"/>
+
+  <!-- núvols -->
+  <g fill="#fff" opacity="0.9">
+    <ellipse cx="260" cy="150" rx="90" ry="28"/><ellipse cx="320" cy="130" rx="60" ry="30"/><ellipse cx="200" cy="140" rx="50" ry="22"/>
+    <ellipse cx="880" cy="100" rx="110" ry="26"/><ellipse cx="950" cy="84" rx="60" ry="28"/>
+  </g>
+
+  <!-- muntanyes llunyanes -->
+  <path d="M0 470 L140 360 L260 420 L420 290 L580 410 L760 320 L930 440 L1110 300 L1280 400 L1440 330 L1600 380 V900 H0 Z" fill="#94b6ae"/>
+  <!-- penyals de rodeno que ixen de la serra -->
+  <g fill="#b4553c">
+    <polygon points="300,600 335,480 372,440 405,470 430,600"/>
+    <polygon points="800,600 830,470 868,425 902,455 920,600"/>
+    <polygon points="1290,600 1315,470 1352,438 1380,465 1395,600"/>
+    <polygon points="545,600 570,500 598,478 622,500 632,600" opacity="0.85"/>
+  </g>
+  <g fill="#8f3f2c">
+    <polygon points="372,440 405,470 430,600 392,600"/>
+    <polygon points="868,425 902,455 920,600 884,600"/>
+    <polygon points="1352,438 1380,465 1395,600 1362,600"/>
+  </g>
+  <!-- serra -->
+  <path d="M0 560 Q180 400 380 520 Q520 440 700 500 Q880 420 1060 520 Q1250 440 1420 500 Q1520 470 1600 490 V900 H0 Z" fill="#4e864a"/>
+
+  <!-- el poble d'Eslida al vessant -->
+  <g>
+    <use href="#casa" x="980" y="500" width="60" height="50"/>
+    <use href="#casa" x="1030" y="486" width="54" height="45"/>
+    <use href="#casa" x="1085" y="505" width="60" height="50"/>
+    <use href="#casa" x="1140" y="492" width="50" height="42"/>
+    <!-- campanar -->
+    <rect x="1058" y="430" width="22" height="70" fill="#efe6d4"/>
+    <polygon points="1054,432 1069,408 1084,432" fill="#c2603f"/>
+    <rect x="1064" y="444" width="10" height="14" fill="#5b4a3a"/>
+  </g>
+
+  <!-- camp -->
+  <path d="M0 640 Q400 600 800 630 T1600 620 V900 H0 Z" fill="#7fae4f"/>
+  <use href="#surera" x="40" y="480" width="190" height="240"/>
+  <use href="#surera" x="1380" y="470" width="200" height="250"/>
+  <use href="#surera" x="700" y="540" width="110" height="140"/>
+  <use href="#surera" x="1220" y="560" width="100" height="125"/>
+
+  <!-- carretera -->
+  <rect y="740" width="1600" height="160" fill="#5a5e63"/>
+  <rect y="740" width="1600" height="8" fill="#c9c2a8"/>
+  <line x1="0" y1="826" x2="1600" y2="826" stroke="#f3f3f3" stroke-width="7" stroke-dasharray="70 55"/>
+  <rect y="892" width="1600" height="8" fill="#c9c2a8"/>
+</svg>
