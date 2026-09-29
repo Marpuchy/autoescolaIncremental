@@ -23,6 +23,7 @@
       <span class="l-stat"><span class="lplate">L</span> <strong id="lcoins">0</strong></span>
       <span>🏁 Nivell: <strong id="level">1</strong></span>
       <span>🏆 Rècord: <strong id="best">1</strong></span>
+      <button id="btn-reset" class="danger small" title="Reiniciar la partida">🔄<span class="reset-label"> Reiniciar</span></button>
     </div>
   </header>
 
@@ -126,11 +127,7 @@
   </div>
 
   <!-- MENÚ DE MILLORES (franja inferior completa) -->
-  <section id="upgrades">
-    <div class="upgrades-head">
-      <h2>Millores</h2>
-      <button id="btn-reset" class="danger small">Reiniciar la partida</button>
-    </div>
+  <section id="upgrades" aria-label="Millores">
     <div id="upgrade-list"></div>
   </section>
 
@@ -158,7 +155,26 @@
     </div>
   </div>
 
-  <script src="questions.js"></script>
-  <script src="game.js"></script>
+  <!-- L'ordre importa: primer config i dades, després lògica i interfície; main.js arranca el joc -->
+  <script src="js/config.js"></script>
+  <script src="js/util.js"></script>
+  <script src="js/data/scenes.js"></script>
+  <script src="js/data/enemies.js"></script>
+  <script src="js/data/upgrades.js"></script>
+  <script src="js/data/questions.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/save.js"></script>
+  <script src="js/enemies.js"></script>
+  <script src="js/upgrades.js"></script>
+  <script src="js/progress.js"></script>
+  <script src="js/combat.js"></script>
+  <script src="js/exam.js"></script>
+  <script src="js/tests.js"></script>
+  <script src="js/shop.js"></script>
+  <script src="js/bestiary.js"></script>
+  <script src="js/fx.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/dev.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>

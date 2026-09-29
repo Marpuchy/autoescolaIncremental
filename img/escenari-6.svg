@@ -1,86 +1,203 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice">
-  <!-- Carreronets de Sogorb: carrerons de pedra, balcons amb flors i l'aqüeducte al fons -->
+  <!-- Carreronets de Sogorb: carrerons empedrats, balcons amb flors, l'aqüeducte, la catedral i el castell al fons -->
   <defs>
     <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#6db4e0"/>
-      <stop offset="1" stop-color="#d5ecf8"/>
+      <stop offset="0" stop-color="#4f9fd8"/>
+      <stop offset="0.6" stop-color="#9fd0ee"/>
+      <stop offset="0.85" stop-color="#e2f2fa"/>
+    </linearGradient>
+    <linearGradient id="boira" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e2f2fa" stop-opacity="0"/>
+      <stop offset="1" stop-color="#e2f2fa" stop-opacity="0.7"/>
     </linearGradient>
     <pattern id="llambordes" width="60" height="30" patternUnits="userSpaceOnUse">
-      <rect width="60" height="30" fill="#7d7063"/>
-      <rect x="2" y="2" width="26" height="12" rx="4" fill="#9a8b7b"/>
-      <rect x="32" y="2" width="26" height="12" rx="4" fill="#a39584"/>
-      <rect x="-13" y="17" width="26" height="12" rx="4" fill="#958674"/>
-      <rect x="17" y="17" width="26" height="12" rx="4" fill="#a8998a"/>
-      <rect x="47" y="17" width="26" height="12" rx="4" fill="#958674"/>
+      <rect width="60" height="30" fill="#6e6256"/>
+      <rect x="2" y="2" width="26" height="12" rx="5" fill="#9a8b7b"/>
+      <rect x="32" y="2" width="26" height="12" rx="5" fill="#a39584"/>
+      <rect x="-13" y="17" width="26" height="12" rx="5" fill="#958674"/>
+      <rect x="17" y="17" width="26" height="12" rx="5" fill="#a8998a"/>
+      <rect x="47" y="17" width="26" height="12" rx="5" fill="#958674"/>
+      <rect x="4" y="3" width="18" height="3" rx="1.5" fill="#b8aa99"/><rect x="34" y="3" width="18" height="3" rx="1.5" fill="#bcae9d"/>
+      <rect x="19" y="18" width="18" height="3" rx="1.5" fill="#bcae9d"/>
     </pattern>
+    <linearGradient id="carrer" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3a2f25" stop-opacity="0.45"/>
+      <stop offset="0.3" stop-color="#3a2f25" stop-opacity="0"/>
+      <stop offset="1" stop-color="#3a2f25" stop-opacity="0.25"/>
+    </linearGradient>
     <pattern id="pedra" width="80" height="40" patternUnits="userSpaceOnUse">
-      <rect width="80" height="40" fill="#c8b394"/>
-      <path d="M0 20 H80 M40 0 V20 M20 20 V40 M60 20 V40" stroke="#b29c7c" stroke-width="3"/>
+      <rect width="80" height="40" fill="#cdb898"/>
+      <path d="M0 20 H80 M40 0 V20 M20 20 V40 M60 20 V40" stroke="#b09a7a" stroke-width="3"/>
+      <rect x="4" y="3" width="30" height="3" fill="#dccaaa"/><rect x="44" y="23" width="30" height="3" fill="#dccaaa"/>
     </pattern>
+    <pattern id="teules" width="16" height="10" patternUnits="userSpaceOnUse">
+      <rect width="16" height="10" fill="#b9603f"/>
+      <path d="M0 10 Q8 2 16 10" fill="#a44f31"/>
+    </pattern>
+    <radialGradient id="llum">
+      <stop offset="0" stop-color="#ffe7a0" stop-opacity="0.7"/>
+      <stop offset="1" stop-color="#ffe7a0" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="vinyeta" cx="0.5" cy="0.55" r="0.75">
+      <stop offset="0.62" stop-color="#000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#1a120a" stop-opacity="0.38"/>
+    </radialGradient>
     <symbol id="finestra" viewBox="0 0 80 110">
+      <rect x="10" y="6" width="60" height="88" fill="#d8c8aa"/>
       <rect x="14" y="10" width="52" height="80" fill="#3b2e28"/>
+      <rect x="16" y="12" width="22" height="34" fill="#5a6f82" opacity="0.6"/>
       <rect x="0" y="10" width="16" height="80" fill="#3e7d52"/>
       <rect x="64" y="10" width="16" height="80" fill="#3e7d52"/>
+      <g stroke="#2f6440" stroke-width="2"><path d="M2 20 H14 M2 30 H14 M2 40 H14 M2 50 H14 M2 60 H14 M2 70 H14 M66 20 H78 M66 30 H78 M66 40 H78 M66 50 H78 M66 60 H78 M66 70 H78"/></g>
       <rect x="6" y="88" width="68" height="6" fill="#2b2b2b"/>
-      <g stroke="#2b2b2b" stroke-width="3"><line x1="10" y1="94" x2="10" y2="110"/><line x1="40" y1="94" x2="40" y2="110"/><line x1="70" y1="94" x2="70" y2="110"/></g>
+      <g stroke="#2b2b2b" stroke-width="3"><line x1="10" y1="94" x2="10" y2="110"/><line x1="25" y1="94" x2="25" y2="110"/><line x1="40" y1="94" x2="40" y2="110"/><line x1="55" y1="94" x2="55" y2="110"/><line x1="70" y1="94" x2="70" y2="110"/></g>
+      <rect x="6" y="106" width="68" height="4" fill="#2b2b2b"/>
       <rect x="14" y="74" width="52" height="14" fill="#b3542e"/>
-      <g fill="#e23b4e"><circle cx="22" cy="72" r="6"/><circle cx="36" cy="70" r="7"/><circle cx="52" cy="72" r="6"/><circle cx="62" cy="70" r="5"/></g>
-      <g fill="#3f8a3a"><circle cx="28" cy="76" r="4"/><circle cx="46" cy="76" r="4"/></g>
+      <rect x="14" y="74" width="52" height="3" fill="#cf6d44"/>
+      <g fill="#3f8a3a"><circle cx="20" cy="74" r="5"/><circle cx="30" cy="72" r="5"/><circle cx="46" cy="74" r="5"/><circle cx="60" cy="72" r="5"/></g>
+      <g fill="#e23b4e"><circle cx="22" cy="68" r="6"/><circle cx="36" cy="66" r="7"/><circle cx="52" cy="68" r="6"/><circle cx="62" cy="66" r="5"/></g>
+      <g fill="#ff8fa3"><circle cx="20" cy="66" r="2"/><circle cx="34" cy="63" r="2.4"/><circle cx="50" cy="66" r="2"/></g>
+      <path d="M16 90 Q12 100 18 106 M62 90 Q68 98 64 108" stroke="#3f8a3a" stroke-width="3" fill="none"/>
     </symbol>
   </defs>
 
   <rect width="1600" height="900" fill="url(#sky)"/>
+  <g fill="#fff" opacity="0.9"><ellipse cx="760" cy="120" rx="90" ry="18"/><ellipse cx="800" cy="104" rx="50" ry="20"/></g>
+
+  <!-- el castell de Sogorb al turó -->
+  <path d="M420 460 Q520 330 640 320 Q720 300 800 340 Q900 380 1000 330 Q1100 320 1180 460 Z" fill="#b8b99a"/>
+  <path d="M640 320 Q720 300 800 340 L780 460 L660 460 Z" fill="#a3a585"/>
+  <g fill="#cbbd9c">
+    <rect x="640" y="286" width="40" height="44"/><rect x="700" y="296" width="80" height="30"/><rect x="760" y="270" width="34" height="56"/>
+  </g>
+  <g fill="#cbbd9c"><rect x="640" y="278" width="8" height="10"/><rect x="656" y="278" width="8" height="10"/><rect x="672" y="278" width="8" height="10"/><rect x="760" y="262" width="8" height="10"/><rect x="786" y="262" width="8" height="10"/></g>
+  <g fill="#b3a585"><rect x="668" y="286" width="12" height="44"/><rect x="782" y="270" width="12" height="56"/></g>
+  <rect y="300" width="1600" height="200" fill="url(#boira)"/>
 
   <!-- campanar de la catedral -->
-  <rect x="930" y="170" width="70" height="300" fill="#d9c29c"/>
-  <rect x="938" y="200" width="16" height="40" fill="#5b4a3a"/><rect x="976" y="200" width="16" height="40" fill="#5b4a3a"/>
-  <polygon points="922,172 965,120 1008,172" fill="#b9854f"/>
+  <rect x="930" y="170" width="70" height="300" fill="#dcc6a0"/>
+  <rect x="976" y="170" width="24" height="300" fill="#c1a881"/>
+  <rect x="926" y="250" width="78" height="6" fill="#c1a881"/>
+  <path d="M938 240 V206 Q946 196 954 206 V240 Z M976 240 V206 Q984 196 992 206 V240 Z" fill="#5b4a3a"/>
+  <polygon points="922,172 965,120 1008,172" fill="url(#teules)"/>
+  <polygon points="965,120 1008,172 980,172" fill="#000" opacity="0.15"/>
+  <rect x="963" y="102" width="4" height="20" fill="#5b4a3a"/><rect x="957" y="108" width="16" height="3" fill="#5b4a3a"/>
 
   <!-- l'aqüeducte -->
   <rect x="380" y="360" width="840" height="60" fill="url(#pedra)"/>
+  <rect x="380" y="354" width="840" height="10" fill="#b39c7a"/>
   <g fill="url(#pedra)">
     <rect x="380" y="420" width="50" height="280"/><rect x="560" y="420" width="50" height="280"/>
     <rect x="740" y="420" width="50" height="280"/><rect x="920" y="420" width="50" height="280"/>
     <rect x="1100" y="420" width="50" height="280"/>
   </g>
-  <g fill="#c8b394">
+  <g fill="#000" opacity="0.12">
+    <rect x="416" y="420" width="14" height="280"/><rect x="596" y="420" width="14" height="280"/><rect x="776" y="420" width="14" height="280"/>
+    <rect x="956" y="420" width="14" height="280"/><rect x="1136" y="420" width="14" height="280"/>
+  </g>
+  <g fill="#cdb898">
     <path d="M430 420 H560 V470 Q495 420 430 470 Z"/><path d="M610 420 H740 V470 Q675 420 610 470 Z"/>
     <path d="M790 420 H920 V470 Q855 420 790 470 Z"/><path d="M970 420 H1100 V470 Q1035 420 970 470 Z"/>
   </g>
+  <g stroke="#a58e6c" stroke-width="3" fill="none">
+    <path d="M430 470 Q495 420 560 470"/><path d="M610 470 Q675 420 740 470"/><path d="M790 470 Q855 420 920 470"/><path d="M970 470 Q1035 420 1100 470"/>
+  </g>
+
   <!-- cases blanques del fons, sota els arcs -->
-  <g fill="#f1ebe0">
+  <g fill="#f3ede2">
     <rect x="440" y="560" width="110" height="140"/><rect x="620" y="590" width="110" height="110"/>
     <rect x="800" y="570" width="110" height="130"/><rect x="980" y="600" width="110" height="100"/>
   </g>
-  <g fill="#b9603f">
+  <g fill="#ddd4c4"><rect x="520" y="560" width="30" height="140"/><rect x="700" y="590" width="30" height="110"/><rect x="880" y="570" width="30" height="130"/><rect x="1060" y="600" width="30" height="100"/></g>
+  <g fill="url(#teules)">
     <polygon points="434,562 495,530 556,562"/><polygon points="614,592 675,566 736,592"/>
     <polygon points="794,572 855,544 916,572"/><polygon points="974,602 1035,578 1096,602"/>
   </g>
+  <g fill="#5b6f82"><rect x="470" y="600" width="18" height="22"/><rect x="650" y="620" width="18" height="22"/><rect x="830" y="610" width="18" height="22"/><rect x="1010" y="630" width="18" height="22"/></g>
+  <g fill="#7a4f33"><rect x="500" y="650" width="22" height="50"/><rect x="840" y="650" width="22" height="50"/></g>
 
   <!-- façanes dels costats -->
-  <rect x="0" y="80" width="400" height="640" fill="#e8dcc4"/>
-  <rect x="1200" y="60" width="400" height="660" fill="#efe2c9"/>
-  <rect x="380" y="140" width="40" height="580" fill="#d7c9ae"/>
-  <rect x="1180" y="120" width="40" height="600" fill="#d9ccb2"/>
-  <rect x="0" y="70" width="410" height="20" fill="#b9603f"/><rect x="1190" y="50" width="410" height="20" fill="#b9603f"/>
+  <rect x="0" y="80" width="400" height="640" fill="#e9dcc2"/>
+  <rect x="1200" y="60" width="400" height="660" fill="#f0e2c7"/>
+  <!-- cantoneres de pedra -->
+  <g fill="#cdb898">
+    <rect x="370" y="90" width="30" height="40"/><rect x="380" y="140" width="20" height="40"/><rect x="370" y="190" width="30" height="40"/><rect x="380" y="240" width="20" height="40"/>
+    <rect x="370" y="290" width="30" height="40"/><rect x="380" y="340" width="20" height="40"/><rect x="370" y="390" width="30" height="40"/><rect x="380" y="440" width="20" height="40"/>
+    <rect x="370" y="490" width="30" height="40"/><rect x="380" y="540" width="20" height="40"/><rect x="370" y="590" width="30" height="40"/><rect x="380" y="640" width="20" height="40"/>
+    <rect x="1200" y="70" width="30" height="40"/><rect x="1200" y="120" width="20" height="40"/><rect x="1200" y="170" width="30" height="40"/><rect x="1200" y="220" width="20" height="40"/>
+    <rect x="1200" y="270" width="30" height="40"/><rect x="1200" y="320" width="20" height="40"/><rect x="1200" y="370" width="30" height="40"/><rect x="1200" y="420" width="20" height="40"/>
+    <rect x="1200" y="470" width="30" height="40"/><rect x="1200" y="520" width="20" height="40"/><rect x="1200" y="570" width="30" height="40"/><rect x="1200" y="620" width="20" height="40"/>
+  </g>
+  <rect x="400" y="140" width="24" height="580" fill="#cbbd9f"/>
+  <rect x="1176" y="120" width="24" height="600" fill="#d5c7aa"/>
+  <!-- teulades -->
+  <rect x="0" y="66" width="414" height="22" fill="url(#teules)"/><rect x="0" y="86" width="414" height="6" fill="#000" opacity="0.18"/>
+  <rect x="1186" y="46" width="414" height="22" fill="url(#teules)"/><rect x="1186" y="66" width="414" height="6" fill="#000" opacity="0.18"/>
   <use href="#finestra" x="60" y="160" width="100" height="138"/><use href="#finestra" x="230" y="160" width="100" height="138"/>
   <use href="#finestra" x="60" y="380" width="100" height="138"/><use href="#finestra" x="230" y="380" width="100" height="138"/>
   <use href="#finestra" x="1270" y="140" width="100" height="138"/><use href="#finestra" x="1440" y="140" width="100" height="138"/>
   <use href="#finestra" x="1270" y="370" width="100" height="138"/><use href="#finestra" x="1440" y="370" width="100" height="138"/>
-  <!-- portes -->
-  <path d="M130 720 V620 Q180 580 230 620 V720 Z" fill="#6b3f24"/>
-  <path d="M1350 720 V620 Q1400 580 1450 620 V720 Z" fill="#5b3a26"/>
-  <!-- roba estesa -->
-  <path d="M420 250 Q800 310 1180 240" stroke="#555" stroke-width="2" fill="none"/>
+  <!-- bandera de Palestina penjada de la barana del balcó -->
   <g>
-    <rect x="560" y="262" width="40" height="50" fill="#e9546b"/><rect x="680" y="276" width="50" height="36" fill="#f5f5f5"/>
-    <rect x="820" y="278" width="36" height="46" fill="#4f8fd6"/><rect x="960" y="270" width="44" height="32" fill="#f2c200"/>
+    <clipPath id="bandera">
+      <path d="M237 491 H323 Q326 518 322 548 Q302 555 280 548 Q258 541 238 548 Q234 518 237 491 Z"/>
+    </clipPath>
+    <path d="M239 496 H325 Q328 522 324 552 Q304 559 282 552 Q260 545 240 552 Z" fill="#000" opacity="0.18"/>
+    <g clip-path="url(#bandera)">
+      <rect x="230" y="491" width="100" height="20" fill="#1b1b1b"/>
+      <rect x="230" y="511" width="100" height="19" fill="#f7f7f2"/>
+      <rect x="230" y="530" width="100" height="26" fill="#149954"/>
+      <polygon points="230,491 276,520 230,556" fill="#e4312b"/>
+      <!-- plecs de la tela -->
+      <rect x="258" y="491" width="10" height="70" fill="#000" opacity="0.1"/>
+      <rect x="296" y="491" width="12" height="70" fill="#000" opacity="0.12"/>
+      <rect x="282" y="491" width="6" height="70" fill="#fff" opacity="0.1"/>
+    </g>
+    <g fill="#2b2b2b"><circle cx="240" cy="492" r="3"/><circle cx="280" cy="492" r="3"/><circle cx="320" cy="492" r="3"/></g>
+  </g>
+  <!-- sòcol i portes de fusta -->
+  <rect x="0" y="620" width="400" height="100" fill="#cdb898" opacity="0.6"/><rect x="1200" y="620" width="400" height="100" fill="#cdb898" opacity="0.6"/>
+  <g>
+    <path d="M120 720 V616 Q180 566 240 616 V720 Z" fill="#b8a07e"/>
+    <path d="M130 720 V620 Q180 580 230 620 V720 Z" fill="#6b3f24"/>
+    <g stroke="#56321b" stroke-width="3"><line x1="180" y1="600" x2="180" y2="720"/><path d="M140 640 H170 M190 640 H220 M140 680 H170 M190 680 H220"/></g>
+    <circle cx="172" cy="668" r="3" fill="#d6b56d"/><circle cx="188" cy="668" r="3" fill="#d6b56d"/>
+  </g>
+  <g>
+    <path d="M1340 720 V616 Q1400 566 1460 616 V720 Z" fill="#b8a07e"/>
+    <path d="M1350 720 V620 Q1400 580 1450 620 V720 Z" fill="#5b3a26"/>
+    <g stroke="#48301f" stroke-width="3"><line x1="1400" y1="600" x2="1400" y2="720"/><path d="M1360 640 H1390 M1410 640 H1440 M1360 680 H1390 M1410 680 H1440"/></g>
+    <circle cx="1392" cy="668" r="3" fill="#d6b56d"/>
+    <!-- el platet d'en Pixel -->
+    <path d="M1466 690 H1506 L1500 702 H1472 Z" fill="#3fb6e8"/><ellipse cx="1486" cy="690" rx="20" ry="4" fill="#2a8fbb"/><ellipse cx="1486" cy="689" rx="14" ry="2.5" fill="#8a5a33"/>
+  </g>
+  <!-- tests amb plantes a peu de carrer -->
+  <g>
+    <path d="M280 690 L310 690 L304 720 L286 720 Z" fill="#b3542e"/><circle cx="288" cy="684" r="10" fill="#3f8a3a"/><circle cx="302" cy="680" r="10" fill="#4a9a3f"/><circle cx="294" cy="676" r="4" fill="#f2c200"/>
+    <path d="M1250 690 L1280 690 L1274 720 L1256 720 Z" fill="#b3542e"/><circle cx="1258" cy="682" r="11" fill="#3f8a3a"/><circle cx="1272" cy="678" r="10" fill="#4a9a3f"/><circle cx="1266" cy="672" r="4" fill="#e23b4e"/>
+  </g>
+  <!-- roba estesa -->
+  <path d="M424 250 Q800 310 1176 240" stroke="#555" stroke-width="2" fill="none"/>
+  <g>
+    <path d="M560 262 H600 V312 H588 V290 H572 V312 H560 Z" fill="#e9546b"/>
+    <rect x="680" y="276" width="50" height="36" fill="#f5f5f5"/><rect x="680" y="276" width="50" height="5" fill="#dcdcdc"/>
+    <path d="M820 280 H856 L862 300 H852 V326 H824 V300 H814 Z" fill="#4f8fd6"/>
+    <rect x="960" y="270" width="44" height="32" fill="#f2c200"/>
+    <g fill="#8a8a8a"><rect x="566" y="258" width="3" height="8"/><rect x="592" y="260" width="3" height="8"/><rect x="690" y="272" width="3" height="8"/><rect x="720" y="273" width="3" height="8"/><rect x="826" y="276" width="3" height="8"/><rect x="848" y="276" width="3" height="8"/><rect x="968" y="266" width="3" height="8"/><rect x="994" y="266" width="3" height="8"/></g>
   </g>
   <!-- fanal de paret -->
-  <rect x="396" y="300" width="30" height="6" fill="#2b2b2b"/>
-  <path d="M420 306 L408 340 L432 340 Z" fill="#2b2b2b"/><rect x="410" y="316" width="20" height="18" fill="#ffe7a0" opacity="0.8"/>
+  <circle cx="420" cy="328" r="60" fill="url(#llum)"/>
+  <path d="M400 300 H424 V306 H412 Q412 312 420 312" stroke="#2b2b2b" stroke-width="4" fill="none"/>
+  <path d="M420 310 L406 340 L434 340 Z" fill="#2b2b2b"/><rect x="410" y="318" width="20" height="18" fill="#ffe7a0"/>
+  <rect x="404" y="340" width="32" height="5" fill="#2b2b2b"/>
 
   <!-- terra empedrat -->
   <rect y="700" width="1600" height="200" fill="url(#llambordes)"/>
-  <rect y="700" width="1600" height="8" fill="#6b5f53"/>
+  <rect y="700" width="1600" height="200" fill="url(#carrer)"/>
+  <rect y="700" width="1600" height="8" fill="#5e5247"/>
+  <!-- canaleta central -->
+  <rect y="812" width="1600" height="10" fill="#857667"/>
+  <rect y="812" width="1600" height="3" fill="#5e5247"/>
+
+  <rect width="1600" height="900" fill="url(#vinyeta)"/>
 </svg>

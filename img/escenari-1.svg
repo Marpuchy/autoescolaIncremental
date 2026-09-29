@@ -1,74 +1,203 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice">
-  <!-- Afores d'Eslida: Serra d'Espadà, rodeno roig i sureres -->
+  <!-- Afores d'Eslida: Serra d'Espadà, penyals de rodeno roig, sureres i el poble al vessant -->
   <defs>
     <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#5eaee6"/>
-      <stop offset="1" stop-color="#d6efff"/>
+      <stop offset="0" stop-color="#3f93dc"/>
+      <stop offset="0.5" stop-color="#8cc6ef"/>
+      <stop offset="0.72" stop-color="#e3f3fb"/>
     </linearGradient>
-    <symbol id="surera" viewBox="0 0 120 150">
-      <path d="M52 150 L56 90 Q50 70 38 62 L44 58 Q56 66 60 80 Q66 64 80 58 L84 62 Q70 72 66 90 L70 150 Z" fill="#7a5132"/>
-      <ellipse cx="60" cy="52" rx="56" ry="36" fill="#35602f"/>
-      <ellipse cx="34" cy="60" rx="30" ry="22" fill="#2e5629"/>
-      <ellipse cx="86" cy="58" rx="32" ry="24" fill="#3d6d35"/>
-      <ellipse cx="62" cy="34" rx="34" ry="22" fill="#467a3c"/>
+    <radialGradient id="sol">
+      <stop offset="0" stop-color="#fffbe6"/>
+      <stop offset="0.25" stop-color="#fff3b8" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#fff3b8" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="boira" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#eaf6fb" stop-opacity="0"/>
+      <stop offset="1" stop-color="#eaf6fb" stop-opacity="0.75"/>
+    </linearGradient>
+    <linearGradient id="camp" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#93bf5c"/>
+      <stop offset="1" stop-color="#6f9d45"/>
+    </linearGradient>
+    <linearGradient id="asfalt" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5d6166"/>
+      <stop offset="1" stop-color="#46494e"/>
+    </linearGradient>
+    <pattern id="gra" width="48" height="36" patternUnits="userSpaceOnUse">
+      <circle cx="6" cy="8" r="1.6" fill="#fff" opacity="0.12"/><circle cx="30" cy="4" r="1.2" fill="#000" opacity="0.2"/>
+      <circle cx="20" cy="22" r="1.4" fill="#fff" opacity="0.1"/><circle cx="42" cy="28" r="1.8" fill="#000" opacity="0.15"/>
+      <circle cx="12" cy="31" r="1" fill="#000" opacity="0.2"/>
+    </pattern>
+    <radialGradient id="vinyeta" cx="0.5" cy="0.55" r="0.75">
+      <stop offset="0.62" stop-color="#000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#0b1a10" stop-opacity="0.38"/>
+    </radialGradient>
+
+    <!-- surera: la part baixa del tronc, pelada, és roja -->
+    <symbol id="surera" viewBox="0 0 160 170">
+      <ellipse cx="80" cy="164" rx="62" ry="7" fill="#1d3a14" opacity="0.3"/>
+      <!-- tronc d'una peça: escorça grisa dalt, part pelada roja baix (vora ondulada) i arrels -->
+      <path d="M66 167 Q70 150 72 128 L74 100 Q60 86 42 80 L46 73 Q64 80 76 92 Q84 76 106 70 L109 77 Q92 86 86 100 L88 128 Q90 150 96 167 Q81 171 66 167 Z" fill="#6f5b4d"/>
+      <g stroke="#58483d" stroke-width="1.6" stroke-linecap="round"><path d="M77 104 V116 M82 108 V120 M79 96 V102"/></g>
+      <path d="M67 167 Q70 150 71.6 131 Q75 126 79 130 Q83 125 88.4 129 Q90 150 95 167 Q81 171 67 167 Z" fill="#b5522f"/>
+      <path d="M83 128 Q86 126 88.4 129 Q90 150 95 167 Q90 169 86 169 Q86 146 83 128 Z" fill="#8a381f"/>
+      <path d="M82 100 L86 100 L88 128 Q86 126 83 128 Z" fill="#000" opacity="0.15"/>
+      <ellipse cx="80" cy="64" rx="74" ry="44" fill="#2c5226"/>
+      <ellipse cx="44" cy="74" rx="40" ry="28" fill="#2a4d24"/>
+      <ellipse cx="116" cy="70" rx="40" ry="30" fill="#34602c"/>
+      <ellipse cx="78" cy="42" rx="46" ry="28" fill="#3d6e33"/>
+      <ellipse cx="62" cy="34" rx="26" ry="14" fill="#4f8541"/>
+      <ellipse cx="108" cy="52" rx="20" ry="11" fill="#4f8541"/>
+      <ellipse cx="30" cy="62" rx="14" ry="8" fill="#447a3a"/>
     </symbol>
-    <symbol id="casa" viewBox="0 0 60 50">
-      <rect x="4" y="18" width="52" height="32" fill="#f4efe6"/>
-      <polygon points="0,20 30,4 60,20" fill="#c2603f"/>
-      <rect x="12" y="28" width="9" height="10" fill="#6b8fb5"/>
-      <rect x="36" y="30" width="10" height="20" fill="#8a5a3c"/>
+    <!-- pi pinyoner: tronc una mica tort i copa plana en forma de para-sol -->
+    <symbol id="pi" viewBox="0 0 40 70">
+      <path d="M18 70 Q17 58 20 46 Q22 40 26 34 L28 35 Q24 42 22.5 48 Q21 58 22 70 Z" fill="#5a4030"/>
+      <path d="M21 44 Q16 40 12 38 L13 36 Q18 39 22 42 Z" fill="#5a4030"/>
+      <ellipse cx="22" cy="32" rx="18" ry="8" fill="#2f5a2b"/>
+      <ellipse cx="11" cy="36" rx="8" ry="4.5" fill="#2f5a2b"/>
+      <ellipse cx="19" cy="29" rx="11" ry="4.5" fill="#3b6b34"/>
+    </symbol>
+    <symbol id="casa" viewBox="0 0 70 56">
+      <rect x="4" y="20" width="46" height="36" fill="#f6f1e7"/>
+      <rect x="50" y="24" width="16" height="32" fill="#d9d1c2"/>
+      <polygon points="0,22 27,6 54,22" fill="#c4613e"/>
+      <polygon points="54,22 27,6 44,4 70,24" fill="#9e4a2e"/>
+      <rect x="0" y="21" width="54" height="3" fill="#000" opacity="0.15"/>
+      <rect x="12" y="30" width="9" height="10" fill="#51708f"/>
+      <rect x="30" y="38" width="10" height="18" fill="#7a4f33"/>
+    </symbol>
+    <symbol id="mata" viewBox="0 0 60 30">
+      <ellipse cx="30" cy="22" rx="30" ry="10" fill="#4d7d38"/>
+      <ellipse cx="22" cy="17" rx="16" ry="9" fill="#5e9243"/>
+      <ellipse cx="40" cy="18" rx="12" ry="7" fill="#679b4a"/>
     </symbol>
   </defs>
 
+  <!-- cel i sol -->
   <rect width="1600" height="900" fill="url(#sky)"/>
-  <circle cx="1320" cy="140" r="64" fill="#fff6c4"/>
-  <circle cx="1320" cy="140" r="90" fill="#fff6c4" opacity="0.25"/>
+  <circle cx="1330" cy="150" r="190" fill="url(#sol)"/>
+  <circle cx="1330" cy="150" r="46" fill="#fffbe9"/>
 
-  <!-- núvols -->
-  <g fill="#fff" opacity="0.9">
-    <ellipse cx="260" cy="150" rx="90" ry="28"/><ellipse cx="320" cy="130" rx="60" ry="30"/><ellipse cx="200" cy="140" rx="50" ry="22"/>
-    <ellipse cx="880" cy="100" rx="110" ry="26"/><ellipse cx="950" cy="84" rx="60" ry="28"/>
+  <!-- núvols amb la base ombrejada -->
+  <g>
+    <g fill="#dbe7f0"><ellipse cx="270" cy="162" rx="120" ry="24"/><ellipse cx="900" cy="112" rx="130" ry="20"/></g>
+    <g fill="#fff">
+      <ellipse cx="200" cy="146" rx="56" ry="26"/><ellipse cx="266" cy="126" rx="62" ry="38"/><ellipse cx="330" cy="146" rx="52" ry="24"/>
+      <ellipse cx="850" cy="98" rx="60" ry="22"/><ellipse cx="920" cy="86" rx="58" ry="30"/><ellipse cx="985" cy="102" rx="44" ry="17"/>
+    </g>
+    <g fill="#fff" opacity="0.6"><ellipse cx="590" cy="220" rx="80" ry="10"/><ellipse cx="640" cy="212" rx="40" ry="10"/></g>
   </g>
 
-  <!-- muntanyes llunyanes -->
-  <path d="M0 470 L140 360 L260 420 L420 290 L580 410 L760 320 L930 440 L1110 300 L1280 400 L1440 330 L1600 380 V900 H0 Z" fill="#94b6ae"/>
-  <!-- penyals de rodeno que ixen de la serra -->
-  <g fill="#b4553c">
-    <polygon points="300,600 335,480 372,440 405,470 430,600"/>
-    <polygon points="800,600 830,470 868,425 902,455 920,600"/>
-    <polygon points="1290,600 1315,470 1352,438 1380,465 1395,600"/>
-    <polygon points="545,600 570,500 598,478 622,500 632,600" opacity="0.85"/>
+  <!-- serres llunyanes (blavoses per la distància) -->
+  <path d="M0 470 L140 372 L260 424 L420 300 L580 412 L760 330 L930 440 L1110 310 L1280 404 L1440 336 L1600 386 V620 H0 Z" fill="#a7c2cc"/>
+  <g fill="#93b0bc">
+    <polygon points="140,372 260,424 210,620 150,620"/><polygon points="420,300 580,412 520,620 430,620"/>
+    <polygon points="760,330 930,440 860,620 770,620"/><polygon points="1110,310 1280,404 1220,620 1120,620"/>
+    <polygon points="1440,336 1600,386 1600,620 1450,620"/>
   </g>
-  <g fill="#8f3f2c">
-    <polygon points="372,440 405,470 430,600 392,600"/>
-    <polygon points="868,425 902,455 920,600 884,600"/>
-    <polygon points="1352,438 1380,465 1395,600 1362,600"/>
+  <rect y="360" width="1600" height="260" fill="url(#boira)"/>
+
+  <!-- Serra d'Espadà amb els penyals de rodeno -->
+  <path d="M0 540 Q120 470 230 492 Q330 430 440 470 Q560 420 680 468 Q800 410 920 470 Q1040 430 1150 470 Q1280 410 1400 466 Q1510 440 1600 460 V700 H0 Z" fill="#6c9771"/>
+  <g>
+    <polygon points="290,660 326,470 360,436 398,462 426,660" fill="#c0603f"/>
+    <polygon points="360,436 398,462 426,660 382,660 372,480" fill="#8e3b26"/>
+    <polygon points="326,470 360,436 352,470 336,500" fill="#d9825f"/>
+
+    <polygon points="784,660 818,462 858,420 894,450 920,660" fill="#c0603f"/>
+    <polygon points="858,420 894,450 920,660 876,660 868,470" fill="#8e3b26"/>
+    <polygon points="818,462 858,420 848,458 830,488" fill="#d9825f"/>
+
+    <polygon points="1278,660 1306,470 1344,436 1374,462 1398,660" fill="#c0603f"/>
+    <polygon points="1344,436 1374,462 1398,660 1358,660 1350,480" fill="#8e3b26"/>
+    <polygon points="1306,470 1344,436 1336,468 1320,494" fill="#d9825f"/>
+
+    <polygon points="544,660 568,500 596,480 618,500 632,660" fill="#b85a3b" opacity="0.9"/>
+    <polygon points="596,480 618,500 632,660 606,660" fill="#8e3b26" opacity="0.9"/>
   </g>
-  <!-- serra -->
-  <path d="M0 560 Q180 400 380 520 Q520 440 700 500 Q880 420 1060 520 Q1250 440 1420 500 Q1520 470 1600 490 V900 H0 Z" fill="#4e864a"/>
+  <!-- pinars de la serra -->
+  <g>
+    <use href="#pi" x="250" y="500" width="26" height="46"/><use href="#pi" x="276" y="510" width="22" height="40"/>
+    <use href="#pi" x="440" y="486" width="24" height="42"/><use href="#pi" x="700" y="480" width="24" height="42"/>
+    <use href="#pi" x="726" y="492" width="20" height="36"/><use href="#pi" x="960" y="478" width="24" height="42"/>
+    <use href="#pi" x="1190" y="480" width="24" height="42"/><use href="#pi" x="1440" y="470" width="26" height="46"/>
+    <use href="#pi" x="1466" y="482" width="22" height="38"/><use href="#pi" x="60" y="520" width="24" height="42"/>
+  </g>
+
+  <!-- turons verds de davant -->
+  <path d="M0 600 Q200 520 420 580 Q600 530 760 572 Q920 520 1100 548 Q1300 510 1600 560 V760 H0 Z" fill="#528a45"/>
 
   <!-- el poble d'Eslida al vessant -->
   <g>
-    <use href="#casa" x="980" y="500" width="60" height="50"/>
-    <use href="#casa" x="1030" y="486" width="54" height="45"/>
-    <use href="#casa" x="1085" y="505" width="60" height="50"/>
-    <use href="#casa" x="1140" y="492" width="50" height="42"/>
-    <!-- campanar -->
-    <rect x="1058" y="430" width="22" height="70" fill="#efe6d4"/>
-    <polygon points="1054,432 1069,408 1084,432" fill="#c2603f"/>
-    <rect x="1064" y="444" width="10" height="14" fill="#5b4a3a"/>
+    <!-- església: nau amb teulada a dues aigües i el campanari al costat, tot arrelat al turó -->
+    <rect x="1098" y="486" width="62" height="82" fill="#efe6d2"/>
+    <rect x="1140" y="486" width="20" height="82" fill="#d8ccb4"/>
+    <polygon points="1094,488 1129,466 1164,488" fill="#b85a38"/>
+    <polygon points="1129,466 1164,488 1150,488" fill="#9e4a2e"/>
+    <path d="M1122 510 Q1129 500 1136 510 V522 H1122 Z" fill="#4e3f33"/>
+    <circle cx="1129" cy="478" r="4" fill="#d8ccb4"/>
+    <rect x="1074" y="430" width="26" height="138" fill="#f3ead8"/>
+    <rect x="1089" y="430" width="11" height="138" fill="#d8ccb4"/>
+    <rect x="1071" y="428" width="32" height="6" fill="#d8ccb4"/>
+    <path d="M1081 452 Q1087 442 1093 452 V462 H1081 Z" fill="#4e3f33"/>
+    <rect x="1071" y="470" width="32" height="4" fill="#d8ccb4"/>
+    <polygon points="1072,430 1087,404 1102,430" fill="#c4613e"/>
+    <polygon points="1087,404 1102,430 1089,430" fill="#9e4a2e"/>
+    <rect x="1086" y="394" width="2" height="12" fill="#4e3f33"/><rect x="1082" y="398" width="10" height="2" fill="#4e3f33"/>
+    <!-- replà del turó on s'assenta el poble (tapa la base de l'església i de les cases del fons) -->
+    <path d="M940 572 Q960 548 1010 546 Q1100 538 1190 546 Q1240 550 1256 572 Z" fill="#528a45"/>
+    <use href="#casa" x="966" y="508" width="62" height="50"/>
+    <use href="#casa" x="1022" y="520" width="56" height="45"/>
+    <use href="#casa" x="1118" y="510" width="60" height="48"/>
+    <use href="#casa" x="1170" y="522" width="50" height="40"/>
+    <use href="#casa" x="1064" y="532" width="64" height="51"/>
+    <!-- xiprers -->
+    <ellipse cx="956" cy="548" rx="7" ry="24" fill="#2b4f27"/><ellipse cx="1228" cy="548" rx="6" ry="20" fill="#2b4f27"/>
   </g>
 
   <!-- camp -->
-  <path d="M0 640 Q400 600 800 630 T1600 620 V900 H0 Z" fill="#7fae4f"/>
-  <use href="#surera" x="40" y="480" width="190" height="240"/>
-  <use href="#surera" x="1380" y="470" width="200" height="250"/>
-  <use href="#surera" x="700" y="540" width="110" height="140"/>
-  <use href="#surera" x="1220" y="560" width="100" height="125"/>
+  <path d="M0 646 Q400 610 800 636 T1600 628 V760 H0 Z" fill="url(#camp)"/>
+  <g fill="#6f9f45">
+    <path d="M116 690 Q118 680 115 674 Q121 682 124 672 Q127 682 133 675 Q130 682 132 690 Z"/>
+    <path d="M516 676 Q518 666 515 660 Q521 668 524 658 Q527 668 533 661 Q530 668 532 676 Z"/>
+    <path d="M956 700 Q958 690 955 684 Q961 692 964 682 Q967 692 973 685 Q970 692 972 700 Z"/>
+    <path d="M1176 668 Q1178 658 1175 652 Q1181 660 1184 650 Q1187 660 1193 653 Q1190 660 1192 668 Z"/>
+    <path d="M326 720 Q328 710 325 704 Q331 712 334 702 Q337 712 343 705 Q340 712 342 720 Z"/>
+  </g>
+  <g fill="#f4e7a1"><circle cx="430" cy="702" r="3"/><circle cx="446" cy="708" r="3"/><circle cx="1090" cy="690" r="3"/><circle cx="1270" cy="712" r="3"/></g>
+
+  <!-- sureres -->
+  <use href="#surera" x="20" y="470" width="240" height="255"/>
+  <use href="#surera" x="1360" y="456" width="250" height="266"/>
+  <use href="#surera" x="630" y="566" width="120" height="128"/>
+  <use href="#surera" x="1210" y="584" width="104" height="110"/>
+  <use href="#mata" x="480" y="690" width="90" height="45"/>
+  <use href="#mata" x="1000" y="700" width="70" height="35"/>
+
+  <!-- rètol d'entrada al poble -->
+  <g>
+    <rect x="287" y="664" width="6" height="80" fill="#8c9196"/>
+    <rect x="230" y="626" width="120" height="44" rx="3" fill="#fff" stroke="#d62b25" stroke-width="5"/>
+    <text x="290" y="657" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="24" fill="#222">ESLIDA</text>
+  </g>
+
+  <!-- voral -->
+  <rect y="728" width="1600" height="14" fill="#b9a878"/>
+  <g fill="#6b9a44">
+    <path d="M40 732 q6 -16 10 0 q4 -14 8 0 z"/><path d="M380 734 q6 -16 10 0 q4 -14 8 0 z"/>
+    <path d="M760 732 q6 -16 10 0 q4 -14 8 0 z"/><path d="M1130 734 q6 -16 10 0 q4 -14 8 0 z"/>
+    <path d="M1500 732 q6 -16 10 0 q4 -14 8 0 z"/>
+  </g>
 
   <!-- carretera -->
-  <rect y="740" width="1600" height="160" fill="#5a5e63"/>
-  <rect y="740" width="1600" height="8" fill="#c9c2a8"/>
-  <line x1="0" y1="826" x2="1600" y2="826" stroke="#f3f3f3" stroke-width="7" stroke-dasharray="70 55"/>
-  <rect y="892" width="1600" height="8" fill="#c9c2a8"/>
+  <rect y="740" width="1600" height="160" fill="url(#asfalt)"/>
+  <rect y="740" width="1600" height="160" fill="url(#gra)"/>
+  <rect y="740" width="1600" height="7" fill="#cfc7a8"/>
+  <rect y="747" width="1600" height="6" fill="#000" opacity="0.18"/>
+  <rect y="762" width="1600" height="4" fill="#ecebe4" opacity="0.85"/>
+  <line x1="0" y1="826" x2="1600" y2="826" stroke="#f3f1e6" stroke-width="7" stroke-dasharray="70 55" opacity="0.92"/>
+  <rect y="884" width="1600" height="4" fill="#ecebe4" opacity="0.85"/>
+
+  <rect width="1600" height="900" fill="url(#vinyeta)"/>
 </svg>
