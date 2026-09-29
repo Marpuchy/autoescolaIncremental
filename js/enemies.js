@@ -27,13 +27,17 @@ function pickEnemyType(level) {
 }
 
 // Vida, atac i recompensa d'un enemic amb multiplicador `mult` al nivell `level` (també ho usa el compendi)
+// growthAccel: el creixement per nivell va augmentant (×growthAccel cada nivell), perquè cada escenari costi
+// una mica més que l'anterior. S'aplica a vida, atac i recompensa (així els diners segueixen el ritme).
 function enemyStats(mult, level) {
   const e = CONFIG.enemy;
+  const n = level - 1;
+  const accel = Math.pow(e.growthAccel ?? 1, n * (n - 1) / 2);
   return {
-    maxHp: Math.round(e.baseHp * Math.pow(e.hpGrowth, level - 1) * mult),
-    atk: Math.round(e.baseAtk * Math.pow(e.atkGrowth, level - 1) * mult * 10) / 10,
+    maxHp: Math.round(e.baseHp * Math.pow(e.hpGrowth, n) * accel * mult),
+    atk: Math.round(e.baseAtk * Math.pow(e.atkGrowth, n) * accel * mult * 10) / 10,
     attackInterval: e.attackInterval,
-    reward: Math.round(e.baseReward * Math.pow(e.rewardGrowth, level - 1) * mult),
+    reward: Math.round(e.baseReward * Math.pow(e.rewardGrowth, n) * accel * mult),
   };
 }
 
@@ -55,6 +59,21 @@ function makeEnemy(level) {
     reward: stats.reward,
     timer: 0,
   };
+}
+
+// Recalcula les stats d'un enemic guardat amb el balanç actual. Si no, després de canviar CONFIG l'enemic de la
+// partida guardada (p. ex. un cap contra el qual perds una vegada i una altra) es quedaria amb les stats velles.
+// Es manté el tipus d'enemic i la proporció de vida que li quedava.
+function refreshEnemyStats(e, level) {
+  const isBoss = level % CONFIG.bossEvery === 0;
+  let mult = isBoss ? CONFIG.bossMultiplier : null;
+  for (let i = 0; mult === null && i < ENEMY_TYPES.length + 200; i++) if (enemyType(i).name === e.name) mult = enemyType(i).mult;
+  if (mult === null) return e; // enemic desconegut: es deixa com està
+  const s = enemyStats(mult, level);
+  const ratio = e.maxHp > 0 ? Math.min(1, Math.max(0, e.hp / e.maxHp)) : 1;
+  Object.assign(e, { maxHp: s.maxHp, hp: Math.max(1, Math.round(s.maxHp * ratio)), atk: s.atk,
+    attackInterval: s.attackInterval, reward: s.reward, size: spriteSize(mult) });
+  return e;
 }
 
 // Icona d'un enemic guardat: les partides antigues no guardaven la icona,

@@ -9,20 +9,25 @@ const CONFIG = {
   },
   player: { maxHp: 150, atk: 10, attackInterval: 1.0, regen: 0, minInterval: 0.2 },
   enemy: {
-    // Base alta i creixement suau: el principi ja costa una mica i no hi ha murs de cop més avant.
-    // Ajustat amb una simulació (bot que compra el més barat i fa un test cada 5-10 min): el primer
-    // cap es pot vèncer sense L amb totes les millores al límit inicial, i s'arriba al nivell 130+ en unes 8 h.
-    baseHp: 80, hpGrowth: 1.05,
-    baseAtk: 10, atkGrowth: 1.03,
+    // Balanç pensat en TESTS (la L ve dels tests): el nivell 1 es guanya sense millores i, per a passar cada món,
+    // un jugador mitjà ha de fer uns 5-10 tests als mons 1-3, 10-15 als 4-6 i 20-25 als 7-9 (+10 cada 3 mons).
+    // Referència real: amb ~17 tests (alguns en ratxa) s'està a punt de passar l'Avinguda València.
+    // Ajustat amb un bot que juga amb el codi real i fa tests quan s'encalla (mitjana de 5 partides):
+    //   jugador mitjà → 41 tests en acabar Av. València i 106 en arribar a València · jugador bo → 27 i 65.
+    // growthAccel < 1: el creixement per nivell es va frenant a poc a poc (si no, els últims mons es disparen).
+    baseHp: 57, hpGrowth: 1.11,
+    baseAtk: 7.6, atkGrowth: 1.07,
+    growthAccel: 0.99953,
     attackInterval: 1.2,
-    baseReward: 8, rewardGrowth: 1.12,
+    // Diners: n'hi ha prou per a omplir els límits que obri la L, sense que sobren a cabassos
+    baseReward: 13, rewardGrowth: 1.0829,
   },
   bossEvery: 10,          // cada X nivells apareix un cap
-  bossMultiplier: 3,
+  bossMultiplier: 4.66,   // els caps són el mur de cada món (el nivell 1 és fàcil, el cap del 10 ja demana L)
   enemyBias: 15,          // com més baix, més ràpid augmenta la probabilitat dels enemics grans
   levelsPerScene: 10,     // en derrotar el cap del nivell 10, 20... hi ha examen i canvia l'escenari
   levelCap: {
-    initial: 5,           // nivell màxim inicial de cada millora
+    initial: 3,           // nivell màxim inicial de cada millora (la resta s'obri amb L)
     step: 5,              // nivells que desbloqueja cada ampliació
     baseLCost: 2,         // cost en L de la primera ampliació
     lCostGrowth: 1,       // +X L per cada ampliació ja feta

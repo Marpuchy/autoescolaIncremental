@@ -4,6 +4,7 @@
 state = load() || newState();
 recomputeStats();
 if (!state.enemy) state.enemy = makeEnemy(state.level);
+else refreshEnemyStats(state.enemy, state.level); // per si el balanç ha canviat des que es va guardar
 
 // ----- Panell dret plegable: en plegar-lo només queden les icones de les pestanyes -----
 const SIDE_KEY = "autoescuela-side-collapsed";
