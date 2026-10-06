@@ -18,7 +18,12 @@ const CONFIG = {
     baseHp: 57, hpGrowth: 1.11,
     baseAtk: 7.6, atkGrowth: 1.07,
     growthAccel: 0.99953,
+    minGrowth: 1.01,      // creixement mínim per nivell (el fre de growthAccel no baixa d'ací; no afecta els nivells 1-120)
     attackInterval: 1.2,
+    // Vida extra de cada escenari (índex 0 = primer). Compensa que crític i diners s'obrin als Afores de Castelló
+    // i parada i espines a l'Avinguda València: ajustat amb el bot perquè cada escenari demane els mateixos tests
+    // que quan s'obrien a la Vall d'Uixó i a Sogorb (jugador mitjà → 31 en acabar Av. València, 112 València).
+    sceneHpMult: [1, 1, 1, 1.1, 1.65, 2.1, 2.15, 2.1, 1.75, 1.5, 1.5, 1.45],
     // Diners: n'hi ha prou per a omplir els límits que obri la L, sense que sobren a cabassos
     baseReward: 13, rewardGrowth: 1.0829,
   },

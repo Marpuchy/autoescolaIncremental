@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice">
+  <!-- L'Albufera: posta de sol sobre el llac, barraca, barca de vela llatina, canyars, arrossars inundats i una garsa -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4a6aa8"/>
+      <stop offset="0.5" stop-color="#e89a7a"/>
+      <stop offset="0.8" stop-color="#ffd09a"/>
+    </linearGradient>
+    <linearGradient id="aigua" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffc890"/>
+      <stop offset="0.5" stop-color="#d8907a"/>
+      <stop offset="1" stop-color="#6a7aa0"/>
+    </linearGradient>
+    <linearGradient id="arros" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8aae6a"/>
+      <stop offset="1" stop-color="#5a8a4a"/>
+    </linearGradient>
+    <linearGradient id="asfalt" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5a5650"/>
+      <stop offset="1" stop-color="#3f3c38"/>
+    </linearGradient>
+    <pattern id="gra" width="48" height="36" patternUnits="userSpaceOnUse">
+      <circle cx="6" cy="8" r="1.6" fill="#fff" opacity="0.1"/><circle cx="30" cy="4" r="1.2" fill="#000" opacity="0.2"/>
+      <circle cx="20" cy="22" r="1.4" fill="#fff" opacity="0.08"/><circle cx="42" cy="28" r="1.8" fill="#000" opacity="0.15"/>
+    </pattern>
+    <pattern id="planters" width="24" height="20" patternUnits="userSpaceOnUse">
+      <path d="M4 20 L6 8 M10 20 L10 6 M16 20 L14 9 M20 20 L22 10" stroke="#4a7a3a" stroke-width="2" fill="none"/>
+    </pattern>
+    <pattern id="palla" width="20" height="14" patternUnits="userSpaceOnUse">
+      <rect width="20" height="14" fill="#b9935a"/>
+      <path d="M0 4 L20 2 M0 10 L20 8" stroke="#9a7844" stroke-width="2"/>
+    </pattern>
+    <radialGradient id="vinyeta" cx="0.5" cy="0.55" r="0.75">
+      <stop offset="0.62" stop-color="#000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#2a1a18" stop-opacity="0.38"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <g fill="#ffe0c0" opacity="0.6"><ellipse cx="380" cy="140" rx="110" ry="14"/><ellipse cx="1180" cy="110" rx="90" ry="12"/></g>
+
+  <!-- el sol damunt del llac i les muntanyes llunyanes -->
+  <circle cx="820" cy="420" r="80" fill="#ffe08a"/>
+  <path d="M0 430 Q160 380 320 410 Q480 370 640 420 L700 430 Z" fill="#9a7a90" opacity="0.7"/>
+  <path d="M960 430 Q1120 390 1280 410 Q1440 380 1600 410 V430 Z" fill="#9a7a90" opacity="0.7"/>
+
+  <!-- el llac -->
+  <rect y="430" width="1600" height="180" fill="url(#aigua)"/>
+  <g stroke="#fff0c0" stroke-width="4" opacity="0.6">
+    <line x1="760" y1="450" x2="880" y2="450"/><line x1="780" y1="472" x2="860" y2="472"/><line x1="796" y1="494" x2="844" y2="494"/><line x1="806" y1="516" x2="834" y2="516"/>
+  </g>
+  <g stroke="#fff" stroke-width="2" opacity="0.3"><path d="M100 480 H220 M300 520 H380 M1100 470 H1240 M1300 540 H1400"/></g>
+
+  <!-- barca de vela llatina -->
+  <g>
+    <path d="M1040 520 Q1100 540 1180 520 L1170 534 Q1110 548 1050 534 Z" fill="#3a2a20"/>
+    <line x1="1110" y1="526" x2="1110" y2="400" stroke="#3a2a20" stroke-width="4"/>
+    <path d="M1060 420 L1170 390 L1112 518 Z" fill="#f4ead6"/>
+    <path d="M1112 518 L1170 390 L1150 470 Z" fill="#000" opacity="0.1"/>
+    <path d="M1040 540 Q1110 556 1180 540" stroke="#ffe0b0" stroke-width="3" opacity="0.5" fill="none"/>
+  </g>
+  <!-- una garsa volant -->
+  <path d="M520 220 Q540 200 560 214 Q580 200 600 220" stroke="#2b2b2b" stroke-width="4" fill="none"/>
+  <path d="M640 260 Q652 248 664 256 Q676 248 688 260" stroke="#2b2b2b" stroke-width="3" fill="none"/>
+
+  <!-- canyars a la vora del llac -->
+  <g stroke="#6a7a3a" stroke-width="4" fill="none">
+    <path d="M20 620 Q24 560 18 520 M40 620 Q42 550 50 510 M60 620 Q58 570 66 530 M90 620 Q92 560 86 524 M120 620 Q124 570 132 536 M150 620 Q148 560 156 528"/>
+    <path d="M1440 620 Q1444 560 1438 520 M1470 620 Q1472 550 1480 512 M1500 620 Q1498 566 1506 530 M1530 620 Q1532 560 1526 522 M1560 620 Q1564 570 1572 534 M1590 620 Q1588 560 1596 528"/>
+  </g>
+  <g fill="#7a5a30">
+    <ellipse cx="18" cy="518" rx="5" ry="14"/><ellipse cx="50" cy="508" rx="5" ry="14"/><ellipse cx="86" cy="522" rx="5" ry="14"/><ellipse cx="132" cy="534" rx="5" ry="14"/>
+    <ellipse cx="1480" cy="510" rx="5" ry="14"/><ellipse cx="1526" cy="520" rx="5" ry="14"/><ellipse cx="1572" cy="532" rx="5" ry="14"/>
+  </g>
+
+  <!-- arrossars inundats -->
+  <rect y="606" width="1600" height="100" fill="url(#arros)"/>
+  <g fill="#c99a8a" opacity="0.45"><rect x="0" y="626" width="700" height="22"/><rect x="900" y="634" width="700" height="20"/><rect x="200" y="668" width="900" height="18"/></g>
+  <rect y="606" width="1600" height="100" fill="url(#planters)"/>
+  <g fill="#6a8a4a"><rect y="652" width="1600" height="6"/><rect x="760" y="606" width="8" height="100"/></g>
+  <!-- terreny de la barraca -->
+  <path d="M190 646 Q200 626 240 624 H600 Q640 626 650 646 V706 H190 Z" fill="#a8925e"/>
+  <path d="M190 646 Q200 626 240 624 H600 Q640 626 650 646" stroke="#8a7648" stroke-width="4" fill="none"/>
+  <!-- barraca valenciana -->
+  <g>
+    <rect x="230" y="500" width="260" height="146" fill="#f6f2ea"/>
+    <rect x="440" y="500" width="50" height="146" fill="#e3ddd0"/>
+    <polygon points="210,506 360,330 510,506" fill="url(#palla)"/>
+    <polygon points="360,330 510,506 460,506" fill="#000" opacity="0.15"/>
+    <rect x="352" y="318" width="16" height="20" fill="#f6f2ea"/>
+    <path d="M354 316 L360 300 L366 316 Z" fill="#2b2b2b"/>
+    <path d="M326 640 V570 Q360 540 394 570 V640 Z" fill="#3a6a8a"/>
+    <path d="M330 640 V574 Q360 548 390 574 V640 Z" fill="#4f84a8"/>
+    <rect x="252" y="540" width="40" height="40" fill="#3a6a8a"/>
+    <rect x="270" y="410" width="34" height="30" fill="#f6f2ea"/><rect x="276" y="416" width="22" height="20" fill="#3a6a8a"/>
+    <!-- parra -->
+    <path d="M490 560 H600 M520 560 V640 M590 560 V640" stroke="#6b4426" stroke-width="6"/>
+    <g fill="#5a8a3a"><circle cx="500" cy="556" r="12"/><circle cx="524" cy="552" r="14"/><circle cx="550" cy="556" r="12"/><circle cx="574" cy="552" r="14"/><circle cx="598" cy="556" r="12"/></g>
+  </g>
+
+  <!-- un agró blanc entre l'arròs -->
+  <g>
+    <path d="M1280 640 Q1300 620 1320 630 Q1330 640 1314 648 Q1296 652 1280 640 Z" fill="#f6f6f2"/>
+    <path d="M1316 632 Q1326 610 1320 600 Q1334 598 1336 604" stroke="#f6f6f2" stroke-width="5" fill="none"/>
+    <path d="M1336 604 L1350 606" stroke="#e2a83a" stroke-width="3"/>
+    <path d="M1296 650 V672 M1306 650 V672" stroke="#2b2b2b" stroke-width="2"/>
+  </g>
+
+  <!-- camí estret entre els camps -->
+  <rect y="700" width="1600" height="200" fill="url(#asfalt)"/>
+  <rect y="700" width="1600" height="200" fill="url(#gra)"/>
+  <rect y="700" width="1600" height="8" fill="#8a7a5a"/>
+  <rect y="888" width="1600" height="12" fill="#5a8a4a"/>
+  <g fill="#e8e2d0" opacity="0.8">
+    <rect x="40" y="800" width="100" height="7"/><rect x="260" y="800" width="100" height="7"/><rect x="480" y="800" width="100" height="7"/>
+    <rect x="700" y="800" width="100" height="7"/><rect x="920" y="800" width="100" height="7"/><rect x="1140" y="800" width="100" height="7"/>
+    <rect x="1360" y="800" width="100" height="7"/>
+  </g>
+  <!-- un mosquit (o dos) -->
+  <g fill="#2b2b2b"><circle cx="980" cy="740" r="2"/><circle cx="992" cy="734" r="2"/></g>
+  <g stroke="#2b2b2b" stroke-width="1" opacity="0.6"><path d="M976 736 l-4 -4 M984 736 l4 -4 M988 730 l-4 -4 M996 730 l4 -4"/></g>
+
+  <rect width="1600" height="900" fill="url(#vinyeta)"/>
+</svg>

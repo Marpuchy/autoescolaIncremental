@@ -6,6 +6,7 @@ function restartAnim(el, cls) {
 }
 
 // opts.crit: cop crític · opts.parried: dany que la granoteta torna en parar · opts.thorns: dany de les espines
+// opts.missed: text quan el cap esquiva o és immune (js/bosses.js)
 function attackFx(attacker, target, dmg, opts = {}) {
   const aAv = $(attacker + "-avatar");
   const tAv = $(target + "-avatar");
@@ -22,9 +23,11 @@ function attackFx(attacker, target, dmg, opts = {}) {
   restartAnim(aAv, "lunge");
 
   setTimeout(() => {
-    if (opts.parried) {
+    if (opts.missed) { spawnText(tAv, opts.missed, "skill"); return; }
+    if (opts.parried !== undefined) {
       // Parada: l'atacant rep el seu propi cop
       spawnText(tAv, "🛡️ PARADA!", "parry");
+      if (!opts.parried) return; // el cap era intangible: no li fa res
       restartAnim($(attacker), "hit");
       spawnDamage(aAv, opts.parried, target);
       return;

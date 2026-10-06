@@ -3,19 +3,18 @@
 // Mida del sprite segons com de gran és l'enemic
 const spriteSize = mult => Math.min(1.35, 0.7 + 0.2 * mult);
 
-// Tipus d'enemic i-èsim; si s'acaba la llista, se'n generen variants cada vegada més fortes
-function enemyType(i) {
-  if (i < ENEMY_TYPES.length) return ENEMY_TYPES[i];
-  const extra = i - ENEMY_TYPES.length + 1;
-  const base = ENEMY_TYPES[ENEMY_TYPES.length - 1 - ((extra - 1) % 4)];
-  return { name: `${base.name} ${"⭐".repeat(Math.ceil(extra / 4))}`, mult: 3.4 * Math.pow(1.15, extra), icon: base.icon };
-}
+// Tipus d'enemic i-èsim. Quan s'acaba la llista, els escenaris de després repetixen els que ja hi ha
+// (sense variants: ja són més forts pel nivell)
+const enemyType = i => ENEMY_TYPES[Math.min(i, ENEMY_TYPES.length - 1)];
+// Quants tipus poden eixir en un nivell: un més per escenari, fins que s'acaba la llista
+const availableTypes = level => Math.min(2 + sceneIndex(level), ENEMY_TYPES.length);
 
 // Tria un enemic: amb el nivell, els grans tenen més pes i els xicotets menys
 function pickEnemyType(level) {
-  const available = 2 + sceneIndex(level);
-  // Primer nivell d'un escenari nou: apareix l'enemic nou garantit
-  if (level > CONFIG.levelsPerScene && (level - 1) % CONFIG.levelsPerScene === 0) return enemyType(available - 1);
+  const available = availableTypes(level);
+  // Primer nivell d'un escenari nou: apareix l'enemic nou garantit (si n'hi ha de nou)
+  const newType = 2 + sceneIndex(level) <= ENEMY_TYPES.length;
+  if (newType && level > CONFIG.levelsPerScene && (level - 1) % CONFIG.levelsPerScene === 0) return enemyType(available - 1);
   const power = (level - 1) / CONFIG.enemyBias;
   const weights = Array.from({ length: available }, (_, i) => Math.pow(i + 1, power));
   let r = Math.random() * weights.reduce((a, b) => a + b, 0);
@@ -26,19 +25,37 @@ function pickEnemyType(level) {
   return enemyType(available - 1);
 }
 
-// Vida, atac i recompensa d'un enemic amb multiplicador `mult` al nivell `level` (també ho usa el compendi)
-// growthAccel: el creixement per nivell va augmentant (×growthAccel cada nivell), perquè cada escenari costi
-// una mica més que l'anterior. S'aplica a vida, atac i recompensa (així els diners segueixen el ritme).
+// Creixement acumulat de `n` nivells: cada nivell multiplica per `growth`, frenat per growthAccel (×accel cada nivell)
+// perquè els últims mons no es disparen. El creixement per nivell mai baixa de minGrowth: si no, a partir del
+// nivell ~200 els enemics es tornarien més dèbils en lloc de més forts (i cap al 800 tindrien 0 de vida).
+function grown(growth, n) {
+  const { growthAccel: accel = 1, minGrowth = 1 } = CONFIG.enemy;
+  // nivells que passen abans que el creixement frenat arribe al mínim
+  const k0 = accel < 1 && growth > minGrowth ? Math.ceil(Math.log(minGrowth / growth) / Math.log(accel)) : Infinity;
+  const k = Math.min(n, k0);
+  return Math.pow(growth, k) * Math.pow(accel, k * (k - 1) / 2) * Math.pow(minGrowth, n - k);
+}
+
+// Vida, atac i recompensa d'un enemic amb multiplicador `mult` al nivell `level` (també ho usa el compendi).
+// El creixement s'aplica a vida, atac i recompensa (així els diners segueixen el ritme).
+// sceneHpMult: ajust de la vida de cada escenari (vegeu CONFIG.enemy); els escenaris de després usen l'últim valor
 function enemyStats(mult, level) {
   const e = CONFIG.enemy;
   const n = level - 1;
-  const accel = Math.pow(e.growthAccel ?? 1, n * (n - 1) / 2);
+  const hpMults = e.sceneHpMult || [];
+  const sceneHp = hpMults.length ? hpMults[Math.min(sceneIndex(level), hpMults.length - 1)] : 1;
   return {
-    maxHp: Math.round(e.baseHp * Math.pow(e.hpGrowth, n) * accel * mult),
-    atk: Math.round(e.baseAtk * Math.pow(e.atkGrowth, n) * accel * mult * 10) / 10,
+    maxHp: Math.round(e.baseHp * grown(e.hpGrowth, n) * mult * sceneHp),
+    atk: Math.round(e.baseAtk * grown(e.atkGrowth, n) * mult * 10) / 10,
     attackInterval: e.attackInterval,
-    reward: Math.round(e.baseReward * Math.pow(e.rewardGrowth, n) * accel * mult),
+    reward: Math.round(e.baseReward * grown(e.rewardGrowth, n) * mult),
   };
+}
+
+// Stats d'un cap especial: les del cap normal, compensades segons la seua habilitat (hpMult / atkMult)
+function bossStats(boss, level) {
+  const s = enemyStats(CONFIG.bossMultiplier, level);
+  return { ...s, maxHp: Math.round(s.maxHp * (boss.hpMult ?? 1)), atk: Math.round(s.atk * (boss.atkMult ?? 1) * 10) / 10 };
 }
 
 function makeEnemy(level) {
@@ -47,7 +64,7 @@ function makeEnemy(level) {
   const type = !isBoss ? pickEnemyType(level)
     : sceneBoss ? { ...sceneBoss, mult: CONFIG.bossMultiplier }
     : { name: BOSS_NAME, mult: CONFIG.bossMultiplier, icon: BOSS_ICON };
-  const stats = enemyStats(type.mult, level);
+  const stats = isBoss && sceneBoss ? bossStats(sceneBoss, level) : enemyStats(type.mult, level);
   return {
     name: type.name,
     icon: type.icon,
@@ -67,9 +84,10 @@ function makeEnemy(level) {
 function refreshEnemyStats(e, level) {
   const isBoss = level % CONFIG.bossEvery === 0;
   let mult = isBoss ? CONFIG.bossMultiplier : null;
-  for (let i = 0; mult === null && i < ENEMY_TYPES.length + 200; i++) if (enemyType(i).name === e.name) mult = enemyType(i).mult;
+  if (mult === null) mult = ENEMY_TYPES.find(t => t.name === e.name)?.mult ?? null;
   if (mult === null) return e; // enemic desconegut: es deixa com està
-  const s = enemyStats(mult, level);
+  const special = isBoss && specialBoss(e.name);
+  const s = special ? bossStats(special, level) : enemyStats(mult, level);
   const ratio = e.maxHp > 0 ? Math.min(1, Math.max(0, e.hp / e.maxHp)) : 1;
   Object.assign(e, { maxHp: s.maxHp, hp: Math.max(1, Math.round(s.maxHp * ratio)), atk: s.atk,
     attackInterval: s.attackInterval, reward: s.reward, size: spriteSize(mult) });

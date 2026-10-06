@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice">
+  <!-- Aeroport de Castelló: terminal buida, torre de control, l'escultura gegant amb l'avió al cap, pista sense avions i un panell sense vols -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5aa8e0"/>
+      <stop offset="0.6" stop-color="#a8d6f0"/>
+      <stop offset="0.85" stop-color="#eef7fb"/>
+    </linearGradient>
+    <linearGradient id="boira" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#eef7fb" stop-opacity="0"/>
+      <stop offset="1" stop-color="#eef7fb" stop-opacity="0.7"/>
+    </linearGradient>
+    <linearGradient id="vidre" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7fb4d6"/>
+      <stop offset="1" stop-color="#3f6f90"/>
+    </linearGradient>
+    <linearGradient id="asfalt" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5a5e63"/>
+      <stop offset="1" stop-color="#40444a"/>
+    </linearGradient>
+    <linearGradient id="bronze" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#8a6a3a"/>
+      <stop offset="0.5" stop-color="#b08a4a"/>
+      <stop offset="1" stop-color="#6e5230"/>
+    </linearGradient>
+    <pattern id="gra" width="48" height="36" patternUnits="userSpaceOnUse">
+      <circle cx="6" cy="8" r="1.6" fill="#fff" opacity="0.1"/><circle cx="30" cy="4" r="1.2" fill="#000" opacity="0.2"/>
+      <circle cx="20" cy="22" r="1.4" fill="#fff" opacity="0.08"/><circle cx="42" cy="28" r="1.8" fill="#000" opacity="0.15"/>
+    </pattern>
+    <radialGradient id="vinyeta" cx="0.5" cy="0.55" r="0.75">
+      <stop offset="0.62" stop-color="#000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#0a1420" stop-opacity="0.3"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <circle cx="1380" cy="140" r="56" fill="#fff6cf" opacity="0.9"/>
+  <g fill="#fff" opacity="0.9"><ellipse cx="300" cy="130" rx="100" ry="20"/><ellipse cx="350" cy="112" rx="56" ry="22"/><ellipse cx="980" cy="90" rx="70" ry="14"/></g>
+
+  <!-- serra del fons (el Desert de les Palmes) -->
+  <path d="M0 470 Q120 400 240 430 Q380 360 520 420 Q640 380 760 430 Q900 370 1040 420 Q1200 360 1340 430 Q1480 390 1600 440 V560 H0 Z" fill="#9fb0a0"/>
+  <path d="M0 500 Q200 460 400 490 Q620 450 820 495 Q1040 455 1240 490 Q1440 460 1600 490 V560 H0 Z" fill="#8a9f86"/>
+  <rect y="400" width="1600" height="180" fill="url(#boira)"/>
+
+  <!-- terminal: edifici blanc amb teulada ondulada i molt de vidre -->
+  <rect x="250" y="470" width="760" height="150" fill="#eef1f3"/>
+  <path d="M230 476 Q430 420 630 470 Q830 420 1030 476 V488 H230 Z" fill="#d6dde2"/>
+  <path d="M230 476 Q430 420 630 470 Q830 420 1030 476" stroke="#b9c3ca" stroke-width="5" fill="none"/>
+  <rect x="270" y="500" width="720" height="96" fill="url(#vidre)"/>
+  <g stroke="#e3e8eb" stroke-width="6">
+    <line x1="350" y1="500" x2="350" y2="596"/><line x1="430" y1="500" x2="430" y2="596"/><line x1="510" y1="500" x2="510" y2="596"/>
+    <line x1="590" y1="500" x2="590" y2="596"/><line x1="670" y1="500" x2="670" y2="596"/><line x1="750" y1="500" x2="750" y2="596"/>
+    <line x1="830" y1="500" x2="830" y2="596"/><line x1="910" y1="500" x2="910" y2="596"/>
+  </g>
+  <g fill="#fff" opacity="0.25"><polygon points="290,500 330,500 300,596 270,596"/><polygon points="610,500 640,500 616,596 590,596"/></g>
+  <rect x="250" y="596" width="760" height="24" fill="#cfd6db"/>
+  <!-- rètol de la terminal -->
+  <rect x="520" y="446" width="220" height="30" rx="4" fill="#2d4f6e"/>
+  <text x="630" y="468" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#fff" text-anchor="middle" letter-spacing="2">AEROPORT</text>
+
+  <!-- torre de control -->
+  <rect x="1090" y="300" width="44" height="320" fill="#e3e7ea"/>
+  <rect x="1118" y="300" width="16" height="320" fill="#c7ced3"/>
+  <path d="M1060 300 H1164 L1150 250 H1074 Z" fill="#3f6f90"/>
+  <path d="M1064 300 H1160 L1148 256 H1076 Z" fill="url(#vidre)"/>
+  <rect x="1056" y="296" width="112" height="10" fill="#cfd6db"/>
+  <rect x="1070" y="240" width="84" height="12" fill="#cfd6db"/>
+  <line x1="1112" y1="240" x2="1112" y2="206" stroke="#7a838a" stroke-width="4"/>
+  <circle cx="1112" cy="204" r="6" fill="#e23b2e"/>
+
+  <!-- panell de vols buit -->
+  <g>
+    <rect x="1230" y="480" width="10" height="160" fill="#5a636a"/><rect x="1330" y="480" width="10" height="160" fill="#5a636a"/>
+    <rect x="1200" y="420" width="170" height="90" rx="6" fill="#1d2329"/>
+    <text x="1285" y="444" font-family="Arial, sans-serif" font-size="15" font-weight="bold" fill="#f2c200" text-anchor="middle">ARRIBADES</text>
+    <g font-family="Courier New, monospace" font-size="15" fill="#f2c200" opacity="0.8">
+      <text x="1214" y="468">--:--  ------</text><text x="1214" y="488">--:--  ------</text>
+    </g>
+  </g>
+
+  <!-- l'escultura gegant amb l'avió al cap -->
+  <g>
+    <rect x="148" y="600" width="104" height="30" fill="#b9b2a4"/><rect x="140" y="620" width="120" height="14" fill="#a39c8e"/>
+    <path d="M170 600 L176 470 Q170 400 200 360 Q230 400 224 470 L230 600 Z" fill="url(#bronze)"/>
+    <path d="M176 470 Q150 440 140 400 L154 396 Q166 432 184 452 Z" fill="url(#bronze)"/>
+    <path d="M224 470 Q250 440 262 400 L248 396 Q236 432 216 452 Z" fill="url(#bronze)"/>
+    <ellipse cx="200" cy="340" rx="30" ry="34" fill="url(#bronze)"/>
+    <!-- l'avionet -->
+    <g transform="translate(200 300) rotate(-8)">
+      <path d="M-50 0 Q-50 -10 -36 -10 H40 Q56 -6 58 0 Q56 6 40 8 H-36 Q-50 8 -50 0 Z" fill="#8a6a3a"/>
+      <path d="M-6 -6 L10 -40 H22 L18 -6 Z" fill="#6e5230"/>
+      <path d="M-6 4 L10 36 H22 L18 4 Z" fill="#7d6036"/>
+      <path d="M-46 -2 L-56 -24 H-46 L-34 -6 Z" fill="#6e5230"/>
+    </g>
+  </g>
+
+  <!-- tanca de l'aeroport -->
+  <g stroke="#8d969c" stroke-width="3">
+    <line x1="0" y1="640" x2="1600" y2="640"/><line x1="0" y1="668" x2="1600" y2="668"/>
+  </g>
+  <g fill="#7a838a">
+    <rect x="20" y="630" width="6" height="56"/><rect x="320" y="630" width="6" height="56"/><rect x="620" y="630" width="6" height="56"/>
+    <rect x="920" y="630" width="6" height="56"/><rect x="1220" y="630" width="6" height="56"/><rect x="1520" y="630" width="6" height="56"/>
+  </g>
+  <rect y="640" width="1600" height="28" fill="#c7ced3" opacity="0.15"/>
+
+  <!-- herba seca -->
+  <rect y="680" width="1600" height="30" fill="#b3a46a"/>
+  <g stroke="#968a52" stroke-width="3"><path d="M60 700 L64 686 M70 700 L76 684 M420 702 L424 688 M432 702 L438 690 M1020 700 L1026 686 M1460 702 L1464 688 M1472 702 L1478 690"/></g>
+  <!-- una bola d'herba seca rodant per la pista -->
+  <g transform="translate(1420 760)" stroke="#9a8450" stroke-width="3" fill="none">
+    <circle r="22"/><path d="M-20 -6 Q0 10 20 -4 M-14 14 Q0 -14 14 16 M-6 -20 Q6 0 -4 20"/>
+  </g>
+
+  <!-- pista d'aterratge (buida) -->
+  <rect y="706" width="1600" height="194" fill="url(#asfalt)"/>
+  <rect y="706" width="1600" height="194" fill="url(#gra)"/>
+  <rect y="706" width="1600" height="6" fill="#f2f2f2" opacity="0.85"/>
+  <rect y="880" width="1600" height="6" fill="#f2f2f2" opacity="0.85"/>
+  <g fill="#f2f2f2" opacity="0.9">
+    <rect x="40" y="790" width="120" height="10"/><rect x="260" y="790" width="120" height="10"/><rect x="480" y="790" width="120" height="10"/>
+    <rect x="700" y="790" width="120" height="10"/><rect x="920" y="790" width="120" height="10"/><rect x="1140" y="790" width="120" height="10"/>
+    <rect x="1360" y="790" width="120" height="10"/>
+  </g>
+  <!-- llumetes de la pista -->
+  <g fill="#ffd84a"><circle cx="100" cy="716" r="4"/><circle cx="400" cy="716" r="4"/><circle cx="700" cy="716" r="4"/><circle cx="1000" cy="716" r="4"/><circle cx="1300" cy="716" r="4"/></g>
+
+  <rect width="1600" height="900" fill="url(#vinyeta)"/>
+</svg>

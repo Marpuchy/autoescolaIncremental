@@ -2,12 +2,20 @@
 function update(dt) {
   const p = state.player;
   const e = state.enemy;
+  const mech = bossMech(e); // habilitat del cap especial (js/bosses.js), si en té
+  const s = e.mech;
+  mech?.tick?.(s, dt);
 
   p.hp = Math.min(p.maxHp, p.hp + p.regen * dt);
 
   p.timer += dt;
   while (p.timer >= p.attackInterval) {
     p.timer -= p.attackInterval;
+    const missed = mech && (mech.immune?.(s) || mech.dodge?.(s));
+    if (missed) {
+      attackFx("player", "enemy", 0, { missed });
+      continue;
+    }
     const crit = roll(p.critChance);
     const dmg = crit ? p.atk * CONFIG.combat.critMultiplier : p.atk;
     e.hp -= dmg;
@@ -15,21 +23,28 @@ function update(dt) {
     if (e.hp <= 0) { onEnemyDefeated(); return; }
   }
 
+  if (mech?.canAttack && !mech.canAttack(s)) return;
   e.timer += dt;
   while (e.timer >= e.attackInterval) {
     e.timer -= e.attackInterval;
+    const special = mech?.attack?.(s) || { mult: 1 };
+    const atk = e.atk * special.mult;
+    if (special.text) spawnText($("enemy-avatar"), special.text, special.big ? "skill big" : "skill");
+    // Mentre el cap és intangible, tampoc li fan res la parada ni les espines
+    const immune = mech?.immune?.(s);
     if (roll(p.parryChance)) {
       // Parada: la granoteta no rep res i l'enemic es menja el seu propi atac
-      e.hp -= e.atk;
-      attackFx("enemy", "player", 0, { parried: e.atk });
+      if (!immune) e.hp -= atk;
+      attackFx("enemy", "player", 0, { parried: immune ? 0 : atk });
       if (e.hp <= 0) { onEnemyDefeated(); return; }
       continue;
     }
-    if (!CONFIG.debug.godMode) p.hp -= e.atk;
+    if (!CONFIG.debug.godMode) p.hp -= atk;
     // Espines: l'enemic rep una part del dany que fa
-    const thorns = e.atk * p.thorns;
+    const thorns = immune ? 0 : atk * p.thorns;
     e.hp -= thorns;
-    attackFx("enemy", "player", e.atk, { thorns });
+    attackFx("enemy", "player", atk, { thorns });
+    mech?.onHitPlayer?.(e, atk);
     if (p.hp <= 0) { onPlayerDefeated(); return; }
     if (e.hp <= 0) { onEnemyDefeated(); return; }
   }
@@ -73,4 +88,5 @@ function onPlayerDefeated() {
   // El mateix enemic, amb la vida plena
   state.enemy.hp = state.enemy.maxHp;
   state.enemy.timer = 0;
+  resetBossMech(state.enemy);
 }

@@ -27,23 +27,23 @@ const UPGRADES = [
     total: (lv, e) => `+${fmtNum(lv * e)} vida/s`,
     stat: p => `Regeneració: ${fmtNum(p.regen)} vida/s` },
 
-  // Després d'aprovar l'Avinguda València (Violència)
-  { id: "crit",  scene: 4, icon: "🎯", name: "Maniobra perfecta",    base: 3,   baseCost: 500,  costGrowth: 1.15,
+  // A partir dels Afores de Castelló
+  { id: "crit",  scene: 2, icon: "🎯", name: "Maniobra perfecta",    base: 3,   baseCost: 130,  costGrowth: 1.15,
     per: e => `+${fmtPct(e)}% de crític`,
     total: (lv, e) => `${capped(lv * e, CONFIG.combat.maxCritChance)} de crític`,
     stat: p => `Crític: ${fmtPct(p.critChance * 100)}% · dany ×${CONFIG.combat.critMultiplier}` },
-  { id: "money", scene: 4, icon: "💳", name: "Carnet jove",          base: 10,  baseCost: 600,  costGrowth: 1.15,
+  { id: "money", scene: 2, icon: "💳", name: "Carnet jove",          base: 10,  baseCost: 160,  costGrowth: 1.15,
     per: e => `+${fmtPct(e)}% de diners`,
     total: (lv, e) => `+${fmtPct(lv * e)}% de diners`,
     stat: p => `Recompenses i botiga ×${fmtNum(1 + p.moneyBonus)}` },
 
-  // A partir dels Carreronets de Sogorb
-  { id: "parry", scene: 5, icon: "🛡️", name: "Conducció defensiva",  base: 3,   baseCost: 2000, costGrowth: 1.15,
+  // A partir de l'Avinguda València (Violència)
+  { id: "parry", scene: 3, icon: "🛡️", name: "Conducció defensiva",  base: 3,   baseCost: 600,  costGrowth: 1.15,
     maxLevel: 20, scalingPct: 0, // 20 nivells × 3% = 60%: les ampliacions només pugen el nivell màxim
     per: e => `+${fmtPct(e)}% de parada`,
     total: (lv, e) => `${capped(lv * e, CONFIG.combat.maxParryChance)} de parada`,
     stat: p => `Para i torna el ${fmtPct(p.parryChance * 100)}% dels atacs` },
-  { id: "thorns", scene: 5, icon: "🌵", name: "Para-xocs de punxes", base: 5,   baseCost: 1800, costGrowth: 1.15,
+  { id: "thorns", scene: 3, icon: "🌵", name: "Para-xocs de punxes", base: 5,   baseCost: 550,  costGrowth: 1.15,
     per: e => `+${fmtPct(e)}% de dany retornat`,
     total: (lv, e) => `${fmtPct(lv * e)}% de dany retornat`,
     stat: p => `Retorna el ${fmtPct(p.thorns * 100)}% del dany rebut` },

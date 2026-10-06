@@ -16,6 +16,7 @@ js/
   state.js          Estat de la partida (newState) i escenari de cada nivell
   save.js           Guardat, càrrega i migracions de partides
   enemies.js        Generació d'enemics
+  bosses.js         Habilitats dels caps especials (Pixel, Marc, Avió fantasma, Torero feixista)
   upgrades.js       Millores i ampliacions amb L (lògica + panell)
   progress.js       Pujar de nivell, passar d'escenari, reiniciar
   combat.js         Bucle de combat

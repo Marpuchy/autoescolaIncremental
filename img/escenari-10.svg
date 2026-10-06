@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice">
+  <!-- Benicàssim en el FIB: posta de sol, escenari amb llums, públic, tendes de campanya, palmeres, la mar i autocaravanes de guiris -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2a2458"/>
+      <stop offset="0.45" stop-color="#7a3f86"/>
+      <stop offset="0.7" stop-color="#e2687a"/>
+      <stop offset="0.85" stop-color="#ffb070"/>
+    </linearGradient>
+    <linearGradient id="mar" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e88a7a"/>
+      <stop offset="1" stop-color="#5a4a8a"/>
+    </linearGradient>
+    <linearGradient id="feix" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="asfalt" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4a4650"/>
+      <stop offset="1" stop-color="#34313a"/>
+    </linearGradient>
+    <pattern id="gra" width="48" height="36" patternUnits="userSpaceOnUse">
+      <circle cx="6" cy="8" r="1.6" fill="#fff" opacity="0.1"/><circle cx="30" cy="4" r="1.2" fill="#000" opacity="0.2"/>
+      <circle cx="20" cy="22" r="1.4" fill="#fff" opacity="0.08"/><circle cx="42" cy="28" r="1.8" fill="#000" opacity="0.15"/>
+    </pattern>
+    <radialGradient id="llum">
+      <stop offset="0" stop-color="#ffe7a0" stop-opacity="0.8"/>
+      <stop offset="1" stop-color="#ffe7a0" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="vinyeta" cx="0.5" cy="0.55" r="0.75">
+      <stop offset="0.6" stop-color="#000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#120a20" stop-opacity="0.45"/>
+    </radialGradient>
+    <symbol id="palmera" viewBox="0 0 120 300">
+      <path d="M58 300 Q50 200 62 80 L68 80 Q60 200 70 300 Z" fill="#3a2a30"/>
+      <g fill="#2a3a30">
+        <path d="M64 80 Q20 60 0 90 Q30 70 64 86 Z"/><path d="M64 80 Q110 60 120 92 Q94 72 64 86 Z"/>
+        <path d="M64 80 Q40 30 10 30 Q44 44 62 84 Z"/><path d="M64 80 Q90 30 116 36 Q86 46 66 84 Z"/>
+        <path d="M64 80 Q66 30 60 4 Q76 34 68 82 Z"/>
+      </g>
+    </symbol>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <g fill="#fff"><circle cx="200" cy="80" r="2"/><circle cx="420" cy="50" r="1.5"/><circle cx="760" cy="70" r="2"/><circle cx="1100" cy="40" r="1.5"/><circle cx="1400" cy="90" r="2"/><circle cx="1520" cy="40" r="1.5"/></g>
+
+  <!-- el sol ponent i la mar -->
+  <circle cx="1300" cy="470" r="70" fill="#ffd27a"/>
+  <rect y="470" width="1600" height="140" fill="url(#mar)"/>
+  <g stroke="#ffd9a0" stroke-width="4" opacity="0.6"><line x1="1250" y1="490" x2="1350" y2="490"/><line x1="1270" y1="510" x2="1330" y2="510"/><line x1="1285" y1="530" x2="1315" y2="530"/></g>
+  <!-- el Desert de les Palmes al fons -->
+  <path d="M0 470 Q140 380 300 420 Q420 350 560 410 L620 470 Z" fill="#4a2f5a"/>
+
+  <!-- feixos de llum de l'escenari -->
+  <g fill="url(#feix)">
+    <polygon points="520,430 380,0 460,0"/><polygon points="640,430 660,0 740,0"/><polygon points="760,430 960,0 1040,0"/>
+    <polygon points="880,430 1180,0 1250,0"/>
+  </g>
+
+  <!-- escenari -->
+  <rect x="440" y="300" width="520" height="16" fill="#222"/>
+  <g fill="#2b2b2b"><rect x="440" y="300" width="18" height="300"/><rect x="942" y="300" width="18" height="300"/></g>
+  <g stroke="#3a3a3a" stroke-width="4"><path d="M458 320 L942 420 M458 420 L942 320"/></g>
+  <rect x="470" y="330" width="460" height="170" fill="#1a1626"/>
+  <!-- pantalla amb ones de colors -->
+  <rect x="560" y="350" width="280" height="110" fill="#2a1a4a"/>
+  <path d="M560 420 Q600 380 640 420 T720 420 T800 420 T840 410" stroke="#ff5ac8" stroke-width="8" fill="none"/>
+  <path d="M560 440 Q600 400 640 440 T720 440 T800 440 T840 430" stroke="#4ae0ff" stroke-width="6" fill="none"/>
+  <rect x="440" y="500" width="520" height="40" fill="#2b2b2b"/>
+  <g fill="#ffd84a"><circle cx="480" cy="316" r="7"/><circle cx="560" cy="316" r="7"/><circle cx="640" cy="316" r="7"/><circle cx="760" cy="316" r="7"/><circle cx="840" cy="316" r="7"/><circle cx="920" cy="316" r="7"/></g>
+  <!-- altaveus -->
+  <g fill="#151515"><rect x="380" y="380" width="56" height="140"/><rect x="964" y="380" width="56" height="140"/></g>
+  <g fill="#333"><circle cx="408" cy="420" r="16"/><circle cx="408" cy="476" r="20"/><circle cx="992" cy="420" r="16"/><circle cx="992" cy="476" r="20"/></g>
+
+  <!-- públic (siluetes amb mans en alt) -->
+  <g fill="#1d1428">
+    <path d="M300 640 Q300 560 340 560 Q380 560 380 640 Z"/><circle cx="340" cy="545" r="18"/>
+    <path d="M390 640 Q390 570 425 570 Q460 570 460 640 Z"/><circle cx="425" cy="556" r="16"/><rect x="448" y="500" width="8" height="60" transform="rotate(15 452 560)"/>
+    <path d="M470 640 Q470 555 512 555 Q554 555 554 640 Z"/><circle cx="512" cy="540" r="19"/>
+    <path d="M560 640 Q560 575 592 575 Q624 575 624 640 Z"/><circle cx="592" cy="562" r="15"/><rect x="578" y="506" width="8" height="58" transform="rotate(-12 582 562)"/><rect x="600" y="506" width="8" height="58" transform="rotate(12 604 562)"/>
+    <path d="M630 640 Q630 560 670 560 Q710 560 710 640 Z"/><circle cx="670" cy="545" r="18"/>
+    <path d="M716 640 Q716 572 750 572 Q784 572 784 640 Z"/><circle cx="750" cy="558" r="16"/><rect x="770" y="504" width="8" height="58" transform="rotate(18 774 560)"/>
+    <path d="M790 640 Q790 556 832 556 Q874 556 874 640 Z"/><circle cx="832" cy="541" r="19"/>
+    <path d="M880 640 Q880 574 914 574 Q948 574 948 640 Z"/><circle cx="914" cy="560" r="16"/><rect x="896" y="504" width="8" height="58" transform="rotate(-15 900 560)"/>
+    <path d="M954 640 Q954 562 994 562 Q1034 562 1034 640 Z"/><circle cx="994" cy="547" r="18"/>
+    <path d="M1040 640 Q1040 576 1072 576 Q1104 576 1104 640 Z"/><circle cx="1072" cy="563" r="15"/>
+  </g>
+  <!-- llumetes de mòbils -->
+  <g fill="#fff6c0"><rect x="452" y="494" width="6" height="9"/><rect x="606" y="498" width="6" height="9"/><rect x="772" y="496" width="6" height="9"/><rect x="894" y="496" width="6" height="9"/></g>
+
+  <!-- sorra i passeig -->
+  <rect y="640" width="1600" height="66" fill="#c9a07a"/>
+  <rect y="640" width="1600" height="66" fill="url(#gra)"/>
+  <!-- palmeres -->
+  <use href="#palmera" x="1110" y="340" width="120" height="300"/>
+  <use href="#palmera" x="1450" y="300" width="140" height="350"/>
+  <use href="#palmera" x="160" y="320" width="130" height="320"/>
+
+  <!-- tendes de campanya -->
+  <g>
+    <polygon points="20,690 90,610 160,690" fill="#e2483a"/><polygon points="90,610 160,690 110,690" fill="#000" opacity="0.2"/><polygon points="80,690 90,650 100,690" fill="#3a1a1a"/>
+    <polygon points="150,692 210,624 270,692" fill="#3a8ae0"/><polygon points="210,624 270,692 228,692" fill="#000" opacity="0.2"/>
+    <polygon points="1200,692 1260,620 1320,692" fill="#f2c200"/><polygon points="1260,620 1320,692 1280,692" fill="#000" opacity="0.2"/><polygon points="1250,692 1260,656 1270,692" fill="#3a2a10"/>
+  </g>
+  <!-- autocaravana de guiris aparcada -->
+  <g>
+    <rect x="1330" y="600" width="230" height="86" rx="12" fill="#f4f1ea"/>
+    <path d="M1330 612 Q1330 580 1370 580 H1500 Q1540 580 1540 600 H1330 Z" fill="#e7e2d6"/>
+    <rect x="1330" y="640" width="230" height="10" fill="#e2683a"/>
+    <rect x="1350" y="606" width="60" height="28" rx="4" fill="#3f5a70"/><rect x="1430" y="606" width="40" height="28" rx="4" fill="#3f5a70"/>
+    <rect x="1500" y="604" width="50" height="40" rx="4" fill="#3f5a70"/>
+    <g fill="#222"><circle cx="1380" cy="688" r="18"/><circle cx="1510" cy="688" r="18"/></g>
+    <g fill="#888"><circle cx="1380" cy="688" r="7"/><circle cx="1510" cy="688" r="7"/></g>
+    <!-- banderins -->
+    <path d="M1340 598 Q1420 560 1540 594" stroke="#555" stroke-width="2" fill="none"/>
+    <g><polygon points="1360,590 1372,586 1368,600" fill="#e23b4e"/><polygon points="1400,578 1412,576 1408,590" fill="#3a8ae0"/><polygon points="1440,572 1452,572 1448,586" fill="#f2c200"/><polygon points="1480,576 1492,578 1486,590" fill="#3fb06a"/></g>
+  </g>
+
+  <!-- llum de fanals -->
+  <circle cx="1180" cy="680" r="80" fill="url(#llum)" opacity="0.6"/>
+
+  <!-- carretera de la costa -->
+  <rect y="700" width="1600" height="200" fill="url(#asfalt)"/>
+  <rect y="700" width="1600" height="200" fill="url(#gra)"/>
+  <rect y="700" width="1600" height="8" fill="#8a8590"/>
+  <g fill="#e8e2d0" opacity="0.85">
+    <rect x="40" y="806" width="120" height="8"/><rect x="260" y="806" width="120" height="8"/><rect x="480" y="806" width="120" height="8"/>
+    <rect x="700" y="806" width="120" height="8"/><rect x="920" y="806" width="120" height="8"/><rect x="1140" y="806" width="120" height="8"/>
+    <rect x="1360" y="806" width="120" height="8"/>
+  </g>
+  <!-- gots de plàstic per terra -->
+  <g><path d="M300 730 L314 730 L311 748 L303 748 Z" fill="#e23b4e"/><path d="M1060 760 L1078 762 L1072 770 L1058 768 Z" fill="#e23b4e"/><path d="M760 870 L774 870 L771 888 L763 888 Z" fill="#3a8ae0"/></g>
+
+  <rect width="1600" height="900" fill="url(#vinyeta)"/>
+</svg>

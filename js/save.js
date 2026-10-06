@@ -14,6 +14,39 @@ const MIGRATIONS = {
   0: data => ({ ...data, examsPassed: data.examsPassed ?? sceneIndex(data.best || 1) }),
 };
 
+// Enemics reanomenats: nom antic -> nom nou (s'aplica en carregar al compendi i a l'enemic guardat)
+const RENAMED_ENEMIES = {
+  "Bou embolat": "Torero feixista",
+  "Torero fascista": "Torero feixista",
+};
+
+// Variants d'abans, amb estreles al nom ("Camió articulat ⭐⭐", "Camió articulat ⭐×6"): ja no existixen,
+// són el mateix enemic (la força la posa el nivell)
+function oldVariantName(name) {
+  const m = /^(.*) (⭐+|⭐×\d+)$/u.exec(name);
+  return m && ENEMY_TYPES.some(t => t.name === m[1]) ? m[1] : null;
+}
+const renamedEnemy = name => RENAMED_ENEMIES[name] || oldVariantName(name);
+
+function applyRenames(data) {
+  const b = data.bestiary || {};
+  for (const oldName of Object.keys(b)) {
+    const newName = renamedEnemy(oldName);
+    if (!newName) continue;
+    const prev = b[newName];
+    b[newName] = prev ? { seen: prev.seen + b[oldName].seen, defeated: prev.defeated + b[oldName].defeated,
+      firstLevel: Math.min(prev.firstLevel, b[oldName].firstLevel) } : b[oldName];
+    delete b[oldName];
+  }
+  const e = data.enemy;
+  if (e && renamedEnemy(e.name)) {
+    e.name = renamedEnemy(e.name);
+    delete e.icon; // la icona es torna a traure del nom (enemyIcon)
+    delete e.mech;
+    delete e.mult;
+  }
+}
+
 // Si la partida ve d'una versió més nova del joc (p. ex. una pestanya amb el codi antic en memòria cau),
 // es conserva el seu número de versió perquè la versió nova no hi torne a aplicar migracions.
 let loadedSaveVersion = SAVE_VERSION;
@@ -63,6 +96,7 @@ function load() {
       player: { ...base.player, hp: data.player.hp, maxHp: data.player.maxHp, timer: data.player.timer || 0 },
     };
     delete merged.saveVersion;
+    applyRenames(merged);
     // Enemic guardat incomplet o antic: se'n genera un de nou
     const e = merged.enemy;
     if (!e || !isFinite(e.hp) || !isFinite(e.maxHp) || !isFinite(e.atk) || !e.name) merged.enemy = null;

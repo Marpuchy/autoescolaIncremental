@@ -17,6 +17,18 @@ function renderEnemySprite(e) {
   spawnTimer = setTimeout(() => sprite.classList.remove("spawn"), SPAWN_MS);
 }
 
+// Classe del sprite segons l'habilitat del cap (Pixel dormint, Avió fantasma intangible...)
+let bossSpriteClass = "";
+function renderBossState(e) {
+  const mech = bossMech(e);
+  const cls = mech?.spriteClass?.(e.mech) || "";
+  if (cls === bossSpriteClass) return;
+  const sprite = $("enemy-sprite");
+  if (bossSpriteClass) sprite.classList.remove(bossSpriteClass);
+  if (cls) sprite.classList.add(cls);
+  bossSpriteClass = cls;
+}
+
 function render() {
   const p = state.player, e = state.enemy;
   $("money").textContent = fmt(state.money);
@@ -36,6 +48,7 @@ function render() {
   $("player-hp-bar").style.width = (Math.max(0, p.hp) / p.maxHp * 100) + "%";
   $("enemy-name").textContent = e.name;
   if (renderedEnemy !== e) renderEnemySprite(e);
+  renderBossState(e);
   $("enemy-hp-bar").style.width = (Math.max(0, e.hp) / e.maxHp * 100) + "%";
 
   if (!$("tab-shop").hidden) renderShop();

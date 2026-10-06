@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 210" aria-label="Pixel">
+  <!-- Pixel: gatet atigrat marró-gris, amb la M al front, orelles grans, morret canyella i ulls verds ben oberts -->
+  <defs>
+    <linearGradient id="px-pel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6e5c4a"/>
+      <stop offset="1" stop-color="#54443a"/>
+    </linearGradient>
+    <linearGradient id="px-panxa" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c9a77e"/>
+      <stop offset="1" stop-color="#b08d66"/>
+    </linearGradient>
+  </defs>
+  <!-- cua -->
+  <path d="M146 190 Q192 186 188 140 Q186 118 172 112" stroke="#6b5845" stroke-width="16" fill="none" stroke-linecap="round"/>
+  <g stroke="#3b2e22" stroke-width="5" fill="none" stroke-linecap="round">
+    <path d="M178 120 L170 128"/><path d="M188 142 L176 144"/><path d="M184 166 L172 160"/>
+  </g>
+  <!-- cos assegut -->
+  <path d="M52 200 Q40 150 64 116 Q100 98 136 116 Q160 150 148 200 Z" fill="url(#px-pel)"/>
+  <path d="M78 200 Q72 156 100 132 Q128 156 122 200 Z" fill="url(#px-panxa)"/>
+  <g stroke="#3b2e22" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.85">
+    <path d="M56 150 Q64 146 70 152"/><path d="M52 170 Q62 166 70 172"/><path d="M144 150 Q136 146 130 152"/><path d="M148 170 Q138 166 130 172"/>
+  </g>
+  <!-- potes -->
+  <ellipse cx="82" cy="200" rx="16" ry="9" fill="#5e4c3e"/><ellipse cx="118" cy="200" rx="16" ry="9" fill="#5e4c3e"/>
+  <g stroke="#3b2e22" stroke-width="2"><path d="M78 196 V204 M86 196 V204 M114 196 V204 M122 196 V204"/></g>
+
+  <!-- orelles grans -->
+  <path d="M40 78 L30 8 L86 44 Z" fill="#5e4c3e"/>
+  <path d="M160 78 L172 6 L114 44 Z" fill="#5e4c3e"/>
+  <path d="M46 66 L40 22 L76 46 Z" fill="#d9b7a0"/>
+  <path d="M154 66 L162 20 L124 46 Z" fill="#d9b7a0"/>
+  <g stroke="#f2ece4" stroke-width="1.5" opacity="0.8"><path d="M48 54 L42 36 M52 56 L50 38 M152 54 L158 36 M148 56 L150 38"/></g>
+  <!-- cap -->
+  <ellipse cx="100" cy="88" rx="66" ry="54" fill="url(#px-pel)"/>
+  <!-- ratlles del front: la M -->
+  <path d="M70 74 L80 50 L92 68 L100 52 L108 68 L120 50 L130 74" stroke="#3b2e22" stroke-width="6" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+  <g stroke="#3b2e22" stroke-width="5" fill="none" stroke-linecap="round">
+    <path d="M100 40 V50"/><path d="M38 86 Q48 84 56 90"/><path d="M38 100 Q48 98 56 104"/><path d="M162 86 Q152 84 144 90"/><path d="M162 100 Q152 98 144 104"/>
+  </g>
+  <!-- clapa clara entre els ulls i morret canyella -->
+  <path d="M90 74 Q100 70 110 74 L114 104 Q100 98 86 104 Z" fill="#c9a77e"/>
+  <ellipse cx="100" cy="114" rx="30" ry="20" fill="#d6b48a"/>
+  <ellipse cx="86" cy="116" rx="14" ry="11" fill="#e2c49c"/><ellipse cx="114" cy="116" rx="14" ry="11" fill="#e2c49c"/>
+  <!-- ulls ben oberts, verds amb la pupil·la vertical -->
+  <g>
+    <ellipse cx="72" cy="88" rx="15" ry="13" fill="#1e1a14"/>
+    <ellipse cx="72" cy="88" rx="12.5" ry="10.5" fill="#a3a64a"/>
+    <ellipse cx="72" cy="90" rx="10" ry="7" fill="#c2c45e" opacity="0.6"/>
+    <ellipse cx="72" cy="88" rx="3.2" ry="9" fill="#111"/>
+    <circle cx="67" cy="83" r="3" fill="#fff" opacity="0.9"/><circle cx="76" cy="93" r="1.4" fill="#fff" opacity="0.7"/>
+    <ellipse cx="128" cy="88" rx="15" ry="13" fill="#1e1a14"/>
+    <ellipse cx="128" cy="88" rx="12.5" ry="10.5" fill="#a3a64a"/>
+    <ellipse cx="128" cy="90" rx="10" ry="7" fill="#c2c45e" opacity="0.6"/>
+    <ellipse cx="128" cy="88" rx="3.2" ry="9" fill="#111"/>
+    <circle cx="123" cy="83" r="3" fill="#fff" opacity="0.9"/><circle cx="132" cy="93" r="1.4" fill="#fff" opacity="0.7"/>
+  </g>
+  <!-- nas i boca -->
+  <path d="M92 104 H108 L100 112 Z" fill="#b5776a"/>
+  <path d="M100 112 V118 M100 118 Q92 126 86 120 M100 118 Q108 126 114 120" stroke="#3b2e22" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <!-- bigotis llargs -->
+  <g stroke="#f4efe6" stroke-width="2" stroke-linecap="round" opacity="0.95">
+    <path d="M78 114 Q40 106 6 96"/><path d="M78 118 Q40 118 4 120"/><path d="M78 122 Q44 130 10 144"/>
+    <path d="M122 114 Q160 106 194 96"/><path d="M122 118 Q160 118 196 120"/><path d="M122 122 Q156 130 190 144"/>
+  </g>
+</svg>
