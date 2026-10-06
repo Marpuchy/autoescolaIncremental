@@ -10,6 +10,7 @@ function passSceneExam() {
   state.examPending = false;
   state.examsPassed = Math.max(state.examsPassed, sceneIndex(state.level) + 1);
   advanceLevel();
+  grantStartingLevels(); // les millores noves comencen al nivell 1
   state.enemy = makeEnemy(state.level);
 }
 
@@ -34,8 +35,10 @@ function restartGame() {
     examsPassed: state.examsPassed,
     best: state.best,
     bestiary: state.bestiary,
+    inventory: state.inventory,
   });
   recomputeStats();
+  grantStartingLevels();
   state.player.hp = state.player.maxHp;
   state.enemy = makeEnemy(1);
   renderUpgrades();

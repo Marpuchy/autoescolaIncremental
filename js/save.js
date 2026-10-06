@@ -28,7 +28,16 @@ function oldVariantName(name) {
 }
 const renamedEnemy = name => RENAMED_ENEMIES[name] || oldVariantName(name);
 
+// Espais i objectes de l'inventari amb el nom de les primeres proves (abans de publicar-lo)
+const RENAMED_SLOTS = { head: "skin", extra: "accessory", ally: "pet" };
+function renamedSlots(equipped = {}) {
+  const out = {};
+  for (const [slot, id] of Object.entries(equipped)) if (ITEMS[id]) out[RENAMED_SLOTS[slot] || slot] = id;
+  return out;
+}
+
 function applyRenames(data) {
+  data.inventory.items = data.inventory.items.filter(id => ITEMS[id]); // objectes que ja no existixen
   const b = data.bestiary || {};
   for (const oldName of Object.keys(b)) {
     const newName = renamedEnemy(oldName);
@@ -93,6 +102,7 @@ function load() {
       upgrades: { ...base.upgrades, ...data.upgrades },
       expansions: { ...base.expansions, ...data.expansions },
       bestiary: { ...data.bestiary },
+      inventory: { items: [...(data.inventory?.items || [])], equipped: renamedSlots(data.inventory?.equipped) },
       player: { ...base.player, hp: data.player.hp, maxHp: data.player.maxHp, timer: data.player.timer || 0 },
     };
     delete merged.saveVersion;

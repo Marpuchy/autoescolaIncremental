@@ -31,13 +31,29 @@ function recomputeStats() {
   p.attackInterval = Math.max(CONFIG.player.minInterval,
     CONFIG.player.attackInterval * Math.pow(1 - effect(byId("speed")) / 100, lv("speed")));
   p.regen = CONFIG.player.regen + lv("regen") * effect(byId("regen"));
-  p.critChance = chance("crit", CONFIG.combat.maxCritChance);
+  // Crític: el de la millora (fins al 75%) més el de l'equipament; les Ulleres de Marc deixen arribar al 100%
+  const gear = equipmentStats();
+  p.critChance = Math.min(gear.critCap ?? CONFIG.combat.maxCritChance,
+    chance("crit", CONFIG.combat.maxCritChance) * 100 + (gear.critPct || 0)) / 100;
   p.parryChance = chance("parry", CONFIG.combat.maxParryChance);
+  p.lifesteal = (gear.lifesteal || 0) / 100;  // Aura fantasma
+  p.dodgeChance = (gear.dodgePct || 0) / 100; // Capa roja
   p.moneyBonus = lv("money") * effect(byId("money")) / 100;
   p.thorns = lv("thorns") * effect(byId("thorns")) / 100;
 
   // Si puja la vida màxima, es guanya eixa diferència de vida actual
   p.hp = Math.min(p.maxHp, (p.hp ?? p.maxHp) + Math.max(0, p.maxHp - oldMax));
+}
+
+// Cada millora comença al nivell CONFIG.levelCap.startLevel: es dona gratis en desbloquejar-la i en reiniciar
+// (i a les partides guardades d'abans, en carregar-les)
+function grantStartingLevels() {
+  let granted = false;
+  for (const u of visibleUpgrades()) {
+    const start = Math.min(CONFIG.levelCap.startLevel, upgradeCap(u));
+    if (state.upgrades[u.id] < start) { state.upgrades[u.id] = start; granted = true; }
+  }
+  if (granted) recomputeStats();
 }
 
 function buyUpgrade(id) {

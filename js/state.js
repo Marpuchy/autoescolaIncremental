@@ -14,9 +14,10 @@ function newState(keep = {}) {
     level: 1,
     best: keep.best || 1,               // rècord de totes les partides (es conserva en reiniciar)
     bestiary: keep.bestiary || {},      // compendi: { nom: { seen, defeated, firstLevel } } de totes les partides
+    inventory: keep.inventory || { items: [], equipped: {} }, // equipament (js/inventory.js), es conserva
     examPending: false,
     upgrades: Object.fromEntries(UPGRADES.map(u => [u.id, 0])),
-    player: { hp: CONFIG.player.maxHp, timer: 0 },
+    player: { hp: CONFIG.player.maxHp, timer: 0, allyTimer: 0 },
     enemy: null,
   };
 }

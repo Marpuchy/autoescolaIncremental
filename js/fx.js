@@ -38,6 +38,25 @@ function attackFx(attacker, target, dmg, opts = {}) {
   }, CONFIG.hitDelay);
 }
 
+// Colp de la mascota: el seu sprite (al costat de la granoteta) es llança contra l'enemic
+function allyAttackFx(dmg, opts = {}) {
+  const el = document.querySelector("#player-gear .gear-ally");
+  const tAv = $("enemy-avatar");
+  if (el) {
+    const a = el.getBoundingClientRect();
+    const t = tAv.getBoundingClientRect();
+    el.style.setProperty("--dx", `${(t.left + t.width / 2) - (a.left + a.width / 2)}px`);
+    el.style.setProperty("--dy", `${(t.top + t.height / 2) - (a.top + a.height / 2)}px`);
+    el.style.setProperty("--rot", "14deg");
+    restartAnim(el, "lunge");
+  }
+  setTimeout(() => {
+    if (opts.missed) { spawnText(tAv, opts.missed, "skill"); return; }
+    restartAnim($("enemy"), "hit");
+    spawnText(tAv, `🐾 -${fmtNum(dmg)}`, "by-ally");
+  }, CONFIG.hitDelay);
+}
+
 function spawnDamage(avatar, dmg, attacker, kind = "") {
   spawnText(avatar, kind === "crit" ? `💥 -${fmtNum(dmg)}!` : kind === "thorns" ? `🌵 -${fmtNum(dmg)}` : `-${fmtNum(dmg)}`,
     `by-${attacker} ${kind}`);

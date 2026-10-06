@@ -32,6 +32,7 @@ const CONFIG = {
   enemyBias: 15,          // com més baix, més ràpid augmenta la probabilitat dels enemics grans
   levelsPerScene: 10,     // en derrotar el cap del nivell 10, 20... hi ha examen i canvia l'escenari
   levelCap: {
+    startLevel: 1,        // nivell gratis amb què comença cada millora (en desbloquejar-la i en reiniciar)
     initial: 3,           // nivell màxim inicial de cada millora (la resta s'obri amb L)
     step: 5,              // nivells que desbloqueja cada ampliació
     baseLCost: 2,         // cost en L de la primera ampliació

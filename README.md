@@ -12,7 +12,7 @@ img/                Fons dels escenaris
 js/
   config.js         CONFIG: tot el balanç del joc
   util.js           $(), formatació de números, shuffle...
-  data/             Continguts: escenaris, enemics, millores, preguntes d'examen
+  data/             Continguts: escenaris, enemics, millores, preguntes d'examen, equipament
   state.js          Estat de la partida (newState) i escenari de cada nivell
   save.js           Guardat, càrrega i migracions de partides
   enemies.js        Generació d'enemics
@@ -24,6 +24,7 @@ js/
   tests.js          Registre de tests (moneda L) i ratxa
   shop.js           Botiga (L -> diners)
   bestiary.js       Compendi d'enemics
+  inventory.js      Inventari i equipament (aliats com Pixel, que ataca pel seu compte)
   fx.js             Animacions, números de dany i avisos
   render.js         Render de cada fotograma
   main.js           Arrencada: carrega la partida, connecta botons i inicia el bucle

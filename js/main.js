@@ -3,6 +3,7 @@
 
 state = load() || newState();
 recomputeStats();
+grantStartingLevels();
 if (!state.enemy) state.enemy = makeEnemy(state.level);
 else refreshEnemyStats(state.enemy, state.level); // per si el balanç ha canviat des que es va guardar
 
@@ -23,6 +24,7 @@ document.querySelectorAll(".tab").forEach(tab => tab.addEventListener("click", (
   document.querySelectorAll(".tab-panel").forEach(p => p.hidden = p.id !== "tab-" + tab.dataset.tab);
   if ($("side").classList.contains("collapsed")) setSideCollapsed(false);
   if (tab.dataset.tab === "bestiary") renderBestiary();
+  if (tab.dataset.tab === "inventory") renderInventory();
 }));
 // Clic en una entrada del compendi: mostra/amaga la descripció
 $("bestiary-list").addEventListener("click", ev => {
@@ -62,6 +64,8 @@ function loop(now) {
   requestAnimationFrame(loop);
 }
 
+initInventory();
+checkItemRewards(false); // partides d'abans: si ja havien derrotat un cap que dona equipament, el reben ara
 initDevConsole();
 renderUpgrades();
 renderTestPanel();

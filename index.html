@@ -39,39 +39,46 @@
         <!-- PERSONATGE PRINCIPAL: la granoteta -->
         <div class="fighter" id="player">
           <div class="fighter-name">Granoteta</div>
-          <div class="avatar" id="player-avatar">
-            <div class="sprite" id="player-sprite">
-              <svg class="frog" viewBox="0 0 140 124" aria-label="Granoteta">
-                <!-- potes posteriors -->
-                <ellipse cx="24" cy="100" rx="22" ry="14" fill="#4fa64d"/>
-                <ellipse cx="116" cy="100" rx="22" ry="14" fill="#4fa64d"/>
-                <!-- cos -->
-                <ellipse cx="70" cy="80" rx="52" ry="38" fill="#6cc96a"/>
-                <!-- panxa -->
-                <ellipse cx="70" cy="92" rx="32" ry="22" fill="#d4f5b5"/>
-                <!-- ulls -->
-                <circle cx="40" cy="38" r="21" fill="#6cc96a"/>
-                <circle cx="100" cy="38" r="21" fill="#6cc96a"/>
-                <g class="frog-eyes">
-                  <circle cx="40" cy="36" r="14" fill="#fff"/>
-                  <circle cx="100" cy="36" r="14" fill="#fff"/>
-                  <circle cx="45" cy="37" r="8" fill="#23262d"/>
-                  <circle cx="105" cy="37" r="8" fill="#23262d"/>
-                  <circle cx="48" cy="33" r="3" fill="#fff"/>
-                  <circle cx="108" cy="33" r="3" fill="#fff"/>
-                </g>
-                <!-- galtes -->
-                <ellipse cx="30" cy="70" rx="9" ry="6" fill="#ff8fa3" opacity="0.75"/>
-                <ellipse cx="110" cy="70" rx="9" ry="6" fill="#ff8fa3" opacity="0.75"/>
-                <!-- somriure -->
-                <path d="M54 66 Q70 80 86 66" stroke="#2c5e2c" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-                <!-- potes davanteres -->
-                <ellipse cx="46" cy="114" rx="12" ry="7" fill="#4fa64d"/>
-                <ellipse cx="94" cy="114" rx="12" ry="7" fill="#4fa64d"/>
-                <!-- placa L de novell -->
-                <rect x="59" y="84" width="22" height="22" rx="3" fill="#009b48" stroke="#fff" stroke-width="2"/>
-                <text x="70" y="101" text-anchor="middle" font-size="17" font-weight="900" fill="#fff" font-family="system-ui, sans-serif">L</text>
-              </svg>
+          <div class="avatar-wrap">
+            <!-- equipament de la granoteta (aliat, cap...): js/inventory.js. Fora de l'avatar perquè no es moga quan la granoteta envestix.
+                 Va abans de l'avatar perquè l'aliat quede darrere de la granoteta -->
+            <div class="gear-layer" id="player-gear"></div>
+            <div class="avatar" id="player-avatar">
+              <div class="sprite" id="player-sprite">
+                <svg class="frog" viewBox="0 0 140 124" aria-label="Granoteta">
+                  <!-- potes posteriors -->
+                  <ellipse cx="24" cy="100" rx="22" ry="14" fill="#4fa64d"/>
+                  <ellipse cx="116" cy="100" rx="22" ry="14" fill="#4fa64d"/>
+                  <!-- cos -->
+                  <ellipse cx="70" cy="80" rx="52" ry="38" fill="#6cc96a"/>
+                  <!-- panxa -->
+                  <ellipse cx="70" cy="92" rx="32" ry="22" fill="#d4f5b5"/>
+                  <!-- ulls -->
+                  <circle cx="40" cy="38" r="21" fill="#6cc96a"/>
+                  <circle cx="100" cy="38" r="21" fill="#6cc96a"/>
+                  <g class="frog-eyes">
+                    <circle cx="40" cy="36" r="14" fill="#fff"/>
+                    <circle cx="100" cy="36" r="14" fill="#fff"/>
+                    <circle cx="45" cy="37" r="8" fill="#23262d"/>
+                    <circle cx="105" cy="37" r="8" fill="#23262d"/>
+                    <circle cx="48" cy="33" r="3" fill="#fff"/>
+                    <circle cx="108" cy="33" r="3" fill="#fff"/>
+                  </g>
+                  <!-- galtes -->
+                  <ellipse cx="30" cy="70" rx="9" ry="6" fill="#ff8fa3" opacity="0.75"/>
+                  <ellipse cx="110" cy="70" rx="9" ry="6" fill="#ff8fa3" opacity="0.75"/>
+                  <!-- somriure -->
+                  <path d="M54 66 Q70 80 86 66" stroke="#2c5e2c" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+                  <!-- potes davanteres (classes: l'equipament que les fa servir les amaga, p. ex. la capa) -->
+                  <ellipse class="frog-hand-l" cx="46" cy="114" rx="12" ry="7" fill="#4fa64d"/>
+                  <ellipse class="frog-hand-r" cx="94" cy="114" rx="12" ry="7" fill="#4fa64d"/>
+                  <!-- placa L de novell -->
+                  <rect x="59" y="84" width="22" height="22" rx="3" fill="#009b48" stroke="#fff" stroke-width="2"/>
+                  <text x="70" y="101" text-anchor="middle" font-size="17" font-weight="900" fill="#fff" font-family="system-ui, sans-serif">L</text>
+                </svg>
+                <!-- peces que porta posades (ulleres...): js/inventory.js -->
+                <div class="wear-holder" id="player-wear"></div>
+              </div>
             </div>
           </div>
           <div class="bar"><div class="bar-fill hp" id="player-hp-bar"></div></div>
@@ -91,12 +98,13 @@
       </div>
     </section>
 
-    <!-- PANELL DRET: pestanyes Botiga / Tests -->
+    <!-- PANELL DRET: pestanyes (només icones, el nom és el title; cada panell ja té el seu títol) -->
     <aside id="side">
       <div class="tabs">
-        <button class="tab active" data-tab="shop"><span class="tab-icon">🏪</span><span class="tab-label"> Botiga</span></button>
-        <button class="tab" data-tab="test"><span class="tab-icon">📝</span><span class="tab-label"> Tests</span></button>
-        <button class="tab" data-tab="bestiary"><span class="tab-icon">📖</span><span class="tab-label"> Compendi</span></button>
+        <button class="tab active" data-tab="shop" title="Botiga"><span class="tab-icon">🏪</span><span class="tab-label"> Botiga</span></button>
+        <button class="tab" data-tab="test" title="Tests"><span class="tab-icon">📝</span><span class="tab-label"> Tests</span></button>
+        <button class="tab" data-tab="bestiary" title="Compendi"><span class="tab-icon">📖</span><span class="tab-label"> Compendi</span></button>
+        <button class="tab" data-tab="inventory" id="tab-btn-inventory" title="Inventari" hidden><span class="tab-icon">🎒</span><span class="tab-label"> Inventari</span></button>
         <button id="btn-side-toggle" class="side-toggle" title="Plegar">»</button>
       </div>
 
@@ -122,6 +130,15 @@
         <h2>📖 Compendi <span class="muted" id="bestiary-count"></span></h2>
         <p class="muted">Enemics que has vist en totes les partides.</p>
         <div id="bestiary-list"></div>
+      </div>
+
+      <div class="tab-panel" id="tab-inventory" hidden>
+        <h2>🎒 Inventari</h2>
+        <div class="inv-slots" id="inventory-slots"></div>
+        <div class="inv-preview" id="inventory-preview"></div>
+        <div class="inv-detail" id="inventory-detail"></div>
+        <h3 class="inv-bag-title">Motxilla</h3>
+        <div class="inv-bag" id="inventory-bag"></div>
       </div>
     </aside>
   </div>
@@ -162,6 +179,7 @@
   <script src="js/data/enemies.js"></script>
   <script src="js/data/upgrades.js"></script>
   <script src="js/data/questions.js"></script>
+  <script src="js/data/items.js"></script>
   <script src="js/state.js"></script>
   <script src="js/save.js"></script>
   <script src="js/enemies.js"></script>
@@ -173,6 +191,7 @@
   <script src="js/tests.js"></script>
   <script src="js/shop.js"></script>
   <script src="js/bestiary.js"></script>
+  <script src="js/inventory.js"></script>
   <script src="js/fx.js"></script>
   <script src="js/render.js"></script>
   <script src="js/dev.js"></script>

@@ -37,6 +37,7 @@ const dev = {
     state.examsPassed = Math.max(state.examsPassed, sceneIndex(n));
     state.examPending = false;
     $("exam-screen").hidden = true;
+    grantStartingLevels();
     state.enemy = makeEnemy(n);
     state.player.hp = state.player.maxHp;
     state.player.timer = 0;
@@ -57,6 +58,16 @@ const dev = {
     skipExam();
   },
   heal() { state.player.hp = state.player.maxHp; },
+  giveItem(id) { grantItem(id); save(); }, // p. ex. dev.giveItem("pixel")
+  giveAllItems() { for (const id of Object.keys(ITEMS)) grantItem(id); save(); },
+  // Buida l'inventari (es torna a bloquejar), per a provar com es desbloqueja
+  clearInventory() {
+    state.inventory = { items: [], equipped: {} };
+    recomputeStats();
+    if (!$("tab-inventory").hidden) document.querySelector('.tab[data-tab="shop"]').click();
+    refreshInventory();
+    save();
+  },
   maxUpgrades() {
     for (const u of visibleUpgrades()) state.upgrades[u.id] = Math.max(state.upgrades[u.id], upgradeCap(u));
     recomputeStats();
@@ -101,6 +112,8 @@ const DEV_ACTIONS = {
   "pass-exam": dev.passExam,
   "heal": dev.heal,
   "max-upgrades": dev.maxUpgrades,
+  "all-items": dev.giveAllItems,
+  "clear-items": dev.clearInventory,
   "export": () => {
     const text = dev.exportSave();
     $("dev-save").value = text;
@@ -123,6 +136,9 @@ function setDevOpen(open) {
 
 function refreshDevInfo() {
   if ($("dev-console").hidden) return;
+  // objectes que ja tens: marcats
+  document.querySelectorAll("#dev-console [data-item]").forEach(b =>
+    b.classList.toggle("active", state.inventory.items.includes(b.dataset.item)));
   const p = state.player, e = state.enemy;
   $("dev-info").innerHTML =
     `Nivell ${state.level} · escenari ${sceneIndex(state.level) + 1} · exàmens aprovats ${state.examsPassed}<br>` +
@@ -177,6 +193,13 @@ function initDevConsole() {
       </div>
     </div>
     <div class="dev-section">
+      <div class="dev-row">🎒 ${Object.entries(ITEMS).map(([id, it]) => `<button class="small secondary" data-item="${id}">${it.name}</button>`).join("")}</div>
+      <div class="dev-row">
+        <button class="small" data-dev="all-items">Tots els objectes</button>
+        <button class="small danger" data-dev="clear-items">Buidar inventari</button>
+      </div>
+    </div>
+    <div class="dev-section">
       <div class="dev-row">Partida
         <button class="small" data-dev="export">Exportar</button>
         <button class="small" data-dev="import">Importar</button>
@@ -202,6 +225,8 @@ function initDevConsole() {
   panel.addEventListener("click", ev => {
     const speed = ev.target.closest("[data-speed]");
     if (speed) { devSettings.speed = Number(speed.dataset.speed); applyDevSettings(); markSpeed(); return; }
+    const item = ev.target.closest("[data-item]");
+    if (item) { dev.giveItem(item.dataset.item); refreshDevInfo(); return; }
     const act = ev.target.closest("[data-dev]")?.dataset.dev;
     if (act === "close") setDevOpen(false);
     else if (DEV_ACTIONS[act]) { DEV_ACTIONS[act](); refreshDevInfo(); }
