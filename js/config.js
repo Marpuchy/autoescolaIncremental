@@ -23,7 +23,10 @@ const CONFIG = {
     // Vida extra de cada escenari (índex 0 = primer). Compensa que crític i diners s'obrin als Afores de Castelló
     // i parada i espines a l'Avinguda València: ajustat amb el bot perquè cada escenari demane els mateixos tests
     // que quan s'obrien a la Vall d'Uixó i a Sogorb (jugador mitjà → 31 en acabar Av. València, 112 València).
-    sceneHpMult: [1, 1, 1, 1.1, 1.65, 2.1, 2.15, 2.1, 1.75, 1.5, 1.5, 1.45],
+    // A partir de l'Albufera (12), ajustats amb el bot ja amb l'equipament dels caps: les zones sense cap amb nom
+    // són ràpides (uns 5-20 tests del jugador mitjà) i les de cap (Falles, Morella, DGT) són els murs.
+    sceneHpMult: [1, 1, 1, 1.1, 1.65, 2.1, 2.15, 2.1, 1.75, 1.5, 1.5,
+                  0.59, 0.86, 1.61, 1.57, 1.68, 1.98, 1.68, 1.49, 1.79],
     // Diners: n'hi ha prou per a omplir els límits que obri la L, sense que sobren a cabassos
     baseReward: 13, rewardGrowth: 1.0829,
   },

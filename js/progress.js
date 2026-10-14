@@ -24,10 +24,11 @@ function skipExam() {
 }
 
 // Reinicia la partida: es desfan les ampliacions i les compres de la botiga i es tornen les L gastades.
-// Es conserven les L, els tests i la ratxa. Retorna les L tornades.
+// Es conserven les L, els tests, la ratxa, el rècord (i per tant els requisits d'evolució) i els objectes.
+// Les evolucions dels objectes també es perden i se'n tornen les L. Retorna les L tornades.
 function restartGame() {
   const shopSpent = linearCostSum(state.shopPurchases, CONFIG.shop.baseLCost, CONFIG.shop.lCostGrowth);
-  const refunded = UPGRADES.reduce((sum, u) => sum + spentL(u), 0) + shopSpent;
+  const refunded = UPGRADES.reduce((sum, u) => sum + spentL(u), 0) + shopSpent + evoSpentL();
   state = newState({
     lcoins: state.lcoins + refunded,
     testsDone: state.testsDone,

@@ -23,6 +23,7 @@
       <span class="l-stat"><span class="lplate">L</span> <strong id="lcoins">0</strong></span>
       <span>🏁 Nivell: <strong id="level">1</strong></span>
       <span>🏆 Rècord: <strong id="best">1</strong></span>
+      <button id="btn-hub" class="hub-btn" title="Entrar a la DGT: botiga, tests, compendi i inventari">🏢<span class="hub-btn-label"> DGT</span></button>
       <button id="btn-reset" class="danger small" title="Reiniciar la partida">🔄<span class="reset-label"> Reiniciar</span></button>
     </div>
   </header>
@@ -72,9 +73,11 @@
                   <!-- potes davanteres (classes: l'equipament que les fa servir les amaga, p. ex. la capa) -->
                   <ellipse class="frog-hand-l" cx="46" cy="114" rx="12" ry="7" fill="#4fa64d"/>
                   <ellipse class="frog-hand-r" cx="94" cy="114" rx="12" ry="7" fill="#4fa64d"/>
-                  <!-- placa L de novell -->
-                  <rect x="59" y="84" width="22" height="22" rx="3" fill="#009b48" stroke="#fff" stroke-width="2"/>
-                  <text x="70" y="101" text-anchor="middle" font-size="17" font-weight="900" fill="#fff" font-family="system-ui, sans-serif">L</text>
+                  <!-- placa L de novell (el Carnet de conduir l'amaga) -->
+                  <g class="frog-lplate">
+                    <rect x="59" y="84" width="22" height="22" rx="3" fill="#009b48" stroke="#fff" stroke-width="2"/>
+                    <text x="70" y="101" text-anchor="middle" font-size="17" font-weight="900" fill="#fff" font-family="system-ui, sans-serif">L</text>
+                  </g>
                 </svg>
                 <!-- peces que porta posades (ulleres...): js/inventory.js -->
                 <div class="wear-holder" id="player-wear"></div>
@@ -88,8 +91,12 @@
         <!-- ENEMIC -->
         <div class="fighter" id="enemy">
           <div class="fighter-name" id="enemy-name">Enemic</div>
-          <div class="avatar" id="enemy-avatar">
-            <div class="sprite" id="enemy-sprite"></div>
+          <div class="avatar-wrap">
+            <!-- aliat del cap (el gos del Pastor de Morella): js/bosses.js -->
+            <div class="gear-layer" id="enemy-gear"></div>
+            <div class="avatar" id="enemy-avatar">
+              <div class="sprite" id="enemy-sprite"></div>
+            </div>
           </div>
           <div class="bar"><div class="bar-fill hp enemy" id="enemy-hp-bar"></div></div>
         </div>
@@ -98,18 +105,33 @@
       </div>
     </section>
 
-    <!-- PANELL DRET: pestanyes (només icones, el nom és el title; cada panell ja té el seu títol) -->
-    <aside id="side">
-      <div class="tabs">
-        <button class="tab active" data-tab="shop" title="Botiga"><span class="tab-icon">🏪</span><span class="tab-label"> Botiga</span></button>
-        <button class="tab" data-tab="test" title="Tests"><span class="tab-icon">📝</span><span class="tab-label"> Tests</span></button>
-        <button class="tab" data-tab="bestiary" title="Compendi"><span class="tab-icon">📖</span><span class="tab-label"> Compendi</span></button>
-        <button class="tab" data-tab="inventory" id="tab-btn-inventory" title="Inventari" hidden><span class="tab-icon">🎒</span><span class="tab-label"> Inventari</span></button>
-        <button id="btn-side-toggle" class="side-toggle" title="Plegar">»</button>
-      </div>
+  </div>
 
-      <div class="tab-panel" id="tab-shop">
-        <h2>🏪 Botiga</h2>
+  <!-- MENÚ DE MILLORES (franja inferior completa) -->
+  <section id="upgrades" aria-label="Millores">
+    <div id="upgrade-list"></div>
+  </section>
+
+  <!-- DGT: ESPAI COMÚ a pantalla completa (js/hub.js). L'escena es pinta en #hub-scene. -->
+  <div id="hub" hidden>
+    <div class="hub-top">
+      <h2>🏢 DGT</h2>
+      <div class="hub-stats"><span>💰 <strong id="hub-money">0</strong></span><span class="l-stat"><span class="lplate">L</span> <strong id="hub-l">0</strong></span></div>
+      <button id="btn-hub-close" class="secondary">↩ Tornar a la carretera</button>
+    </div>
+    <div class="hub-scene" id="hub-scene"></div>
+    <!-- accessos ràpids (al mòbil l'escena queda menuda) -->
+    <nav class="hub-actions" id="hub-actions" aria-label="Llocs de la DGT">
+      <button data-hub="shop">🏧<span>Caixer</span></button>
+      <button data-hub="test">☕<span>Tests</span></button>
+      <button data-hub="bestiary">📖<span>Compendi</span></button>
+      <button data-hub="inventory">🪞<span>Espill</span></button>
+    </nav>
+    <div id="hub-dialog" hidden>
+      <div class="hub-card" role="dialog" aria-modal="true">
+        <button class="small secondary hub-card-close" id="btn-hub-dialog-close" title="Tancar (Esc)" aria-label="Tancar">✕</button>
+      <div class="hub-panel" id="tab-shop" hidden>
+        <h2>🏧 Caixer</h2>
         <p>Canvia <span class="lplate sm">L</span> per diners.</p>
         <div class="shop-offer">
           <div class="shop-amount">+<span id="shop-coins">0</span> 💰</div>
@@ -118,35 +140,47 @@
         <p class="muted" id="shop-info"></p>
       </div>
 
-      <div class="tab-panel" id="tab-test" hidden>
-        <h2>📝 He fet un test</h2>
+      <div class="hub-panel" id="tab-test" hidden>
+        <h2>☕ Has fet un test?</h2>
         <p>Quantes errades has tingut en el test?</p>
         <div class="test-options" id="test-options"></div>
         <p class="muted" id="streak-info"></p>
         <p class="muted">Tests registrats: <span id="tests-done">0</span></p>
       </div>
 
-      <div class="tab-panel" id="tab-bestiary" hidden>
+      <div class="hub-panel" id="tab-bestiary" hidden>
         <h2>📖 Compendi <span class="muted" id="bestiary-count"></span></h2>
         <p class="muted">Enemics que has vist en totes les partides.</p>
         <div id="bestiary-list"></div>
       </div>
-
-      <div class="tab-panel" id="tab-inventory" hidden>
-        <h2>🎒 Inventari</h2>
-        <div class="inv-slots" id="inventory-slots"></div>
-        <div class="inv-preview" id="inventory-preview"></div>
-        <div class="inv-detail" id="inventory-detail"></div>
-        <h3 class="inv-bag-title">Motxilla</h3>
-        <div class="inv-bag" id="inventory-bag"></div>
       </div>
-    </aside>
+    </div>
   </div>
 
-  <!-- MENÚ DE MILLORES (franja inferior completa) -->
-  <section id="upgrades" aria-label="Millores">
-    <div id="upgrade-list"></div>
-  </section>
+  <!-- FINESTRA DE L'INVENTARI (js/inventory.js): granoteta a l'esquerra; espais, objectes i evolució a la dreta -->
+  <div id="inventory-modal" hidden>
+    <div class="inv-box" role="dialog" aria-modal="true" aria-labelledby="inv-title">
+      <div class="inv-head">
+        <h2 id="inv-title">🎒 Inventari</h2>
+        <button class="small secondary" id="btn-inv-close" title="Tancar (Esc)" aria-label="Tancar">✕</button>
+      </div>
+      <div class="inv-body">
+        <div class="inv-left">
+          <!-- granoteta amb els 3 espais al voltant, en triangle (un dalt al mig i dos davall als costats) -->
+          <div class="inv-stage">
+            <div class="inv-preview" id="inventory-preview"></div>
+            <div class="inv-slots" id="inventory-slots"></div>
+          </div>
+          <div class="inv-preview-label muted" id="inventory-preview-label"></div>
+        </div>
+        <div class="inv-right">
+          <div class="inv-section-title" id="inventory-items-title"></div>
+          <div class="inv-items" id="inventory-items"></div>
+          <div class="inv-detail" id="inventory-detail"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- PANTALLA COMPLETA: fi d'escenari + examen (no es pot tancar fins aprovar) -->
   <div id="exam-screen" hidden>
@@ -180,6 +214,7 @@
   <script src="js/data/upgrades.js"></script>
   <script src="js/data/questions.js"></script>
   <script src="js/data/items.js"></script>
+  <script src="js/data/evolutions.js"></script>
   <script src="js/state.js"></script>
   <script src="js/save.js"></script>
   <script src="js/enemies.js"></script>
@@ -192,6 +227,9 @@
   <script src="js/shop.js"></script>
   <script src="js/bestiary.js"></script>
   <script src="js/inventory.js"></script>
+  <script src="js/evolutions.js"></script>
+  <script src="js/data/hub-art.js"></script>
+  <script src="js/hub.js"></script>
   <script src="js/fx.js"></script>
   <script src="js/render.js"></script>
   <script src="js/dev.js"></script>

@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice">
+  <!-- Port de Sagunt: l'Alt Forn, grues portuàries, contenidors apilats, un vaixell de càrrega i el moll -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6a8fb8"/><stop offset="0.6" stop-color="#b8cfe0"/><stop offset="0.85" stop-color="#ecf2f6"/>
+    </linearGradient>
+    <linearGradient id="mar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4f7ea0"/><stop offset="1" stop-color="#2f5a7a"/></linearGradient>
+    <linearGradient id="rovell" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7a3f24"/><stop offset="0.5" stop-color="#a0582e"/><stop offset="1" stop-color="#6a3420"/></linearGradient>
+    <linearGradient id="asfalt" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5a5c60"/><stop offset="1" stop-color="#3c3e42"/>
+    </linearGradient>
+    <pattern id="gra" width="48" height="36" patternUnits="userSpaceOnUse">
+      <circle cx="6" cy="8" r="1.6" fill="#fff" opacity="0.1"/><circle cx="30" cy="4" r="1.2" fill="#000" opacity="0.2"/>
+      <circle cx="20" cy="22" r="1.4" fill="#fff" opacity="0.08"/><circle cx="42" cy="28" r="1.8" fill="#000" opacity="0.15"/>
+    </pattern>
+    <pattern id="ondulat" width="10" height="40" patternUnits="userSpaceOnUse"><rect width="10" height="40" fill="#000" opacity="0"/><rect width="3" height="40" fill="#000" opacity="0.15"/></pattern>
+    <radialGradient id="vinyeta" cx="0.5" cy="0.55" r="0.75">
+      <stop offset="0.62" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#101a24" stop-opacity="0.35"/>
+    </radialGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <g fill="#fff" opacity="0.8"><ellipse cx="320" cy="120" rx="100" ry="16"/><ellipse cx="1200" cy="100" rx="90" ry="14"/></g>
+  <rect y="460" width="1600" height="145" fill="url(#mar)"/>
+  <!-- vaixell de càrrega -->
+  <g>
+    <path d="M980 520 H1520 L1490 570 H1010 Z" fill="#2a3a52"/><rect x="980" y="512" width="540" height="10" fill="#c9472f"/>
+    <rect x="1400" y="440" width="90" height="72" fill="#f2f0ea"/><rect x="1410" y="452" width="70" height="14" fill="#3f6f90"/>
+    <rect x="1440" y="400" width="18" height="40" fill="#c9472f"/>
+    <g><rect x="1020" y="470" width="80" height="42" fill="#2a8a5a"/><rect x="1100" y="470" width="80" height="42" fill="#d1261f"/><rect x="1180" y="470" width="80" height="42" fill="#2d6fb8"/><rect x="1260" y="470" width="80" height="42" fill="#f2b300"/>
+      <rect x="1060" y="428" width="80" height="42" fill="#f2b300"/><rect x="1140" y="428" width="80" height="42" fill="#2a8a5a"/><rect x="1220" y="428" width="80" height="42" fill="#d1261f"/></g>
+    <rect x="1020" y="428" width="320" height="84" fill="url(#ondulat)"/>
+  </g>
+  <!-- l'Alt Forn -->
+  <g>
+    <rect x="120" y="260" width="110" height="340" fill="url(#rovell)"/>
+    <path d="M110 260 L175 200 L240 260 Z" fill="#5a2e1a"/><rect x="160" y="140" width="30" height="70" fill="#6a3420"/>
+    <g stroke="#5a2e1a" stroke-width="8" fill="none"><path d="M230 320 Q300 300 320 380 V600"/><path d="M120 380 Q60 400 60 600"/></g>
+    <rect x="300" y="360" width="60" height="240" fill="url(#rovell)"/><rect x="40" y="420" width="40" height="180" fill="url(#rovell)"/>
+    <g stroke="#3a1e12" stroke-width="3" opacity="0.6"><path d="M120 330 H230 M120 420 H230 M120 510 H230"/></g>
+  </g>
+  <!-- grues portuàries -->
+  <g fill="none" stroke-width="10" stroke-linecap="square">
+    <path d="M520 600 V280 M600 600 V280 M520 440 H600 M520 360 L600 440 M600 360 L520 440" stroke="#d1261f"/>
+    <path d="M440 280 H880" stroke="#d1261f"/><path d="M560 280 L620 200 M560 280 L500 200" stroke="#d1261f"/>
+    <path d="M800 280 V380" stroke="#555" stroke-width="3"/>
+  </g>
+  <rect x="784" y="380" width="34" height="20" fill="#2d6fb8"/>
+  <g fill="none" stroke="#f2b300" stroke-width="8">
+    <path d="M760 600 V340 M820 600 V340 M760 470 H820 M760 400 L820 470"/><path d="M700 340 H960"/>
+  </g>
+  <!-- contenidors apilats al moll -->
+  <g>
+    <rect x="860" y="540" width="120" height="60" fill="#2d6fb8"/><rect x="860" y="480" width="120" height="60" fill="#2a8a5a"/>
+    <rect x="360" y="540" width="120" height="60" fill="#f2b300"/><rect x="380" y="480" width="120" height="60" fill="#d1261f"/>
+    <rect x="360" y="480" width="140" height="120" fill="url(#ondulat)"/><rect x="860" y="480" width="120" height="120" fill="url(#ondulat)"/>
+  </g>
+  <!-- moll -->
+  <rect y="600" width="1600" height="100" fill="#8a8f96"/><rect y="600" width="1600" height="10" fill="#6b7076"/>
+  <g fill="#f2c200"><rect x="100" y="680" width="80" height="6"/><rect x="400" y="680" width="80" height="6"/><rect x="700" y="680" width="80" height="6"/><rect x="1000" y="680" width="80" height="6"/><rect x="1300" y="680" width="80" height="6"/></g>
+  <g fill="#3a3a3a"><rect x="580" y="640" width="20" height="18" rx="4"/><rect x="1180" y="640" width="20" height="18" rx="4"/></g>
+  <rect y="700" width="1600" height="200" fill="url(#asfalt)"/><rect y="700" width="1600" height="200" fill="url(#gra)"/>
+  <line x1="0" y1="800" x2="1600" y2="800" stroke="#f2c200" stroke-width="5" stroke-dasharray="60 50" opacity="0.85"/>
+  <rect width="1600" height="900" fill="url(#vinyeta)"/>
+</svg>

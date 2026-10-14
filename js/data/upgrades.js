@@ -31,7 +31,7 @@ const UPGRADES = [
   { id: "crit",  scene: 2, icon: "🎯", name: "Maniobra perfecta",    base: 3,   baseCost: 130,  costGrowth: 1.15,
     per: e => `+${fmtPct(e)}% de crític`,
     total: (lv, e) => `${capped(lv * e, CONFIG.combat.maxCritChance)} de crític`,
-    stat: p => `Crític: ${fmtPct(p.critChance * 100)}% · dany ×${CONFIG.combat.critMultiplier}` },
+    stat: p => `Crític: ${fmtPct(p.critChance * 100)}% · dany ×${fmtNum(p.critMult ?? CONFIG.combat.critMultiplier)}` },
   { id: "money", scene: 2, icon: "💳", name: "Carnet jove",          base: 10,  baseCost: 160,  costGrowth: 1.15,
     per: e => `+${fmtPct(e)}% de diners`,
     total: (lv, e) => `+${fmtPct(lv * e)}% de diners`,

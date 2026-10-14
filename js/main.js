@@ -7,25 +7,6 @@ grantStartingLevels();
 if (!state.enemy) state.enemy = makeEnemy(state.level);
 else refreshEnemyStats(state.enemy, state.level); // per si el balanç ha canviat des que es va guardar
 
-// ----- Panell dret plegable: en plegar-lo només queden les icones de les pestanyes -----
-const SIDE_KEY = "autoescuela-side-collapsed";
-function setSideCollapsed(collapsed) {
-  $("side").classList.toggle("collapsed", collapsed);
-  $("btn-side-toggle").textContent = collapsed ? "«" : "»";
-  $("btn-side-toggle").title = collapsed ? "Desplegar" : "Plegar";
-  try { localStorage.setItem(SIDE_KEY, collapsed ? "1" : "0"); } catch {}
-}
-$("btn-side-toggle").addEventListener("click", () => setSideCollapsed(!$("side").classList.contains("collapsed")));
-try { setSideCollapsed(localStorage.getItem(SIDE_KEY) === "1"); } catch { setSideCollapsed(false); }
-
-// ----- Pestanyes -----
-document.querySelectorAll(".tab").forEach(tab => tab.addEventListener("click", () => {
-  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t === tab));
-  document.querySelectorAll(".tab-panel").forEach(p => p.hidden = p.id !== "tab-" + tab.dataset.tab);
-  if ($("side").classList.contains("collapsed")) setSideCollapsed(false);
-  if (tab.dataset.tab === "bestiary") renderBestiary();
-  if (tab.dataset.tab === "inventory") renderInventory();
-}));
 // Clic en una entrada del compendi: mostra/amaga la descripció
 $("bestiary-list").addEventListener("click", ev => {
   const beast = ev.target.closest(".beast");
@@ -65,6 +46,7 @@ function loop(now) {
 }
 
 initInventory();
+initHub();
 checkItemRewards(false); // partides d'abans: si ja havien derrotat un cap que dona equipament, el reben ara
 initDevConsole();
 renderUpgrades();

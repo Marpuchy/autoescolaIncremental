@@ -114,6 +114,59 @@ const TORERO_BOSS = {
   hpMult: 0.8,
 };
 
+// Ninot de la falla: cap especial de les Falles de València (crema tot el rato)
+const NINOT_SVG = `<svg class="on-fire-svg" viewBox="0 0 150 210" aria-label="Ninot de la falla">
+  <rect x="30" y="182" width="90" height="22" fill="#8a5a33"/><rect x="24" y="176" width="102" height="8" fill="#6b4426"/>
+  <path d="M46 180 Q40 130 60 112 H90 Q110 130 104 180 Z" fill="#3a7bd5"/>
+  <path d="M46 180 Q60 160 75 176 Q90 160 104 180" fill="#f2c200"/>
+  <g fill="#ff5ab0"><circle cx="62" cy="140" r="5"/><circle cx="88" cy="136" r="5"/><circle cx="76" cy="156" r="5"/></g>
+  <path d="M60 116 Q36 120 30 98 L40 94 Q48 108 62 108 Z M90 116 Q114 120 120 96 L110 92 Q102 108 88 108 Z" fill="#3a7bd5"/>
+  <circle cx="34" cy="94" r="8" fill="#ffd9b8"/><circle cx="116" cy="92" r="8" fill="#ffd9b8"/>
+  <ellipse cx="75" cy="66" rx="38" ry="44" fill="#ffd9b8"/>
+  <circle cx="58" cy="60" r="9" fill="#fff"/><circle cx="92" cy="60" r="9" fill="#fff"/>
+  <circle cx="60" cy="61" r="4.5" fill="#1d1d1d"/><circle cx="90" cy="61" r="4.5" fill="#1d1d1d"/>
+  <ellipse cx="75" cy="80" rx="12" ry="16" fill="#ff9a8a"/>
+  <path d="M52 96 Q64 88 75 96 Q86 88 98 96 Q86 104 75 98 Q64 104 52 96 Z" fill="#3a2a1a"/>
+  <ellipse cx="50" cy="82" rx="8" ry="5" fill="#ff7a8a" opacity="0.7"/><ellipse cx="100" cy="82" rx="8" ry="5" fill="#ff7a8a" opacity="0.7"/>
+  <path d="M36 40 Q40 10 75 12 Q110 10 114 40 Q96 30 75 32 Q54 30 36 40 Z" fill="#c4161c"/>
+  <circle cx="75" cy="10" r="7" fill="#c4161c"/>
+  <g class="flames">
+    <path d="M22 204 Q10 176 26 160 Q24 178 36 182 Q34 164 46 150 Q44 176 56 204 Z" fill="#ff7a1a"/>
+    <path d="M128 204 Q140 176 124 160 Q126 178 114 182 Q116 164 104 150 Q106 176 94 204 Z" fill="#ff7a1a"/>
+    <path d="M30 204 Q24 186 34 176 Q34 190 44 194 Q44 182 50 176 Q52 194 50 204 Z" fill="#ffd23f"/>
+    <path d="M120 204 Q126 186 116 176 Q116 190 106 194 Q106 182 100 176 Q98 194 100 204 Z" fill="#ffd23f"/>
+    <path d="M56 204 Q50 186 62 172 Q62 188 75 190 Q88 188 88 172 Q100 186 94 204 Z" fill="#ff4a1a" opacity="0.9"/>
+  </g>
+</svg>`;
+const NINOT_BOSS = {
+  name: "Ninot de la falla",
+  icon: NINOT_SVG,
+  desc: "Cartó pedra, purpurina i una crítica satírica que ningú entén. Ja l'han encés abans de la cremà i no pensa apagar-se.",
+  mech: "ninot",
+  ability: "Cremà permanent: crema tot el rato i et crema a tu cada segon, a banda dels seus atacs.",
+  atkMult: 0.75,
+};
+
+// Pastor de Morella: cap especial de Morella i els Ports (amb el seu gos d'atura)
+const PASTOR_BOSS = {
+  name: "Pastor de Morella",
+  icon: `🧑‍🌾<span class="badge">🐑</span>`,
+  desc: "Gaiato, samarra i tres-centes ovelles a la carretera. No té pressa i el seu gos, menys encara.",
+  mech: "pastor",
+  ability: "Gos d'atura: el seu gos l'ajuda i t'ataca pel seu compte (no té vida).",
+  atkMult: 0.7,
+};
+
+// Examinador en cap: cap especial de la DGT (punt d'inflexió: després, la carretera de veritat)
+const CHIEF_BOSS = {
+  name: "Examinador en cap",
+  icon: `🧑‍💼<span class="badge">👑</span>`,
+  desc: "El cap de tots els examinadors. Ha suspés més gent que ningú a la Comunitat Valenciana i en té una carpeta per a demostrar-ho.",
+  mech: "chief",
+  ability: "Falta eliminatòria: cada 10 s t'apunta una falta. A la tercera et suspén i es cura un 25% de la vida (una vegada per combat).",
+  hpMult: 0.85,
+};
+
 // img: imatge de fons de l'escenari (es pot substituir per un .png/.jpg amb el mateix nom de camp)
 // boss (opcional): cap especial de l'escenari en lloc de l'Examinador de Trànsit
 const SCENES = [
@@ -129,8 +182,16 @@ const SCENES = [
   { name: "Benicàssim en el FIB",           bg: "#3a3a5a", img: "img/escenari-10.svg" },
   { name: "Bous a Vila-real",               bg: "#7a5a3a", img: "img/escenari-11.svg", boss: TORERO_BOSS },
   { name: "L'Albufera",                     bg: "#5a7a6a", img: "img/escenari-12.svg" },
+  { name: "Rotondes de Castelló",           bg: "#6b7a5a", img: "img/escenari-13.svg" },
+  { name: "Falles de València",             bg: "#4a3a5a", img: "img/escenari-14.svg", boss: NINOT_BOSS },
+  { name: "AP-7 (sense peatges)",           bg: "#5a6a7a", img: "img/escenari-15.svg" },
+  { name: "Desert de les Palmes",           bg: "#5a6a4a", img: "img/escenari-16.svg" },
+  { name: "Morella i els Ports",            bg: "#7a8090", img: "img/escenari-17.svg", boss: PASTOR_BOSS },
+  { name: "Circuit de Cheste",              bg: "#4a4a50", img: "img/escenari-18.svg" },
+  { name: "Port de Sagunt",                 bg: "#4a5a6a", img: "img/escenari-19.svg" },
+  { name: "DGT: examen pràctic",            bg: "#5a6a7a", img: "img/escenari-20.svg", boss: CHIEF_BOSS },
 ];
 const DEFAULT_SCENE_BG = "#3a4250";
 
 // Es precarreguen les fotos dels caps perquè ja estiguen llestes quan apareguen
-for (const src of ["img/pixel.jpeg", "img/marc.jpeg"]) new Image().src = src;
+for (const src of ["img/pixel.jpeg", "img/marc.jpeg", "img/gos-atura.svg"]) new Image().src = src;

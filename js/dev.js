@@ -59,12 +59,14 @@ const dev = {
   },
   heal() { state.player.hp = state.player.maxHp; },
   giveItem(id) { grantItem(id); save(); }, // p. ex. dev.giveItem("pixel")
+  // El logo de la tele de la DGT toca un racó en 3 s (i obri la DGT si cal)
+  dvdCorner() { if (!hubOpen()) openHub(); forceDvdCorner(3); toast("📀 El logo tocarà el racó en 3 s"); },
   giveAllItems() { for (const id of Object.keys(ITEMS)) grantItem(id); save(); },
   // Buida l'inventari (es torna a bloquejar), per a provar com es desbloqueja
   clearInventory() {
     state.inventory = { items: [], equipped: {} };
     recomputeStats();
-    if (!$("tab-inventory").hidden) document.querySelector('.tab[data-tab="shop"]').click();
+    closeInventory();
     refreshInventory();
     save();
   },
@@ -114,6 +116,7 @@ const DEV_ACTIONS = {
   "max-upgrades": dev.maxUpgrades,
   "all-items": dev.giveAllItems,
   "clear-items": dev.clearInventory,
+  "dvd": dev.dvdCorner,
   "export": () => {
     const text = dev.exportSave();
     $("dev-save").value = text;
@@ -198,6 +201,7 @@ function initDevConsole() {
         <button class="small" data-dev="all-items">Tots els objectes</button>
         <button class="small danger" data-dev="clear-items">Buidar inventari</button>
       </div>
+      <div class="dev-row">📀 <button class="small" data-dev="dvd">Logo de la tele al racó</button></div>
     </div>
     <div class="dev-section">
       <div class="dev-row">Partida

@@ -9,6 +9,9 @@ function renderEnemySprite(e) {
   registerSeen(e);
   const sprite = $("enemy-sprite");
   sprite.innerHTML = enemyIcon(e);
+  // Aliat del cap (el gos del Pastor), al costat de l'enemic
+  const ally = bossMech(e)?.ally;
+  $("enemy-gear").innerHTML = ally ? `<div class="gear gear-ally">${ally.look}</div>` : "";
   sprite.style.setProperty("--size", e.size || 1);
   restartAnim(sprite, "spawn");
   // Es lleva la classe en acabar: si no, cada colp (que substituïx l'animació) la tornaria a començar
@@ -35,6 +38,7 @@ function render() {
   $("lcoins").textContent = fmt(state.lcoins);
   $("level").textContent = state.level;
   $("best").textContent = state.best;
+  if (hubOpen()) { $("hub-money").textContent = fmt(state.money); $("hub-l").textContent = fmt(state.lcoins); updateDvd(); }
 
   const scene = sceneOf(state.level);
   $("scene-num").textContent = sceneIndex(state.level) + 1;
@@ -43,7 +47,7 @@ function render() {
   $("scene-size").textContent = CONFIG.levelsPerScene;
   $("scene").style.setProperty("--scene-bg", scene.bg);
   const img = scene.img ? `url("${scene.img}")` : "none";
-  if (renderedSceneImg !== img) { renderedSceneImg = img; $("scene").style.backgroundImage = img; }
+  if (renderedSceneImg !== img) { renderedSceneImg = img; $("scene").style.backgroundImage = img; renderHub(); } // la finestra de la DGT
 
   $("player-hp-bar").style.width = (Math.max(0, p.hp) / p.maxHp * 100) + "%";
   $("enemy-name").textContent = e.name;
@@ -53,4 +57,5 @@ function render() {
 
   if (!$("tab-shop").hidden) renderShop();
   refreshUpgradeButtons();
+  refreshEvoButtons();
 }

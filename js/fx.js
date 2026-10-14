@@ -57,6 +57,25 @@ function allyAttackFx(dmg, opts = {}) {
   }, CONFIG.hitDelay);
 }
 
+// Colp de l'aliat d'un cap (el gos del Pastor): es llança contra la granoteta
+function enemyAllyAttackFx(dmg, missed) {
+  const el = document.querySelector("#enemy-gear .gear-ally");
+  const tAv = $("player-avatar");
+  if (el) {
+    const a = el.getBoundingClientRect();
+    const t = tAv.getBoundingClientRect();
+    el.style.setProperty("--dx", `${(t.left + t.width / 2) - (a.left + a.width / 2)}px`);
+    el.style.setProperty("--dy", `${(t.top + t.height / 2) - (a.top + a.height / 2)}px`);
+    el.style.setProperty("--rot", "-14deg");
+    restartAnim(el, "lunge");
+  }
+  setTimeout(() => {
+    if (missed) { spawnText(tAv, missed, "skill"); return; }
+    restartAnim($("player"), "hit");
+    spawnText(tAv, `🐕 -${fmtNum(dmg)}`, "by-enemy");
+  }, CONFIG.hitDelay);
+}
+
 function spawnDamage(avatar, dmg, attacker, kind = "") {
   spawnText(avatar, kind === "crit" ? `💥 -${fmtNum(dmg)}!` : kind === "thorns" ? `🌵 -${fmtNum(dmg)}` : `-${fmtNum(dmg)}`,
     `by-${attacker} ${kind}`);

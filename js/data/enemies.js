@@ -22,6 +22,19 @@ const BOAT_SVG = `<svg viewBox="0 0 150 130" aria-label="Barca de l'Albufera">
   <path d="M4 120 Q20 112 36 120 T68 120 T100 120 T132 120 T150 118" stroke="#7fc6e8" stroke-width="5" fill="none" stroke-linecap="round"/>
   <g fill="#bfe6f7"><circle cx="140" cy="108" r="4"/><circle cx="146" cy="100" r="3"/><circle cx="8" cy="110" r="3"/></g>
 </svg>`;
+const FORKLIFT_SVG = `<svg viewBox="0 0 150 120" aria-label="Carretó elevador">
+  <rect x="14" y="6" width="8" height="98" fill="#6b7480"/><rect x="30" y="6" width="8" height="98" fill="#6b7480"/>
+  <rect x="14" y="44" width="24" height="6" fill="#4a525c"/>
+  <rect x="2" y="70" width="40" height="6" fill="#3a3f46"/><rect x="2" y="70" width="6" height="22" fill="#3a3f46"/>
+  <rect x="4" y="38" width="34" height="32" fill="#b88a4a"/><path d="M4 50 H38 M20 38 V70" stroke="#8a6434" stroke-width="2.5"/>
+  <path d="M40 50 H96 L104 30 H128 L134 50 H144 V96 H40 Z" fill="#f2b300"/>
+  <path d="M100 52 V30 M130 52 V30" stroke="#2b2b2b" stroke-width="4"/><rect x="98" y="26" width="38" height="6" fill="#2b2b2b"/>
+  <rect x="104" y="58" width="22" height="16" rx="3" fill="#2b2b2b"/>
+  <rect x="40" y="88" width="104" height="8" fill="#d99a00"/>
+  <circle cx="62" cy="100" r="15" fill="#222"/><circle cx="62" cy="100" r="6" fill="#888"/>
+  <circle cx="124" cy="102" r="12" fill="#222"/><circle cx="124" cy="102" r="5" fill="#888"/>
+  <circle cx="140" cy="44" r="4" fill="#ff7a1a"/>
+</svg>`;
 const ENEMY_TYPES = [
   { name: "Semàfor en groc",          mult: 0.9,  icon: "🚦",
     desc: "Ni verd ni roig: el dubte etern. Accelere o frene? Mentre ho penses, ell ja t'ha atacat." },
@@ -49,6 +62,22 @@ const ENEMY_TYPES = [
     desc: "Pas a nivell sense barreres? No intentes mai guanyar-li la carrera." },
   { name: "Barca de l'Albufera",      mult: 3.6,  icon: BOAT_SVG,
     desc: "Vela llatina, motoret fumejant i cap respecte pel codi. Ix dels canals de l'arròs i, quan s'acaba l'aigua, segueix per la carretera." },
+  { name: "Conductor sense intermitent", mult: 3.7, icon: "🚙",
+    desc: "Entra a la rotonda pel carril de dins i ix per la primera eixida sense avisar. L'intermitent el té de decoració." },
+  { name: "Fallera amb petards",      mult: 3.8,  icon: `💃<span class="badge">🧨</span>`,
+    desc: "Espardenyes, monyos perfectes i una traca a la mà. On ella passa, hi ha soroll i olor de pólvora." },
+  { name: "Cotxe de lloguer de guiri", mult: 3.9, icon: `🚗<span class="badge">🧳</span>`,
+    desc: "No sap on va, el GPS li parla en alemany i frena en sec en totes les eixides de l'autopista." },
+  { name: "Senglar",                  mult: 4.0,  icon: "🐗",
+    desc: "Ix del bosc de nit, travessa sense mirar i no té cap intenció de cedir-te el pas. Ell estava ací abans." },
+  { name: "Ramat d'ovelles",          mult: 4.1,  icon: "🐑",
+    desc: "Tres-centes ovelles ocupant tota la carretera dels Ports. Paciència: ací el pas el decidix el gos." },
+  { name: "Pilot de MotoGP",          mult: 4.2,  icon: "🏍️",
+    desc: "Genoll a terra en cada revolt i la frenada al límit. Per a ell, la línia contínua és una suggerència." },
+  { name: "Carretó elevador",         mult: 4.3,  icon: FORKLIFT_SVG,
+    desc: "Fa marxa arrere pitant, porta un palé de més i ha decidit que el moll del port és seu." },
+  { name: "Cotxe de doble pedal",     mult: 4.4,  icon: "🚘",
+    desc: "El cotxe de l'autoescola rival. L'instructor frena per tu quan menys t'ho esperes." },
 ];
 const BOSS_NAME = "Examinador de Trànsit"; // sempre és el cap dels nivells 10, 20, 30...
 const BOSS_DESC = "Carpeta en mà i cara de pòquer. Apunta cada falta, per xicoteta que siga. El teu pitjor malson.";

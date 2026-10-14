@@ -1,0 +1,55 @@
+# Autoescola Incremental
+
+Juego incremental en el navegador: una granoteta que se saca el carnet luchando contra el tráfico de pueblos y
+ciudades valencianas. Lo juegan amigos del autor en escritorio y móvil. La "moneda" principal (L) sale de tests
+reales de autoescuela que el jugador registra a mano. Publicado desde `main` (GitHub: Marpuchy/autoescolaIncremental).
+
+## Stack
+HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que comparten el ámbito global
+(no módulos): **el orden de `<script>` de `index.html` importa** y `main.js` va siempre el último.
+
+## Comandos
+- Jugar / probar: abrir `index.html` (vale con `file://`). En local aparece la consola 🛠 (tecla `º`) y el objeto `dev`.
+- Sintaxis: `node --check js/<archivo>.js` (el hook de `.claude/` lo hace solo tras cada edición).
+- Balance: `node tools/bot.js` (tests por escenario, jugador medio y bueno) · `node tools/tune.js --targets '{...}'`.
+- Capturas: `node tools/captura.js --level 140 --items all --tab inventory` · `--svg img/escenari-13.svg`.
+- Escena de la DGT: `node tools/dgt.js` (regenera `js/data/hub-art.js`; motor de perspectiva en `tools/perspectiva.js`).
+  Con Playwright (instalado para Python): skill `webapp-testing`, abriendo `index.html` como `file://`.
+- No hay build, lint ni tests automáticos.
+
+## Estructura
+- `js/config.js` — todo el balance (`CONFIG`): vida/ataque/recompensa, `sceneHpMult` por escenario, costes.
+- `js/data/` — contenidos: `scenes.js` (escenarios y jefes con nombre), `enemies.js`, `upgrades.js`, `items.js`, `questions.js`.
+- Lógica: `state.js` (estado), `save.js` (guardado y migraciones), `enemies.js`, `bosses.js` (habilidades de jefes),
+  `combat.js`, `upgrades.js`, `inventory.js`, `evolutions.js` (ramas de evolución de objetos, datos en
+  `data/evolutions.js`), `hub.js` (DGT: espacio común), `progress.js`, `exam.js`, `tests.js`, `shop.js`, `bestiary.js`.
+- Pintado: `render.js` (cada fotograma), `fx.js` (animaciones y números), `style.css`. `dev.js`: consola de desarrollo.
+- `img/` — fondos `escenari-N.svg` (1600×900), sprites SVG y fotos de jefes. `tools/` — bot, ajustador y capturas (no los carga el juego).
+
+## Convenciones
+- Idioma: textos del juego, comentarios y commits en **valenciano**. Con el usuario se habla en castellano.
+- **No romper partidas**: nunca cambiar `SAVE_KEY`, los campos del estado, los `id` de mejoras/objetos/espacios ni los
+  nombres de enemigos (son claves del compendio). Si se renombra algo, añadirlo a `RENAMED_ENEMIES`/`applyRenames` (`save.js`).
+- Diseño: skills importadas `frontend-design` (crear o rehacer interfaz) y `ui-ergonomics-review` (revisar), siempre
+  con los datos del juego de `autoescola-design-system` (paleta, iconos, medidas). Sprites y fondos: `dibujo-sprites` + skill importada `svg-creator`.
+- Código: `/simplify` (ordenar y simplificar) y `/code-review` (buscar fallos) tras cambios grandes.
+- Seguridad: `/security-review`. Juego estático sin backend: lo que viene de la partida guardada o de una importación
+  no es fiable (nada de meterlo en `innerHTML` sin pasarlo por los datos del juego); nada de scripts ni recursos externos.
+  Única excepción (pedida por el usuario): el vídeo de YouTube de la tele de la DGT, que solo se carga al tocar el
+  logo un rincón (`DVD_VIDEO` en `js/hub.js`). Desde `file://` sale en negro; publicado funciona.
+- Pruebas en navegador: `webapp-testing` (Playwright en Python, cualquier ancho, errores de consola) o `tools/captura.js`.
+- Toda interfaz nueva debe caber sin scroll (horizontal siempre; vertical en ventanas como el inventario) en
+  escritorio, tablet y móvil (1440 / 820 / 390 px). Comprobarlo con captura.
+- Botiga, tests, compendio e inventario viven en la DGT (`js/hub.js`): pantalla completa con el interior dibujado y
+  4 puntos interactivos (caixer, instructor, llibre, espill). Ya no hay panel derecho.
+- Cada zona nueva trae un enemigo nuevo y temático (nunca una "versión más fuerte"); jefe con nombre cada 3 zonas,
+  con habilidad propia y un objeto de recompensa. Proceso completo: skill `nueva-zona`.
+- Commits terminan con `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.
+
+## Forma de trabajar
+- Proponer y preguntar antes de los cambios de diseño de juego (efectos de objetos, habilidades, zonas); el usuario decide.
+- Tras cambiar balance, contenido de combate u objetos: pasar `tools/bot.js` y comparar con antes. Avisar si un
+  cambio vuelve un escenario trivial o un muro (p. ej. curaciones sin límite).
+- `CONFIG.debug` siempre desactivado en el repo (la consola dev lo activa solo en local).
+- No subir (push) sin que el usuario lo pida. Antes de subir: skill `publicar`.
+- No tocar la dificultad de escenarios ya publicados sin preguntar.

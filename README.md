@@ -25,6 +25,7 @@ js/
   shop.js           Botiga (L -> diners)
   bestiary.js       Compendi d'enemics
   inventory.js      Inventari i equipament (aliats com Pixel, que ataca pel seu compte)
+  evolutions.js     Evolucions dels objectes: 2 branques de 3 etapes (dades a data/evolutions.js)
   fx.js             Animacions, números de dany i avisos
   render.js         Render de cada fotograma
   main.js           Arrencada: carrega la partida, connecta botons i inicia el bucle

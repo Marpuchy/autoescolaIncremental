@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice">
+  <!-- Circuit de Cheste: graderies plenes, torre de control, semàfor de sortida, pancarta a quadres, pianos rojos i blancs i la recta de meta -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4a96d4"/><stop offset="0.6" stop-color="#a2cfee"/><stop offset="0.85" stop-color="#eaf5fb"/>
+    </linearGradient>
+    <linearGradient id="asfalt" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4a4d52"/><stop offset="1" stop-color="#2f3236"/>
+    </linearGradient>
+    <pattern id="gra" width="48" height="36" patternUnits="userSpaceOnUse">
+      <circle cx="6" cy="8" r="1.6" fill="#fff" opacity="0.08"/><circle cx="30" cy="4" r="1.2" fill="#000" opacity="0.2"/>
+      <circle cx="20" cy="22" r="1.4" fill="#fff" opacity="0.06"/><circle cx="42" cy="28" r="1.8" fill="#000" opacity="0.15"/>
+    </pattern>
+    <pattern id="public" width="24" height="22" patternUnits="userSpaceOnUse">
+      <rect width="24" height="22" fill="#9aa3ad"/><circle cx="6" cy="7" r="4" fill="#e2483a"/><circle cx="18" cy="9" r="4" fill="#3a7bd5"/>
+      <circle cx="12" cy="17" r="4" fill="#f2c200"/><rect x="0" y="20" width="24" height="2" fill="#7a838c"/>
+    </pattern>
+    <pattern id="quadres" width="24" height="24" patternUnits="userSpaceOnUse">
+      <rect width="24" height="24" fill="#fff"/><rect width="12" height="12" fill="#111"/><rect x="12" y="12" width="12" height="12" fill="#111"/>
+    </pattern>
+    <pattern id="piano" width="60" height="16" patternUnits="userSpaceOnUse">
+      <rect width="30" height="16" fill="#d1261f"/><rect x="30" width="30" height="16" fill="#fff"/>
+    </pattern>
+    <radialGradient id="vinyeta" cx="0.5" cy="0.55" r="0.75">
+      <stop offset="0.62" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#101418" stop-opacity="0.35"/>
+    </radialGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <g fill="#fff" opacity="0.9"><ellipse cx="260" cy="110" rx="90" ry="16"/><ellipse cx="1300" cy="90" rx="110" ry="18"/></g>
+  <path d="M0 440 Q300 380 600 420 Q900 370 1200 420 Q1420 390 1600 430 V520 H0 Z" fill="#a8b4a0"/>
+  <rect y="500" width="1600" height="130" fill="#a8b4a0"/>
+  <!-- graderies -->
+  <path d="M0 360 L560 420 V620 H0 Z" fill="url(#public)"/>
+  <path d="M0 340 L560 400 L560 420 L0 360 Z" fill="#d6dade"/>
+  <path d="M1040 420 L1600 360 V620 H1040 Z" fill="url(#public)"/>
+  <path d="M1040 400 L1600 340 V360 L1040 420 Z" fill="#d6dade"/>
+  <!-- torre de control i boxes -->
+  <rect x="620" y="300" width="360" height="320" fill="#eef1f3"/>
+  <rect x="620" y="290" width="360" height="14" fill="#d1261f"/>
+  <g fill="#3f6f90"><rect x="640" y="320" width="320" height="50"/><rect x="640" y="400" width="320" height="50"/></g>
+  <g fill="#c9ced3"><rect x="640" y="480" width="70" height="140"/><rect x="725" y="480" width="70" height="140"/><rect x="810" y="480" width="70" height="140"/><rect x="895" y="480" width="65" height="140"/></g>
+  <text x="800" y="358" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="28" fill="#fff" letter-spacing="3">CIRCUIT</text>
+  <!-- pancarta de meta a quadres i semàfor de sortida -->
+  <rect x="440" y="220" width="12" height="400" fill="#5a636a"/><rect x="1148" y="220" width="12" height="400" fill="#5a636a"/>
+  <rect x="440" y="220" width="720" height="50" fill="url(#quadres)"/>
+  <rect x="680" y="276" width="240" height="40" rx="6" fill="#1d2329"/>
+  <g fill="#d1261f"><circle cx="720" cy="296" r="12"/><circle cx="770" cy="296" r="12"/><circle cx="820" cy="296" r="12"/></g>
+  <g fill="#3a1010"><circle cx="870" cy="296" r="12"/></g>
+  <!-- tanques publicitàries -->
+  <rect y="620" width="1600" height="40" fill="#2a2f36"/>
+  <g font-family="Arial, sans-serif" font-weight="bold" font-size="22" fill="#f2c200"><text x="120" y="648">· GRANOTETA RACING ·</text><text x="620" y="648" fill="#fff">· AUTOESCOLA ·</text><text x="1080" y="648">· L DE NOVELL ·</text></g>
+  <rect y="660" width="1600" height="30" fill="#6a9a50"/>
+  <!-- pianos i recta de meta -->
+  <rect y="690" width="1600" height="16" fill="url(#piano)"/>
+  <rect y="706" width="1600" height="194" fill="url(#asfalt)"/><rect y="706" width="1600" height="194" fill="url(#gra)"/>
+  <rect x="740" y="706" width="60" height="194" fill="url(#quadres)" opacity="0.9"/>
+  <g fill="#1a1c20" opacity="0.5"><path d="M0 780 Q400 776 760 790" stroke="#1a1c20" stroke-width="10" fill="none"/><path d="M820 830 Q1200 820 1600 836" stroke="#1a1c20" stroke-width="10" fill="none"/></g>
+  <rect y="884" width="1600" height="16" fill="url(#piano)"/>
+  <rect width="1600" height="900" fill="url(#vinyeta)"/>
+</svg>

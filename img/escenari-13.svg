@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice">
+  <!-- Rotondes de Castelló: una rotonda enorme amb una escultura estranya al mig, senyals de "Totes direccions", blocs de pisos i tarongers -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4f9fd8"/><stop offset="0.6" stop-color="#9fd0ee"/><stop offset="0.85" stop-color="#e6f3fa"/>
+    </linearGradient>
+    <linearGradient id="asfalt" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#55595e"/><stop offset="1" stop-color="#3c3f44"/>
+    </linearGradient>
+    <pattern id="gra" width="48" height="36" patternUnits="userSpaceOnUse">
+      <circle cx="6" cy="8" r="1.6" fill="#fff" opacity="0.1"/><circle cx="30" cy="4" r="1.2" fill="#000" opacity="0.2"/>
+      <circle cx="20" cy="22" r="1.4" fill="#fff" opacity="0.08"/><circle cx="42" cy="28" r="1.8" fill="#000" opacity="0.15"/>
+    </pattern>
+    <pattern id="finestres" width="50" height="46" patternUnits="userSpaceOnUse">
+      <rect width="50" height="46" fill="#efe3cf"/><rect x="10" y="10" width="30" height="22" fill="#5f7486"/>
+      <rect x="6" y="32" width="38" height="4" fill="#3a3a3a"/><rect x="10" y="10" width="14" height="22" fill="#7d93a6"/>
+    </pattern>
+    <radialGradient id="vinyeta" cx="0.5" cy="0.55" r="0.75">
+      <stop offset="0.62" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#101a24" stop-opacity="0.35"/>
+    </radialGradient>
+    <symbol id="taronger" viewBox="0 0 60 90">
+      <rect x="27" y="40" width="6" height="50" fill="#5e3f26"/><circle cx="30" cy="28" r="26" fill="#2f6b33"/>
+      <circle cx="24" cy="22" r="14" fill="#3f8a3f"/>
+      <g fill="#f5901f"><circle cx="18" cy="32" r="3.5"/><circle cx="38" cy="20" r="3.5"/><circle cx="42" cy="38" r="3.5"/><circle cx="28" cy="44" r="3"/></g>
+    </symbol>
+  </defs>
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <g fill="#fff" opacity="0.9"><ellipse cx="300" cy="120" rx="100" ry="18"/><ellipse cx="1250" cy="90" rx="80" ry="14"/></g>
+  <!-- el Desert de les Palmes al fons -->
+  <path d="M0 470 Q200 380 420 430 Q620 360 820 420 Q1040 370 1240 430 Q1420 390 1600 440 V560 H0 Z" fill="#8fa49a"/>
+  <!-- ciutat del fons fins a la vorera -->
+  <rect y="540" width="1600" height="160" fill="#cbbfa8"/>
+  <!-- blocs de pisos -->
+  <rect x="40" y="300" width="300" height="400" fill="url(#finestres)"/><rect x="40" y="290" width="300" height="12" fill="#c9b79a"/>
+  <rect x="1240" y="260" width="320" height="440" fill="url(#finestres)"/><rect x="1240" y="250" width="320" height="12" fill="#c9b79a"/>
+  <rect x="380" y="420" width="220" height="280" fill="url(#finestres)" opacity="0.85"/>
+  <rect x="1000" y="400" width="200" height="300" fill="url(#finestres)" opacity="0.85"/>
+  <!-- la rotonda: gespa elevada amb una escultura abstracta enorme -->
+  <ellipse cx="800" cy="690" rx="330" ry="46" fill="#cfd6db"/>
+  <ellipse cx="800" cy="684" rx="310" ry="40" fill="#5fa35a"/>
+  <g fill="#7fc06e" opacity="0.7"><ellipse cx="700" cy="680" rx="40" ry="8"/><ellipse cx="900" cy="686" rx="50" ry="8"/></g>
+  <!-- escultura: anells i una bola groga (ningú sap què representa) -->
+  <rect x="790" y="420" width="20" height="260" fill="#8a8f96"/>
+  <circle cx="800" cy="440" r="70" fill="none" stroke="#d1261f" stroke-width="16"/>
+  <circle cx="800" cy="440" r="42" fill="none" stroke="#2d6fb8" stroke-width="12" transform="rotate(30 800 440)"/>
+  <circle cx="800" cy="360" r="24" fill="#f2c200"/>
+  <path d="M740 560 L800 500 L860 560 Z" fill="#c2c7cc"/>
+  <!-- senyals de rotonda -->
+  <g>
+    <rect x="455" y="560" width="8" height="140" fill="#6b7480"/>
+    <circle cx="459" cy="548" r="34" fill="#2d6fb8" stroke="#fff" stroke-width="5"/>
+    <g fill="none" stroke="#fff" stroke-width="5"><path d="M459 526 A22 22 0 1 1 437 548"/></g>
+    <path d="M434 540 L437 552 L446 544 Z" fill="#fff"/>
+    <rect x="1130" y="540" width="8" height="160" fill="#6b7480"/>
+    <rect x="1060" y="500" width="150" height="50" rx="4" fill="#fff"/>
+    <rect x="1066" y="506" width="138" height="38" rx="3" fill="#2d6fb8"/>
+    <text x="1135" y="531" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="16" fill="#fff">Totes direccions</text>
+  </g>
+  <use href="#taronger" x="600" y="610" width="60" height="90"/><use href="#taronger" x="940" y="610" width="60" height="90"/>
+  <use href="#taronger" x="1490" y="620" width="56" height="84"/><use href="#taronger" x="20" y="620" width="56" height="84"/>
+  <!-- vorera -->
+  <rect y="700" width="1600" height="24" fill="#cfc8bb"/><rect y="700" width="1600" height="4" fill="#a8a092"/>
+  <!-- carretera de la rotonda -->
+  <rect y="724" width="1600" height="176" fill="url(#asfalt)"/><rect y="724" width="1600" height="176" fill="url(#gra)"/>
+  <path d="M0 812 Q800 780 1600 812" stroke="#f3f1e6" stroke-width="6" stroke-dasharray="60 50" fill="none" opacity="0.9"/>
+  <g fill="#f3f1e6" opacity="0.85"><path d="M300 870 L340 850 L338 862 L380 862 L380 874 L338 874 L340 886 Z"/><path d="M1180 870 L1220 850 L1218 862 L1260 862 L1260 874 L1218 874 L1220 886 Z"/></g>
+  <rect width="1600" height="900" fill="url(#vinyeta)"/>
+</svg>

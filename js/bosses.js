@@ -1,6 +1,8 @@
 // ===== HABILITATS DELS CAPS ESPECIALS =====
 // Cada cap amb nom (data/scenes.js, camp `mech`) té una habilitat pròpia. Tots els ganxos són opcionals:
-//   tick(s, dt)         cada fotograma (temporitzadors)
+//   tick(s, dt, e)      cada fotograma (temporitzadors)
+//   burnPlayer          fracció de l'atac del cap que crema la granoteta cada segon (Ninot)
+//   ally                { look, pct, interval }: un aliat del cap ataca la granoteta pel seu compte, sense vida (Pastor)
 //   canAttack(s)        false: ara no ataca (p. ex. dormint)
 //   dodge(s)            text si esquiva un atac de la granoteta
 //   immune(s)           text si ara mateix no rep cap dany
@@ -47,6 +49,32 @@ const BOSS_MECHANICS = {
       s.n = (s.n || 0) + 1;
       const big = s.n % 5 === 0;
       return big ? { mult: 3, text: "⚔️ Estocada!", big } : { mult: 0.6 };
+    },
+  },
+  // Ninot de la falla: està cremant-se tot el rato i crema la granoteta cada segon
+  ninot: {
+    burnPlayer: 0.3,
+    spriteClass: () => "on-fire",
+  },
+  // Pastor de Morella: el gos d'atura ataca la granoteta pel seu compte
+  pastor: {
+    // el gos del cap mira a l'esquerra (cap a la granoteta): vegeu #enemy-gear .ally-img a style.css
+    ally: { look: `<img class="ally-img" src="img/gos-atura.svg" alt="Gos d'atura" draggable="false">`, pct: 0.4, interval: 1.1 },
+  },
+  // Examinador en cap: cada 10 s apunta una falta; a la tercera et suspén i es cura un 25% (una vegada per combat:
+  // si es curara cada 30 s, el combat seria tot o res segons si la granoteta li fa prou dany o no)
+  chief: {
+    tick(s, dt, e) {
+      if (s.failed) return;
+      s.t = (s.t || 0) + dt;
+      if (s.t < 10) return;
+      s.t -= 10;
+      s.faults = (s.faults || 0) + 1;
+      if (s.faults < 3) { spawnText($("enemy-avatar"), `📋 Falta ${s.faults}/3`, "skill"); return; }
+      s.failed = true;
+      const heal = Math.min(e.maxHp - e.hp, e.maxHp * 0.25);
+      e.hp += heal;
+      spawnText($("enemy-avatar"), `📋 Suspés! +${fmtNum(heal)}`, "skill big");
     },
   },
 };

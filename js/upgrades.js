@@ -26,18 +26,36 @@ function recomputeStats() {
   const lv = id => state.upgrades[id];
   const oldMax = p.maxHp || CONFIG.player.maxHp;
 
-  p.atk = CONFIG.player.atk + lv("atk") * effect(byId("atk"));
-  p.maxHp = CONFIG.player.maxHp + lv("hp") * effect(byId("hp"));
+  const gear = equipmentStats(); // bonus de l'equipament (js/inventory.js)
+  const pct = k => 1 + (gear[k] || 0) / 100;
+  p.atk = (CONFIG.player.atk + lv("atk") * effect(byId("atk"))) * pct("atkPct");
+  p.maxHp = (CONFIG.player.maxHp + lv("hp") * effect(byId("hp"))) * pct("hpPct");
   p.attackInterval = Math.max(CONFIG.player.minInterval,
-    CONFIG.player.attackInterval * Math.pow(1 - effect(byId("speed")) / 100, lv("speed")));
+    CONFIG.player.attackInterval * Math.pow(1 - effect(byId("speed")) / 100, lv("speed")) / pct("speedPct"));
   p.regen = CONFIG.player.regen + lv("regen") * effect(byId("regen"));
   // Crític: el de la millora (fins al 75%) més el de l'equipament; les Ulleres de Marc deixen arribar al 100%
-  const gear = equipmentStats();
   p.critChance = Math.min(gear.critCap ?? CONFIG.combat.maxCritChance,
     chance("crit", CONFIG.combat.maxCritChance) * 100 + (gear.critPct || 0)) / 100;
   p.parryChance = chance("parry", CONFIG.combat.maxParryChance);
   p.lifesteal = (gear.lifesteal || 0) / 100;  // Aura fantasma
   p.dodgeChance = (gear.dodgePct || 0) / 100; // Capa roja
+  p.burn = (gear.burnPct || 0) / 100;         // Pell de foc
+  // Evolucions dels objectes (js/data/evolutions.js)
+  p.critMult = CONFIG.combat.critMultiplier + (gear.critMultAdd || 0);
+  p.xray = (gear.xrayPct || 0) / 100;
+  p.petDmgPct = gear.petDmgPct || 0;
+  p.petCrit = !!gear.petCrit;
+  p.petHeal = (gear.petHealPct || 0) / 100;
+  p.petHealLow = gear.petHealLow || 1;
+  p.herdAdd = gear.herdAdd || 0;
+  p.stunEvery = gear.stunEvery || 0;
+  p.bleed = (gear.bleedPct || 0) / 100;
+  p.counter = (gear.counterPct || 0) / 100;
+  p.possessEvery = gear.possessEvery || 0;
+  p.burnTime = 3 + (gear.burnTime || 0);
+  p.tracaEvery = gear.tracaEvery || 0;
+  p.tracaPct = (gear.tracaPct || 0) / 100;
+  p.dmgTaken = Math.min(0.9, (gear.dmgTakenPct || 0) / 100);
   p.moneyBonus = lv("money") * effect(byId("money")) / 100;
   p.thorns = lv("thorns") * effect(byId("thorns")) / 100;
 

@@ -2,3 +2,6 @@
 *.log
 .DS_Store
 Thumbs.db
+
+# Claude Code (ajustos locals de cada persona)
+.claude/settings.local.json

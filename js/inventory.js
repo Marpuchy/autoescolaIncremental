@@ -5,19 +5,26 @@ const inventoryUnlocked = () => state.inventory.items.length > 0;
 const equippedItem = slot => ITEMS[state.inventory.equipped[slot]] || null;
 // Mascota equipada: ataca pel seu compte i no té vida (vegeu update() a combat.js)
 const equippedAlly = () => equippedItem("pet");
-const allyDamage = ally => state.player.atk * ally.ally.atkPct / 100;
+// Dany de la mascota (amb les evolucions que en pugen el dany)
+const allyDamage = ally => state.player.atk * ally.ally.atkPct / 100 * (1 + (state.player.petDmgPct || 0) / 100);
 
 let selectedSlot = "pet"; // espai seleccionat al panell
 
-// Bonus de tot l'equipament posat (els suma; per als límits, es queda el més alt)
+// Bonus de tot l'equipament posat i de les seues evolucions: els números se sumen, els límits (critCap) es queden
+// amb el més alt i els interruptors (petCrit) valen si algun els té
 function equipmentStats() {
   const total = {};
   for (const s of EQUIP_SLOTS) {
-    const st = equippedItem(s.id)?.stats || {};
-    if (st.critPct) total.critPct = (total.critPct || 0) + st.critPct;
-    if (st.critCap) total.critCap = Math.max(total.critCap || 0, st.critCap);
-    if (st.lifesteal) total.lifesteal = (total.lifesteal || 0) + st.lifesteal;
-    if (st.dodgePct) total.dodgePct = (total.dodgePct || 0) + st.dodgePct;
+    const id = state.inventory.equipped[s.id];
+    if (!ITEMS[id]) continue;
+    for (const st of [ITEMS[id].stats || {}, evoStats(id)]) {
+      for (const [k, v] of Object.entries(st)) {
+        if (k === "txt") continue;
+        if (k === "critCap" || k === "petHealLow" || k === "possessEvery" || k === "stunEvery" || k === "tracaEvery") total[k] = Math.max(total[k] || 0, v);
+        else if (typeof v === "boolean") total[k] = total[k] || v;
+        else total[k] = (total[k] || 0) + v;
+      }
+    }
   }
   return total;
 }
@@ -61,10 +68,12 @@ function toggleEquip(id) {
 
 // ----- Aspecte: els objectes equipats es dibuixen damunt/al costat de la granoteta -----
 // Mascotes: al costat de la granoteta (fora del sprite, perquè es mouen pel seu compte)
+// L'aspecte de cada objecte inclou la seua evolució (itemVisual a evolutions.js)
+const equippedVisual = slot => ITEMS[state.inventory.equipped[slot]] ? itemVisual(state.inventory.equipped[slot]) : null;
 function gearHtml() {
   return EQUIP_SLOTS.map(s => {
-    const item = equippedItem(s.id);
-    return item?.ally ? `<div class="gear gear-ally">${item.look}</div>` : "";
+    const v = equippedVisual(s.id);
+    return v?.ally ? `<div class="gear gear-ally">${v.look}</div>` : "";
   }).join("");
 }
 
@@ -72,73 +81,99 @@ function gearHtml() {
 let frogSvg = "";
 // (també s'aplica a les peces posades: el braç que aguanta la capa és del color de la pell)
 function skinned(svg) {
-  const colors = equippedItem("skin")?.skin?.colors || {};
+  const colors = equippedVisual("skin")?.skin?.colors || {};
   return Object.entries(colors).reduce((out, [from, to]) => out.split(`"${from}"`).join(`"${to}"`), svg);
 }
 // La granoteta amb la pell i sense les parts que amaga l'equipament (p. ex. la pota que aguanta la capa)
 function skinnedFrog() {
-  const hidden = EQUIP_SLOTS.flatMap(s => equippedItem(s.id)?.hides || []);
+  const hidden = EQUIP_SLOTS.flatMap(s => equippedVisual(s.id)?.hides || []);
   const svg = hidden.reduce((out, cls) => out.replace(`class="${cls}"`, `class="${cls}" display="none"`), frogSvg);
   return skinned(svg);
 }
-const auraClass = () => equippedItem("skin")?.skin?.aura || "";
+const auraClass = () => equippedVisual("skin")?.skin?.aura || "";
 // Peces que porta posades (ulleres, gorra...): un SVG amb les mateixes coordenades que la granoteta, dins del sprite
 function wearHtml() {
-  const parts = EQUIP_SLOTS.map(s => equippedItem(s.id)?.wear || "").join("");
+  const parts = EQUIP_SLOTS.map(s => equippedVisual(s.id)?.wear || "").join("");
   return parts ? `<svg class="wear-layer" viewBox="0 0 140 124" overflow="visible" aria-hidden="true">${skinned(parts)}</svg>` : "";
 }
 
-// ----- Panell de l'inventari -----
+// ----- Finestra de l'inventari -----
+const inventoryOpen = () => !$("inventory-modal").hidden;
+let evoPick = null; // opció d'evolució triada per a la vista prèvia: { id, stage, branch }
+
+function openInventory() {
+  if (!inventoryUnlocked()) return;
+  evoPick = null;
+  $("inventory-modal").hidden = false;
+  renderInventory();
+  $("btn-inv-close").focus();
+}
+function closeInventory() {
+  $("inventory-modal").hidden = true;
+  evoPick = null;
+}
+
+// Granoteta amb l'equipament; amb una opció d'evolució triada, com quedarà (es prova i es desfà al moment)
+function previewHtml() {
+  const before = evoPick && state.evolutions[evoPick.id];
+  if (evoPick) state.evolutions[evoPick.id] = { stage: evoPick.stage, branch: evoPick.branch };
+  const html = `<div class="gear-layer">${gearHtml()}</div><div class="sprite inv-frog ${auraClass()}">${skinnedFrog()}${wearHtml()}</div>`;
+  if (evoPick) { if (before) state.evolutions[evoPick.id] = before; else delete state.evolutions[evoPick.id]; }
+  return html;
+}
 
 function renderInventory() {
+  if (!inventoryOpen()) return;
   const inv = state.inventory;
-  $("inventory-slots").innerHTML = EQUIP_SLOTS.map(s => {
-    const item = equippedItem(s.id);
-    return `<button class="inv-slot${s.id === selectedSlot ? " selected" : ""}${item ? "" : " empty"}" data-slot="${s.id}">
-        <span class="inv-slot-item">${item ? item.look : s.icon}</span>
-        <span class="inv-slot-name">${item ? item.name : s.name}</span>
+  $("inventory-preview").innerHTML = previewHtml();
+  $("inventory-preview-label").textContent = evoPick ? "Vista prèvia de l'evolució" : "";
+
+  // Espais en triangle: l'ordre d'EQUIP_SLOTS és dalt, davall a l'esquerra, davall a la dreta (vegeu .inv-slot-N)
+  $("inventory-slots").innerHTML = EQUIP_SLOTS.map((s, i) => {
+    const id = inv.equipped[s.id];
+    return `<button class="inv-slot inv-slot-${i}${s.id === selectedSlot ? " selected" : ""}${id ? "" : " empty"}" data-slot="${s.id}">
+        <span class="inv-slot-item">${id ? itemVisual(id).look : s.icon}</span>
+        <span class="inv-slot-name">${s.name}</span>
       </button>`;
   }).join("");
 
-  $("inventory-preview").innerHTML = `<div class="gear-layer">${gearHtml()}</div><div class="sprite inv-frog ${auraClass()}">${skinnedFrog()}${wearHtml()}</div>`;
-
-  // Fitxa de l'espai seleccionat
+  // Objectes que tens per a l'espai triat: el que portes posat queda marcat (vora verda i ✔). Tocar-ne un l'equipa.
   const slot = EQUIP_SLOTS.find(s => s.id === selectedSlot);
-  const item = equippedItem(selectedSlot);
-  $("inventory-detail").innerHTML = item ? `
-      <div class="inv-detail-name">${item.name} <span class="muted">· ${slot.icon} ${slot.name}</span></div>
-      <div class="inv-detail-desc">${item.desc}</div>
-      ${itemEffect(item)}
-      <button class="small secondary" data-toggle="${inv.equipped[selectedSlot]}">Desequipar</button>`
-    : `<div class="inv-detail-name">${slot.icon} ${slot.name}</div>
-      <div class="muted">Espai buit. ${inv.items.some(id => ITEMS[id].slot === selectedSlot)
-        ? "Tria un objecte de la motxilla per a equipar-lo." : "Encara no tens res per a aquest espai."}</div>`;
+  $("inventory-items-title").textContent = `${slot.icon} ${slot.name}`;
+  const own = inv.items.filter(id => ITEMS[id].slot === selectedSlot);
+  $("inventory-items").innerHTML = own.length
+    ? own.map(id => {
+        const on = inv.equipped[selectedSlot] === id;
+        return `<button class="inv-item${on ? " equipped" : ""}" data-toggle="${id}" aria-pressed="${on}" title="${on ? "Llevar" : "Equipar"}">
+          ${itemVisual(id).look}<span>${ITEMS[id].name}</span>${on ? `<span class="inv-item-check">✔ Equipat</span>` : ""}</button>`;
+      }).join("")
+    : `<p class="muted">Encara no tens res per a aquest espai.</p>`;
 
-  // Motxilla: objectes que tens però no portes posats
-  const bag = inv.items.filter(id => !Object.values(inv.equipped).includes(id));
-  $("inventory-bag").innerHTML = bag.length
-    ? bag.map(id => `<button class="inv-bag-item" data-toggle="${id}" title="Equipar">${ITEMS[id].look}<span>${ITEMS[id].name}</span></button>`).join("")
-    : `<p class="muted">La motxilla està buida.</p>`;
+  const id = inv.equipped[selectedSlot];
+  $("inventory-detail").innerHTML = id
+    ? `<div class="inv-detail-name">${ITEMS[id].name}</div>
+       <div class="inv-detail-desc">${ITEMS[id].desc}</div>
+       <div class="inv-effect">${shortEffect(ITEMS[id])}</div>
+       ${evolutionHtml(id)}`
+    : own.length ? `<p class="muted">Toca un objecte per a equipar-lo.</p>` : "";
 }
 
-function itemEffect(item) {
-  const lines = [];
-  if (item.ally) {
-    const a = item.ally;
-    lines.push(`⚔️ Ataca pel seu compte cada ${fmtNum(a.interval)} s: el ${a.atkPct}% del teu atac
-      (ara ${fmtNum(allyDamage(item))} de dany). No té vida: els enemics no la poden atacar.`);
-  }
-  const st = item.stats || {};
-  if (st.critPct) lines.push(`🎯 +${st.critPct}% de crític` +
-    (st.critCap ? `. Amb elles posades, el crític pot arribar al ${st.critCap}% (sense, el màxim és el ${CONFIG.combat.maxCritChance}%)` : "") + ".");
-  if (st.lifesteal) lines.push(`💚 Et cures el ${fmtPct(st.lifesteal)}% del dany que fas (tu i la teua mascota).`);
-  if (st.dodgePct) lines.push(`🟥 Esquives el ${st.dodgePct}% dels atacs enemics («Olé!»).`);
-  return lines.map(l => `<div class="inv-effect">${l}</div>`).join("");
+// Efecte de l'objecte en una línia (la descripció llarga queda com a title del nom)
+function shortEffect(item) {
+  const st = item.stats || {}, a = item.ally, parts = [];
+  if (a) parts.push(`⚔️ ${a.atkPct}% del teu atac cada ${fmtNum(a.interval)} s`);
+  if (a?.herd) parts.push(`🐑 endarrerix ${fmtNum(a.herd)} s`);
+  if (st.critPct) parts.push(`🎯 +${st.critPct}% crític${st.critCap ? ` (màx. ${st.critCap}%)` : ""}`);
+  if (st.lifesteal) parts.push(`💚 cura el ${fmtPct(st.lifesteal)}% del dany`);
+  if (st.dodgePct) parts.push(`🟥 ${st.dodgePct}% d'esquivar`);
+  if (st.burnPct) parts.push(`🔥 crema el ${st.burnPct}% del teu atac/s`);
+  if (st.atkPct) parts.push(`🪪 +${st.atkPct}% atac, vida i velocitat`);
+  return parts.join(" · ");
 }
 
 // Actualitza tot el que depén de l'inventari: pestanya, aspecte de la granoteta i panell
 function refreshInventory() {
-  $("tab-btn-inventory").hidden = !inventoryUnlocked();
+  refreshHubMirror(); // l'espill de la DGT reflectix l'equipament
   $("player-gear").innerHTML = gearHtml();
   $("player-wear").innerHTML = wearHtml();
   // pell: es canvia el SVG de la granoteta i l'aura del sprite
@@ -147,17 +182,26 @@ function refreshInventory() {
   sprite.querySelector("svg.frog").outerHTML = skinnedFrog();
   sprite.classList.remove(...[...sprite.classList].filter(c => c.startsWith("aura-")));
   if (auraClass()) sprite.classList.add(auraClass());
-  if (!$("tab-inventory").hidden) renderInventory();
+  renderInventory();
 }
 
 function initInventory() {
   frogSvg = $("player-sprite").querySelector("svg.frog").outerHTML;
-  // Clics als espais, a la fitxa i a la motxilla
-  $("tab-inventory").addEventListener("click", ev => {
+  const modal = $("inventory-modal");
+  modal.addEventListener("click", ev => {
+    if (ev.target === modal) { closeInventory(); return; } // clic fora de la finestra
     const slot = ev.target.closest("[data-slot]");
-    if (slot) { selectedSlot = slot.dataset.slot; renderInventory(); return; }
+    if (slot) { selectedSlot = slot.dataset.slot; evoPick = null; renderInventory(); return; }
     const toggle = ev.target.closest("[data-toggle]");
-    if (toggle) toggleEquip(toggle.dataset.toggle);
+    if (toggle) { evoPick = null; toggleEquip(toggle.dataset.toggle); return; }
+    const pick = ev.target.closest("[data-evo-pick]");
+    if (pick) { evoPick = JSON.parse(pick.dataset.evoPick); renderInventory(); return; }
+    const buy = ev.target.closest("[data-evo-buy]");
+    if (buy && evoPick) { const p = evoPick; evoPick = null; buyEvolution(p.id, p.branch); }
+  });
+  $("btn-inv-close").addEventListener("click", closeInventory);
+  document.addEventListener("keydown", ev => {
+    if (ev.key === "Escape" && inventoryOpen()) { ev.preventDefault(); closeInventory(); } // la DGT no es tanca alhora
   });
   refreshInventory();
 }

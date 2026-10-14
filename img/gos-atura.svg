@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 104" aria-label="Gos d'atura">
+  <!-- Gos d'atura (border collie blanc i negre), dret i mirant a la dreta.
+       Ordre: cua, potes del fons, cos, potes, pit, collar, cap. El collar es dibuixa abans del cap perquè els seus
+       extrems queden amagats davall i només es veja la part que envolta el coll (com en un gos de debò). -->
+  <path d="M32 52 Q14 50 10 34 Q8 26 13 22" stroke="#1d1d1f" stroke-width="11" fill="none" stroke-linecap="round"/>
+  <path d="M10 30 Q8 24 13 21" stroke="#f4f1ea" stroke-width="11" fill="none" stroke-linecap="round"/>
+  <path d="M40 66 Q38 78 40 88" stroke="#2c2c30" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <path d="M84 68 L84 88" stroke="#2c2c30" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <ellipse cx="62" cy="58" rx="36" ry="17" fill="#1d1d1f"/>
+  <!-- coll: uneix el cos amb el cap -->
+  <path d="M80 50 Q84 36 96 30 L112 40 Q104 50 100 62 Z" fill="#1d1d1f"/>
+  <path d="M50 66 Q48 80 50 88" stroke="#1d1d1f" stroke-width="11" fill="none" stroke-linecap="round"/>
+  <path d="M92 66 L93 88" stroke="#1d1d1f" stroke-width="11" fill="none" stroke-linecap="round"/>
+  <g fill="#f4f1ea">
+    <rect x="44" y="86" width="12" height="11" rx="5"/><rect x="87" y="86" width="12" height="11" rx="5"/>
+    <rect x="35" y="88" width="10" height="8" rx="4" opacity="0.85"/><rect x="79" y="88" width="10" height="8" rx="4" opacity="0.85"/>
+  </g>
+  <!-- pit blanc -->
+  <path d="M90 46 Q104 46 106 62 Q102 74 90 74 Q82 66 84 54 Z" fill="#f4f1ea"/>
+  <!-- collar: retallat amb la silueta del coll per davall del cap, així els extrems acaben a la vora del coll
+       (com si donara la volta per darrere). La mateixa silueta la fan servir els collars de les evolucions. -->
+  <clipPath id="dog-neck"><path d="M83 44 L90 42 Q99 45.5 108 46 L104 56 L100 62 L84 60 Z"/></clipPath>
+  <path d="M78 41 Q96 56 116 45" stroke="#d1261f" stroke-width="5" fill="none" clip-path="url(#dog-neck)"/>
+  <circle cx="99" cy="51.5" r="2.8" fill="#f2c200" stroke="#a87c10" stroke-width="1"/>
+  <!-- cap -->
+  <path d="M90 42 Q86 20 106 16 Q124 16 126 32 Q126 44 114 46 Q102 46 90 42 Z" fill="#1d1d1f"/>
+  <path d="M105 17 Q108 26 110 38 Q112 26 112 17 Z" fill="#f4f1ea"/>
+  <path d="M108 38 Q116 34 130 36 Q133 44 124 48 Q114 50 108 45 Z" fill="#f4f1ea"/>
+  <ellipse cx="130" cy="37.5" rx="4.2" ry="3.4" fill="#1d1d1f"/>
+  <path d="M120 47 Q124 52 128 47" fill="#ff8aa3" stroke="#c9476a" stroke-width="1.5"/>
+  <path d="M94 22 L90 6 Q98 8 103 19 Z" fill="#1d1d1f"/>
+  <path d="M114 17 L122 5 Q125 13 121 22 Z" fill="#1d1d1f"/>
+  <circle cx="116" cy="29" r="3.4" fill="#7a5a2a"/><circle cx="116.9" cy="28.1" r="1.2" fill="#fff"/>
+</svg>

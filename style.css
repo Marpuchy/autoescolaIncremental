@@ -198,7 +198,11 @@ header h1 { margin: 0; font-size: 1.2rem; color: #f2c200; }
   right: calc(50% + var(--h) * 0.32);
   filter: drop-shadow(0 4px 3px rgba(0, 0, 0, 0.35));
 }
-.gear-ally .ally-img { display: block; height: calc(var(--h) * 0.62); width: auto; animation: idle 2.3s ease-in-out infinite; transform-origin: bottom center; }
+.gear-ally .ally-img { display: block; height: calc(var(--h) * 0.62); width: auto; }
+.gear-ally > .ally-img, .gear-ally > .pet { animation: idle 2.3s ease-in-out infinite; transform-origin: bottom center; }
+/* Mascota evolucionada: el seu SVG amb capes damunt (collars, barrets...) en les mateixes coordenades */
+.pet { position: relative; display: inline-block; line-height: 0; }
+.pet-overlay { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 /* Pell «Aura fantasma»: brillantor verda que palpita al voltant de la granoteta */
 .sprite.aura-ghost { animation: idle 1.8s ease-in-out infinite, ghost-aura 2.4s ease-in-out infinite; }
 @keyframes ghost-aura {
@@ -206,10 +210,42 @@ header h1 { margin: 0; font-size: 1.2rem; color: #f2c200; }
   50%      { filter: drop-shadow(0 0 12px #5dff9a) drop-shadow(0 0 28px rgba(125, 255, 176, 0.75)); opacity: 0.82; }
 }
 
+/* Auras de les evolucions */
+.sprite.aura-ghost-strong { animation: idle 1.8s ease-in-out infinite, ghost-aura-strong 2s ease-in-out infinite; }
+@keyframes ghost-aura-strong {
+  0%, 100% { filter: drop-shadow(0 0 8px #2dff8a) drop-shadow(0 0 22px rgba(60, 255, 150, 0.7)); }
+  50%      { filter: drop-shadow(0 0 14px #2dff8a) drop-shadow(0 0 36px rgba(60, 255, 150, 0.9)); }
+}
+.sprite.aura-possess { animation: idle 1.8s ease-in-out infinite, possess-aura 2.2s ease-in-out infinite; }
+.sprite.aura-possess-strong { animation: idle 1.8s ease-in-out infinite, possess-aura 1.6s ease-in-out infinite; opacity: 0.7; }
+@keyframes possess-aura {
+  0%, 100% { filter: drop-shadow(0 0 8px #b48cff) drop-shadow(0 0 20px rgba(160, 110, 255, 0.6)); }
+  50%      { filter: drop-shadow(0 0 14px #b48cff) drop-shadow(0 0 32px rgba(160, 110, 255, 0.85)); }
+}
+.sprite.aura-fire-blue { animation: idle 1.8s ease-in-out infinite, fire-aura-blue 0.8s ease-in-out infinite alternate; }
+@keyframes fire-aura-blue {
+  from { filter: drop-shadow(0 0 6px #4aa8ff) drop-shadow(0 -4px 14px rgba(60, 140, 255, 0.6)); }
+  to   { filter: drop-shadow(0 0 10px #bfe4ff) drop-shadow(0 -8px 24px rgba(60, 140, 255, 0.8)); }
+}
+
+/* Pell de foc: flama taronja que tremola */
+.sprite.aura-fire { animation: idle 1.8s ease-in-out infinite, fire-aura 0.9s ease-in-out infinite alternate; }
+@keyframes fire-aura {
+  from { filter: drop-shadow(0 0 6px #ff7a1a) drop-shadow(0 -4px 14px rgba(255, 90, 20, 0.6)); }
+  to   { filter: drop-shadow(0 0 10px #ffb02e) drop-shadow(0 -8px 22px rgba(255, 60, 10, 0.75)); }
+}
+/* Ninot de la falla: crema tot el rato (les flames tremolen) */
+.sprite.on-fire { animation: idle 1.8s ease-in-out infinite, fire-aura 0.7s ease-in-out infinite alternate; }
+.on-fire-svg .flames { transform-origin: 50% 100%; animation: flames 0.5s ease-in-out infinite alternate; }
+@keyframes flames { from { transform: scaleY(0.9); } to { transform: scaleY(1.12); } }
+
 /* Peces posades (ulleres...): la mateixa mida i posició que el SVG de la granoteta, dins del sprite (es mouen amb ella) */
 .wear-holder { position: absolute; inset: 0; pointer-events: none; }
 .wear-layer { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); height: calc(var(--h) * var(--size, 1)); width: auto; }
 .item-icon { height: 2.2rem; width: auto; display: block; }
+/* Aliat d'un cap (el gos del Pastor): a la dreta de l'enemic i mirant cap a la granoteta */
+#enemy-gear .gear-ally { right: auto; left: calc(50% + var(--h) * 0.45); }
+#enemy-gear .ally-img { scale: -1 1; height: calc(var(--h) * 0.5); }
 .gear-ally.lunge { animation: lunge 0.38s cubic-bezier(.3, .7, .4, 1); z-index: 3; }
 
 /* --- EFECTES --- */
@@ -252,6 +288,7 @@ header h1 { margin: 0; font-size: 1.2rem; color: #f2c200; }
 .dmg.by-player { color: var(--player-dmg); }
 .dmg.by-enemy  { color: var(--enemy-dmg); }
 .dmg.by-ally   { color: #ffb36b; font-size: 1.4rem; }
+.dmg.burn      { color: #ff8a1f; font-size: 1.2rem; }
 .dmg.crit   { color: #ff8a1f; font-size: 2.4rem; }
 .dmg.thorns { color: #9be36a; font-size: 1.3rem; }
 .dmg.parry  { color: #7fd1ff; font-size: 1.5rem; }
@@ -268,7 +305,7 @@ header h1 { margin: 0; font-size: 1.2rem; color: #f2c200; }
 /* Avisos flotants (substitueixen la consola) */
 #toasts {
   position: absolute;
-  top: 8px;
+  top: 48px; /* davall dels noms dels combatents */
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -318,7 +355,8 @@ header h1 { margin: 0; font-size: 1.2rem; color: #f2c200; }
   min-height: 0;
   display: grid;
   grid-auto-rows: 1fr;
-  grid-template-columns: repeat(var(--cols, 2), 1fr);
+  /* minmax(0, 1fr): les columnes poden encongir (si no, a 820 px les 4 targetes desbordaven la pantalla) */
+  grid-template-columns: repeat(var(--cols, 2), minmax(0, 1fr));
   gap: 14px;
 }
 .upgrade {
@@ -411,7 +449,8 @@ button {
   font-weight: bold;
   cursor: pointer;
 }
-button:disabled { background: #555c68; color: #8893a3; cursor: not-allowed; }
+button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid #f2c200; outline-offset: 2px; }
+button:disabled { background: #444b57; color: #a9b1bd; cursor: not-allowed; }
 button.secondary { background: #555c68; color: #e6e6e6; }
 button.danger { background: #a33; color: #fff; }
 button.big { padding: 12px 24px; font-size: 1.05rem; }
@@ -475,32 +514,158 @@ button.lbtn:disabled { background: #555c68; color: #8893a3; }
 .shop-amount { font-size: 1.6rem; font-weight: 900; color: #f2c200; }
 #btn-shop-buy { display: inline-flex; align-items: center; gap: 6px; }
 
-/* INVENTARI: 3 espais a dalt i la granoteta amb l'equipament al mig */
-.inv-slots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+/* INVENTARI: finestra al mig de la pantalla (granoteta a l'esquerra; espais, objectes i evolució a la dreta) */
+#inventory-modal {
+  position: fixed; inset: 0; z-index: 40; background: rgba(10, 12, 16, 0.75);
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+}
+#inventory-modal[hidden] { display: none; }
+.inv-box {
+  width: 100%; max-width: 980px; max-height: calc(100vh - 32px); overflow: auto;
+  background: #2b313b; border: 2px solid #f2c200; border-radius: 12px; padding: 16px 20px;
+}
+.inv-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.inv-head h2 { margin: 0; font-size: 1.2rem; }
+#btn-inv-close { width: 36px; height: 36px; font-size: 1rem; padding: 0; }
+.inv-body { display: grid; grid-template-columns: 420px minmax(0, 1fr); gap: 20px; }
+.inv-left { display: flex; flex-direction: column; gap: 6px; }
+/* Escenari de la granoteta amb els espais en triangle isòsceles d'angle 100° a dalt:
+   cada espai de davall està a --dx del centre i --dy per davall del de dalt (--dy = --dx / tan 50°) */
+.inv-stage {
+  --dx: min(155px, calc(50% - 46px)); --dy: calc(var(--dx) / 1.1918);
+  position: relative; height: 340px; border-radius: 10px;
+  background: radial-gradient(ellipse at 50% 88%, #4a5568 0%, #323946 55%, #262b34 100%);
+}
+.inv-preview { position: absolute; inset: 0; isolation: isolate; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 16px; }
+.inv-preview .inv-frog { --h: 8.5rem; }
+.inv-preview .gear-layer { --h: 8.5rem; inset: auto 0 16px 0; height: 100%; }
+.inv-preview .gear-ally { bottom: 0; right: calc(50% + 8.5rem * 0.32); }
+.inv-preview-label { text-align: center; min-height: 1.2em; font-size: 0.8rem; }
+.inv-slots { position: absolute; inset: 0; pointer-events: none; }
 .inv-slot {
+  position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 84px; pointer-events: auto;
   display: flex; flex-direction: column; align-items: center; gap: 4px;
-  padding: 8px 4px; border-radius: 8px; background: #3a4250; border: 2px solid #4b5361; color: inherit;
+  padding: 8px 4px; border-radius: 10px; background: rgba(58, 66, 80, 0.92); border: 2px solid #6b7480; color: inherit;
 }
+.inv-slot-1 { left: calc(50% - var(--dx)); top: calc(12px + var(--dy)); }
+.inv-slot-2 { left: calc(50% + var(--dx)); top: calc(12px + var(--dy)); }
 .inv-slot.empty .inv-slot-item { opacity: 0.35; filter: grayscale(1); }
-.inv-slot.selected { border-color: #f2c200; background: #424b5b; }
-.inv-slot-item { height: 2.6rem; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; }
-.inv-slot-item .ally-img, .inv-bag-item .ally-img { height: 2.6rem; width: auto; }
-.inv-slot-name { font-size: 0.75rem; font-weight: 600; color: #cfd6e0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
-.inv-preview {
-  position: relative; isolation: isolate; height: 9.5rem; margin: 12px 0 8px; border-radius: 10px;
-  background: radial-gradient(ellipse at 50% 85%, #4a5568 0%, #323946 60%, #2b313b 100%);
-  display: flex; align-items: flex-end; justify-content: center; padding-bottom: 10px;
+.inv-slot.selected { border-color: #f2c200; background: #424b5b; box-shadow: 0 0 0 3px rgba(242, 194, 0, 0.25); }
+.inv-slot-item { height: 2.4rem; display: flex; align-items: center; justify-content: center; font-size: 1.7rem; }
+.inv-slot-item .ally-img, .inv-item .ally-img { height: 2.4rem; width: auto; }
+.inv-slot-name { font-size: 0.75rem; font-weight: 600; color: #cfd6e0; }
+.inv-right { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.inv-section-title { font-weight: bold; color: #cfd6e0; }
+.inv-items { display: flex; flex-wrap: wrap; gap: 8px; }
+.inv-items .muted { margin: 0; }
+.inv-item {
+  position: relative; display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px;
+  background: #3a4250; border: 2px solid #4b5361; color: inherit; font-size: 0.9rem;
 }
-.inv-preview .inv-frog { --h: 6.5rem; }
-.inv-preview .gear-layer { --h: 6.5rem; inset: auto 0 10px 0; height: 100%; }
-.inv-preview .gear-ally { bottom: 0; right: calc(50% + 6.5rem * 0.32); }
-.inv-detail { background: #3a4250; border-radius: 8px; padding: 10px 12px; font-size: 0.88rem; }
-.inv-detail-name { font-weight: bold; margin-bottom: 4px; }
-.inv-detail-desc { font-style: italic; color: #d5dbe4; margin-bottom: 6px; }
-.inv-effect { color: #ffb36b; font-weight: 600; margin-bottom: 8px; }
-.inv-bag-title { font-size: 0.95rem; margin: 14px 0 6px; }
-.inv-bag { display: flex; flex-wrap: wrap; gap: 8px; }
-.inv-bag-item { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 10px; border-radius: 8px; background: #3a4250; color: inherit; font-size: 0.75rem; }
+.inv-item.equipped { border-color: #3cc46a; background: #2f4a3a; }
+.inv-item-check { font-size: 0.75rem; color: #7fd49c; font-weight: bold; }
+.inv-item .item-icon { height: 1.8rem; }
+.inv-detail { background: #3a4250; border-radius: 8px; padding: 10px 12px; font-size: 0.88rem; display: flex; flex-direction: column; gap: 6px; }
+.inv-detail:empty, .inv-detail > p.muted:only-child:empty { display: none; }
+.inv-detail-name { font-weight: bold; font-size: 1rem; }
+.inv-detail-desc { font-style: italic; color: #d5dbe4; }
+.inv-effect { color: #ffb36b; font-weight: 600; }
+.item-icon { height: 2.2rem; width: auto; display: block; }
+/* Evolució */
+.evo { display: flex; flex-direction: column; gap: 6px; padding-top: 6px; border-top: 1px solid #4b5361; }
+.evo-now { color: #7fd49c; }
+.evo-label { font-weight: bold; font-size: 0.8rem; color: #cfd6e0; }
+.evo-opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 6px; }
+.evo-opt {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left;
+  background: #2b313b; color: inherit; font-weight: normal; border: 2px solid #4b5361; border-radius: 8px; padding: 6px 8px;
+}
+.evo-opt span { font-size: 0.8rem; color: #cfd6e0; }
+.evo-opt.on { border-color: #f2c200; background: #323946; }
+.evo-btn { width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 38px; }
+.evo-done { color: #7fd49c; font-weight: bold; }
+.evo-lock { color: #aab3c0; }
+@media (max-width: 700px) {
+  #inventory-modal { padding: 8px; align-items: flex-start; }
+  .inv-box { max-height: calc(100vh - 16px); padding: 12px; }
+  .inv-body { grid-template-columns: 1fr; gap: 10px; }
+  .inv-stage { height: 270px; }
+  .inv-slot { width: 76px; }
+  .inv-preview .inv-frog, .inv-preview .gear-layer { --h: 6.5rem; }
+  .inv-preview .gear-ally { right: calc(50% + 6.5rem * 0.32); }
+}
+
+/* DGT: ESPAI COMÚ (js/hub.js) */
+.hub-btn { font-size: 0.95rem; padding: 6px 14px; display: inline-flex; align-items: center; gap: 4px; }
+#hub { position: fixed; inset: 0; z-index: 30; background: #1e2229; display: flex; flex-direction: column; animation: screen-in 0.3s ease; }
+#hub[hidden] { display: none; }
+.hub-top { display: flex; align-items: center; gap: 16px; padding: 10px 20px; background: #2b313b; border-bottom: 3px solid #f2c200; }
+.hub-top h2 { margin: 0; font-size: 1.2rem; color: #f2c200; }
+.hub-stats { display: flex; gap: 16px; align-items: center; margin-left: auto; font-size: 1rem; }
+/* fora de l'escena (si la pantalla no és 16:9) continuen la paret i el terra */
+.hub-scene { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(#ebe5d6 50%, #d6d2c8 50%); }
+.hub-scene svg { width: 100%; height: 100%; display: block; }
+/* punts interactius: la zona de toc (.hub-hit) va damunt de tot; el dibuix (.hub-art) brilla suaument de tant en tant */
+.hub-hit { cursor: pointer; outline: none; }
+.hub-hit.locked { cursor: not-allowed; }
+.hub-hit:focus-visible { stroke: #f2c200; stroke-width: 3; stroke-dasharray: 8 6; }
+.hub-art { animation: hub-hint 3.2s ease-in-out infinite; }
+@keyframes hub-hint {
+  0%, 70%, 100% { filter: none; }
+  82%           { filter: drop-shadow(0 0 8px rgba(242, 194, 0, 0.75)); }
+}
+.hub-art.hot { animation: none; filter: drop-shadow(0 0 10px #f2c200) drop-shadow(0 0 2px #f2c200); }
+.hub-art.locked { animation: none; }
+/* reflex de la granoteta a l'espill (girada, com en un espill de debò) */
+.hub-reflection {
+  width: 100%; height: 100%; position: relative; overflow: hidden; transform: scaleX(-1); /* el fons és el del cristal */
+}
+.hub-reflection .inv-preview { position: absolute; inset: 0; }
+.hub-reflection .inv-preview { padding-bottom: 14px; }
+.hub-reflection .inv-frog, .hub-reflection .gear-layer { --h: 54px; }
+.hub-reflection .gear-layer { inset: auto 0 14px 0; }
+.hub-reflection .gear-ally { right: calc(50% + 54px * 0.32); }
+.hub-reflection::after { content: ""; position: absolute; inset: 0; background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, 0.35) 42%, transparent 52%); pointer-events: none; }
+.hub-reflection.locked { transform: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: #3a4250; }
+.hub-reflection.locked span { font-size: 2rem; }
+.hub-actions { display: none; }
+#hub-dialog { position: absolute; inset: 0; z-index: 2; background: rgba(10, 12, 16, 0.6); display: flex; align-items: center; justify-content: center; padding: 16px; }
+#hub-dialog[hidden] { display: none; }
+.hub-card {
+  position: relative; width: 100%; max-width: 520px; max-height: calc(100vh - 120px); overflow: auto;
+  background: #2b313b; border: 2px solid #f2c200; border-radius: 12px; padding: 16px 20px;
+}
+.hub-card-close { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; padding: 0; font-size: 1rem; }
+.hub-panel h2 { margin: 0 44px 8px 0; font-size: 1.15rem; }
+.hub-panel p { margin: 6px 0; }
+/* pantalles verticals (tauleta): l'escena no omplia; davall, els accessos ràpids en una fila */
+@media (max-aspect-ratio: 1/1) and (min-width: 701px) {
+  .hub-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 16px 20px; }
+  .hub-actions button { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 16px; font-size: 2rem; background: #3a4250; color: #e6e6e6; border: 2px solid #4b5361; border-radius: 10px; }
+  .hub-actions button span { font-size: 0.95rem; }
+}
+/* vídeo de la tele de la DGT (sense controls: tocar-lo només li posa el so si l'havia engegat mut) */
+video.hub-tv-media { cursor: pointer; }
+video.hub-tv-media::-webkit-media-controls { display: none !important; }
+.hub-tv-media { width: 100%; height: 100%; border: 0; display: block; background: #000; object-fit: cover; } /* el vídeo és vertical: omple la tele (retallat dalt i baix) perquè es veja gran */
+/* tele de la DGT en local (file://) sense el fitxer de vídeo: botó per a obrir-lo fora */
+.hub-tv-play { width: 100%; height: 100%; border-radius: 0; background: #0b0d12; color: #fff; font-size: 26px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 0; }
+.hub-tv-play span { font-size: 10px; font-weight: 600; }
+.hub-tv-play:hover { background: #1a1f2a; color: #f2c200; }
+/* els avisos han de veure's també dins de la DGT */
+body.hub-open #toasts { position: fixed; top: 70px; left: 50%; z-index: 45; }
+@media (max-width: 700px) {
+  .hub-btn-label { display: none; }
+  .hub-btn { padding: 4px 10px; }
+  .hub-top { padding: 8px 10px; gap: 8px; flex-wrap: wrap; }
+  .hub-top h2 { font-size: 1rem; }
+  .hub-stats { gap: 10px; font-size: 0.9rem; }
+  #btn-hub-close { order: 3; width: 100%; }
+  .hub-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 10px; }
+  .hub-actions button { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px; font-size: 1.6rem; background: #3a4250; color: #e6e6e6; border: 2px solid #4b5361; border-radius: 10px; }
+  .hub-actions button span { font-size: 0.85rem; }
+  .hub-card { padding: 14px; max-height: calc(100vh - 32px); }
+}
 
 /* PANTALLA COMPLETA D'EXAMEN */
 #exam-screen {
@@ -525,54 +690,7 @@ button.lbtn:disabled { background: #555c68; color: #8893a3; }
 .exam-actions { display: flex; gap: 8px; justify-content: center; margin-top: 16px; }
 
 /* MÒBIL */
-/* PANELL DRET AMB PESTANYES */
-#side {
-  width: 320px;
-  flex-shrink: 0;
-  background: #2b313b;
-  border-left: 3px solid #f2c200;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-}
-/* les pestanyes es queden fixes dalt mentre es fa scroll al panell */
-.tabs { display: flex; border-bottom: 2px solid #3a4250; position: sticky; top: 0; z-index: 2; background: #2b313b; }
-/* Pestanyes només amb la icona: amb el nom no cabien totes en els 320px del panell.
-   El nom queda per als lectors de pantalla (.tab-label amagat visualment) i com a title. */
-.tab {
-  flex: 1;
-  min-width: 0;
-  border-radius: 0;
-  padding: 10px 4px;
-  font-size: 1.25rem;
-  line-height: 1;
-  white-space: nowrap;
-  background: transparent;
-  color: #aab3c0;
-  border-bottom: 3px solid transparent;
-}
-.tab.active { color: #f2c200; border-bottom-color: #f2c200; background: #323946; }
-.side-toggle {
-  flex: 0 0 auto;
-  border-radius: 0;
-  padding: 10px 14px;
-  background: transparent;
-  color: #aab3c0;
-  font-size: 1.1rem;
-}
-.side-toggle:hover { color: #f2c200; }
-#side { transition: width 0.2s; }
-/* Panell plegat: una franja estreta amb les icones */
-#side.collapsed { width: 54px; overflow: hidden; }
-#side.collapsed .tabs { flex-direction: column; border-bottom: none; }
-#side.collapsed .tab { border-bottom: none; border-left: 3px solid transparent; padding: 12px 0; font-size: 1.3rem; }
-#side.collapsed .tab.active { border-left-color: #f2c200; }
-.tab-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-#side.collapsed .tab-panel { display: none; }
-#side.collapsed .side-toggle { order: -1; padding: 12px 0; }
-.tab-panel { padding: 12px 14px; }
-.tab-panel h2 { margin: 0 0 8px; font-size: 1.1rem; }
-.tab-panel p { margin: 6px 0; }
+
 /* COMPENDI */
 #bestiary-list { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
 .beast { background: #3a4250; border-radius: 8px; padding: 8px 10px; cursor: pointer; border: 2px solid transparent; }
@@ -604,13 +722,13 @@ button.lbtn:disabled { background: #555c68; color: #8893a3; }
 .beast-name { font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .beast-meta { font-size: 0.78rem; color: #aab3c0; }
 .beast.unknown .beast-icon { filter: brightness(0) opacity(0.45); }
-.beast.unknown .beast-name { color: #8893a3; letter-spacing: 0.2em; }
+.beast.unknown .beast-name { color: #aab3c0; letter-spacing: 0.2em; } /* 4,8:1 (abans 3,4) */
 
-#tab-shop .shop-offer { flex-direction: column; align-items: stretch; text-align: center; }
-#tab-test .test-options button { padding: 12px 8px; font-size: 0.95rem; }
+.hub-panel .shop-offer { flex-direction: column; align-items: stretch; text-align: center; }
+.hub-panel .test-options button { padding: 12px 8px; font-size: 0.95rem; }
 
 #debug-badge {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   background: #7b3fe4;
   color: #fff;
   padding: 2px 8px;
@@ -685,6 +803,13 @@ button.lbtn:disabled { background: #555c68; color: #8893a3; }
   #upgrade-list.compact .lbtn { padding: 6px 10px; font-size: 0.85rem; }
 }
 
+/* Pantalles mitjanes (tauleta): 4 columnes de targetes quedaven massa estretes (títols tallats, preus en dues línies).
+   Columnes d'almenys 240 px (3 a una tauleta) i la franja creix el que calga perquè no s'amague cap fila. */
+@media (min-width: 701px) and (max-width: 1100px) {
+  #upgrade-list, #upgrade-list.compact { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  #upgrades { height: auto; }
+}
+
 /* ===== MÒBIL I PANTALLES XICOTETES ===== */
 
 /* Botó ⓘ de la L: només en pantalles tàctils (on no hi ha "hover") */
@@ -746,28 +871,15 @@ button.lbtn:disabled { background: #555c68; color: #8893a3; }
   .sprite { --h: clamp(3.2rem, 12vh, 6rem); }
   .dmg { font-size: 1.3rem; }
   .toast { white-space: normal; text-align: center; font-size: 0.8rem; padding: 4px 10px; max-width: 90vw; }
-  #toasts { width: 100%; }
+  #toasts { width: 100%; top: 34px; }
 
-  /* Panell (Botiga / Tests / Compendi) davall de l'escenari */
-  #side { width: auto; border-left: none; border-top: 3px solid #f2c200; overflow: visible; }
-  #side.collapsed { width: auto; }
-  #side.collapsed .tabs { flex-direction: row; }
-  #side.collapsed .tab { border-left: none; padding: 10px 4px; font-size: 1.1rem; }
-  #side.collapsed .tab.active { border-left: none; }
-  #side.collapsed .side-toggle { order: 0; padding: 10px 14px; }
-  .side-toggle { transform: rotate(90deg); }
-  #side.collapsed .side-toggle { transform: rotate(90deg); }
-  .tab { font-size: 1.15rem; }
-  .tabs { overflow: hidden; position: static; }
   .reset-label { display: none; } /* al mòbil, el botó de reiniciar és només la icona */
-  .tab, #side.collapsed .tab { padding: 10px 2px; }
-  .side-toggle, #side.collapsed .side-toggle { padding: 10px 8px; flex-shrink: 0; }
   html, body { overflow-x: hidden; }
 
   /* Millores */
   #upgrades { min-height: 0; padding: 10px 10px 16px; }
   #upgrades { height: auto; }
-  #upgrade-list { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  #upgrade-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
   .upgrade { padding: 10px; }
   .upgrade-title { font-size: 0.95rem; }
   .upgrade-icon { width: 1.9rem; height: 1.9rem; font-size: 1.1rem; }
