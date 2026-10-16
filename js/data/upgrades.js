@@ -47,4 +47,15 @@ const UPGRADES = [
     per: e => `+${fmtPct(e)}% de dany retornat`,
     total: (lv, e) => `${fmtPct(lv * e)}% de dany retornat`,
     stat: p => `Retorna el ${fmtPct(p.thorns * 100)}% del dany rebut` },
+
+  // A partir de les Rotondes de Castelló
+  { id: "double", scene: 12, icon: "🔄", name: "Doble volta",        base: 2,   baseCost: 30000, costGrowth: 1.15,
+    maxLevel: 20, scalingPct: 0, // 20 nivells × 2% = 40%: les ampliacions només pugen el nivell màxim
+    per: e => `+${fmtPct(e)}% de doble atac`,
+    total: (lv, e) => `${capped(lv * e, CONFIG.combat.maxDoubleChance)} de doble atac`,
+    stat: p => `Ataca dues vegades el ${fmtPct(p.doubleChance * 100)}% dels colps` },
+  { id: "petfood", scene: 12, icon: "🦴", name: "Pinso premium",     base: 10,  baseCost: 26000, costGrowth: 1.15,
+    per: e => `+${fmtPct(e)}% de dany de la mascota`,
+    total: (lv, e) => `+${fmtPct(lv * e)}% a la mascota`,
+    stat: p => `Dany de la mascota: +${fmtPct(p.petDmgPct || 0)}%` },
 ];

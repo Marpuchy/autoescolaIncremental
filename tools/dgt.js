@@ -104,6 +104,34 @@ wall += wallRect(1.55, 1.45, 2.75, 2.25, `fill="#b9935a" rx="3"`);
 wall += wallRect(1.62, 1.95, 1.98, 2.18, `fill="#fff"`) + wallRect(2.05, 1.9, 2.4, 2.15, `fill="#ffe27a"`) + wallRect(2.45, 1.6, 2.7, 1.98, `fill="#bfe4ff"`) + wallRect(1.7, 1.55, 2.05, 1.85, `fill="#f4c6d0"`);
 add(wall);
 
+// ---------------------------------------------------------------- mapa a la paret esquerra (decoratiu, per al futur canvi de zones)
+// Mapa del País Valencià amb la costa, la mar a la dreta i els punts de les zones units per una ruta discontínua.
+{
+  let s = "";
+  const mB = { x0: -W - 0.01, x1: -W, y0: 1.35, y1: 2.65, z0: 6.7, z1: 8.7 };
+  const mf = face(mB, "right"); // u: de davant (esquerra a la pantalla) cap al fons · v: de dalt a baix
+  const pt = (u, v) => mf(u, v);
+  s += quad(mf, -0.03, -0.04, 1.03, 1.04, `fill="#8a6a3a"`); // marc
+  s += quad(mf, 0, 0, 1, 1, `fill="#7fb8e6"`);              // mar
+  // terra: de l'esquerra fins a la costa (que baixa de nord a sud fent corba cap a l'interior a València)
+  const coast = [[0.66, 0], [0.64, 0.12], [0.6, 0.22], [0.62, 0.32], [0.58, 0.42], [0.55, 0.52], [0.54, 0.62], [0.57, 0.72], [0.62, 0.82], [0.6, 0.92], [0.64, 1]];
+  s += poly([pt(0, 0), ...coast.map(([u, v]) => pt(u, v)), pt(0, 1)], `fill="#e8dcb8"`);
+  s += poly(coast.map(([u, v]) => pt(u, v)), `fill="none" stroke="#5a8fb8" stroke-width="1.5"`);
+  // muntanyes de l'interior i l'Albufera
+  s += poly([pt(0.06, 0.18), pt(0.2, 0.1), pt(0.34, 0.2), pt(0.24, 0.3), pt(0.1, 0.3)], `fill="#c9b98a"`);
+  s += poly([pt(0.12, 0.48), pt(0.26, 0.42), pt(0.34, 0.52), pt(0.2, 0.58)], `fill="#c9b98a"`);
+  s += poly([pt(0.5, 0.74), pt(0.55, 0.72), pt(0.56, 0.79), pt(0.5, 0.8)], `fill="#7fb8e6"`);
+  // ruta de les zones (de nord a sud, aproximada) i els punts
+  // punts de les zones (sense repetir llocs) i la ruta que les uneix de nord a sud, seguint la costa
+  const zones = [[0.22, 0.12], [0.48, 0.2], [0.57, 0.24], [0.52, 0.3], [0.42, 0.36], [0.5, 0.46], [0.36, 0.5],
+    [0.56, 0.56], [0.53, 0.66], [0.36, 0.7], [0.52, 0.76]];
+  s += poly(zones.map(([u, v]) => pt(u, v)), `fill="none" stroke="#d1261f" stroke-width="1.6" stroke-dasharray="4 3" opacity="0.75"`).replace("<polygon", "<polyline");
+  for (const [u, v] of zones) { const [px, py] = P(...pt(u, v)); s += `<circle cx="${r(px)}" cy="${r(py)}" r="2.6" fill="#d1261f" stroke="#fff" stroke-width="0.8"/>`; }
+  // xinxetes a les cantonades
+  for (const [u, v] of [[0.02, 0.03], [0.98, 0.03], [0.02, 0.97], [0.98, 0.97]]) { const [px, py] = P(...pt(u, v)); s += `<circle cx="${r(px)}" cy="${r(py)}" r="2.4" fill="#f2c200"/>`; }
+  add(s);
+}
+
 // ---------------------------------------------------------------- arxivador amb impressora (davall de la finestra)
 let cab = "";
 const cabB = { x0: -3.55, x1: -2.85, y0: 0, y1: 1.3, z0: 9.2, z1: 9.85 };
@@ -317,6 +345,37 @@ add(desk);
   add(clip + s, { spot: "inventory", title: "Espill: inventari", hit: bbox([...corners(mB), [W, 2.6, 6.5]]) });
 }
 
+// ---------------------------------------------------------------- destructora de paper: reiniciar la partida
+// (destruir l'expedient i tornar a començar). Està al costat del taulell, a la dreta.
+{
+  let s = "";
+  const kB = { x0: 1.62, x1: 2.0, y0: 0, y1: 0.66, z0: 5.5, z1: 5.82 };
+  s += shadow(kB, 0.05, 0.28);
+  s += box(kB, { front: "#3a3f46", side: "#2b2f35", top: "#4a525c" });
+  const kf = face(kB, "front");
+  // cubell transparent amb tires de paper triturat
+  s += quad(kf, 0.06, 0.32, 0.94, 0.96, `fill="#cfe1ea" opacity="0.35"`);
+  let strips = "";
+  for (let i = 0; i < 9; i++) { const u = 0.12 + i * 0.09; strips += quad(kf, u, 0.55 + (i % 3) * 0.06, u + 0.035, 0.94, `fill="${i % 2 ? "#fff" : "#f2ecdc"}"`); }
+  s += strips;
+  s += quad(kf, 0.06, 0.32, 0.94, 0.96, `fill="none" stroke="#9fb8c6" stroke-width="1.5"`);
+  // capçal amb el llum i la ranura
+  s += quad(kf, 0, 0, 1, 0.28, `fill="#2b2f35"`);
+  s += quad(kf, 0.72, 0.08, 0.86, 0.18, `fill="#d1261f"`);
+  const kt = face(kB, "top");
+  s += quad(kt, 0.12, 0.42, 0.88, 0.52, `fill="#111"`);
+  // un full de l'expedient entrant per la ranura, amb línies i un segell
+  const sheet = [[1.69, 0.66, 5.66], [1.93, 0.66, 5.66], [1.94, 0.9, 5.7], [1.68, 0.9, 5.7]];
+  s += poly(sheet, `fill="#fff" stroke="#cfc7b3" stroke-width="1"`);
+  let sl = "";
+  for (const t of [0.25, 0.4, 0.55]) sl += line([1.71, 0.66 + 0.24 * t + 0.08, 5.67], [1.9, 0.66 + 0.24 * t + 0.08, 5.67], "");
+  s += `<g stroke="#b8b0a2" stroke-width="1.4">${sl}</g>`;
+  const [stx, sty] = P(1.86, 0.71, 5.67);
+  s += `<circle cx="${r(stx)}" cy="${r(sty)}" r="4" fill="none" stroke="#d1261f" stroke-width="1.5"/>`;
+  add(s, { spot: "reset", title: "Destructora: trencar l'expedient i reiniciar la partida",
+    hit: bbox([...corners(kB), [1.68, 0.92, 5.7], [1.94, 0.92, 5.7]]) });
+}
+
 // ---------------------------------------------------------------- planta, paperera, cadires d'espera i con
 {
   let s = "";
@@ -353,7 +412,7 @@ add(desk);
     <rect x="-20" y="-6" width="40" height="6" rx="2" fill="#d9a800"/>
     <path d="M-15 -6 L-4 -64 L4 -64 L15 -6 Z" fill="url(#dgt-cone)"/>
     <path d="M-12 -22 L12 -22 L10 -30 L-10 -30 Z M-8 -42 L8 -42 L6.5 -49 L-6.5 -49 Z" fill="#fff"/>`;
-  add(figure(CONE, 1.3, 0, 2.7));
+  add(figure(CONE, 0.25, 0, 2.7));
 }
 
 // ---------------------------------------------------------------- definicions (degradats, patrons i filtres)

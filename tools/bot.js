@@ -60,7 +60,7 @@ function play(profile, seed, maxScene) {
   const ctx = newContext(seed);
   return vm.runInContext(`(() => {
     const P = ${JSON.stringify(PROFILES[profile])};
-    const PRIO = ["atk", "hp", "speed", "regen", "crit", "parry", "thorns", "money"];
+    const PRIO = ["atk", "hp", "speed", "regen", "crit", "double", "petfood", "parry", "thorns", "money"];
     const maxScene = ${maxScene} || SCENES.length;
     const testsAt = {}; // tests acumulats en acabar cada escenari
     let losses = 0, lastLevel = 1, fightTime = 0, fightEnemy = null, lost = false, steps = 0;

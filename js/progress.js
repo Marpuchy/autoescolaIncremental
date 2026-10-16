@@ -42,7 +42,11 @@ function restartGame() {
   grantStartingLevels();
   state.player.hp = state.player.maxHp;
   state.enemy = makeEnemy(1);
+  // Tot es torna a pintar amb l'estat nou: millores, aspecte de la granoteta (les evolucions ja no hi són),
+  // mascota, espill i finestra de la DGT, panell de tests (L tornades) i inventari si estava obert
   renderUpgrades();
+  refreshInventory();
+  renderTestPanel();
   save();
   return refunded;
 }

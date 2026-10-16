@@ -43,7 +43,8 @@ function recomputeStats() {
   // Evolucions dels objectes (js/data/evolutions.js)
   p.critMult = CONFIG.combat.critMultiplier + (gear.critMultAdd || 0);
   p.xray = (gear.xrayPct || 0) / 100;
-  p.petDmgPct = gear.petDmgPct || 0;
+  // Dany de la mascota: evolucions dels objectes + millora «Pinso premium» (sumen punts de %)
+  p.petDmgPct = (gear.petDmgPct || 0) + lv("petfood") * effect(byId("petfood"));
   p.petCrit = !!gear.petCrit;
   p.petHeal = (gear.petHealPct || 0) / 100;
   p.petHealLow = gear.petHealLow || 1;
@@ -58,6 +59,7 @@ function recomputeStats() {
   p.dmgTaken = Math.min(0.9, (gear.dmgTakenPct || 0) / 100);
   p.moneyBonus = lv("money") * effect(byId("money")) / 100;
   p.thorns = lv("thorns") * effect(byId("thorns")) / 100;
+  p.doubleChance = chance("double", CONFIG.combat.maxDoubleChance);
 
   // Si puja la vida màxima, es guanya eixa diferència de vida actual
   p.hp = Math.min(p.maxHp, (p.hp ?? p.maxHp) + Math.max(0, p.maxHp - oldMax));
@@ -106,7 +108,7 @@ let openInfo = null; // mòbil: millora amb la info de la L desplegada (botó �
 function renderUpgrades(animateFrom = Infinity) {
   const list = $("upgrade-list");
   const upgrades = visibleUpgrades();
-  list.style.setProperty("--cols", Math.min(upgrades.length, 4)); // com a molt 4 per fila
+  list.style.setProperty("--cols", Math.min(upgrades.length, upgrades.length > 8 ? 5 : 4)); // 4 per fila; 5 si n'hi ha més de 8
   list.classList.toggle("compact", upgrades.length > 4); // dues files: targetes compactes (vegeu style.css)
   list.innerHTML = "";
   upgrades.forEach((u, i) => {

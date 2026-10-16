@@ -596,6 +596,9 @@ button.lbtn:disabled { background: #555c68; color: #8893a3; }
 }
 
 /* DGT: ESPAI COMÚ (js/hub.js) */
+/* velocitat del combat: secundari a ×1, groc quan va a ×2 */
+.speed-btn { font-size: 0.95rem; padding: 6px 12px; display: inline-flex; align-items: center; gap: 2px; min-width: 64px; justify-content: center; }
+.speed-btn.on { background: #f2c200; color: #1e2229; }
 .hub-btn { font-size: 0.95rem; padding: 6px 14px; display: inline-flex; align-items: center; gap: 4px; }
 #hub { position: fixed; inset: 0; z-index: 30; background: #1e2229; display: flex; flex-direction: column; animation: screen-in 0.3s ease; }
 #hub[hidden] { display: none; }
@@ -640,7 +643,7 @@ button.lbtn:disabled { background: #555c68; color: #8893a3; }
 .hub-panel p { margin: 6px 0; }
 /* pantalles verticals (tauleta): l'escena no omplia; davall, els accessos ràpids en una fila */
 @media (max-aspect-ratio: 1/1) and (min-width: 701px) {
-  .hub-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 16px 20px; }
+  .hub-actions { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; padding: 16px 20px; }
   .hub-actions button { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 16px; font-size: 2rem; background: #3a4250; color: #e6e6e6; border: 2px solid #4b5361; border-radius: 10px; }
   .hub-actions button span { font-size: 0.95rem; }
 }
@@ -652,11 +655,16 @@ video.hub-tv-media::-webkit-media-controls { display: none !important; }
 .hub-tv-play { width: 100%; height: 100%; border-radius: 0; background: #0b0d12; color: #fff; font-size: 26px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 0; }
 .hub-tv-play span { font-size: 10px; font-weight: 600; }
 .hub-tv-play:hover { background: #1a1f2a; color: #f2c200; }
+/* accés ràpid per a reiniciar (mòbil): en vermell i ocupant tota la fila */
+.hub-actions .hub-action-reset span { color: #ff9a8a; }
+@media (max-width: 700px) { .hub-actions .hub-action-reset { grid-column: 1 / -1; } }
 /* els avisos han de veure's també dins de la DGT */
 body.hub-open #toasts { position: fixed; top: 70px; left: 50%; z-index: 45; }
+body.hub-open:has(#hub-dialog:not([hidden])) #toasts { top: auto; bottom: 16px; flex-direction: column-reverse; }
 @media (max-width: 700px) {
   .hub-btn-label { display: none; }
   .hub-btn { padding: 4px 10px; }
+  .speed-btn { padding: 4px 8px; min-width: 0; font-size: 0.85rem; }
   .hub-top { padding: 8px 10px; gap: 8px; flex-wrap: wrap; }
   .hub-top h2 { font-size: 1rem; }
   .hub-stats { gap: 10px; font-size: 0.9rem; }
@@ -666,6 +674,103 @@ body.hub-open #toasts { position: fixed; top: 70px; left: 50%; z-index: 45; }
   .hub-actions button span { font-size: 0.85rem; }
   .hub-card { padding: 14px; max-height: calc(100vh - 32px); }
 }
+
+/* ===== MENÚS DE LA DGT: cada finestreta es vestix com l'objecte d'on ix =====
+   Colors de la mateixa escena: metall i pantalla del caixer, paper i blau de la DGT, pell i paper del diari, fusta de l'espill.
+   Contrastos mesurats (WCAG): pantalla 11,9 · carcassa 5,6 · paper 14,0 / 7,0 · diari 12,0 / 5,8 / «???» 5,0 */
+
+/* --- 🏧 Caixer: carcassa de metall, franja verda, pantalla de caixer i tecla física --- */
+.hub-card[data-panel="shop"] { max-width: 440px; background: linear-gradient(#5d7284, #4f6274); border: 3px solid #3a4b5a; border-radius: 18px; padding: 0 20px 20px; color: #eef3f7; }
+.hub-card[data-panel="shop"] h2 { margin: 0 -20px 14px; padding: 12px 56px 12px 20px; background: #2fa84f; color: #fff; border-radius: 15px 15px 0 0; }
+.hub-card[data-panel="shop"] .atm-hint { color: #eef3f7; }
+.hub-card[data-panel="shop"] .shop-offer {
+  background: #0f2a3a; border: 6px solid #1d2a36; border-radius: 10px; padding: 16px;
+  box-shadow: inset 0 0 24px rgba(125, 255, 176, 0.12); font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+.hub-card[data-panel="shop"] .shop-amount { color: #7dffb0; font-size: 2rem; text-shadow: 0 0 10px rgba(125, 255, 176, 0.45); }
+.hub-card[data-panel="shop"] #btn-shop-buy {
+  justify-content: center; background: #d6dde2; color: #1d1d1f; border-radius: 8px;
+  box-shadow: 0 4px 0 #8a949c; font-family: inherit; transition: transform 0.06s, box-shadow 0.06s;
+}
+.hub-card[data-panel="shop"] #btn-shop-buy:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 #8a949c; }
+.hub-card[data-panel="shop"] #btn-shop-buy:disabled { background: #44515d; color: #a9b8c4; box-shadow: 0 4px 0 #2f3a44; }
+.hub-card[data-panel="shop"] #shop-info { color: #dfe8ef; font-size: 0.82rem; }
+.hub-card[data-panel="shop"] .hub-card-close { background: #1d7a3a; color: #fff; }
+
+/* --- ☕ Tests: l'imprés oficial que t'omple el funcionari (paper ratllat, franja blava, caselles i segell) --- */
+.hub-card[data-panel="test"] {
+  max-width: 480px; color: #2b2622; border: 0; border-radius: 4px; padding: 0 22px 18px;
+  background: repeating-linear-gradient(#fbf7ec 0 27px, #e7e0cf 27px 28px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+}
+.hub-card[data-panel="test"] h2 { margin: 0 -22px 14px; padding: 14px 56px 14px 22px; background: #1f4f9e; color: #fff; border-radius: 4px 4px 0 0; }
+.hub-card[data-panel="test"] p { color: #2b2622; }
+.hub-card[data-panel="test"] .muted { color: #5c5348; }
+.hub-card[data-panel="test"] .test-options button {
+  background: #fff; color: #1f4f9e; border: 2px solid #1f4f9e; border-radius: 4px; font-weight: 700;
+}
+.hub-card[data-panel="test"] .test-options button:hover { background: #1f4f9e; color: #fff; }
+.hub-card[data-panel="test"] .test-options button.secondary { color: #5c5348; border-color: #8a8070; }
+.hub-card[data-panel="test"] .test-options button.secondary:hover { background: #5c5348; color: #fff; }
+.hub-card[data-panel="test"] .streak {
+  display: inline-block; color: #b3141a; border: 2px solid #b3141a; border-radius: 6px; padding: 0 6px; transform: rotate(-2deg); margin-right: 4px;
+}
+.hub-card[data-panel="test"] .hub-card-close { background: #173a76; color: #fff; }
+
+/* --- 📖 Compendi: el diari obert (tapes de pell granat; índex a l'esquerra i fitxa a la dreta, lletra serif) --- */
+.hub-card[data-panel="bestiary"] { max-width: 820px; background: #7a1a1a; border: 0; border-radius: 10px; padding: 12px; box-shadow: inset 0 0 0 3px #5a1010, 0 12px 30px rgba(0, 0, 0, 0.45); }
+.hub-card[data-panel="bestiary"] #tab-bestiary {
+  background: #f6efdc; color: #3a2a1a; border-radius: 4px; padding: 14px 18px 12px;
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+}
+.hub-card[data-panel="bestiary"] h2 { color: #5a1010; }
+.hub-card[data-panel="bestiary"] .muted { color: #6b5a44; }
+.hub-card[data-panel="bestiary"] .hub-card-close { top: 18px; right: 18px; background: #7a1a1a; color: #fff; }
+#tab-bestiary #bestiary-list { display: block; margin-top: 6px; }
+.book { display: grid; grid-template-columns: 1fr 1fr; min-height: 430px;
+  background: linear-gradient(90deg, transparent calc(50% - 14px), rgba(90, 60, 30, 0.18) 50%, transparent calc(50% + 14px)); }
+.book-page { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.book-index { padding-right: 22px; }
+.book-detail { padding-left: 22px; gap: 6px; }
+/* índex: files de quadern */
+#tab-bestiary .beast { all: unset; display: flex; align-items: center; gap: 10px; padding: 5px 6px; border-bottom: 1px dashed #c9b48e; cursor: pointer; }
+#tab-bestiary .beast:hover { background: rgba(201, 180, 142, 0.2); }
+#tab-bestiary .beast:focus-visible { outline: 2px solid #7a1a1a; outline-offset: 1px; }
+#tab-bestiary .beast.open { background: rgba(122, 26, 26, 0.1); box-shadow: inset 3px 0 0 #7a1a1a; }
+#tab-bestiary .beast-icon { width: 2.2rem; height: 2.2rem; font-size: 1.4rem; background: #ebdfc2; flex-shrink: 0; }
+#tab-bestiary .beast-icon svg { width: 1.7rem; }
+#tab-bestiary .beast-info { display: flex; flex-direction: column; min-width: 0; }
+#tab-bestiary .beast-name { color: #3a2a1a; font-weight: 700; }
+#tab-bestiary .beast-meta { color: #6b5a44; font-size: 0.78rem; margin: 0; }
+#tab-bestiary .beast.unknown .beast-name { color: #75644e; letter-spacing: 0.2em; }
+.book-pager { margin-top: auto; padding-top: 8px; display: flex; align-items: center; justify-content: space-between; color: #6b5a44; font-size: 0.85rem; }
+.book-pager button { width: 36px; height: 32px; padding: 0; font-size: 1.1rem; background: #7a1a1a; color: #fff; }
+.book-pager button:disabled { background: #d9c9a6; color: #8a7a64; }
+/* fitxa */
+.beast-big { width: 120px; height: 120px; align-self: center; display: flex; align-items: center; justify-content: center; font-size: 4.5rem;
+  background: radial-gradient(circle, #ebdfc2 60%, transparent 61%); position: relative; }
+.beast-big svg, .beast-big .boss-photo { max-width: 96px; max-height: 96px; width: auto; height: auto; }
+.beast-big .badge { position: absolute; right: 8px; bottom: 8px; font-size: 1.8rem; }
+.book-detail.unknown .beast-big { filter: brightness(0) opacity(0.45); }
+.book-detail h3 { margin: 4px 0 0; font-size: 1.35rem; color: #3a2a1a; text-align: center; }
+.book-detail .beast-meta { text-align: center; }
+.book-detail .beast-desc { display: block; margin: 6px 0 0; padding: 0; border: 0; font-style: italic; color: #3a2a1a; font-size: 0.92rem; line-height: 1.45; }
+.book-detail .beast-ability { margin: 2px 0 0; color: #8a3a12; font-weight: 700; font-style: normal; font-size: 0.88rem; }
+#tab-bestiary .beast-stats { background: #ebdfc2; color: #3a2a1a; margin-top: 6px; }
+#tab-bestiary .beast-stats-title { color: #6b5a44; text-transform: none; letter-spacing: 0; }
+.book-back { align-self: flex-start; background: #7a1a1a; color: #fff; }
+@media (max-width: 700px) {
+  .hub-card[data-panel="bestiary"] { padding: 8px; }
+  #tab-bestiary .book-page { padding: 0; min-height: 0; }
+  .beast-big { width: 96px; height: 96px; font-size: 3.6rem; }
+}
+
+/* --- 🎒 Inventari: l'espill (marc de fusta i la granoteta reflectida en el cristal) --- */
+.inv-box { border: 12px solid #a8844f; outline: 3px solid #6b4f2a; outline-offset: -3px; box-shadow: inset 0 0 0 3px #6b4f2a, 0 16px 40px rgba(0, 0, 0, 0.5); border-radius: 14px; }
+.inv-stage { background: linear-gradient(160deg, #e3eff5 0%, #b8ccd8 55%, #8fa8b8 100%); box-shadow: inset 0 0 0 4px #8a6a3a, inset 0 0 18px rgba(0, 0, 0, 0.25); }
+.inv-stage::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(120deg, transparent 25%, rgba(255, 255, 255, 0.35) 34%, transparent 44%); }
+.inv-preview-label { color: #cfd6e0; }
 
 /* PANTALLA COMPLETA D'EXAMEN */
 #exam-screen {
@@ -873,7 +978,6 @@ body.hub-open #toasts { position: fixed; top: 70px; left: 50%; z-index: 45; }
   .toast { white-space: normal; text-align: center; font-size: 0.8rem; padding: 4px 10px; max-width: 90vw; }
   #toasts { width: 100%; top: 34px; }
 
-  .reset-label { display: none; } /* al mòbil, el botó de reiniciar és només la icona */
   html, body { overflow-x: hidden; }
 
   /* Millores */

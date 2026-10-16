@@ -7,16 +7,34 @@ grantStartingLevels();
 if (!state.enemy) state.enemy = makeEnemy(state.level);
 else refreshEnemyStats(state.enemy, state.level); // per si el balanç ha canviat des que es va guardar
 
-// Clic en una entrada del compendi: mostra/amaga la descripció
+// Diari (compendi): triar un enemic de l'índex, passar pàgina o tornar a l'índex (mòbil)
 $("bestiary-list").addEventListener("click", ev => {
+  const page = ev.target.closest("[data-page]");
+  if (page) { bestiaryPage = Number(page.dataset.page); renderBestiary(); return; }
+  if (ev.target.closest("[data-back]")) { openBeast = null; renderBestiary(); return; }
   const beast = ev.target.closest(".beast");
   if (!beast) return;
-  openBeast = openBeast === beast.dataset.name ? null : beast.dataset.name;
+  openBeast = beast.dataset.name;
   renderBestiary();
 });
 
+// ----- Velocitat del combat (×1 / ×2): preferència de cada jugador, es guarda a banda de la partida -----
+const SPEED_KEY = "autoescuela-speed";
+let gameSpeed = 1;
+try { gameSpeed = localStorage.getItem(SPEED_KEY) === "2" ? 2 : 1; } catch {}
+function setGameSpeed(speed) {
+  gameSpeed = speed;
+  const btn = $("btn-speed");
+  btn.innerHTML = speed === 2 ? "⏩<span> ×2</span>" : "▶<span> ×1</span>";
+  btn.setAttribute("aria-pressed", speed === 2);
+  btn.classList.toggle("on", speed === 2);
+  btn.title = speed === 2 ? "Velocitat del combat: ×2 (toca per a tornar a ×1)" : "Velocitat del combat: ×1 (toca per a anar a ×2)";
+  try { localStorage.setItem(SPEED_KEY, String(speed)); } catch {}
+}
+$("btn-speed").addEventListener("click", () => setGameSpeed(gameSpeed === 2 ? 1 : 2));
+setGameSpeed(gameSpeed);
+
 // ----- Botons -----
-$("btn-reset").addEventListener("click", reset);
 $("btn-shop-buy").addEventListener("click", buyCoins);
 $("btn-exam-start").addEventListener("click", startExam);
 $("btn-exam-retry").addEventListener("click", closeAfterFail);
@@ -40,7 +58,7 @@ let last = performance.now();
 function loop(now) {
   const dt = Math.min((now - last) / 1000, 1);
   last = now;
-  if (!examOpen()) update(dt * CONFIG.debug.speed); // el combat es para mentre hi ha examen
+  if (!examOpen()) update(dt * CONFIG.debug.speed * gameSpeed); // el combat es para mentre hi ha examen
   render();
   requestAnimationFrame(loop);
 }

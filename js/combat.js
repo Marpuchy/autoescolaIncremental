@@ -42,12 +42,17 @@ function update(dt) {
       attackFx("player", "enemy", 0, { missed });
       continue;
     }
-    const crit = roll(p.critChance);
-    const dmg = crit ? p.atk * p.critMult : p.atk;
-    e.hp -= dmg;
-    attackFx("player", "enemy", dmg, { crit });
-    lifesteal(dmg);
-    ignite(e);
+    // Doble volta: de vegades el colp es repetix (el segon pot ser crític per si mateix)
+    const hits = roll(p.doubleChance) ? 2 : 1;
+    for (let h = 0; h < hits; h++) {
+      const crit = roll(p.critChance);
+      const dmg = crit ? p.atk * p.critMult : p.atk;
+      e.hp -= dmg;
+      if (h === 0) attackFx("player", "enemy", dmg, { crit });
+      else spawnText($("enemy-avatar"), `🔄 -${fmtNum(dmg)}`, crit ? "by-player crit" : "by-player");
+      lifesteal(dmg);
+      ignite(e);
+    }
     // Traca (Pell de foc): cada N colps, un petard
     if (p.tracaEvery && (p.hits = (p.hits || 0) + 1) % p.tracaEvery === 0) {
       e.hp -= p.atk * p.tracaPct;

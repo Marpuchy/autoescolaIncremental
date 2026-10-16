@@ -1,6 +1,7 @@
 // ===== DGT: ESPAI COMÚ =====
 // Pantalla completa amb l'interior de la DGT. Cada element és un punt interactiu:
 //   🏧 caixer → botiga (L per diners) · funcionari darrere del taulell → tests i ratxa · 📖 diari → compendi · 🪞 espill → inventari
+//   🗑️ destructora de paper → reiniciar la partida
 // El combat continua de fons. Els panells (botiga, tests, compendi) són els mateixos d'abans, dins d'una finestreta.
 const HUB_PANELS = { shop: "tab-shop", test: "tab-test", bestiary: "tab-bestiary" };
 const hubOpen = () => !$("hub").hidden;
@@ -19,12 +20,14 @@ function closeHub() {
 }
 
 function openHubPanel(name) {
+  if (name === "reset") { reset(); return; } // la destructora de paper (demana confirmació)
   if (name === "inventory") {
     if (!inventoryUnlocked()) { toast("🔒 L'espill es desbloqueja quan derrotes Pixel", "bad"); return; }
     openInventory();
     return;
   }
   for (const [key, id] of Object.entries(HUB_PANELS)) $(id).hidden = key !== name;
+  document.querySelector(".hub-card").dataset.panel = name; // tema: caixer, impres del funcionari o diari
   $("hub-dialog").hidden = false;
   if (name === "shop") renderShop();
   if (name === "test") renderTestPanel();

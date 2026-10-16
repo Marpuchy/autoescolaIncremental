@@ -23,8 +23,8 @@
       <span class="l-stat"><span class="lplate">L</span> <strong id="lcoins">0</strong></span>
       <span>🏁 Nivell: <strong id="level">1</strong></span>
       <span>🏆 Rècord: <strong id="best">1</strong></span>
+      <button id="btn-speed" class="speed-btn secondary" title="Velocitat del combat" aria-pressed="false">▶<span> ×1</span></button>
       <button id="btn-hub" class="hub-btn" title="Entrar a la DGT: botiga, tests, compendi i inventari">🏢<span class="hub-btn-label"> DGT</span></button>
-      <button id="btn-reset" class="danger small" title="Reiniciar la partida">🔄<span class="reset-label"> Reiniciar</span></button>
     </div>
   </header>
 
@@ -126,13 +126,14 @@
       <button data-hub="test">☕<span>Tests</span></button>
       <button data-hub="bestiary">📖<span>Compendi</span></button>
       <button data-hub="inventory">🪞<span>Espill</span></button>
+      <button data-hub="reset" class="hub-action-reset">🗑️<span>Reiniciar</span></button>
     </nav>
     <div id="hub-dialog" hidden>
       <div class="hub-card" role="dialog" aria-modal="true">
         <button class="small secondary hub-card-close" id="btn-hub-dialog-close" title="Tancar (Esc)" aria-label="Tancar">✕</button>
       <div class="hub-panel" id="tab-shop" hidden>
         <h2>🏧 Caixer</h2>
-        <p>Canvia <span class="lplate sm">L</span> per diners.</p>
+        <p class="atm-hint">Canvia <span class="lplate sm">L</span> per diners.</p>
         <div class="shop-offer">
           <div class="shop-amount">+<span id="shop-coins">0</span> 💰</div>
           <button id="btn-shop-buy" class="big"></button>
@@ -150,7 +151,6 @@
 
       <div class="hub-panel" id="tab-bestiary" hidden>
         <h2>📖 Compendi <span class="muted" id="bestiary-count"></span></h2>
-        <p class="muted">Enemics que has vist en totes les partides.</p>
         <div id="bestiary-list"></div>
       </div>
       </div>

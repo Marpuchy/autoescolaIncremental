@@ -47,6 +47,7 @@ const CONFIG = {
     critMultiplier: 2,    // un crític fa ×X de dany
     maxCritChance: 75,    // % màxim de probabilitat de crític
     maxParryChance: 60,   // % màxim de probabilitat de parada (si no, la granoteta seria invencible)
+    maxDoubleChance: 40,  // % màxim de probabilitat d'atacar dues vegades (millora «Doble volta»)
   },
   testRewards: { 0: 5, 1: 3, 2: 1 },   // errades -> L
   shop: {

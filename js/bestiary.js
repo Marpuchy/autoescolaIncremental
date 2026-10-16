@@ -17,7 +17,8 @@ function registerSeen(e) {
 const typeFromLevel = i => i < 2 ? 1 : (i - 1) * CONFIG.levelsPerScene + 1;
 const sizeLabel = mult => mult < 1.1 ? "Xicotet" : mult < 1.7 ? "Mitjà" : mult < 2.6 ? "Gran" : "Enorme";
 
-let openBeast = null; // entrada del compendi desplegada
+let openBeast = null;   // enemic que es mostra a la fitxa del diari
+let bestiaryPage = 0;   // pàgina de l'índex del diari
 
 // Stats d'un enemic a un nivell, per a la fitxa del compendi (la recompensa ja inclou el bonus de diners)
 // boss: cap especial (les seues stats estan compensades per l'habilitat)
@@ -49,28 +50,46 @@ function renderBestiary() {
   const found = shown.filter(e => state.bestiary[e.name]).length;
   $("bestiary-count").textContent = `${found} ${found === 1 ? "descobert" : "descoberts"}`;
 
-  $("bestiary-list").innerHTML = shown.map(e => {
+  // Diari obert: índex paginat a l'esquerra i fitxa a la dreta (al mòbil, una pàgina: índex o fitxa)
+  const narrow = matchMedia("(max-width: 700px)").matches;
+  const perPage = narrow ? 6 : 8;
+  const pages = Math.max(1, Math.ceil(shown.length / perPage));
+  if (!shown.some(e => e.name === openBeast)) openBeast = narrow ? null : (shown.find(e => state.bestiary[e.name]) || shown[0])?.name || null;
+  bestiaryPage = Math.min(Math.max(0, bestiaryPage), pages - 1);
+  const pageItems = shown.slice(bestiaryPage * perPage, (bestiaryPage + 1) * perPage);
+
+  const row = e => {
     const b = state.bestiary[e.name];
-    const open = openBeast === e.name;
-    if (!b) return `
-      <div class="beast unknown${open ? " open" : ""}" data-name="${e.name}">
-        <div class="beast-row">
-          <div class="beast-icon">${e.icon}</div>
-          <div class="beast-info"><div class="beast-name">???</div><div class="beast-meta">Pot aparéixer en aquest escenari</div></div>
-        </div>
-        <div class="beast-desc">Encara no l'has vist. Continua avançant!</div>
+    return `<button class="beast${b ? "" : " unknown"}${openBeast === e.name ? " open" : ""}" data-name="${e.name}">
+        <span class="beast-icon">${e.icon}</span>
+        <span class="beast-info"><span class="beast-name">${b ? e.name : "???"}</span>
+          <span class="beast-meta">${b ? `Derrotat ${b.defeated}` : "Pot aparéixer ara"}</span></span>
+      </button>`;
+  };
+  const index = `<div class="book-page book-index">
+      ${pageItems.map(row).join("")}
+      <div class="book-pager">
+        <button class="small" data-page="${bestiaryPage - 1}" ${bestiaryPage === 0 ? "disabled" : ""} aria-label="Pàgina anterior">‹</button>
+        <span>Pàgina ${bestiaryPage + 1} de ${pages}</span>
+        <button class="small" data-page="${bestiaryPage + 1}" ${bestiaryPage >= pages - 1 ? "disabled" : ""} aria-label="Pàgina següent">›</button>
+      </div>
+    </div>`;
+
+  const e = shown.find(x => x.name === openBeast);
+  const b = e && state.bestiary[e.name];
+  const back = narrow ? `<button class="small book-back" data-back>‹ Tornar a l'índex</button>` : "";
+  const detail = !e ? `<div class="book-page book-detail"><p class="muted">Tria un enemic de l'índex.</p></div>`
+    : !b ? `<div class="book-page book-detail unknown">${back}<div class="beast-big">${e.icon}</div>
+        <h3>???</h3><p>Encara no l'has vist. Pot aparéixer en aquest escenari: continua avançant!</p></div>`
+    : `<div class="book-page book-detail">${back}<div class="beast-big">${e.icon}</div>
+        <h3>${e.name}</h3>
+        <p class="beast-meta">${sizeLabel(e.mult)} · ${e.from}</p>
+        <p class="beast-meta">Vist ${b.seen} ${b.seen === 1 ? "vegada" : "vegades"} · Derrotat ${b.defeated}</p>
+        <p class="beast-desc">${e.desc || ""}</p>
+        ${e.ability ? `<p class="beast-ability">⚡ ${e.ability}</p>` : ""}
+        ${beastStats(e.mult, e.lvl, e.special)}
       </div>`;
-    return `
-      <div class="beast${open ? " open" : ""}" data-name="${e.name}">
-        <div class="beast-row">
-          <div class="beast-icon">${e.icon}</div>
-          <div class="beast-info">
-            <div class="beast-name">${e.name}</div>
-            <div class="beast-meta">${sizeLabel(e.mult)} · ${e.from}</div>
-            <div class="beast-meta">Vist ${b.seen} ${b.seen === 1 ? "vegada" : "vegades"} · Derrotat ${b.defeated}</div>
-          </div>
-        </div>
-        <div class="beast-desc">${e.desc || ""}${e.ability ? `<div class="beast-ability">⚡ ${e.ability}</div>` : ""}${beastStats(e.mult, e.lvl, e.special)}</div>
-      </div>`;
-  }).join("");
+
+  $("bestiary-list").innerHTML = narrow ? (openBeast ? detail : index) : `<div class="book">${index}${detail}</div>`;
 }
+
