@@ -150,7 +150,7 @@ const NINOT_BOSS = {
 // Pastor de Morella: cap especial de Morella i els Ports (amb el seu gos d'atura)
 const PASTOR_BOSS = {
   name: "Pastor de Morella",
-  icon: `🧑‍🌾<span class="badge">🐑</span>`,
+  icon: ENEMY_ART.pastor,
   desc: "Gaiato, samarra i tres-centes ovelles a la carretera. No té pressa i el seu gos, menys encara.",
   mech: "pastor",
   ability: "Gos d'atura: el seu gos l'ajuda i t'ataca pel seu compte (no té vida).",
@@ -160,7 +160,7 @@ const PASTOR_BOSS = {
 // Examinador en cap: cap especial de la DGT (punt d'inflexió: després, la carretera de veritat)
 const CHIEF_BOSS = {
   name: "Examinador en cap",
-  icon: `🧑‍💼<span class="badge">👑</span>`,
+  icon: ENEMY_ART.examinadorCap,
   desc: "El cap de tots els examinadors. Ha suspés més gent que ningú a la Comunitat Valenciana i en té una carpeta per a demostrar-ho.",
   mech: "chief",
   ability: "Falta eliminatòria: cada 10 s t'apunta una falta. A la tercera et suspén i es cura un 25% de la vida (una vegada per combat).",

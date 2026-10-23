@@ -60,5 +60,7 @@
   <g fill="#3a3a3a"><rect x="580" y="640" width="20" height="18" rx="4"/><rect x="1180" y="640" width="20" height="18" rx="4"/></g>
   <rect y="700" width="1600" height="200" fill="url(#asfalt)"/><rect y="700" width="1600" height="200" fill="url(#gra)"/>
   <line x1="0" y1="800" x2="1600" y2="800" stroke="#f2c200" stroke-width="5" stroke-dasharray="60 50" opacity="0.85"/>
+  <!-- gavines -->
+  <g fill="none" stroke="#2b2f36" stroke-width="3" stroke-linecap="round"><path d="M640 170 Q652 160 664 170 Q676 160 688 170"/><path d="M720 210 Q730 202 740 210 Q750 202 760 210"/><path d="M1080 230 Q1090 222 1100 230 Q1110 222 1120 230"/></g>
   <rect width="1600" height="900" fill="url(#vinyeta)"/>
 </svg>

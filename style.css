@@ -141,7 +141,7 @@ header h1 { margin: 0; font-size: 1.2rem; color: #f2c200; }
   transform-origin: bottom center;
   filter: drop-shadow(0 6px 4px rgba(0, 0, 0, 0.35));
 }
-.sprite svg { height: calc(var(--h) * var(--size, 1)); width: auto; display: block; }
+.sprite svg { height: calc(var(--h) * var(--size, 1)); width: auto; max-width: 44vw; display: block; } /* vehicles llargs: al mòbil s'encongixen (xMidYMax) */
 /* Caps amb foto (Pixel, Marc): la foto sencera, amb les proporcions originals */
 .boss-photo { display: block; user-select: none; }
 .sprite .boss-photo { height: calc(var(--h) * var(--size, 1)); width: auto; }
@@ -747,9 +747,10 @@ body.hub-open:has(#hub-dialog:not([hidden])) #toasts { top: auto; bottom: 16px; 
 .book-pager button { width: 36px; height: 32px; padding: 0; font-size: 1.1rem; background: #7a1a1a; color: #fff; }
 .book-pager button:disabled { background: #d9c9a6; color: #8a7a64; }
 /* fitxa */
-.beast-big { width: 120px; height: 120px; align-self: center; display: flex; align-items: center; justify-content: center; font-size: 4.5rem;
-  background: radial-gradient(circle, #ebdfc2 60%, transparent 61%); position: relative; }
-.beast-big svg, .beast-big .boss-photo { max-width: 96px; max-height: 96px; width: auto; height: auto; }
+.beast-big { width: 200px; height: 120px; align-self: center; display: flex; align-items: center; justify-content: center; font-size: 4.5rem;
+  background: radial-gradient(circle 58px, #ebdfc2 97%, transparent 100%); position: relative; }
+.beast-big svg { max-width: 190px; max-height: 96px; width: auto; height: auto; } /* vehicles llargs: més amples que el cercle */
+.beast-big .boss-photo { max-width: 96px; max-height: 96px; width: auto; height: auto; }
 .beast-big .badge { position: absolute; right: 8px; bottom: 8px; font-size: 1.8rem; }
 .book-detail.unknown .beast-big { filter: brightness(0) opacity(0.45); }
 .book-detail h3 { margin: 4px 0 0; font-size: 1.35rem; color: #3a2a1a; text-align: center; }
@@ -762,7 +763,8 @@ body.hub-open:has(#hub-dialog:not([hidden])) #toasts { top: auto; bottom: 16px; 
 @media (max-width: 700px) {
   .hub-card[data-panel="bestiary"] { padding: 8px; }
   #tab-bestiary .book-page { padding: 0; min-height: 0; }
-  .beast-big { width: 96px; height: 96px; font-size: 3.6rem; }
+  .beast-big { width: 180px; height: 96px; font-size: 3.6rem; background: radial-gradient(circle 46px, #ebdfc2 97%, transparent 100%); }
+  .beast-big svg { max-height: 80px; }
 }
 
 /* --- 🎒 Inventari: l'espill (marc de fusta i la granoteta reflectida en el cristal) --- */

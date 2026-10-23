@@ -38,6 +38,12 @@
   <rect x="620" y="300" width="360" height="320" fill="#eef1f3"/>
   <rect x="620" y="290" width="360" height="14" fill="#d1261f"/>
   <g fill="#3f6f90"><rect x="640" y="320" width="320" height="50"/><rect x="640" y="400" width="320" height="50"/></g>
+  <!-- pantalla de temps: la classificació en barres de colors (abans era un rectangle buit) -->
+  <rect x="648" y="406" width="304" height="38" fill="#1d2a36"/>
+  <g><rect x="656" y="411" width="10" height="7" fill="#6cc96a"/><rect x="672" y="411" width="150" height="7" fill="#f2c200"/>
+    <rect x="656" y="422" width="10" height="7" fill="#d1261f"/><rect x="672" y="422" width="128" height="7" fill="#c9ced3"/>
+    <rect x="656" y="433" width="10" height="7" fill="#2f6fb5"/><rect x="672" y="433" width="112" height="7" fill="#c9ced3"/>
+    <rect x="880" y="411" width="62" height="7" fill="#7dffb0"/><rect x="880" y="422" width="62" height="7" fill="#7dffb0" opacity="0.6"/><rect x="880" y="433" width="62" height="7" fill="#7dffb0" opacity="0.6"/></g>
   <g fill="#c9ced3"><rect x="640" y="480" width="70" height="140"/><rect x="725" y="480" width="70" height="140"/><rect x="810" y="480" width="70" height="140"/><rect x="895" y="480" width="65" height="140"/></g>
   <text x="800" y="358" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="28" fill="#fff" letter-spacing="3">CIRCUIT</text>
   <!-- pancarta de meta a quadres i semàfor de sortida -->

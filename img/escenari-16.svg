@@ -25,9 +25,12 @@
   <!-- la mar llunyana -->
   <rect x="0" y="420" width="1600" height="60" fill="url(#mar)"/>
   <!-- muntanyes de pedra rogenca -->
-  <path d="M0 470 L120 330 L240 400 L380 230 L520 380 L640 300 L760 420 V520 H0 Z" fill="#a8806a"/>
-  <path d="M700 470 L860 260 L960 340 L1080 200 L1220 360 L1340 280 L1480 380 L1600 330 V520 H700 Z" fill="#9a7460"/>
+  <path d="M0 418 L120 330 L240 400 L380 230 L520 380 L640 300 L760 420 V520 H0 Z" fill="#a8806a"/>
+  <path d="M700 470 L860 260 L960 340 L1080 200 L1220 360 L1340 280 L1450 400 L1600 476 V520 H700 Z" fill="#9a7460"/>
   <path d="M380 230 L420 300 L400 380 L340 300 Z M1080 200 L1120 280 L1100 360 L1040 280 Z" fill="#c09a82" opacity="0.6"/>
+  <!-- la mar es veu a la dreta, cap a Benicàssim (abans només n'eixia un quadradet a l'esquerra) -->
+  <path d="M1480 438 H1560 M1520 452 H1600" stroke="#fff" stroke-width="2" opacity="0.35"/>
+  <path d="M1540 446 H1562 L1558 452 H1544 Z" fill="#f4f6f8"/><path d="M1551 446 V430 L1562 444 Z" fill="#f4f6f8"/>
   <!-- la creu al cim -->
   <rect x="1077" y="160" width="6" height="42" fill="#f2f0ea"/><rect x="1066" y="172" width="28" height="6" fill="#f2f0ea"/>
   <!-- pinars -->

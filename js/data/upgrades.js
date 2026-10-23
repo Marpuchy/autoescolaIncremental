@@ -55,7 +55,7 @@ const UPGRADES = [
     total: (lv, e) => `${capped(lv * e, CONFIG.combat.maxDoubleChance)} de doble atac`,
     stat: p => `Ataca dues vegades el ${fmtPct(p.doubleChance * 100)}% dels colps` },
   { id: "petfood", scene: 12, icon: "🦴", name: "Pinso premium",     base: 10,  baseCost: 26000, costGrowth: 1.15,
-    per: e => `+${fmtPct(e)}% de dany de la mascota`,
-    total: (lv, e) => `+${fmtPct(lv * e)}% a la mascota`,
-    stat: p => `Dany de la mascota: +${fmtPct(p.petDmgPct || 0)}%` },
+    per: e => `+${fmtPct(e)}% d'atac de la mascota`,
+    total: (lv, e) => `+${fmtPct(lv * e)}% d'atac mascota`,
+    stat: p => `Atac de la mascota: +${fmtPct(p.petDmgPct || 0)}%` },
 ];

@@ -19,7 +19,7 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
 
 ## Estructura
 - `js/config.js` — todo el balance (`CONFIG`): vida/ataque/recompensa, `sceneHpMult` por escenario, costes.
-- `js/data/` — contenidos: `scenes.js` (escenarios y jefes con nombre), `enemies.js`, `upgrades.js`, `items.js`, `questions.js`.
+- `js/data/` — contenidos: `scenes.js` (escenarios y jefes con nombre), `enemies.js`, `enemy-art.js` (dibujos SVG de enemigos y jefes), `upgrades.js`, `items.js`, `questions.js`.
 - Lógica: `state.js` (estado), `save.js` (guardado y migraciones), `enemies.js`, `bosses.js` (habilidades de jefes),
   `combat.js`, `upgrades.js`, `inventory.js`, `evolutions.js` (ramas de evolución de objetos, datos en
   `data/evolutions.js`), `hub.js` (DGT: espacio común), `progress.js`, `exam.js`, `tests.js`, `shop.js`, `bestiary.js`.

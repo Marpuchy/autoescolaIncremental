@@ -38,7 +38,11 @@ degradado suave. Sin imágenes externas salvo las fotos de jefes (`img/*.jpeg`).
   que quedan detrás de otro por el orden del documento.
 
 ## Enemigos y jefes (`ENEMY_TYPES` en `js/data/enemies.js`, jefes en `js/data/scenes.js`)
-- Pueden ser emoji, emoji con insignia (`🚗<span class="badge">🧳</span>`) o SVG en una constante (`FORKLIFT_SVG`).
+- **Siempre SVG propio, nunca emoji** (los emoji cambian según el móvil y no casan con el estilo). Los dibujos viven en
+  `js/data/enemy-art.js` (`ENEMY_ART.clave`, con ayudantes `car()`, `wheel()`, `rider()`…); los tres primeros SVG
+  (`YIELD_SVG`, `BOAT_SVG`, `FORKLIFT_SVG`) siguen en `enemies.js`.
+- Vehículos largos: `preserveAspectRatio="xMidYMax meet"` (en móvil se encogen sin despegarse del suelo; `.sprite svg`
+  tiene `max-width: 44vw`). Personas de frente; vehículos y animales de perfil con el morro a la izquierda.
 - SVG: `viewBox` ajustado al dibujo, `aria-label` con el nombre, base del dibujo abajo (se alinea al suelo).
   El enemigo está a la derecha: si tiene "frente", que mire a la izquierda (hacia la granoteta).
 - Jefes con animación: una clase en el SVG o en el sprite y keyframes en `style.css` (p. ej. `.on-fire-svg .flames`).

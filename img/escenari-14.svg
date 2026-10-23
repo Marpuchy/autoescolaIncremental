@@ -28,10 +28,19 @@
   <g stroke="#ffd23f" stroke-width="3" opacity="0.8"><path d="M300 150 L300 110 M300 150 L330 125 M300 150 L270 125 M300 150 L335 155 M300 150 L265 155 M300 150 L320 180 M300 150 L280 180"/></g>
   <g stroke="#ff5ab0" stroke-width="3" opacity="0.8"><path d="M1300 130 L1300 90 M1300 130 L1330 105 M1300 130 L1270 105 M1300 130 L1335 135 M1300 130 L1265 135 M1300 130 L1320 160 M1300 130 L1280 160"/></g>
   <!-- finques -->
-  <rect x="0" y="240" width="380" height="460" fill="url(#balcons)"/><rect x="1220" y="220" width="380" height="480" fill="url(#balcons)"/>
-  <rect x="0" y="230" width="380" height="12" fill="#b8936a"/><rect x="1220" y="210" width="380" height="12" fill="#b8936a"/>
+  <!-- (posicions múltiples de la rajola de balcons, 70×90: cap finestra queda tallada a les cantonades) -->
+  <rect x="0" y="270" width="350" height="430" fill="url(#balcons)"/><rect x="1260" y="180" width="340" height="520" fill="url(#balcons)"/>
+  <rect x="0" y="260" width="356" height="12" fill="#b8936a"/><rect x="1254" y="170" width="346" height="12" fill="#b8936a"/>
+  <g fill="#1a1a4e" opacity="0.15"><rect x="336" y="270" width="14" height="430"/><rect x="1260" y="180" width="14" height="520"/></g>
   <!-- fum de la mascletà -->
   <ellipse cx="500" cy="380" rx="160" ry="80" fill="url(#fum)"/><ellipse cx="1120" cy="360" rx="180" ry="90" fill="url(#fum)"/>
+  <!-- arcs de llums de colors (darrere del monument, que no li creuen la cara) -->
+  <g fill="none" stroke="#3a3040" stroke-width="3"><path d="M350 214 Q800 120 1260 196"/><path d="M350 262 Q800 170 1260 246"/></g>
+  <g>
+    <g fill="#ffd23f"><circle cx="440" cy="190" r="6"/><circle cx="600" cy="162" r="6"/><circle cx="800" cy="150" r="6"/><circle cx="1000" cy="162" r="6"/><circle cx="1160" cy="190" r="6"/></g>
+    <g fill="#ff5ab0"><circle cx="520" cy="174" r="6"/><circle cx="700" cy="154" r="6"/><circle cx="900" cy="154" r="6"/><circle cx="1080" cy="174" r="6"/></g>
+    <g fill="#4ae0ff"><circle cx="440" cy="240" r="6"/><circle cx="620" cy="210" r="6"/><circle cx="800" cy="200" r="6"/><circle cx="980" cy="210" r="6"/><circle cx="1160" cy="240" r="6"/></g>
+  </g>
   <!-- el monument faller: base, ninots i figura central gegant -->
   <path d="M560 700 L600 560 H1000 L1040 700 Z" fill="#e2c07a"/>
   <path d="M600 560 H1000 L990 600 H610 Z" fill="#c9a050"/>
@@ -39,6 +48,13 @@
     <!-- figura central: una senyora gegant amb ventall -->
     <path d="M700 560 Q680 380 760 300 H840 Q920 380 900 560 Z" fill="#e2483a"/>
     <path d="M720 560 Q720 440 800 400 Q880 440 880 560 Z" fill="#f2c200"/>
+    <g fill="#e2483a"><circle cx="760" cy="480" r="7"/><circle cx="800" cy="450" r="7"/><circle cx="840" cy="480" r="7"/><circle cx="780" cy="520" r="7"/><circle cx="822" cy="524" r="7"/></g>
+    <!-- braços: el de l'esquerra a la cintura i el de la dreta alçat amb el ventall -->
+    <path d="M744 330 Q690 380 716 440 Q740 470 760 456" stroke="#c43a2e" stroke-width="30" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="764" cy="452" r="15" fill="#ffd9b8"/>
+    <path d="M856 330 Q900 360 902 412" stroke="#c43a2e" stroke-width="30" fill="none" stroke-linecap="round"/>
+    <circle cx="902" cy="418" r="15" fill="#ffd9b8"/>
+    <path d="M752 318 Q800 344 848 318 L842 336 Q800 360 758 336 Z" fill="#fffaf0"/>
     <circle cx="800" cy="250" r="72" fill="#ffd9b8"/>
     <circle cx="772" cy="240" r="13" fill="#fff"/><circle cx="828" cy="240" r="13" fill="#fff"/>
     <circle cx="775" cy="242" r="6" fill="#1d1d1d"/><circle cx="825" cy="242" r="6" fill="#1d1d1d"/>
@@ -46,17 +62,13 @@
     <ellipse cx="760" cy="270" rx="12" ry="8" fill="#ff7a8a" opacity="0.6"/><ellipse cx="840" cy="270" rx="12" ry="8" fill="#ff7a8a" opacity="0.6"/>
     <path d="M722 210 Q730 150 800 150 Q870 150 878 210 Q860 180 800 180 Q740 180 722 210 Z" fill="#6a3a1a"/>
     <circle cx="800" cy="146" r="22" fill="#6a3a1a"/>
-    <path d="M900 420 L980 340 L1000 380 Z" fill="#3a7bd5"/><path d="M900 420 L980 340 L960 330 Z" fill="#ff5ab0"/>
+    <path d="M902 418 L980 340 L1000 380 Z" fill="#3a7bd5"/><path d="M902 418 L980 340 L960 330 Z" fill="#ff5ab0"/>
+    <path d="M902 418 L970 336 M902 418 L992 360 M902 418 L996 374" stroke="#fff" stroke-width="2" opacity="0.5"/>
+    <circle cx="902" cy="418" r="5" fill="#e8c050"/>
+    <circle cx="730" cy="268" r="6" fill="#e8c050"/><circle cx="870" cy="268" r="6" fill="#e8c050"/>
     <!-- ninots petits -->
     <g><circle cx="650" cy="520" r="22" fill="#ffd9b8"/><rect x="630" y="540" width="40" height="30" fill="#3a7bd5"/><circle cx="643" cy="516" r="4" fill="#1d1d1d"/><circle cx="657" cy="516" r="4" fill="#1d1d1d"/></g>
     <g><circle cx="950" cy="520" r="22" fill="#ffd9b8"/><rect x="930" y="540" width="40" height="30" fill="#3aa86a"/><circle cx="943" cy="516" r="4" fill="#1d1d1d"/><circle cx="957" cy="516" r="4" fill="#1d1d1d"/><rect x="930" y="490" width="40" height="10" fill="#1d1d1d"/></g>
-  </g>
-  <!-- arcs de llums de colors -->
-  <g fill="none" stroke="#3a3040" stroke-width="3"><path d="M380 200 Q800 120 1220 200"/><path d="M380 250 Q800 170 1220 250"/></g>
-  <g>
-    <g fill="#ffd23f"><circle cx="440" cy="190" r="6"/><circle cx="600" cy="162" r="6"/><circle cx="800" cy="150" r="6"/><circle cx="1000" cy="162" r="6"/><circle cx="1160" cy="190" r="6"/></g>
-    <g fill="#ff5ab0"><circle cx="520" cy="174" r="6"/><circle cx="700" cy="154" r="6"/><circle cx="900" cy="154" r="6"/><circle cx="1080" cy="174" r="6"/></g>
-    <g fill="#4ae0ff"><circle cx="440" cy="240" r="6"/><circle cx="620" cy="210" r="6"/><circle cx="800" cy="200" r="6"/><circle cx="980" cy="210" r="6"/><circle cx="1160" cy="240" r="6"/></g>
   </g>
   <!-- tanques de seguretat -->
   <g fill="#c9ced3"><rect x="520" y="660" width="560" height="6"/><rect x="520" y="690" width="560" height="6"/></g>

@@ -30,6 +30,22 @@
     <rect x="560" y="470" width="200" height="130" fill="#5f8fb4"/><rect x="656" y="470" width="8" height="130" fill="#e9ecef"/>
     <rect x="520" y="430" width="280" height="34" rx="4" fill="#2d4f8a"/>
     <text x="660" y="454" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="20" fill="#fff" letter-spacing="2">CENTRE D'EXÀMENS</text>
+    <!-- marquesina de l'entrada, tiradors, parterres i la cua d'aspirants esperant l'examinador -->
+    <rect x="540" y="462" width="240" height="10" rx="2" fill="#2d4f8a"/><rect x="540" y="472" width="240" height="4" fill="#1a1a4e" opacity="0.2"/>
+    <rect x="646" y="520" width="4" height="26" rx="2" fill="#c9ced4"/><rect x="670" y="520" width="4" height="26" rx="2" fill="#c9ced4"/>
+    <rect x="380" y="330" width="560" height="270" fill="#1a1a4e" opacity="0.05"/><rect x="920" y="334" width="20" height="266" fill="#1a1a4e" opacity="0.1"/>
+    <g fill="#3f8a3f"><circle cx="420" cy="584" r="22"/><circle cx="452" cy="590" r="16"/><circle cx="900" cy="584" r="22"/><circle cx="868" cy="590" r="16"/></g>
+    <g fill="#2f6b33"><circle cx="428" cy="592" r="12"/><circle cx="894" cy="592" r="12"/></g>
+    <rect x="396" y="594" width="72" height="8" fill="#9aa0a6"/><rect x="852" y="594" width="72" height="8" fill="#9aa0a6"/>
+    <g>
+      <circle cx="800" cy="536" r="9" fill="#f0c8a0"/><path d="M790 534 Q792 524 802 526 Q810 528 808 536 Q802 530 790 534 Z" fill="#3a2a1a"/>
+      <path d="M788 600 V560 Q788 548 800 548 Q812 548 812 560 V600 Z" fill="#f28c28"/>
+      <circle cx="830" cy="540" r="9" fill="#e8b890"/><path d="M821 538 Q822 528 832 529 Q840 531 839 540 Q832 534 821 538 Z" fill="#f2d27a"/>
+      <path d="M818 600 V562 Q818 552 830 552 Q842 552 842 562 V600 Z" fill="#3a7bd5"/>
+      <circle cx="736" cy="534" r="9" fill="#efc6a2"/><path d="M727 530 Q736 520 745 530 Z" fill="#c9c9c9"/>
+      <path d="M724 600 V558 Q724 546 736 546 Q748 546 748 558 V600 Z" fill="#4a5568"/>
+      <rect x="742" y="560" width="14" height="18" rx="1" fill="#b88a4a"/><rect x="744" y="563" width="10" height="13" fill="#fff"/>
+    </g>
     <rect x="410" y="250" width="150" height="66" rx="6" fill="#2d4f8a"/>
     <text x="485" y="294" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="34" fill="#fff">DGT</text>
   </g>
@@ -42,7 +58,15 @@
   <!-- zona de pràctiques: aparcament marcat i cons -->
   <rect y="600" width="1600" height="100" fill="#62666b"/>
   <g stroke="#f3f1e6" stroke-width="5"><path d="M1140 610 V690 M1240 610 V690 M1340 610 V690 M1440 610 V690 M1140 610 H1440"/></g>
-  <rect x="1250" y="626" width="80" height="56" rx="6" fill="#2fa84f" opacity="0.25"/>
+  <!-- cotxe de l'autoescola aparcat a la plaça de la prova (abans era un rectangle verd sense forma) -->
+  <g>
+    <path d="M1252 682 V668 Q1252 660 1260 659 L1270 658 L1280 646 Q1282 644 1286 644 H1306 Q1310 644 1313 647 L1322 658 Q1330 659 1330 667 V682 Z" fill="#f4f6f8"/>
+    <path d="M1273 658 L1282 648 H1294 V658 Z M1297 648 H1308 L1316 658 H1297 Z" fill="#a8d8ef"/>
+    <rect x="1252" y="672" width="78" height="10" fill="#1a1a4e" opacity="0.15"/>
+    <rect x="1284" y="636" width="16" height="8" rx="1.5" fill="#1f4f9e"/><path d="M1289 638 V642 H1295" stroke="#fff" stroke-width="1.6" fill="none"/>
+    <circle cx="1268" cy="682" r="8" fill="#23232b"/><circle cx="1268" cy="682" r="4" fill="#9aa3ad"/>
+    <circle cx="1314" cy="682" r="8" fill="#23232b"/><circle cx="1314" cy="682" r="4" fill="#9aa3ad"/>
+  </g>
   <use href="#con" x="140" y="640" width="40" height="50"/><use href="#con" x="240" y="640" width="40" height="50"/><use href="#con" x="340" y="640" width="40" height="50"/>
   <use href="#con" x="1180" y="640" width="36" height="46"/><use href="#con" x="1380" y="640" width="36" height="46"/>
   <!-- semàfor de la prova -->

@@ -172,9 +172,10 @@
 
   <!-- edificis amb balcons -->
   <rect x="0" y="360" width="160" height="340" fill="url(#balcons)"/>
-  <rect x="600" y="400" width="300" height="300" fill="url(#balconsB)"/>
-  <rect x="1200" y="330" width="220" height="370" fill="url(#balcons)"/>
-  <rect x="1420" y="380" width="180" height="320" fill="url(#balconsB)"/>
+  <!-- la rajola de balcons (70 d'ample) es desplaça amb cada finca perquè cap finestra quede tallada a la cantonada -->
+  <g transform="translate(610 400)"><rect x="-10" width="300" height="300" fill="url(#balconsB)"/></g>
+  <g transform="translate(1205 330)"><rect x="-5" width="220" height="370" fill="url(#balcons)"/></g>
+  <g transform="translate(1420 380)"><rect width="180" height="320" fill="url(#balconsB)"/></g>
   <g fill="#b98e5f"><rect x="0" y="350" width="160" height="12"/><rect x="596" y="390" width="308" height="12"/><rect x="1196" y="320" width="228" height="12"/><rect x="1416" y="370" width="184" height="12"/></g>
   <g fill="#000" opacity="0.14"><rect x="0" y="362" width="160" height="5"/><rect x="600" y="402" width="300" height="5"/><rect x="1200" y="332" width="220" height="5"/><rect x="1420" y="382" width="180" height="5"/></g>
   <!-- cúpula modernista -->

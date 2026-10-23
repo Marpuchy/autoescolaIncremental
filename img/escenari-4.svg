@@ -146,11 +146,11 @@
 
   <!-- fanals amb el seu con de llum -->
   <polygon points="664,440 590,740 760,740" fill="url(#con)"/>
-  <polygon points="1204,440 1130,740 1300,740" fill="url(#con)"/>
+  <polygon points="1424,440 1350,740 1480,740" fill="url(#con)"/>
   <circle cx="664" cy="440" r="90" fill="url(#llum)"/>
-  <circle cx="1204" cy="440" r="90" fill="url(#llum)"/>
+  <circle cx="1424" cy="440" r="90" fill="url(#llum)"/>
   <use href="#fanal" x="620" y="430" width="60" height="320"/>
-  <use href="#fanal" x="1160" y="430" width="60" height="320"/>
+  <use href="#fanal" x="1380" y="430" width="60" height="320"/> <!-- (desplaçat: tapava el grafit «AV. VALÈNCIA») -->
   <!-- semàfor en roig -->
   <rect x="1497" y="560" width="8" height="190" fill="#15131b"/>
   <rect x="1482" y="500" width="38" height="92" rx="6" fill="#15131b"/>
@@ -184,7 +184,7 @@
   <rect y="748" width="1600" height="6" fill="#000" opacity="0.35"/>
   <g filter="url(#suau)">
     <rect x="648" y="756" width="32" height="130" fill="url(#reflex)"/>
-    <rect x="1188" y="756" width="32" height="130" fill="url(#reflex)"/>
+    <rect x="1408" y="756" width="32" height="130" fill="url(#reflex)"/>
     <rect x="770" y="756" width="100" height="140" fill="url(#reflexFoc)"/>
     <rect x="1492" y="756" width="18" height="90" fill="#ff3b30" opacity="0.2"/>
   </g>

@@ -17,8 +17,27 @@ function showExamIntro() {
   $("exam-screen").hidden = false;
 }
 
+// Preguntes que ja han eixit en aquest navegador: no se'n repetix cap fins que s'han vist totes (amb ~400
+// preguntes i 8 per examen, són uns 50 exàmens: més del doble dels d'una partida). Va a part del guardat: no es perd en reiniciar ni toca l'estat.
+// Només es fa servir per a comparar textos amb el banc, així que una llista manipulada no pot injectar res.
+const SEEN_QUESTIONS_KEY = "autoescuela-preguntes-vistes";
+
+function pickQuestions(n) {
+  let seen;
+  try { seen = new Set(JSON.parse(localStorage.getItem(SEEN_QUESTIONS_KEY)) || []); } catch { seen = new Set(); }
+  let pool = shuffle(QUESTIONS.filter(q => !seen.has(q.q)));
+  if (pool.length < n) { // ja s'han vist quasi totes: primer les que queden i es torna a començar la volta
+    pool = [...pool, ...shuffle(QUESTIONS.filter(q => seen.has(q.q)))];
+    seen = new Set();
+  }
+  const picked = pool.slice(0, n);
+  picked.forEach(q => seen.add(q.q));
+  try { localStorage.setItem(SEEN_QUESTIONS_KEY, JSON.stringify([...seen])); } catch { /* sense guardat: només es repetiran */ }
+  return picked;
+}
+
 function startExam() {
-  currentExam = shuffle(QUESTIONS).slice(0, CONFIG.exam.questions).map(q => ({
+  currentExam = pickQuestions(CONFIG.exam.questions).map(q => ({
     q: q.q,
     options: shuffle(q.o.map((text, i) => ({ text, correct: i === 0 }))),
   }));

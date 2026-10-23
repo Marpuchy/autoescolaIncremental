@@ -64,8 +64,8 @@
   <rect x="470" y="330" width="460" height="170" fill="#1a1626"/>
   <!-- pantalla amb ones de colors -->
   <rect x="560" y="350" width="280" height="110" fill="#2a1a4a"/>
-  <path d="M560 420 Q600 380 640 420 T720 420 T800 420 T840 410" stroke="#ff5ac8" stroke-width="8" fill="none"/>
-  <path d="M560 440 Q600 400 640 440 T720 440 T800 440 T840 430" stroke="#4ae0ff" stroke-width="6" fill="none"/>
+  <path d="M560 420 Q600 380 640 420 T720 420 T800 420 Q820 440 840 440" stroke="#ff5ac8" stroke-width="8" fill="none"/>
+  <path d="M560 440 Q600 400 640 440 T720 440 T800 440 Q820 460 840 460" stroke="#4ae0ff" stroke-width="6" fill="none"/>
   <rect x="440" y="500" width="520" height="40" fill="#2b2b2b"/>
   <g fill="#ffd84a"><circle cx="480" cy="316" r="7"/><circle cx="560" cy="316" r="7"/><circle cx="640" cy="316" r="7"/><circle cx="760" cy="316" r="7"/><circle cx="840" cy="316" r="7"/><circle cx="920" cy="316" r="7"/></g>
   <!-- altaveus -->

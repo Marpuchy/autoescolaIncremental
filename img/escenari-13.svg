@@ -31,10 +31,13 @@
   <!-- ciutat del fons fins a la vorera -->
   <rect y="540" width="1600" height="160" fill="#cbbfa8"/>
   <!-- blocs de pisos -->
-  <rect x="40" y="300" width="300" height="400" fill="url(#finestres)"/><rect x="40" y="290" width="300" height="12" fill="#c9b79a"/>
-  <rect x="1240" y="260" width="320" height="440" fill="url(#finestres)"/><rect x="1240" y="250" width="320" height="12" fill="#c9b79a"/>
-  <rect x="380" y="420" width="220" height="280" fill="url(#finestres)" opacity="0.85"/>
-  <rect x="1000" y="400" width="200" height="300" fill="url(#finestres)" opacity="0.85"/>
+  <!-- (posicions múltiples de la rajola de finestres, 50×46: així cap bloc comença amb una finestra tallada) -->
+  <rect x="50" y="276" width="300" height="424" fill="url(#finestres)"/><rect x="46" y="266" width="308" height="12" fill="#c9b79a"/>
+  <rect x="1250" y="230" width="300" height="470" fill="url(#finestres)"/><rect x="1246" y="220" width="308" height="12" fill="#c9b79a"/>
+  <rect x="400" y="414" width="200" height="286" fill="url(#finestres)" opacity="0.85"/><rect x="396" y="406" width="208" height="9" fill="#c9b79a" opacity="0.85"/>
+  <rect x="1000" y="368" width="200" height="332" fill="url(#finestres)" opacity="0.85"/><rect x="996" y="360" width="208" height="9" fill="#c9b79a" opacity="0.85"/>
+  <!-- ombra de les cantonades: volum als blocs -->
+  <g fill="#1a1a4e" opacity="0.12"><rect x="330" y="276" width="20" height="424"/><rect x="1530" y="230" width="20" height="470"/><rect x="580" y="414" width="20" height="286"/><rect x="1180" y="368" width="20" height="332"/></g>
   <!-- la rotonda: gespa elevada amb una escultura abstracta enorme -->
   <ellipse cx="800" cy="690" rx="330" ry="46" fill="#cfd6db"/>
   <ellipse cx="800" cy="684" rx="310" ry="40" fill="#5fa35a"/>
@@ -44,13 +47,15 @@
   <circle cx="800" cy="440" r="70" fill="none" stroke="#d1261f" stroke-width="16"/>
   <circle cx="800" cy="440" r="42" fill="none" stroke="#2d6fb8" stroke-width="12" transform="rotate(30 800 440)"/>
   <circle cx="800" cy="360" r="24" fill="#f2c200"/>
-  <path d="M740 560 L800 500 L860 560 Z" fill="#c2c7cc"/>
+  <!-- pedestal de pedra (abans era un triangle gris que semblava un senyal) -->
+  <path d="M766 690 L774 646 H826 L834 690 Z" fill="#c2b49a"/><path d="M770 652 H830" stroke="#a8987c" stroke-width="4"/>
+  <path d="M800 646 H826 L834 690 H800 Z" fill="#1a1a4e" opacity="0.12"/>
   <!-- senyals de rotonda -->
   <g>
     <rect x="455" y="560" width="8" height="140" fill="#6b7480"/>
     <circle cx="459" cy="548" r="34" fill="#2d6fb8" stroke="#fff" stroke-width="5"/>
-    <g fill="none" stroke="#fff" stroke-width="5"><path d="M459 526 A22 22 0 1 1 437 548"/></g>
-    <path d="M434 540 L437 552 L446 544 Z" fill="#fff"/>
+    <!-- R-402: tres fletxes girant en sentit antihorari -->
+    <path d="M477.6 552.0 A19 19 0 0 0 464.9 529.9" fill="none" stroke="#fff" stroke-width="5"/><path d="M458.2 527.8 L466.7 524.2 L463.0 535.6 Z" fill="#fff"/><path d="M446.3 562.1 A19 19 0 0 0 471.7 562.1" fill="none" stroke="#fff" stroke-width="5"/><path d="M476.9 557.4 L475.7 566.6 L467.7 557.7 Z" fill="#fff"/><path d="M453.1 529.9 A19 19 0 0 0 440.4 552.0" fill="none" stroke="#fff" stroke-width="5"/><path d="M441.9 558.8 L434.5 553.2 L446.3 550.7 Z" fill="#fff"/>
     <rect x="1130" y="540" width="8" height="160" fill="#6b7480"/>
     <rect x="1060" y="500" width="150" height="50" rx="4" fill="#fff"/>
     <rect x="1066" y="506" width="138" height="38" rx="3" fill="#2d6fb8"/>

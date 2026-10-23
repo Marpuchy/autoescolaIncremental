@@ -4,7 +4,7 @@
 // IMPORTANT: cada escenari nou ha de portar un enemic nou de debò (temàtic). Les versions més fortes no són
 // enemics nous: ja ho són els mateixos enemics en pujar de nivell.
 // mult: multiplicador de vida, atac i recompensa respecte a l'enemic "normal" del nivell.
-// icon: HTML del sprite (emoji o SVG). Es pot substituir per <img src="..."> quan hi haja sprites.
+// icon: HTML del sprite: SVG (els dibuixos són a data/enemy-art.js; els tres primers SVG encara són ací).
 // desc: descripció que es mostra en el compendi en fer clic
 // IMPORTANT: el compendi guardat usa el nom com a clau; si en canvies un, els jugadors perdran eixa entrada.
 const YIELD_SVG = `<svg viewBox="0 0 140 126" aria-label="Cediu el pas">
@@ -36,49 +36,49 @@ const FORKLIFT_SVG = `<svg viewBox="0 0 150 120" aria-label="Carretó elevador">
   <circle cx="140" cy="44" r="4" fill="#ff7a1a"/>
 </svg>`;
 const ENEMY_TYPES = [
-  { name: "Semàfor en groc",          mult: 0.9,  icon: "🚦",
+  { name: "Semàfor en groc",          mult: 0.9,  icon: ENEMY_ART.semafor,
     desc: "Ni verd ni roig: el dubte etern. Accelere o frene? Mentre ho penses, ell ja t'ha atacat." },
   { name: "Cediu el pas",             mult: 1.0,  icon: YIELD_SVG,
     desc: "Un triangle cap per avall que exigix respecte. Si no li cedixes el pas, te'l pren ell." },
-  { name: "Patinet elèctric",         mult: 1.15, icon: "🛴",
+  { name: "Patinet elèctric",         mult: 1.15, icon: ENEMY_ART.patinet,
     desc: "Apareix del no-res per la vorera, pel carril bici o per on li ve de gust. Silenciós i imprevisible." },
-  { name: "Ciclista en la calçada",   mult: 1.3,  icon: "🚴",
+  { name: "Ciclista en la calçada",   mult: 1.3,  icon: ENEMY_ART.ciclista,
     desc: "Circula en columna de dos i té tot el dret del món. Recorda: 1,5 metres en avançar-lo." },
-  { name: "Conductor de diumenge",    mult: 1.45, icon: "🚗",
+  { name: "Conductor de diumenge",    mult: 1.45, icon: ENEMY_ART.diumenge,
     desc: "Va a 40 pel carril esquerre amb l'intermitent posat des de fa tres quilòmetres." },
-  { name: "Furgoneta de repartiment", mult: 1.65, icon: "🚐",
+  { name: "Furgoneta de repartiment", mult: 1.65, icon: ENEMY_ART.furgoneta,
     desc: "Sempre té pressa i sempre para en doble fila. El paquet és més important que tu." },
-  { name: "Tractor a 20 km/h",        mult: 1.85, icon: "🚜",
+  { name: "Tractor a 20 km/h",        mult: 1.85, icon: ENEMY_ART.tractor,
     desc: "El rei de les carreteres secundàries. Per a avançar-lo cal paciència i una recta molt llarga." },
-  { name: "Autobús urbà",             mult: 2.1,  icon: "🚌",
+  { name: "Autobús urbà",             mult: 2.1,  icon: ENEMY_ART.autobus,
     desc: "Quan posa l'intermitent per a eixir de la parada, té preferència. I ho sap." },
-  { name: "Camió del fem",            mult: 2.4,  icon: "🚚",
+  { name: "Camió del fem",            mult: 2.4,  icon: ENEMY_ART.fem,
     desc: "Treballa de matinada, ocupa tot el carrer i fa marxa arrere sense avisar." },
-  { name: "Grua municipal",           mult: 2.7,  icon: "🛻",
+  { name: "Grua municipal",           mult: 2.7,  icon: ENEMY_ART.grua,
     desc: "Si has aparcat malament, ja és tard. Se l'emporta tot, i tu pagues." },
-  { name: "Camió articulat",          mult: 3.0,  icon: "🚛",
+  { name: "Camió articulat",          mult: 3.0,  icon: ENEMY_ART.articulat,
     desc: "Quaranta tones d'angles morts. Si no li veus els espills, ell no et veu a tu." },
-  { name: "Tren de mercaderies",      mult: 3.4,  icon: "🚂",
+  { name: "Tren de mercaderies",      mult: 3.4,  icon: ENEMY_ART.tren,
     desc: "Pas a nivell sense barreres? No intentes mai guanyar-li la carrera." },
   { name: "Barca de l'Albufera",      mult: 3.6,  icon: BOAT_SVG,
     desc: "Vela llatina, motoret fumejant i cap respecte pel codi. Ix dels canals de l'arròs i, quan s'acaba l'aigua, segueix per la carretera." },
-  { name: "Conductor sense intermitent", mult: 3.7, icon: "🚙",
+  { name: "Conductor sense intermitent", mult: 3.7, icon: ENEMY_ART.sensIntermitent,
     desc: "Entra a la rotonda pel carril de dins i ix per la primera eixida sense avisar. L'intermitent el té de decoració." },
-  { name: "Fallera amb petards",      mult: 3.8,  icon: `💃<span class="badge">🧨</span>`,
+  { name: "Fallera amb petards",      mult: 3.8,  icon: ENEMY_ART.fallera,
     desc: "Espardenyes, monyos perfectes i una traca a la mà. On ella passa, hi ha soroll i olor de pólvora." },
-  { name: "Cotxe de lloguer de guiri", mult: 3.9, icon: `🚗<span class="badge">🧳</span>`,
+  { name: "Cotxe de lloguer de guiri", mult: 3.9, icon: ENEMY_ART.guiri,
     desc: "No sap on va, el GPS li parla en alemany i frena en sec en totes les eixides de l'autopista." },
-  { name: "Senglar",                  mult: 4.0,  icon: "🐗",
+  { name: "Senglar",                  mult: 4.0,  icon: ENEMY_ART.senglar,
     desc: "Ix del bosc de nit, travessa sense mirar i no té cap intenció de cedir-te el pas. Ell estava ací abans." },
-  { name: "Ramat d'ovelles",          mult: 4.1,  icon: "🐑",
+  { name: "Ramat d'ovelles",          mult: 4.1,  icon: ENEMY_ART.ovelles,
     desc: "Tres-centes ovelles ocupant tota la carretera dels Ports. Paciència: ací el pas el decidix el gos." },
-  { name: "Pilot de MotoGP",          mult: 4.2,  icon: "🏍️",
+  { name: "Pilot de MotoGP",          mult: 4.2,  icon: ENEMY_ART.motogp,
     desc: "Genoll a terra en cada revolt i la frenada al límit. Per a ell, la línia contínua és una suggerència." },
   { name: "Carretó elevador",         mult: 4.3,  icon: FORKLIFT_SVG,
     desc: "Fa marxa arrere pitant, porta un palé de més i ha decidit que el moll del port és seu." },
-  { name: "Cotxe de doble pedal",     mult: 4.4,  icon: "🚘",
+  { name: "Cotxe de doble pedal",     mult: 4.4,  icon: ENEMY_ART.doblePedal,
     desc: "El cotxe de l'autoescola rival. L'instructor frena per tu quan menys t'ho esperes." },
 ];
 const BOSS_NAME = "Examinador de Trànsit"; // sempre és el cap dels nivells 10, 20, 30...
 const BOSS_DESC = "Carpeta en mà i cara de pòquer. Apunta cada falta, per xicoteta que siga. El teu pitjor malson.";
-const BOSS_ICON = `🧑‍💼<span class="badge">📋</span>`;
+const BOSS_ICON = ENEMY_ART.examinador;
