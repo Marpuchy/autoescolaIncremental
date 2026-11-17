@@ -49,21 +49,23 @@ for (const z of [3.2, 6.2, 9.0]) {
 add(room);
 
 // ---------------------------------------------------------------- paret del fons
-let wall = "";
-// finestra: per ella es veu l'escenari on està la granoteta (el joc substituïx %WINDOW_IMG% per la imatge del fons)
+// finestra (→ carretera): per ella es veu l'escenari on està la granoteta (el joc substituïx %WINDOW_IMG% per la imatge del fons)
 {
+  let s = "";
   const wx0 = -4.0, wx1 = -2.45, wy0 = 1.65, wy1 = 3.3;
   const [ix, iy] = P(wx0, wy1, BACK), [jx, jy] = P(wx1, wy0, BACK);
-  wall += wallRect(wx0 - 0.07, wy0 - 0.07, wx1 + 0.07, wy1 + 0.07, `fill="#cfc8b8"`);
-  wall += wallRect(wx0, wy0, wx1, wy1, `fill="url(#dgt-sky)"`);
-  wall += `<image href="%WINDOW_IMG%" x="${r(ix)}" y="${r(iy)}" width="${r(jx - ix)}" height="${r(jy - iy)}" preserveAspectRatio="xMidYMax slice"/>`;
-  wall += wallRect(wx0, wy0, wx1, wy1, `fill="#bfe4ff" opacity="0.12"`);
-  wall += poly([[wx0 + 0.15, wy1, BACK], [wx0 + 0.55, wy1, BACK], [wx0 + 0.2, wy0, BACK], [wx0 - 0.0, wy0, BACK]], `fill="#fff" opacity="0.12"`);
+  s += wallRect(wx0 - 0.07, wy0 - 0.07, wx1 + 0.07, wy1 + 0.07, `fill="#cfc8b8"`);
+  s += wallRect(wx0, wy0, wx1, wy1, `fill="url(#dgt-sky)"`);
+  s += `<image href="%WINDOW_IMG%" x="${r(ix)}" y="${r(iy)}" width="${r(jx - ix)}" height="${r(jy - iy)}" preserveAspectRatio="xMidYMax slice"/>`;
+  s += wallRect(wx0, wy0, wx1, wy1, `fill="#bfe4ff" opacity="0.12"`);
+  s += poly([[wx0 + 0.15, wy1, BACK], [wx0 + 0.55, wy1, BACK], [wx0 + 0.2, wy0, BACK], [wx0 - 0.0, wy0, BACK]], `fill="#fff" opacity="0.12"`);
   // persiana recollida a dalt, travesser i ampit
-  wall += wallRect(wx0, wy1 - 0.28, wx1, wy1, `fill="url(#dgt-blinds)"`) + wallRect(wx0, wy1 - 0.31, wx1, wy1 - 0.27, `fill="#d8d2c4"`);
-  wall += wallRect((wx0 + wx1) / 2 - 0.03, wy0, (wx0 + wx1) / 2 + 0.03, wy1 - 0.28, `fill="#cfc8b8"`);
-  wall += wallRect(wx0 - 0.12, wy0 - 0.12, wx1 + 0.12, wy0 - 0.05, `fill="#e9e3d4"`);
+  s += wallRect(wx0, wy1 - 0.28, wx1, wy1, `fill="url(#dgt-blinds)"`) + wallRect(wx0, wy1 - 0.31, wx1, wy1 - 0.27, `fill="#d8d2c4"`);
+  s += wallRect((wx0 + wx1) / 2 - 0.03, wy0, (wx0 + wx1) / 2 + 0.03, wy1 - 0.28, `fill="#cfc8b8"`);
+  s += wallRect(wx0 - 0.12, wy0 - 0.12, wx1 + 0.12, wy0 - 0.05, `fill="#e9e3d4"`);
+  add(s, { spot: "road", title: "Finestra: tornar a la carretera", hit: bbox([[wx0 - 0.1, wy0 - 0.12, BACK], [wx1 + 0.1, wy1 + 0.07, BACK]]) });
 }
+let wall = "";
 // rètol de serveis: tres pictogrames blancs sobre blau (cotxe, carnet i aprovat)
 wall += wallRect(-1.3, 2.95, 1.3, 3.6, `fill="#1f4f9e" rx="6"`);
 const icon = (x, svg) => figure(svg, x, 3.05, BACK);
