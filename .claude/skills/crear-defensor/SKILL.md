@@ -8,7 +8,8 @@ description: Usar al crear, rediseñar o retocar una criatura (defensor) del jue
 Reúne lo que el usuario ha ido pidiendo criatura a criatura. Seguir el orden y no darla por terminada sin el punto 7.
 
 ## 1. Proponer antes de construir
-- Proponer nombre, rareza, campo y habilidad, y preguntar (CLAUDE.md: el usuario decide el diseño de juego).
+- Proponer **2 o 3 ideas** (nombre, rareza, campo, qué es y qué hace) y construir solo la que elija el usuario
+  (CLAUDE.md: él decide el diseño de juego).
 - Reglas del reparto: en cada campo solo son obligatorias la legendaria y la mítica; 2 comunes por carrera en total.
   Si falta una rareza en un campo, sus tiradas dan puntos de estrella (espores en el bosque): no hay que rellenar huecos.
 - Legendarias y míticas: habilidad **nueva**, que no repita la de otra carrera (ejecutar, alinear, convertir, apilar,
@@ -59,14 +60,20 @@ Reúne lo que el usuario ha ido pidiendo criatura a criatura. Seguir el orden y 
   suelo y debajo de los enemigos, raíces, anilla en la pata, resina.
 - El mismo ritmo de tiro y crecimiento que en combate (`D.parts`, `projSpeed`, `--regrow`).
 
-## 6. Integración
+## 6. Balance: `python tools/td-bot.py <id> [--mon]`
+- Prueba de daño: DPS y DPS por 100 de maná de la criatura sola, comparado con la media de su rareza. Las de zona salen
+  infladas (14 distracciones a la vez) y las que paran, marcan o mejoran a otras no cuentan aquí.
+- Prueba de mundo (`--mon`): juega el mundo 1 de su carrera con ella (y 2 comunes al principio); da onda y vidas.
+- Pasarlo antes y después del cambio y avisar si una queda muy por encima o por debajo de su rareza.
+
+## 7. Integración
 - Estilos y animaciones en `td.css`. Si la pieza tiene un centro de giro propio, usar `transform-box: view-box` y su
   `transform-origin`.
 - Habilidades nuevas: en combate (`tdbFire` / `tdbHit` / `tdbSpecial`), en la demostración (`tdDemoFire` /
   `tdDemoHit` / `tdDemoSpecial`) y, si el Projecte integrador puede copiarla, en `echo` (combate y demostración).
 - Actualizar CLAUDE.md (la lista de criaturas de su carrera) si cambia el reparto.
 
-## 7. Comprobar (antes de enseñarla)
+## 8. Comprobar (antes de enseñarla)
 1. `node --check` de los archivos tocados.
 2. Galería de la criatura en grande (300 px) con todas las de su campo: mirar proporciones y piezas.
 3. **Combate fotograma a fotograma** (Playwright: pausar con `tdb.paused = true`, avanzar con `tdbUpdate(0.05)`,
@@ -74,4 +81,12 @@ Reúne lo que el usuario ha ido pidiendo criatura a criatura. Seguir el orden y 
 4. Demostración del grimorio a los 2 s y a los 2,5 s: se ve la habilidad, los efectos están en su sitio y no hay
    elipses ni efectos tapando a los enemigos.
 5. 1440 / 820 / 390 px sin errores de consola ni scroll horizontal.
-6. Enseñar al usuario la secuencia de fotogramas, no solo el dibujo quieto.
+6. Pasar el bot (punto 6).
+
+## 9. Qué enseñar al usuario al terminar
+- **Fotogramas del combate**: secuencia de 8-12 capturas (de girar o cargar a volver a crecer).
+- **GIF animado** del combate: los mismos fotogramas, o más, unidos con PIL
+  (`frames[0].save("x.gif", save_all=True, append_images=frames[1:], duration=120, loop=0)`), enviado con SendUserFile.
+- **Captura del grimorio**: la página del libro con su demostración en marcha.
+- **Si su habilidad afecta a otras** (aura, marca, copiar, curar, potenciar…): además, una demostración en combate que
+  saque todo su potencial (varias criaturas amigas colocadas donde mejor se ve, enemigos agrupados), en fotogramas o GIF.
