@@ -20,9 +20,11 @@ const tdFieldsOf = mode => Object.keys(TD_SUBJECTS).filter(s => TD_SUBJECTS[s].m
 const tdRegrowTime = id => TD_DEFENDERS[id].regrow || 0.7;
 const tdModeOf = id => TD_SUBJECTS[TD_DEFENDERS[id].subj].mode;
 
-// Si a un camp li falta la raresa que ix a la tirada (no tots tenen les cinc), es donen punts d'estrella
-// (espores al bosc): tants com el valor de la raresa. Amb punts es compren còpies de qualsevol criatura de la carrera
-// (menys la mítica): valor de la raresa × TD_POINT_COPY.
+// Punts d'estrella (espores al bosc): els dona una tirada quan el camp no té criatura d'aquella raresa (no tots tenen
+// les cinc) i, a vegades (TD_POINT_SWAP), una tirada per davall de llegendari en lloc de la còpia. Quants: TD_POINT_GAIN.
+// Amb punts es compren còpies de qualsevol criatura de la carrera (menys la mítica): valor de la raresa × TD_POINT_COPY.
+const TD_POINT_GAIN = { comu: 1, rar: 1, epic: 3 };
+const TD_POINT_SWAP = 0.15;
 const TD_POINTS = {
   informatic: { name: "punts d'estrella", one: "punt d'estrella", icon: "⭐" },
   forestal:   { name: "espores", one: "espora", icon: "🍄" },

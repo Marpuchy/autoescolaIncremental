@@ -100,8 +100,8 @@ function tdGachaHtml() {
   return `${tdSubjTabs()}
     <p class="td-hint">Cada pergamí de <strong>${TD_SUBJECTS[s].name}</strong> (${TD_SUBJECTS[s].classes.join(", ")}) invoca una criatura d'aquest camp. Els pergamins només s'aconseguixen estudiant.</p>
     <div class="td-gacha-pool">${pool.map(([id, d]) => `<div class="td-mini rar-${d.rar}" title="${d.name} (${TD_RARITIES[d.rar].name})">${tdCreatureSvg(id)}</div>`).join("")}</div>
-    <div class="td-rates">${["comu", "rar", "epic", "llegendari"].map(r => `<span style="color:${TD_RARITIES[r].color}">${TD_RARITIES[r].name} ${String(TD_RARITIES[r].chance * 100).replace(".", ",")} %${tdPool(s, r).length ? "" : ` → ${TD_POINTS[tdRoom].icon} ${TD_RARITIES[r].value}`}</span>`).join(" · ")}</div>
-    ${["comu", "rar", "epic", "llegendari"].some(r => !tdPool(s, r).length) ? `<p class="td-hint">Si ix una raresa que este camp no té, guanyes ${TD_POINTS[tdRoom].name} ${TD_POINTS[tdRoom].icon}: al grimori es canvien per còpies de qualsevol criatura.</p>` : ""}
+    <div class="td-rates">${["comu", "rar", "epic", "llegendari"].map(r => `<span style="color:${TD_RARITIES[r].color}">${TD_RARITIES[r].name} ${String(TD_RARITIES[r].chance * 100).replace(".", ",")} %${tdPool(s, r).length ? "" : ` → ${TD_POINTS[tdRoom].icon} ${TD_POINT_GAIN[r] || 1}`}</span>`).join(" · ")}</div>
+    <p class="td-hint">${TD_POINTS[tdRoom].icon} Per davall de llegendari, ${TD_POINT_SWAP * 100} % de les tirades donen ${TD_POINTS[tdRoom].name} en lloc de la còpia${["comu", "rar", "epic"].some(r => !tdPool(s, r).length) ? ", i també les rareses que este camp no té" : ""}. Al grimori es canvien per còpies de qualsevol criatura.</p>
     <div class="td-pity"><span>${tdPool(s, "epic").length ? "Èpic" : "Èpic (→ " + TD_POINTS[tdRoom].icon + ")"} garantit en <strong>${TD_PITY.epic - p.epic}</strong></span><span>Llegendari garantit en <strong>${TD_PITY.llegendari - p.llegendari}</strong></span></div>
     <div class="td-summon-btns">
       <button class="big td-summon" data-summon="1" ${n < 1 ? "disabled" : ""}>Invocar ×1 · 📜 1</button>
@@ -137,7 +137,7 @@ function tdsInfo(r) {
   if (!r.points) { const d = TD_DEFENDERS[r.id]; return { rar: d.rar, name: d.name, art: tdCreatureSvg(r.id), desc: d.desc, subj: d.subj }; }
   const P = TD_POINTS[r.mode];
   return { rar: r.rar, name: `+${r.points} ${r.points === 1 ? P.one : P.name}`, art: tdPointsSvg(r.mode), subj: r.subj,
-    desc: `${TD_SUBJECTS[r.subj].name} no té cap criatura ${TD_RARITIES[r.rar].name.toLowerCase()}. Al grimori, ${P.name} es canvien per còpies de qualsevol criatura.` };
+    desc: `${tdPool(r.subj, r.rar).length ? `En lloc d'una còpia ${TD_RARITIES[r.rar].name.toLowerCase()}` : `${TD_SUBJECTS[r.subj].name} no té cap criatura ${TD_RARITIES[r.rar].name.toLowerCase()}`}. Al grimori, ${P.name} es canvien per còpies de qualsevol criatura.` };
 }
 // Dibuix dels punts: una estrella de neó (Informàtica) o una espora que brilla (bosc)
 function tdPointsSvg(mode) {

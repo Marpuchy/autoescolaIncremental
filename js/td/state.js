@@ -185,9 +185,10 @@ function tdSummon(subj, n = 1) {
     td.pulls++;
     const rar = tdRollRarity(subj);
     const pool = tdPool(subj, rar); // només criatures de l'assignatura triada
-    if (pool.length) results.push(tdGrant(pool[Math.floor(tdRand() * pool.length)]));
-    else { // el camp no té criatura d'esta raresa: punts d'estrella (espores al bosc)
-      const mode = TD_SUBJECTS[subj].mode, pts = TD_RARITIES[rar].value;
+    const swap = rar in TD_POINT_GAIN && pool.length && tdRand() < TD_POINT_SWAP; // a vegades, punts en lloc de la còpia
+    if (pool.length && !swap) results.push(tdGrant(pool[Math.floor(tdRand() * pool.length)]));
+    else { // el camp no té criatura d'esta raresa (o ha tocat canviar-la): punts d'estrella (espores al bosc)
+      const mode = TD_SUBJECTS[subj].mode, pts = TD_POINT_GAIN[rar] || 1;
       td.stelles[mode] = (td.stelles[mode] || 0) + pts;
       results.push({ points: pts, mode, rar, subj });
     }
