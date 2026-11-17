@@ -248,7 +248,7 @@ function tdBeastPages(id) {
   const e = TD_ENEMIES[id], seen = td.seen.includes(id);
   if (!seen) return [`<div class="tdbook-art locked">${tdEnemySvg(id)}</div><h3 class="tdbook-name">???</h3>`, `<p class="tdbook-text">Encara no t'ha atacat.</p>`];
   return [`<div class="tdbook-art">${tdEnemySvg(id)}</div><h3 class="tdbook-name">${e.name}</h3>${e.boss ? '<div class="tdbook-rar boss">CAP</div>' : ""}`,
-    `<p class="tdbook-text">${e.desc}</p><table class="tdbook-stats"><tr><th>Vida</th><td>${e.hp} <span class="muted">(+${TD_WAVE_HP * 100} % per onada)</span></td></tr>
+    `<p class="tdbook-text tdbook-lore">${e.lore || ""}</p><p class="tdbook-text"><strong>Habilitat:</strong> ${e.desc}</p><table class="tdbook-stats"><tr><th>Vida</th><td>${e.hp} <span class="muted">(+${TD_WAVE_HP * 100} % per onada)</span></td></tr>
       <tr><th>Velocitat</th><td>${e.speed}</td></tr><tr><th>Dany al cristall</th><td>${e.lives}</td></tr><tr><th>Maná en morir</th><td>🔮 ${e.mana}</td></tr></table>`];
 }
 function tdTeamPages() {

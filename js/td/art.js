@@ -177,11 +177,16 @@ const TD_STUDENT_HAT = `<g class="hat"><path d="M30 46 L66 2 Q70 -2 74 2 L110 46
   <path d="M16 46 Q70 58 124 46 Q70 38 16 46 Z" fill="#2b3a7a" stroke="#1a1a4e" stroke-width="2"/>
   <path d="M34 42 Q70 50 106 42" stroke="#9d8bff" stroke-width="2.5" fill="none"/>
   <g fill="#ffe27a"><path d="M68 16 l2.4 5 5.4 0.8 -4 3.8 1 5.4 -4.8 -2.6 -4.8 2.6 1 -5.4 -4 -3.8 5.4 -0.8 z"/><circle cx="54" cy="34" r="2"/><circle cx="86" cy="28" r="1.7"/></g></g>`;
-// llibre obert cap a nosaltres: les pàgines cauen cap al llom (el llom és el punt més baix), amb la coberta per davall
-const TD_STUDENT_FRONT = `<g class="td-book"><path d="M32 122 Q52 118 70 128 Q88 118 108 122 L108 142 Q88 138 70 148 Q52 138 32 142 Z" fill="#7a2a4a" stroke="#4a1a2e" stroke-width="2" stroke-linejoin="round"/>
-  <path d="M35 119 Q53 115 70 125 L70 144 Q53 134 35 138 Z" fill="#fff6d8" stroke="#8a6440" stroke-width="1.6" stroke-linejoin="round"/>
-  <path d="M105 119 Q87 115 70 125 L70 144 Q87 134 105 138 Z" fill="#fff6d8" stroke="#8a6440" stroke-width="1.6" stroke-linejoin="round"/>
-  ${[0, 1, 2].map(i => `<path d="M40 ${123 + i * 4.5} Q53 ${120 + i * 4.5} 64 ${127 + i * 4.5}" stroke="#aab3c0" stroke-width="1.4" fill="none"/><path d="M100 ${123 + i * 4.5} Q87 ${120 + i * 4.5} 76 ${127 + i * 4.5}" stroke="#aab3c0" stroke-width="1.4" fill="none"/>`).join("")}</g>
+// El llibre el llig la granoteta: des de davant se'n veu la coberta, oberta en V i en perspectiva (el llom, al centre,
+// és el que està més a prop; les vores de fora se'n van cap enrere i es veuen més curtes). Per dalt sobreïxen les fulles.
+const TD_STUDENT_FRONT = `<g class="td-book">
+  <path d="M39 119 Q54 108 70 110 Q86 108 101 119 L70 114 Z" fill="#fff6d8" stroke="#c9b48e" stroke-width="1"/>
+  <path d="M70 112 L38 120 L38 142 L70 154 Z" fill="#5e1f38" stroke="#3a1426" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M70 112 L102 120 L102 142 L70 154 Z" fill="#7a2a4a" stroke="#3a1426" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M74 117 L98 123 L98 140 L74 149 Z" fill="none" stroke="#ffc23f" stroke-width="1.2" opacity="0.8"/>
+  <text x="86" y="138" font-size="15" font-weight="800" text-anchor="middle" fill="#ffc23f" font-family="Georgia, serif" transform="skewY(9) translate(0 -13)">Σ</text>
+  <path d="M70 112 L70 154" stroke="#3a1426" stroke-width="3.5"/>
+  <path d="M68 120 h4 M68 146 h4" stroke="#ffc23f" stroke-width="1.6"/></g>
   <ellipse class="hand-l" cx="38" cy="140" rx="12" ry="7" fill="#4fa64d"/><ellipse class="hand-r" cx="102" cy="140" rx="12" ry="7" fill="#4fa64d"/>`;
 // Peces dels artefactes: `back` es pinta davall del barret (diadema), `front` damunt de tot.
 // `hides`: parts de la granoteta que deixen de veure's (la mà dreta, si l'artefacte la fa servir: només en té dues)

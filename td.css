@@ -386,6 +386,7 @@
 .tdbook-rar.boss { color: #a8321e; }
 .tdbook-stars .td-stars .off { color: color-mix(in srgb, var(--ink) 25%, transparent); }
 .tdbook-text { margin: 4px 0; line-height: 1.45; color: var(--ink); }
+.tdbook-lore { font-style: italic; font-family: Georgia, "Times New Roman", serif; font-size: 1.02rem; }
 .tdbook-text.muted, .tdbook-page .muted { color: var(--muted-ink); }
 .tdbook-stats { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 0.9rem; }
 .tdbook-stats th { text-align: left; font-weight: 600; color: var(--muted-ink); padding: 4px 0; border-bottom: 1px dashed color-mix(in srgb, var(--ink) 25%, transparent); }
@@ -442,3 +443,5 @@
 @keyframes tds-a-in { from { opacity: 0; scale: 0.3; } to { opacity: 1; scale: 1; } }
 @keyframes tds-fly-in { from { opacity: 0; translate: -160px -120px; rotate: -200deg; } to { opacity: 1; translate: 0 0; rotate: 0deg; } }
 @keyframes tds-myth-glow { 0% { filter: brightness(3) drop-shadow(0 0 30px var(--rc)); } 100% { filter: none; } }
+/* mentre la fulla gira sobreïx un poc del llibre: sense barra de desplaçament (en mòbil no hi ha fulla, es fon) */
+@media (min-width: 701px) { .td-card:is([data-panel="grimori"], [data-panel="bestiary"]) { overflow: visible; max-height: none; } }

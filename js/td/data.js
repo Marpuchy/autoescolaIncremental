@@ -57,23 +57,31 @@ const TD_DEFENDERS = {
                  desc: "Cada atac apila. Amb 10 piles, el desbordament explota per tot el mapa (12 × el dany)." },
 };
 
-// Distraccions (enemics). hp a l'onada 1; mana i saber quan moren; lives: vida que lleven al cristall si hi arriben.
+// Distraccions (enemics). lore: la descripció del bestiari (amb gràcia, com al compendi de l'autoescola); desc: què fa.
+// hp a l'onada 1; mana i saber quan moren; lives: vida que lleven al cristall si hi arriben.
 const TD_ENEMIES = {
   notificacio:    { name: "Notificació", hp: 22, speed: 95, lives: 1, mana: 4, saber: 1, size: 70,
+                    lore: "«Només un segon, que m'ha escrit algú». Tres quarts d'hora després encara estàs mirant vídeos de gats. Mai ve sola: on n'hi ha una, n'arriben deu.",
                     desc: "Ràpida i feble. Arriben en grup." },
   procrastinacio: { name: "Procrastinació", hp: 110, speed: 38, lives: 2, mana: 8, saber: 3, size: 96,
+                    lore: "Té tot el temps del món i el gasta tot. Es mou a poc a poc perquè ja ho farà demà, i no hi ha qui la tombe: és d'allò més resistent.",
                     desc: "Lenta però amb molta vida. Sempre ho deixa per a demà." },
   son:            { name: "Son", hp: 50, speed: 55, lives: 1, mana: 6, saber: 2, size: 84, sleep: { every: 6, radius: 170, dur: 2 },
+                    lore: "Apareix just quan obris els apunts. Un badall seu i les teues criatures fan una becadeta de cinc minuts… que mai són cinc.",
                     desc: "Cada 6 s adorm la torre més pròxima durant 2 s." },
   scroll:         { name: "Scroll infinit", hp: 40, speed: 60, lives: 1, mana: 5, saber: 2, size: 78, splitInto: "scrollet",
+                    lore: "Sempre hi ha un vídeo més. Quan creus que l'has acabat, se'n parteix en dos i continua baixant per la pantalla.",
                     desc: "En morir es dividix en dos scrolls menuts." },
   scrollet:       { name: "Scroll menut", hp: 15, speed: 85, lives: 1, mana: 2, saber: 1, size: 52, art: "scroll", hidden: true },
   meme:           { name: "Meme", hp: 45, speed: 70, lives: 1, mana: 6, saber: 2, size: 80, stealth: 0.4,
+                    lore: "No el veus vindre: s'amaga entre les fotos del grup fins que és massa tard. Quan l'entens, ja t'ha robat mitja vesprada de riure.",
                     desc: "Invisible (no es pot atacar) durant el primer 40 % del camí." },
   series:         { name: "Marató de sèries", hp: 900, speed: 30, lives: 10, mana: 60, saber: 40, size: 150, boss: true, heal: { radius: 160, hps: 10 },
-                    desc: "Cap. Cura 10 de vida per segon als enemics que té a prop." },
+                    lore: "«L'últim capítol i a dormir». Porta les crispetes i la temporada sencera. Cura les distraccions que té a prop perquè sempre ve un capítol més.",
+                    desc: "Cura 10 de vida per segon als enemics que té a prop." },
   diumenge:       { name: "Diumenge a la nit", hp: 2200, speed: 28, lives: 20, mana: 120, saber: 100, size: 160, boss: true, rush: { every: 4, mult: 1.35, dur: 2 },
-                    desc: "Cap. Cada 4 s accelera tots els enemics un 35 % durant 2 s." },
+                    lore: "La nit que tot ho accelera: els deures que no has fet, l'examen de dilluns, l'agenda en blanc. Quan arriba, ja vas tard.",
+                    desc: "Cada 4 s accelera tots els enemics un 35 % durant 2 s." },
 };
 const TD_WAVE_HP = 0.2; // cada onada, +20 % de vida als enemics
 
