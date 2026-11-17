@@ -30,8 +30,10 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
 - Idioma: textos del juego, comentarios y commits en **valenciano**. Con el usuario se habla en castellano.
 - **No romper partidas**: nunca cambiar `SAVE_KEY`, los campos del estado, los `id` de mejoras/objetos/espacios ni los
   nombres de enemigos (son claves del compendio). Si se renombra algo, añadirlo a `RENAMED_ENEMIES`/`applyRenames` (`save.js`).
-- Diseño: skills importadas `frontend-design` (crear o rehacer interfaz) y `ui-ergonomics-review` (revisar), siempre
+- Diseño: skills importadas `frontend-design` (crear o rehacer interfaz) y `ux-mobile-responsiveness-audit` + `design-critique` + `accessibility-audit` (revisar), siempre
   con los datos del juego de `autoescola-design-system` (paleta, iconos, medidas). Sprites y fondos: `dibujo-sprites` + skill importada `svg-creator`.
+- Sensación de juego (temblor, hit-stop, números, rebotes): skill importada `game-feel`, traducida a CSS/JS sin
+  dependencias. Sonido y música (si se añaden): skill importada `game-audio` (Web Audio, sin archivos ni paquetes).
 - Código: `/simplify` (ordenar y simplificar) y `/code-review` (buscar fallos) tras cambios grandes.
 - Seguridad: `/security-review`. Juego estático sin backend: lo que viene de la partida guardada o de una importación
   no es fiable (nada de meterlo en `innerHTML` sin pasarlo por los datos del juego); nada de scripts ni recursos externos.

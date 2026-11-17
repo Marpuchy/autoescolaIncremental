@@ -1,12 +1,12 @@
 ---
 name: autoescola-design-system
-description: Hoja de datos visuales de Autoescola Incremental (paleta con contrastes medidos, colores de combate, iconos por concepto, medidas del panel). Consultarla junto a frontend-design o ui-ergonomics-review siempre que se cree, modifique o revise un componente, panel o estilo del juego.
+description: Hoja de datos visuales de Autoescola Incremental (paleta con contrastes medidos, colores de combate, iconos por concepto, medidas del panel). Consultarla junto a frontend-design o ux-mobile-responsiveness-audit siempre que se cree, modifique o revise un componente, panel o estilo del juego.
 ---
 
 # Datos visuales de Autoescola Incremental
 
 Esta hoja no define reglas de diseño: para eso están `frontend-design` (crear o rehacer interfaz) y
-`ui-ergonomics-review` (revisar y auditar). Aquí solo están los datos del juego que esas skills deben respetar.
+`ux-mobile-responsiveness-audit` (revisar y auditar). Aquí solo están los datos del juego que esas skills deben respetar.
 
 ## Contexto
 Juego incremental para amigos, escritorio y móvil, **tema solo oscuro**. Prioridad: ver el combate de un vistazo y
