@@ -225,9 +225,21 @@ const V = "#9d8bff", G = "#3fdc8a", PINK = "#ff5ab0", GOLD = "#ffc23f", CYAN = "
   s += neon("M" + star.map(p => p.map(r).join(" ")).join(" L"), PINK, 1.6);
   // pedestal i pergamí que sura
   const [px, py] = P(0, 0.6, z), k = cam.scale(z) / 100;
-  s += `<g class="sl-scroll" transform="translate(${r(px)} ${r(py)}) scale(${k.toFixed(3)})"><ellipse rx="54" ry="40" fill="${PINK}" opacity="0.16"/>
-    <rect x="-26" y="-18" width="52" height="34" rx="3" fill="#efe6d0"/><rect x="-30" y="-22" width="8" height="42" rx="4" fill="#c9a678"/><rect x="22" y="-22" width="8" height="42" rx="4" fill="#c9a678"/>
-    ${neon("M-14 -4 h10 M-9 -9 v10 M4 -6 L14 4 M4 4 L14 -6", PINK, 1.4)}</g>`;
+  // pergamí d'invocació que sura: paper vell desplegat entre dos rotlles de fusta amb poms, un cercle
+  // d'invocació dibuixat a tinta que brilla i un segell de cera que el tanca per baix
+  const sc = [];
+  sc.push(`<ellipse rx="64" ry="46" fill="${PINK}" opacity="0.13"/>`);
+  sc.push(`<path d="M-30 -24 Q-8 -28 30 -24 L30 22 Q8 26 -30 22 Z" fill="#e9dcbc" stroke="#b89a6a" stroke-width="1.2"/>`); // paper, una mica corbat
+  sc.push(`<path d="M-30 -24 Q-8 -28 30 -24 L30 -16 Q8 -20 -30 -16 Z" fill="#d6c49c" opacity="0.7"/>`); // ombra del rotlle de dalt
+  sc.push(`<g fill="none" stroke="#a88a5a" stroke-width="0.8" opacity="0.6"><path d="M-24 14 h14 M-24 18 h10 M12 14 h12 M16 18 h8"/></g>`); // línies d'escriptura
+  sc.push(`<circle cy="-2" r="11" fill="none" stroke="${PINK}" stroke-width="1.2" opacity="0.9"/><circle cy="-2" r="7" fill="none" stroke="${PINK}" stroke-width="0.8" opacity="0.7"/>`);
+  sc.push(`<path d="M0 -13 L9.5 3.5 L-9.5 3.5 Z M0 9 L9.5 -7.5 L-9.5 -7.5 Z" fill="none" stroke="${PINK}" stroke-width="0.9" opacity="0.85"/>`); // estrela de sis puntes
+  for (const [yy, dir] of [[-26, 1], [24, -1]]) { // rotlles amb els poms
+    sc.push(`<rect x="-34" y="${yy - 4}" width="68" height="8" rx="4" fill="#8a5a32"/><rect x="-34" y="${yy - 4}" width="68" height="3" rx="1.5" fill="#b07a4a" opacity="0.8"/>`);
+    sc.push(`<circle cx="-36" cy="${yy}" r="4.5" fill="${GOLD}"/><circle cx="36" cy="${yy}" r="4.5" fill="${GOLD}"/>`);
+  }
+  sc.push(`<path d="M-4 22 L-6 34 L0 30 L6 34 L4 22" fill="#9a1f2e"/><circle cy="22" r="6" fill="#b52a3a" stroke="#7a1420" stroke-width="1.2"/><text y="24.5" font-size="7" font-weight="900" text-anchor="middle" fill="#ffd0d6" font-family="Georgia, serif">Σ</text>`);
+  s += `<g class="sl-scroll" transform="translate(${r(px)} ${r(py)}) scale(${k.toFixed(3)})"><g transform="rotate(-6)">${sc.join("")}</g></g>`;
   add(s, { spot: "gacha", title: "Altar: invocar criatures amb pergamins", hit: bbox([[-1.25, 0, z - 0.6], [1.25, 0, z + 0.6], [0, 1.5, z]]) });
 }
 
