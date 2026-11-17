@@ -723,3 +723,8 @@
 .td-jcell { fill: #1a5a34; stroke: #0f3a22; stroke-width: 1.5; opacity: 0.55; transition: fill 0.5s, opacity 0.5s; }
 .td-jcell.on { fill: #8fe8a0; stroke: #c8ffd0; opacity: 0.8; }
 .td-jcell.on:nth-child(3n) { fill: #b8ff9a; }
+
+/* lianes de la prestatgeria del bosc: creixen i s'encongixen fent l'essa, fixades dalt */
+.fo-grow { stroke-dasharray: 1; animation: fo-grow 7s ease-in-out infinite; }
+@keyframes fo-grow { 0%, 100% { stroke-dashoffset: 0.55; } 50% { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) { .fo-grow { animation: none; stroke-dashoffset: 0; } }

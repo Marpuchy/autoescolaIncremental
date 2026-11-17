@@ -244,11 +244,14 @@ const fern = (x, y, s, flip = 1) => { // falguera: fulles corbades amb folíols
       i++;
     }
   }
-  // lianes que pengen de dalt de la prestatgeria
-  for (const u of [0.15, 0.48, 0.82]) {
-    const pts = curve([lf(u, -0.05), lf(u + 0.03, 0.2), lf(u - 0.02, 0.45), lf(u + 0.02, 0.62)].map(p => [p[0] - 0.02, p[1], p[2]]), 6);
-    s += `<g class="fo-vine">${ribbon(pts, 0.04, 0.02, LEAF_D)}${pts.filter((_, k) => k % 3 === 1).map((p, k) => { const [px, py] = P(...p); return leaf(px + (k % 2 ? 6 : -6), py, 10, k % 2 ? 50 : -50, k % 2 ? LEAF : LEAF_L); }).join("")}</g>`;
-  }
+  // lianes fixades dalt de la prestatgeria: cauen fent una essa i creixen i s'encongixen (la tija es dibuixa
+  // i es desdibuixa amb stroke-dashoffset); les fulles de dalt queden sempre
+  [[0.15, 0], [0.48, 2.2], [0.82, 4.1]].forEach(([u, d]) => {
+    const pts = curve([lf(u, -0.03), lf(u + 0.05, 0.12), lf(u - 0.04, 0.28), lf(u + 0.04, 0.44), lf(u - 0.02, 0.58)].map(p => [p[0] - 0.02, p[1], p[2]]), 8);
+    const dd = "M" + pts.map(pt).join(" L");
+    s += `<path d="${dd}" pathLength="1" class="fo-grow" style="animation-delay:-${d}s" stroke="${LEAF_D}" stroke-width="3.2" fill="none" stroke-linecap="round"/>`;
+    s += pts.slice(1, 12).filter((_, k) => k % 4 === 1).map((p, k) => { const [px, py] = P(...p); return leaf(px + (k % 2 ? 6 : -6), py, 10, k % 2 ? 50 : -50, k % 2 ? LEAF : LEAF_L); }).join("");
+  });
   add(s, { spot: "study", title: "Prestatgeria: apuntar el que has estudiat (pergamins d'invocació)", hit: bbox(corners(b)) });
 }
 

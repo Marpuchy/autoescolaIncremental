@@ -437,8 +437,7 @@ function tdCrystalSvg(frac) {
     <defs><radialGradient id="td-crys-glow"><stop offset="0" stop-color="#7fe8ff" stop-opacity="0.9"/><stop offset="1" stop-color="#7fe8ff" stop-opacity="0"/></radialGradient></defs>
     <ellipse class="td-crys-glow" rx="${100 + 30 * frac}" ry="${130 + 30 * frac}" fill="url(#td-crys-glow)"/>
     ${tri.slice(0, F).map((t, i) => `<polygon points="${t.map(p => p.join(",")).join(" ")}" class="td-facet${on.has(i) ? " on" : ""}"/>`).join("")}
-    <path d="M0 -120 L-62 -14 L0 120 L62 -14 Z" fill="none" stroke="#7fe8ff" stroke-width="3" stroke-linejoin="round"/>
-    <ellipse cy="138" rx="70" ry="10" fill="#7fe8ff" opacity="${(0.08 + 0.3 * frac).toFixed(2)}"/></svg>`;
+    <path d="M0 -120 L-62 -14 L0 120 L62 -14 Z" fill="none" stroke="#7fe8ff" stroke-width="3" stroke-linejoin="round"/></svg>`;
 }
 // La versió del bosc: una pedra de jade arrodonida (com un ou), feta de grills que s'encenen amb les millores
 function tdJadeSvg(frac) {
@@ -458,8 +457,7 @@ function tdJadeSvg(frac) {
     <g clip-path="url(#td-jade-clip)">${cells.map((d, i) => `<path d="${d}" class="td-jcell${on.has(i) ? " on" : ""}"/>`).join("")}
       <ellipse cy="4" rx="21" ry="29" class="td-jcell${lit ? " on" : ""}"/></g>
     <path d="${egg}" fill="none" stroke="#9fe8b0" stroke-width="3"/>
-    <ellipse cx="-26" cy="-58" rx="14" ry="26" fill="#fff" opacity="0.22" transform="rotate(-18 -26 -58)"/>
-    <ellipse cy="138" rx="70" ry="10" fill="#9ff07a" opacity="${(0.08 + 0.3 * frac).toFixed(2)}"/></svg>`;
+    <ellipse cx="-26" cy="-58" rx="14" ry="26" fill="#fff" opacity="0.22" transform="rotate(-18 -26 -58)"/></svg>`;
 }
 function tdUpgradesHtml() {
   const ids = Object.keys(TD_UPGRADES);
