@@ -16,7 +16,6 @@ const TD_RARITIES = {
   mitic:      { name: "Mític",      chance: 0,     color: "#ff5ab0", value: 100 },
 };
 const TD_PITY = { epic: 30, llegendari: 150 }; // garantia: èpic cada 30 tirades i llegendari cada 150 (per assignatura)
-const TD_OTHER_SUBJECT = 0.2;                   // en una invocació d'una assignatura, 20 % de criatures de l'altra
 // Còpies totals per a cada estrela (★1 en traure-la; ★5 amb 11 còpies). Les que sobren es tornen saber.
 const TD_STAR_COPIES = [1, 2, 4, 7, 11];
 

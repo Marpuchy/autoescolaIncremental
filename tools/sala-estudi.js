@@ -17,6 +17,39 @@ const wallRect = (x0, y0, x1, y1, attrs) => { const [a, b] = P(x0, y1, BACK), [c
 // traç de neó en pantalla (mateix acabat que les criatures)
 const neon = (d, c, w = 4) => `<g fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="${d}" stroke="${c}" stroke-width="${w * 2.8}" opacity="0.16"/><path d="${d}" stroke="${c}" stroke-width="${w}"/><path d="${d}" stroke="#fff" stroke-width="${Math.max(1, w * 0.3)}" opacity="0.85"/></g>`;
 const ellipseOnFloor = (x, z, rx, rz, n = 48) => { const pts = []; for (let i = 0; i <= n; i++) { const a = i / n * Math.PI * 2; pts.push(P(x + Math.cos(a) * rx, 0.005, z + Math.sin(a) * rz)); } return "M" + pts.map(p => p.map(r).join(" ")).join(" L"); };
+
+// Llibre obert en perspectiva damunt d'un faristol inclinat (mides reals: cada pàgina 24 × 33 cm).
+// Pla del faristol: u d'esquerra a dreta (0-1), v de baix a dalt (0-1), inclinat `tilt` graus cap a la càmera.
+function lectern({ x, z, top = 1.0, w = 0.62, h = 0.44, tilt = 32, wood = "#2a2235", woodSide = "#221c2c", woodTop = "#3a3050" }) {
+  const t = tilt * Math.PI / 180;
+  const plane = (u, v, lift = 0) => [x + (u - 0.5) * w, top + v * h * Math.sin(t) + lift, z - h * Math.cos(t) / 2 + v * h * Math.cos(t)];
+  let s = shadow({ x0: x - 0.2, x1: x + 0.2, z0: z - 0.15, z1: z + 0.15 }, 0.12, 0.35);
+  s += box({ x0: x - 0.06, x1: x + 0.06, y0: 0, y1: top, z0: z - 0.05, z1: z + 0.07 }, { front: wood, side: woodSide });
+  s += box({ x0: x - 0.22, x1: x + 0.22, y0: 0, y1: 0.05, z0: z - 0.18, z1: z + 0.18 }, { front: wood, side: woodSide, top: woodTop });
+  s += poly([plane(0, 0, -0.02), plane(1, 0, -0.02), plane(1, 1, -0.02), plane(0, 1, -0.02)], `fill="${woodTop}"`);
+  s += poly([plane(0, 0, -0.02), plane(1, 0, -0.02), plane(1, 0, -0.06), plane(0, 0, -0.06)], `fill="${wood}"`);
+  return { svg: s, plane };
+}
+function openBook(plane, { cover, page, line: lc, spine = "#00000055" }) {
+  // el llibre ocupa el centre del faristol: 0,50 m × 0,33 m de pàgines, amb la coberta 1 cm més gran
+  const bu = u => 0.1 + u * 0.8, bv = v => 0.12 + v * 0.75;
+  let s = poly([plane(bu(-0.02), bv(-0.03)), plane(bu(1.02), bv(-0.03)), plane(bu(1.02), bv(1.03)), plane(bu(-0.02), bv(1.03))], `fill="${cover}"`);
+  // gruix de les fulles (davall de cada pàgina) i les dues pàgines, una mica corbades cap al llom
+  for (const [a, b] of [[0, 0.495], [0.505, 1]]) {
+    const outer = a === 0 ? 0 : 1;
+    s += poly([plane(bu(a), bv(0), 0.004), plane(bu(b), bv(0), 0.004), plane(bu(b), bv(0), 0.016), plane(bu(a), bv(0), 0.016)], `fill="${lc}" opacity="0.6"`);
+    const lift = u => (Math.abs(u - outer) < 0.01 ? 0.012 : 0.02);
+    s += poly([plane(bu(a), bv(0), lift(a)), plane(bu(b), bv(0), lift(b)), plane(bu(b), bv(1), lift(b)), plane(bu(a), bv(1), lift(a))], `fill="${page}"`);
+    for (let i = 0; i < 7; i++) {
+      const v = 0.8 - i * 0.1, len = i % 3 === 2 ? 0.6 : 0.85;
+      const u0 = a + 0.06, u1 = a + 0.06 + (b - a - 0.12) * len;
+      s += line(plane(bu(u0), bv(v), 0.021), plane(bu(u1), bv(v), 0.021), `stroke="${lc}" stroke-width="1.6" opacity="0.7"`);
+    }
+  }
+  s += line(plane(bu(0.5), bv(0), 0.02), plane(bu(0.5), bv(1), 0.02), `stroke="${spine}" stroke-width="3"`);
+  return s;
+}
+
 const V = "#9d8bff", G = "#3fdc8a", PINK = "#ff5ab0", GOLD = "#ffc23f", CYAN = "#7fe8ff", RED = "#ff5a4a";
 
 // ---------------------------------------------------------------- sala
@@ -123,25 +156,26 @@ const V = "#9d8bff", G = "#3fdc8a", PINK = "#ff5ab0", GOLD = "#ffc23f", CYAN = "
   for (let row = 0; row < 4; row++) {
     const v0 = 0.06 + row * 0.235;
     s += quad(sf, 0.03, v0, 0.97, v0 + 0.2, `fill="#151020"`);
-    for (let i = 0; i < 9; i++) {
-      const u = 0.06 + i * 0.1, h = 0.12 + ((i * 7 + row * 3) % 5) * 0.012;
-      const c = ["#5a43d6", "#1f9e5c", "#8a2a4a", "#2f6fc0", "#a37a2a"][(i + row) % 5];
-      s += quad(sf, u, v0 + 0.2 - h, u + 0.08, v0 + 0.2, `fill="${c}"`);
+    // llibres de 3 a 5 cm de gruix i 24-30 cm d'alt (la balda fa 2,4 m de llarg i 0,64 m d'alt)
+    let u = 0.04;
+    for (let i = 0; u < 0.93; i++) {
+      const th = 0.014 + ((i * 7 + row * 5) % 4) * 0.004, hh = 0.13 + ((i * 5 + row * 3) % 5) * 0.012;
+      const c = ["#5a43d6", "#1f9e5c", "#8a2a4a", "#2f6fc0", "#a37a2a", "#3a4a8e"][(i * 3 + row) % 6];
+      if ((i + row) % 9 !== 8) s += quad(sf, u, v0 + 0.2 - hh, u + th, v0 + 0.2, `fill="${c}"`);
+      u += th + 0.002;
     }
   }
   add(s);
-  // grimori: llibre gran obert damunt d'un faristol, davant de la prestatgeria; brilla violeta
+  // grimori: llibre obert damunt d'un faristol, davant de la prestatgeria; brilla violeta
   let g = "";
-  const stB = { x0: -3.5, x1: -3.1, y0: 0, y1: 1.0, z0: 3.4, z1: 3.8 };
-  g += shadow(stB, 0.1, 0.35) + box(stB, { front: "#2a2235", side: "#30283f", top: "#3a3050" });
-  const [bx, by] = P(-3.3, 1.12, 3.55), k = cam.scale(3.55) / 100;
-  g += `<g class="sl-book" transform="translate(${r(bx)} ${r(by)}) scale(${k.toFixed(3)})">
-    <ellipse cx="0" cy="-10" rx="70" ry="44" fill="${V}" opacity="0.16"/>
-    <path d="M-44 -6 L0 -16 L44 -6 L44 10 L0 0 L-44 10 Z" fill="#efe6d0" stroke="${V}" stroke-width="3" stroke-linejoin="round"/>
-    <path d="M0 -16 V0" stroke="#8a80c8" stroke-width="2"/>
-    ${neon("M-30 -6 v-8 M-34 -10 h8", V, 1.6)}${neon("M18 -12 L26 -4 M26 -12 L18 -4", G, 1.6)}
-    <g class="sl-float" fill="#fff" font-family="ui-monospace, monospace" font-weight="800" font-size="16"><text x="-20" y="-34" fill="${V}">+</text><text x="8" y="-44" fill="${G}">;</text><text x="24" y="-30" fill="${V}">λ</text></g></g>`;
-  add(g, { spot: "grimori", title: "Grimori: les teues criatures (nivells, estrelles i equip)", hit: bbox([...corners(stB), [-3.3, 1.9, 3.55]]) });
+  const gl = lectern({ x: -3.3, z: 3.6 });
+  g += gl.svg;
+  const [gx, gy] = P(-3.3, 1.25, 3.6), gk = cam.scale(3.6) / 100;
+  g += `<ellipse cx="${r(gx)}" cy="${r(gy)}" rx="${r(70 * gk)}" ry="${r(40 * gk)}" fill="${V}" opacity="0.16"/>`;
+  g += openBook(gl.plane, { cover: "#3a2a7a", page: "#efe6d0", line: "#8a80c8" });
+  g += `<g class="sl-float" transform="translate(${r(gx)} ${r(gy - 40 * gk)}) scale(${gk.toFixed(3)})" font-family="ui-monospace, monospace" font-weight="800" font-size="16">
+    <text x="-24" y="-6" fill="${V}">+</text><text x="4" y="-16" fill="${G}">;</text><text x="22" y="-2" fill="${V}">λ</text></g>`;
+  add(g, { spot: "grimori", title: "Grimori: les teues criatures (nivells, estrelles i equip)", hit: bbox([[-3.55, 0, 3.4], [-3.05, 0, 3.8], [-3.3, 1.75, 3.6]]) });
 }
 
 // ---------------------------------------------------------------- escriptori d'estudi (esquerra, davant): registrar el que has estudiat
@@ -153,7 +187,8 @@ const V = "#9d8bff", G = "#3fdc8a", PINK = "#ff5ab0", GOLD = "#ffc23f", CYAN = "
   for (const x of [dB.x0 + 0.04, dB.x1 - 0.1]) s += box({ x0: x, x1: x + 0.06, y0: 0, y1: 0.74, z0: dB.z0 + 0.04, z1: dB.z0 + 0.1 }, { front: "#3a2818", side: "#2e2013" });
   // llibres apilats, quadern obert i ploma, espelma
   [["#5a43d6", 0], ["#1f9e5c", 1], ["#8a2a4a", 2]].forEach(([c, i]) =>
-    s += box({ x0: -2.8 + i * 0.01, x1: -2.45 - i * 0.02, y0: 0.8 + i * 0.06, y1: 0.86 + i * 0.06, z0: 2.25, z1: 2.5 }, { front: c, side: c, top: "#efe6d0" }));
+    s += box({ x0: -2.82 + i * 0.015, x1: -2.56 + i * 0.01, y0: 0.8 + i * 0.035, y1: 0.832 + i * 0.035, z0: 2.3 + i * 0.01, z1: 2.49 }, { front: c, side: c, top: i === 2 ? c : "#efe6d0" })
+    + box({ x0: -2.82 + i * 0.015 + 0.004, x1: -2.56 + i * 0.01, y0: 0.804 + i * 0.035, y1: 0.828 + i * 0.035, z0: 2.3 + i * 0.01 - 0.001, z1: 2.302 + i * 0.01 }, { front: "#efe6d0" }));
   s += box({ x0: -2.25, x1: -1.8, y0: 0.8, y1: 0.81, z0: 2.05, z1: 2.35 }, { front: "#efe6d0", top: "#fffaf0" });
   s += line([-2.18, 0.811, 2.25], [-1.95, 0.811, 2.22], `stroke="#8a80c8" stroke-width="2"`) + line([-2.18, 0.811, 2.17], [-1.9, 0.811, 2.14], `stroke="#8a80c8" stroke-width="2"`);
   s += line([-1.85, 0.81, 2.1], [-1.65, 1.05, 2.25], `stroke="#efe6d0" stroke-width="4" stroke-linecap="round"`);
@@ -166,13 +201,13 @@ const V = "#9d8bff", G = "#3fdc8a", PINK = "#ff5ab0", GOLD = "#ffc23f", CYAN = "
 // ---------------------------------------------------------------- faristol del bestiari (dreta)
 {
   let s = "";
-  const lB = { x0: 3.55, x1: 3.85, y0: 0, y1: 1.05, z0: 4.45, z1: 4.75 };
-  s += shadow(lB, 0.12, 0.35) + box(lB, { front: "#2a2235", side: "#221c2c", top: "#3a3050" });
-  const [bx, by] = P(3.7, 1.16, 4.6), k = cam.scale(4.6) / 100;
-  s += `<g transform="translate(${r(bx)} ${r(by)}) scale(${k.toFixed(3)})"><ellipse cx="0" cy="-8" rx="62" ry="36" fill="${RED}" opacity="0.14"/>
-    <path d="M-40 -4 L0 -14 L40 -4 L40 10 L0 0 L-40 10 Z" fill="#2b1a1a" stroke="${RED}" stroke-width="3" stroke-linejoin="round"/>
-    ${neon("M-26 -8 L-14 2 M-22 -10 L-10 0 M-18 -12 L-6 -2", RED, 1.4)}${neon("M14 -8 Q22 -14 30 -6", "#ffb347", 1.4)}</g>`;
-  add(s, { spot: "bestiary", title: "Bestiari: les distraccions que has vist", hit: bbox([...corners(lB), [3.7, 1.6, 4.6]]) });
+  const bl = lectern({ x: 3.7, z: 4.6, top: 0.95 });
+  s += bl.svg;
+  const [bx, by] = P(3.7, 1.2, 4.6), bk = cam.scale(4.6) / 100;
+  s += `<ellipse cx="${r(bx)}" cy="${r(by)}" rx="${r(66 * bk)}" ry="${r(36 * bk)}" fill="${RED}" opacity="0.14"/>`;
+  s += openBook(bl.plane, { cover: "#3a1414", page: "#c9b48e", line: "#7a2a22" });
+  s += neon(`M${r(bx - 22 * bk)} ${r(by + 10 * bk)} l${r(14 * bk)} ${r(10 * bk)} M${r(bx - 17 * bk)} ${r(by + 7 * bk)} l${r(14 * bk)} ${r(10 * bk)}`, RED, 1.4);
+  add(s, { spot: "bestiary", title: "Bestiari: les distraccions que has vist", hit: bbox([[3.45, 0, 4.4], [3.95, 0, 4.8], [3.7, 1.6, 4.6]]) });
 }
 
 // ---------------------------------------------------------------- altar d'invocació (al centre del terra)

@@ -154,7 +154,29 @@
         <div id="td-card-body"></div>
       </div>
     </div>
-    <div id="td-reveal" hidden><div id="td-reveal-cards"></div><p class="td-reveal-hint">Toca per a continuar</p></div>
+    <!-- pantalla d'invocació (js/td/lobby.js: tdReveal) -->
+    <div id="td-summon" hidden>
+      <div class="tds-stage">
+        <div class="tds-rays"></div>
+        <svg class="tds-circle" viewBox="-160 -160 320 320" aria-hidden="true">
+          <circle r="150" class="tds-ring a"/><circle r="122" class="tds-ring b"/><circle r="70" class="tds-ring c"/>
+          <path class="tds-star" d="M0 -122 L71.7 98.7 L-116 -37.7 L116 -37.7 L-71.7 98.7 Z"/>
+          <g class="tds-glyphs">
+            <text x="0" y="-132">∫</text><text x="126" y="-30">Σ</text><text x="80" y="112">λ</text><text x="-80" y="112">π</text><text x="-126" y="-30">∞</text>
+            <text x="94" y="-94">;</text><text x="-94" y="-94">+</text><text x="0" y="146">{ }</text>
+          </g>
+        </svg>
+        <div class="tds-scroll" aria-hidden="true"></div>
+        <div class="tds-beam"></div>
+        <div class="tds-creature"></div>
+        <div class="tds-flash"></div>
+      </div>
+      <div class="tds-info"><div class="tds-rar"></div><div class="tds-name"></div><div class="tds-tag"></div><div class="tds-desc"></div></div>
+      <div class="tds-count"></div>
+      <button class="secondary small tds-skip" id="tds-skip">Saltar ⏭</button>
+      <div class="tds-summary" hidden><h2>Invocació</h2><div class="tds-cards"></div><button id="tds-done">Continuar</button></div>
+      <p class="tds-hint">Toca per a continuar</p>
+    </div>
   </div>
 
   <div id="td-battle" class="td-screen" hidden>

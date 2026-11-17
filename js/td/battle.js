@@ -1,6 +1,6 @@
 // ===== ESTUDI: COMBAT (tower defense) =====
 // Les distraccions avancen pel camí cap al Cristall del Coneixement; les criatures, posades als buits, les ataquen.
-// Dins del combat es guanya maná (per a posar i potenciar criatures) i saber (es queda en acabar, per a pujar-les de
+// El maná (per a posar i potenciar criatures) és només l'inicial més el que deixa cada distracció en morir i saber (es queda en acabar, per a pujar-les de
 // nivell a la sala). Del combat no ix mai res del gacha: els pergamins només venen d'estudiar.
 // Coordenades del mapa: 1600 × 900. En pantalles verticals el mapa es gira (tdbS) però els dibuixos es queden drets.
 const SVGNS = "http://www.w3.org/2000/svg";
@@ -373,7 +373,6 @@ function tdbUpdate(dt) {
       tdb.spawnT += gap;
     }
   }
-  tdb.mana += dt * 1.5; // un poc de maná passiu: no et quedes mai sense poder fer res
   if (tdb.rushT > 0) tdb.rushT -= dt;
   // enemics
   for (const e of tdb.enemies) {
@@ -578,13 +577,15 @@ function tdbShowRange(t) {
 function tdbTowerPanel() {
   const t = tdb.selectedTower, d = TD_DEFENDERS[t.id], cost = tdbUpCost(t);
   const p = $("tdb-panel");
-  p.innerHTML = `<div class="tdb-panel-art rar-${d.rar}">${tdCreatureSvg(t.id)}</div>
+  const html = `<div class="tdb-panel-art rar-${d.rar}">${tdCreatureSvg(t.id)}</div>
     <div class="tdb-panel-info"><strong>${d.name}</strong> <span class="td-stars">${"★".repeat(t.stats.stars)}</span> · Nv. ${t.stats.level} · ${"◆".repeat(t.up + 1)}
       <div class="muted">⚔️ ${fmtNum(t.stats.dmg)} · ⏱ ${t.stats.rate.toFixed(1)}/s · 🎯 ${Math.round(t.stats.range)}</div><div class="tdb-panel-desc">${d.desc}</div></div>
     <div class="tdb-panel-btns">
       ${cost != null ? `<button data-tp="up" ${tdb.mana < cost ? "disabled" : ""}>⬆ Potenciar · 🔮 ${cost}</button>` : `<button disabled>◆◆◆ Al màxim</button>`}
       <button class="secondary" data-tp="sell">♻ Retirar · +${Math.round(t.spent * TD_BATTLE.sellBack)} 🔮</button>
       <button class="secondary small" data-tp="close" aria-label="Tancar">✕</button></div>`;
+  // només es torna a pintar si ha canviat (si es pinta a cada fotograma, els botons no reben el clic)
+  if (p.dataset.html !== html) { p.innerHTML = html; p.dataset.html = html; }
 }
 function tdbClickMap(ev) {
   if (!tdb || tdb.over) return;
@@ -621,7 +622,6 @@ function initTdBattle() {
     if (b.dataset.tp === "close" || b.dataset.tp === "sell") { tdb.selectedTower = null; $("tdb-panel").hidden = true; $("tdb-deck").hidden = false; tdbShowRange(null); }
   });
   $("tdb-next").addEventListener("click", () => {
-    if (tdb.wave > 0 && tdb.pause > 0) tdb.mana += Math.round(tdb.pause * 3); // premi per no esperar
     tdbStartWave();
   });
   $("tdb-speed").addEventListener("click", () => {

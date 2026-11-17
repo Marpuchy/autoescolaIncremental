@@ -69,7 +69,7 @@ function tdGachaHtml() {
   const s = tdSubj, p = td.pity[s], n = td.pergamins[s];
   const pool = Object.entries(TD_DEFENDERS).filter(([, d]) => d.subj === s && d.rar !== "mitic");
   return `${tdSubjTabs()}
-    <p class="td-hint">Cada pergamí de <strong>${TD_SUBJECTS[s].name}</strong> invoca una criatura (un 20 % de vegades, de l'altra assignatura). Els pergamins només s'aconseguixen estudiant.</p>
+    <p class="td-hint">Cada pergamí de <strong>${TD_SUBJECTS[s].name}</strong> invoca una criatura d'aquesta assignatura. Els pergamins només s'aconseguixen estudiant.</p>
     <div class="td-gacha-pool">${pool.map(([id, d]) => `<div class="td-mini rar-${d.rar}" title="${d.name} (${TD_RARITIES[d.rar].name})">${tdCreatureSvg(id)}</div>`).join("")}</div>
     <div class="td-rates">${["comu", "rar", "epic", "llegendari"].map(r => `<span style="color:${TD_RARITIES[r].color}">${TD_RARITIES[r].name} ${String(TD_RARITIES[r].chance * 100).replace(".", ",")} %</span>`).join(" · ")}</div>
     <div class="td-pity"><span>Èpic garantit en <strong>${TD_PITY.epic - p.epic}</strong></span><span>Llegendari garantit en <strong>${TD_PITY.llegendari - p.llegendari}</strong></span></div>
@@ -84,18 +84,68 @@ function tdDoSummon(n) {
   tdReveal(res);
   tdRenderPanel();
 }
-// Revelació: les cartes ixen d'una en una; les èpiques i llegendàries amb més cerimònia
+// ---------------------------------------------------------------- pantalla d'invocació
+// Cada criatura té la seua cerimònia: el cercle de runes es carrega (més llarg i fosc com més rara és), el pergamí
+// es crema en un esclat, ix un raig del color de la raresa i la criatura es materialitza. Tocar: avança (o accelera la
+// càrrega). En les de 10, «Saltar» porta al resum. Les èpiques i llegendàries ja avisen durant la càrrega.
+let tdsRun = null;
+const TDS_CHARGE = { comu: 900, rar: 1000, epic: 1500, llegendari: 2200, mitic: 2200 };
 function tdReveal(results) {
-  const box = $("td-reveal");
-  const best = results.some(r => TD_DEFENDERS[r.id].rar === "llegendari") ? "llegendari" : results.some(r => TD_DEFENDERS[r.id].rar === "epic") ? "epic" : "";
-  box.className = best ? `best-${best}` : "";
+  clearTimeout(tdsRun?.timer);
+  tdsRun = { res: results, i: -1, phase: "" };
+  const box = $("td-summon");
   box.hidden = false;
-  $("td-reveal-cards").innerHTML = results.map((r, i) => {
+  box.querySelector(".tds-summary").hidden = true;
+  $("tds-skip").hidden = results.length < 2;
+  tdsNext();
+}
+function tdsNext() {
+  const run = tdsRun;
+  run.i++;
+  if (run.i >= run.res.length) { run.res.length > 1 ? tdsSummary() : tdsClose(); return; }
+  const r = run.res[run.i], d = TD_DEFENDERS[r.id], box = $("td-summon");
+  box.className = `rar-${d.rar}`;
+  box.style.setProperty("--rc", TD_RARITIES[d.rar].color);
+  box.querySelector(".tds-creature").innerHTML = tdCreatureSvg(r.id);
+  box.querySelector(".tds-rar").textContent = TD_RARITIES[d.rar].name;
+  box.querySelector(".tds-name").textContent = d.name;
+  box.querySelector(".tds-tag").innerHTML = r.isNew ? "NOVA!" : r.starUp ? `Puja a ${tdStarStr(r.stars)}` : r.saber ? `Repetida al màxim: +${r.saber} ✨` : `Còpia · ${tdStarStr(r.stars)}`;
+  box.querySelector(".tds-desc").textContent = d.desc;
+  box.querySelector(".tds-count").textContent = run.res.length > 1 ? `${run.i + 1} / ${run.res.length}` : "";
+  void box.offsetWidth; // reinicia les animacions
+  box.classList.add("charging");
+  run.phase = "charging";
+  run.timer = setTimeout(tdsShow, TDS_CHARGE[d.rar]);
+}
+function tdsShow() {
+  const box = $("td-summon");
+  clearTimeout(tdsRun.timer);
+  box.classList.remove("charging");
+  void box.offsetWidth;
+  box.classList.add("shown");
+  tdsRun.phase = "shown";
+}
+function tdsSummary() {
+  const box = $("td-summon");
+  box.className = "summary";
+  box.querySelector(".tds-cards").innerHTML = tdsRun.res.map((r, i) => {
     const d = TD_DEFENDERS[r.id];
-    return `<div class="td-rcard rar-${d.rar}" style="animation-delay:${(best ? 0.6 : 0) + i * 0.18}s">
-      <div class="td-rcard-art">${tdCreatureSvg(r.id)}</div><div class="td-rcard-name">${d.name}</div>
-      <div class="td-rcard-tag">${r.isNew ? "NOVA!" : r.starUp ? `★ ${r.stars}` : r.saber ? `+${r.saber} ✨` : `${tdStarStr(r.stars)}`}</div></div>`;
+    return `<div class="td-rcard rar-${d.rar}" style="animation-delay:${i * 0.06}s"><div class="td-rcard-art">${tdCreatureSvg(r.id)}</div>
+      <div class="td-rcard-name">${d.name}</div><div class="td-rcard-tag">${r.isNew ? "NOVA!" : r.starUp ? `★ ${r.stars}` : r.saber ? `+${r.saber} ✨` : tdStarStr(r.stars)}</div></div>`;
   }).join("");
+  box.querySelector(".tds-summary").hidden = false;
+  tdsRun.phase = "summary";
+}
+function tdsClose() {
+  clearTimeout(tdsRun?.timer);
+  tdsRun = null;
+  $("td-summon").hidden = true;
+  if (!$("td-dialog").hidden) tdRenderPanel();
+}
+function tdsTap(ev) {
+  if (!tdsRun || ev.target.closest("#tds-skip, #tds-done")) return;
+  if (tdsRun.phase === "charging") tdsShow();
+  else if (tdsRun.phase === "shown") tdsNext();
 }
 
 // ---- escriptori (apuntar l'estudi)
@@ -240,7 +290,9 @@ function initTdLobby() {
   $("btn-td-home").addEventListener("click", () => { tdCloseLobby(); openRoom(); });
   $("td-card-close").addEventListener("click", tdClosePanel);
   $("td-dialog").addEventListener("click", ev => { if (ev.target === $("td-dialog")) tdClosePanel(); });
-  $("td-reveal").addEventListener("click", () => { $("td-reveal").hidden = true; });
+  $("td-summon").addEventListener("click", tdsTap);
+  $("tds-skip").addEventListener("click", () => { clearTimeout(tdsRun?.timer); tdsSummary(); });
+  $("tds-done").addEventListener("click", tdsClose);
   $("td-card-body").addEventListener("click", ev => {
     const b = ev.target.closest("button");
     if (!b || b.disabled) return;
@@ -258,7 +310,7 @@ function initTdLobby() {
   });
   document.addEventListener("keydown", ev => {
     if (ev.key !== "Escape" || !tdLobbyOpen()) return;
-    if (!$("td-reveal").hidden) $("td-reveal").hidden = true;
+    if (!$("td-summon").hidden) tdsClose();
     else if (!$("td-dialog").hidden) tdClosePanel();
   });
 }

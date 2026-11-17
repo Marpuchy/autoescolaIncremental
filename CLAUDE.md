@@ -55,7 +55,8 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   grimori, bestiari, portal = mundos, cristall = millores, estudiant = artefactos, rellotge = reiniciar, porta = habitación).
   Reglas del usuario: los pergamins (tiradas) **solo** salen de estudiar (nunca del combate); en combate se gana maná
   y saber (para subir niveles); el mítico solo con un 8+ en el final; los jefes dan artefactos al estudiante (3 huecos).
-  Probabilidades 70 / 25 / 4,5 / 0,5 con garantía (épico 30, legendario 150). Copias → estrellas (1/2/4/7/11).
+  Probabilidades 70 / 25 / 4,5 / 0,5 con garantía (épico 30, legendario 150); cada invocación solo da criaturas
+  de la asignatura elegida. Maná del combate: solo el inicial y el que dan los enemigos al morir (nada por tiempo). Copias → estrellas (1/2/4/7/11).
   Estilo de las criaturas: símbolos de energía en neón sobre fondo oscuro (referencia: «Animation vs. Math»), sin
   caras; cada una hecha con los símbolos de su asignatura y la pieza que lanza forma parte del cuerpo. Pocas y cuidadas.
   Reiniciar (rellotge) conserva criaturas, pergamins, artefactos y registro; pierde saber, niveles, millores y mundos.

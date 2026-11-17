@@ -120,13 +120,7 @@ function tdSummon(subj, n = 1) {
     td.pergamins[subj]--;
     td.pulls++;
     const rar = tdRollRarity(subj);
-    // 20 %: una criatura de l'altra assignatura del mateix mode (si en té d'aquesta raresa)
-    let from = subj;
-    if (tdRand() < TD_OTHER_SUBJECT) {
-      const others = Object.keys(TD_SUBJECTS).filter(s => s !== subj && TD_SUBJECTS[s].mode === TD_SUBJECTS[subj].mode && tdPool(s, rar).length);
-      if (others.length) from = others[Math.floor(tdRand() * others.length)];
-    }
-    const pool = tdPool(from, rar);
+    const pool = tdPool(subj, rar); // només criatures de l'assignatura triada
     results.push(tdGrant(pool[Math.floor(tdRand() * pool.length)]));
   }
   tdSave();
