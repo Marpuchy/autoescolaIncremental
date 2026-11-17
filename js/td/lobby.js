@@ -34,7 +34,7 @@ function tdRenderLobby() {
   const student = tdStudentSvg(td.equipped, `x="0" y="0" width="100" height="105"`);
   // el cristall de la sala és el mateix que el de la finestra de millores: s'encén igual
   const ups = Object.keys(TD_UPGRADES), frac = ups.reduce((a, id) => a + td.upgrades[id], 0) / ups.reduce((a, id) => a + TD_UPGRADES[id].max, 0);
-  const crystal = tdCrystalSvg(frac).replace("<svg ", `<svg x="-42" y="-64" width="84" height="114" `);
+  const crystal = (tdRoom === "forestal" ? tdJadeSvg : tdCrystalSvg)(frac).replace("<svg ", `<svg x="-42" y="-64" width="84" height="114" `);
   const spots = [];
   const ART = TD_ROOMS[tdRoom].art();
   const layers = ART.layers.map(l => {
@@ -438,6 +438,27 @@ function tdCrystalSvg(frac) {
     ${tri.slice(0, F).map((t, i) => `<polygon points="${t.map(p => p.join(",")).join(" ")}" class="td-facet${on.has(i) ? " on" : ""}"/>`).join("")}
     <path d="M0 -120 L-62 -14 L0 120 L62 -14 Z" fill="none" stroke="#7fe8ff" stroke-width="3" stroke-linejoin="round"/>
     <ellipse cy="138" rx="70" ry="10" fill="#7fe8ff" opacity="${(0.08 + 0.3 * frac).toFixed(2)}"/></svg>`;
+}
+// La versió del bosc: una pedra de jade arrodonida (com un ou), feta de grills que s'encenen amb les millores
+function tdJadeSvg(frac) {
+  const F = 16, lit = Math.round(frac * F), egg = "M0 -112 C62 -112 78 -30 74 20 C70 82 36 116 0 116 C-36 116 -70 82 -74 20 C-78 -30 -62 -112 0 -112 Z";
+  // grills: dos anells de sectors al voltant d'un nucli
+  const seg = (r0, r1, a0, a1) => { const p = (rr, a) => `${(Math.cos(a) * rr * 0.72).toFixed(1)},${(Math.sin(a) * rr + 4).toFixed(1)}`;
+    return `M${p(r0, a0)} L${p(r1, a0)} A${r1 * 0.72} ${r1} 0 0 1 ${p(r1, a1)} L${p(r0, a1)} A${r0 * 0.72} ${r0} 0 0 0 ${p(r0, a0)} Z`; };
+  const cells = [];
+  for (let i = 0; i < 8; i++) cells.push(seg(30, 70, i * Math.PI / 4, (i + 1) * Math.PI / 4), seg(70, 125, i * Math.PI / 4 + 0.39, (i + 1) * Math.PI / 4 + 0.39));
+  const on = new Set(cells.map((_, i) => i).sort((a, b) => ((a * 7) % F) - ((b * 7) % F)).slice(0, lit));
+  return `<svg viewBox="-110 -150 220 300" class="td-crys td-jade" style="--g:${(0.12 + 0.75 * frac).toFixed(2)}">
+    <defs><radialGradient id="td-jade-glow"><stop offset="0" stop-color="#9ff07a" stop-opacity="0.9"/><stop offset="1" stop-color="#9ff07a" stop-opacity="0"/></radialGradient>
+      <radialGradient id="td-jade-body" cx="0.38" cy="0.3"><stop offset="0" stop-color="#4fae6a"/><stop offset="0.7" stop-color="#1f6a3e"/><stop offset="1" stop-color="#0f3a22"/></radialGradient>
+      <clipPath id="td-jade-clip"><path d="${egg}"/></clipPath></defs>
+    <ellipse class="td-crys-glow" rx="${110 + 30 * frac}" ry="${135 + 30 * frac}" fill="url(#td-jade-glow)"/>
+    <path d="${egg}" fill="url(#td-jade-body)"/>
+    <g clip-path="url(#td-jade-clip)">${cells.map((d, i) => `<path d="${d}" class="td-jcell${on.has(i) ? " on" : ""}"/>`).join("")}
+      <ellipse cy="4" rx="21" ry="29" class="td-jcell${lit ? " on" : ""}"/></g>
+    <path d="${egg}" fill="none" stroke="#9fe8b0" stroke-width="3"/>
+    <ellipse cx="-26" cy="-58" rx="14" ry="26" fill="#fff" opacity="0.22" transform="rotate(-18 -26 -58)"/>
+    <ellipse cy="138" rx="70" ry="10" fill="#9ff07a" opacity="${(0.08 + 0.3 * frac).toFixed(2)}"/></svg>`;
 }
 function tdUpgradesHtml() {
   const ids = Object.keys(TD_UPGRADES);

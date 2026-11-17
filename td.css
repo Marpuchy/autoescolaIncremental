@@ -718,3 +718,8 @@
 .fo-rays { animation: fo-rays 9s ease-in-out infinite; }
 @keyframes fo-rays { 0%, 100% { opacity: 0.75; } 50% { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .fo-vine, .fo-glow, .fo-fly, .fo-rays { animation: none; } }
+
+/* jade del bosc */
+.td-jcell { fill: #1a5a34; stroke: #0f3a22; stroke-width: 1.5; opacity: 0.55; transition: fill 0.5s, opacity 0.5s; }
+.td-jcell.on { fill: #8fe8a0; stroke: #c8ffd0; opacity: 0.8; }
+.td-jcell.on:nth-child(3n) { fill: #b8ff9a; }

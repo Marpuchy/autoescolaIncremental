@@ -3,7 +3,7 @@
 // La sala d'estudi de Forestal (s'hi entra per la motxilla de l'habitació): l'interior d'un arbre gegant i buit. Parets
 // d'escorça viva, terra de molsa amb un camí de pedres, arrels que ixen de les parets, lianes que pengen, bolets que
 // brillen i cuques de llum. Té els mateixos punts que la sala d'Informàtica, però amb una altra distribució:
-//   portal (arc de dos troncs entrellaçats, al fons a l'esquerra), cristall (agafat per les arrels d'una soca, al fons a
+//   portal (arc de dos troncs entrellaçats, al fons a l'esquerra), jade (agafat per les arrels d'una soca, al fons a
 //   la dreta), prestatgeria (lleixes tallades a la paret dreta), porta (paret esquerra, amb un rètol de fusta),
 //   grimori i bestiari (faristols d'arrels, davant), altar (cercle de bolets al mig), estudiant (damunt d'una catifa de
 //   molsa) i rellotge de sorra (damunt d'una soca, al fons).
