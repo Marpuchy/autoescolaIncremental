@@ -135,15 +135,16 @@ const TD_ART = {
     proj: bolaTesla(0, 0), throw: { l: [60, 22] },
   },
   // Condensador: les dues plaques paral·leles amb els fils (com el símbol del circuit), + a una i − a l'altra; entre les
-  // plaques es veu com puja la càrrega (--q). Dispara electrons; ple, ho descarrega tot
+  // plaques es veu com puja la càrrega (--q). No dispara: es carrega com un canó i, ple, llança l'electró gran
   condensador: {
     svg: `${runeBase(TD_GLOW.myth)}<g class="b">${tube("M22 70 H44 M76 70 H98 M22 70 V100 M98 70 V100", GQ, 3.4)}
       <rect class="charge" x="47" y="40" width="26" height="58" rx="2" fill="${GQ}" opacity="0.35"/>
       ${tube("M45 36 V102", GQ, 7)}${tube("M75 36 V102", GQ, 7)}
       ${tube("M30 52 H38 M34 48 V56", "#ffffff", 2.4)}${tube("M82 52 H90", "#ffffff", 2.4)}
-      ${core(60, 108, TD_GLOW.myth, 3.4)}</g>
-      <g class="al">${electro(60, 68)}</g>${sparks(TD_GLOW.myth)}`,
-    proj: electro(0, 0), throw: { c: [60, 68] },
+      ${core(60, 108, TD_GLOW.myth, 3.4)}
+      <g class="arc">${tube("M47 50 L54 56 L50 61 L58 66 L53 72 L60 78 L56 84 L66 90 L73 96", "#e8fbff", 1.6)}${tube("M73 44 L66 50 L70 56 L62 60", "#b8f0ff", 1.2)}</g>
+      <g class="al"><g class="q">${electro(0, 0)}</g></g></g>${sparks(TD_GLOW.myth)}`,
+    proj: `<g transform="scale(1.6)">${electro(0, 0)}</g>`, throw: { c: [60, 68] },
   },
 
   // ================================================================ FORESTAL: bioluminescència (verd fulla i ambre)

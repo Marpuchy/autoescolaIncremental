@@ -876,9 +876,37 @@
 
 /* Màquina */
 .theme-maq .tdbook-page { background-image: linear-gradient(90deg, rgba(90, 216, 255, 0.06) 1px, transparent 1px), linear-gradient(rgba(90, 216, 255, 0.06) 1px, transparent 1px); background-size: 24px 24px; }
-.tdc-condensador .charge { transform-box: fill-box; transform-origin: 50% 100%; transform: scaleY(var(--q, 0)); transition: transform 0.25s ease-out; }
-.tdc-condensador.discharge .b { animation: td-discharge 0.5s ease-out; }
-@keyframes td-discharge { 0% { filter: brightness(2.2) drop-shadow(0 0 14px #5ad8ff); } 100% { filter: none; } }
+.tdc-condensador .charge { transform-box: fill-box; transform-origin: 50% 100%; transform: scaleY(var(--q, 1)); }
+/* l'electró creix amb la càrrega, entre les plaques (la .al ja fa el vol; l'escala va a dins) */
+.tdc-condensador .al { transform: translate(60px, 68px); animation: none; }
+.tdc-condensador .q { transform: scale(calc(0.35 + 1.25 * var(--q, 1))); }
+.tdc-condensador .arc { opacity: 0; }
+.tdc-condensador.full .arc { animation: td-arc 0.18s steps(2) infinite; }
+.tdc-condensador.full .q { animation: td-hum 0.5s ease-in-out infinite; }
+.tdc-condensador.full .charge { filter: brightness(1.6); }
+@keyframes td-arc { 0% { opacity: 1; transform: none; } 50% { opacity: 0.35; transform: scaleX(-1); } }
+@keyframes td-hum { 50% { filter: brightness(1.5) drop-shadow(0 0 6px #5ad8ff); } }
+.tdc-condensador .arc { transform-box: view-box; transform-origin: 60px 70px; }
+/* tret: el cos recula com un canó i s'encén */
+.tdc-condensador.discharge .b { animation: td-discharge 0.55s ease-out; }
+@keyframes td-discharge { 0% { transform: translateY(5px) scale(1.04, 0.94); filter: brightness(2.2) drop-shadow(0 0 14px #5ad8ff); } 40% { transform: translateY(-1px); } 100% { transform: none; filter: none; } }
+.tdb-chain { pointer-events: none; }
 .tdc-tesla .torus { animation: td-torus 1.6s ease-in-out infinite; }
 @keyframes td-torus { 50% { filter: drop-shadow(0 0 6px #5ad8ff); } }
 .theme-prg .tdbook-prog > span, .theme-maq .tdbook-prog > span { color: #fff; text-shadow: 0 0 3px #000, 0 0 2px #000; }
+
+/* Llibres més grans: ocupen la major part de la pantalla. En pantalla gran s'amplia tot (lletra, dibuix i combat) amb
+   zoom; en tauleta, una mica (més alçada estiraria el combat de la demostració); en mòbil ja ocupa tota l'amplada. */
+.td-card:is([data-panel="grimori"], [data-panel="bestiary"]) { max-width: min(1500px, 97vw); }
+@media (min-width: 1000px) and (min-height: 700px) {
+  .td-card:is([data-panel="grimori"], [data-panel="bestiary"]) .tdbook { zoom: 1.32; }
+  .tdbook-spread { min-height: min(470px, calc((100vh - 170px) / 1.32)); }
+}
+@media (min-width: 1700px) and (min-height: 950px) {
+  .td-card:is([data-panel="grimori"], [data-panel="bestiary"]) .tdbook { zoom: 1.55; }
+  .tdbook-spread { min-height: min(500px, calc((100vh - 190px) / 1.55)); }
+}
+@media (min-width: 700px) and (max-width: 999px) and (min-height: 900px) {
+  .td-card:is([data-panel="grimori"], [data-panel="bestiary"]) .tdbook { zoom: 1.1; }
+  .tdbook-spread { min-height: 440px; }
+}

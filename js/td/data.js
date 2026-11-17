@@ -19,7 +19,8 @@ const TD_SUBJECTS = {
   mnt: { name: "Gestió de monts", short: "Monts", icon: "🌲", mode: "forestal",
          classes: ["Gestió de monts", "Defensa contra incendis forestals", "Gestió de la conservació del medi natural"] },
   pin: { name: "Quadern de camp", short: "Quadern", icon: "📒", mode: "forestal",
-         classes: ["Projecte intermodular", "Gestió cinegètica", "Gestió de la pesca continental", "Itinerari personal per a l'ocupabilitat II"] },
+         classes: ["Projecte intermodular", "Gestió cinegètica", "Gestió de la pesca continental", "Itinerari personal per a l'ocupabilitat II",
+                   "Digitalització aplicada al sistema productiu", "Sostenibilitat aplicada al sistema productiu", "Mòdul optatiu"] },
 };
 const tdFieldsOf = mode => Object.keys(TD_SUBJECTS).filter(s => TD_SUBJECTS[s].mode === mode);
 // Temps que tarda a tornar a créixer la peça que llança una criatura (regrow a la seua fitxa; per defecte 0,7 s)
@@ -80,9 +81,9 @@ const TD_DEFENDERS = {
   tesla:       { subj: "maq", rar: "llegendari", name: "Bobina de Tesla", dmg: 18, rate: 0.6, range: 300, cost: 120, role: "chain", projSpeed: 1.6,
                  chain: { jumps: 4, falloff: 0.75, radius: 210 },
                  desc: "Llança la bola de càrrega que té dalt: en tocar, el raig salta d'una distracció a la més pròxima fins a 4 vegades, i perd força a cada salt." },
-  condensador: { subj: "maq", rar: "mitic", name: "Condensador", dmg: 14, rate: 1.1, range: 300, cost: 150, role: "capacitor",
-                 charge: { max: 8, idle: 1, blast: 9, stun: 0.6 },
-                 desc: "Entre les plaques es va carregant: amb cada tir i, encara més, quan no té res a tir. Quan està ple, ho descarrega tot de colp: un llamp a cada distracció de l'abast (9 × el dany) que les deixa parades un moment." },
+  condensador: { subj: "maq", rar: "mitic", name: "Condensador", dmg: 14, rate: 0.25, range: 300, cost: 150, role: "capacitor", projSpeed: 1.3,
+                 charge: { blast: 11, radius: 120, stun: 0.8 },
+                 desc: "No dispara mentre es carrega: entre les plaques puja la càrrega i l'electró del mig creix. Quan està ple, el llança d'un colp, com un canó, i esclata en zona (11 × el dany) amb un llamp a cada distracció del voltant, que es queden parades un moment." },
   // ---- Gestió de monts (Forestal)
   pi:          { subj: "mnt", rar: "comu", name: "Pi", dmg: 6, rate: 1.5, range: 230, cost: 30, role: "single", alt: true,
                  desc: "Llança les pinyes que li pengen de les branques." },

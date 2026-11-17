@@ -390,7 +390,6 @@ function tdbFire(t) {
   const part = (TD_ART[t.id].throw || {}).c ? "c" : t.side ? "r" : "l";
   if (d.role === "pulse") { tdbPulse(t); return true; }
   if (d.role === "line") return true; // ja crema sempre; el tir només fa l'animació d'abocar
-  if (d.role === "capacitor" && tdbCharge(t, 1)) { tdbDischarge(t); return true; }
   if (d.aim) { // la fletxa es posa dins de la V (o l'agulla gira), s'encara a l'objectiu i dispara
     tdbAim(t, targets[0], part === "r");
     t.svg.classList.add("load");
@@ -432,6 +431,7 @@ function tdbProjectile(t, target, dmg, opts = {}) {
 function tdbHit(p, e) {
   const d = p.d, ab = p.t.stats.ability;
   let dmg = p.dmg * tdbAuraMult(p.t), color = TD_GLOW[d.subj] || "#fff", big = false;
+  if (d.role === "capacitor") { tdbDischarge(p.t, e, dmg); return; }
   if (d.role === "mark") tdbMark(e, d.mark * p.t.stats.ability);
   if (d.role === "crit" && Math.random() < d.crit) { dmg *= 2; color = "#ff8a1f"; big = true; }
   if (d.role === "scaling") dmg *= 1 + Math.min(d.maxScale, tdb.kills * d.perKill);
@@ -472,45 +472,91 @@ function tdbHit(p, e) {
 }
 // ---- màquina
 // Bobina de Tesla: el raig salta de la distracció tocada a la més pròxima (sense repetir), perdent força a cada salt.
-// Els salts van en temps de joc (tdb.chains), un cada 0,09 s, perquè es vegen i seguisquen la velocitat del combat.
+// Els salts van en temps de joc (tdb.chains), un cada 0,09 s. Cada enllaç és un llamp viu que espurneja i segueix les
+// dues distraccions mentre dura (TD_CHAIN_ARC s), i a cada distracció tocada li queda una espurna.
+const TD_CHAIN_ARC = 0.55;
 function tdbChain(t, first, dmg) {
   const c = TD_DEFENDERS[t.id].chain;
-  (tdb.chains ||= []).push({ t, cur: first, hit: new Set([first]), k: 0, jumps: c.jumps + (t.stats.ability > 1 ? 1 : 0), dmg, wait: 0.06 });
+  const g = el("g", { class: "tdb-chain" }, $("tdb-fx"));
+  (tdb.chains ||= []).push({ t, cur: first, hit: new Set([first]), k: 0, jumps: c.jumps + (t.stats.ability > 1 ? 1 : 0), dmg, wait: 0.06, links: [], zaps: [{ e: first, life: TD_CHAIN_ARC, p: tdbPos(first) }], g, flick: 0 });
 }
 function tdbChains(dt) {
   for (const ch of tdb.chains) {
-    if ((ch.wait -= dt) > 0) continue;
-    const c = TD_DEFENDERS[ch.t.id].chain, [x, y] = tdbPos(ch.cur);
-    const next = ch.k < ch.jumps && tdb.enemies.filter(o => tdbVisible(o) && !ch.hit.has(o))
-      .map(o => [o, Math.hypot(...tdbPos(o).map((v, i) => v - [x, y][i]))]).filter(([, dd]) => dd < c.radius).sort((a, b) => a[1] - b[1])[0]?.[0];
-    if (!next) { ch.done = true; continue; }
-    ch.k++;
-    ch.hit.add(next);
-    tdbBolt(tdbS(x, y - ch.cur.size * 0.45), tdbS(...tdbPos(next)).map((v, i) => v - (i ? next.size * 0.45 : 0)), TD_GLOW.maq);
-    tdbDamage(next, ch.dmg * c.falloff ** ch.k, TD_GLOW.maq);
-    ch.cur = next;
-    ch.wait = 0.09;
+    if (!ch.done && (ch.wait -= dt) <= 0) {
+      const c = TD_DEFENDERS[ch.t.id].chain, [x, y] = tdbPos(ch.cur);
+      const next = ch.k < ch.jumps && tdb.enemies.filter(o => tdbVisible(o) && !ch.hit.has(o))
+        .map(o => [o, Math.hypot(...tdbPos(o).map((v, i) => v - [x, y][i]))]).filter(([, dd]) => dd < c.radius).sort((a, b) => a[1] - b[1])[0]?.[0];
+      if (!next) ch.done = true;
+      else {
+        ch.k++;
+        ch.hit.add(next);
+        ch.links.push({ a: ch.cur, b: next, life: TD_CHAIN_ARC, pa: tdbPos(ch.cur), pb: tdbPos(next) });
+        tdbDamage(next, ch.dmg * c.falloff ** ch.k, TD_GLOW.maq);
+        ch.zaps.push({ e: next, life: TD_CHAIN_ARC, p: tdbPos(next) });
+        ch.cur = next;
+        ch.wait = 0.09;
+      }
+    }
+    for (const l of [...ch.links, ...ch.zaps]) l.life -= dt;
+    ch.links = ch.links.filter(l => l.life > 0);
+    ch.zaps = ch.zaps.filter(z => z.life > 0);
+    if ((ch.flick -= dt) <= 0) { ch.flick = 0.05; tdbChainDraw(ch); } // el llamp canvia de forma (espurneja)
+    if (ch.done && !ch.links.length && !ch.zaps.length) { ch.g.remove(); ch.over = true; }
   }
-  tdb.chains = tdb.chains.filter(ch => !ch.done);
+  tdb.chains = tdb.chains.filter(ch => !ch.over);
 }
-// Condensador: la càrrega puja amb cada tir i quan no té res a tir; plena, es descarrega: un llamp a cada distracció
-// de l'abast (que les para un moment). Les plaques mostren la càrrega (--q).
-function tdbCharge(t, amount) {
+// Punt de cada enllaç: el centre de la distracció (si ja ha caigut, on era)
+function tdbChainEnd(e, keep) {
+  if (e.hp > 0) keep.splice(0, 2, ...tdbPos(e));
+  return tdbS(keep[0], keep[1] - e.size * 0.45);
+}
+function tdbChainDraw(ch) {
+  ch.g.innerHTML = ch.links.map(l => {
+    const [x0, y0] = tdbChainEnd(l.a, l.pa), [x1, y1] = tdbChainEnd(l.b, l.pb), k = l.life / TD_CHAIN_ARC;
+    const L = Math.hypot(x1 - x0, y1 - y0), main = tdbZig(x0, y0, x1, y1, Math.max(3, Math.round(L / 14)), Math.min(30, L * 0.3)),
+      fork = tdbZig(...tdbForkFrom(x0, y0, x1, y1, Math.min(26, L * 0.5)), 3, 10);
+    return `<g opacity="${Math.min(1, k * 1.8).toFixed(2)}"><polyline points="${main}" fill="none" stroke="${TD_GLOW.maq}" stroke-width="9" opacity="0.3" stroke-linejoin="round"/>
+      <polyline points="${main}" fill="none" stroke="#e8fbff" stroke-width="2.6" stroke-linejoin="round"/><polyline points="${fork}" fill="none" stroke="#b8f0ff" stroke-width="1.4" stroke-linejoin="round"/></g>`;
+  }).join("") + ch.zaps.map(z => { // espurna damunt de cada distracció tocada, que la seguix
+    const [x, y] = tdbChainEnd(z.e, z.p), k = z.life / TD_CHAIN_ARC, r = (z.e.size * 0.36).toFixed(0);
+    return `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)})" opacity="${Math.min(1, k * 1.6).toFixed(2)}"><circle r="${r}" fill="${TD_GLOW.maq}" opacity="0.22"/>
+      <polyline points="${tdbZig(-r * 0.7, -r * 0.8, r * 0.6, r * 0.8, 3, 8)}" fill="none" stroke="#e8fbff" stroke-width="1.8"/></g>`;
+  }).join("");
+}
+function tdbZig(x0, y0, x1, y1, n, amp) {
+  const dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L;
+  return Array.from({ length: n + 1 }, (_, i) => { const t = i / n, j = i && i < n ? (Math.random() - 0.5) * amp : 0; return `${(x0 + dx * t + nx * j).toFixed(1)},${(y0 + dy * t + ny * j).toFixed(1)}`; }).join(" ");
+}
+function tdbForkFrom(x0, y0, x1, y1, len = 26) { // una branca curta que ix d'un punt del llamp
+  const t = 0.3 + Math.random() * 0.4, mx = x0 + (x1 - x0) * t, my = y0 + (y1 - y0) * t, a = Math.random() * Math.PI * 2;
+  return [mx, my, mx + Math.cos(a) * len, my + Math.sin(a) * len];
+}
+// Condensador (com la Guspira del Clash Royale): no dispara mentre es carrega. La càrrega puja entre les plaques i
+// l'electró del mig creix amb ella (--q); quan està ple i té algú a tir, el llança d'un colp, com un canó, i a l'impacte
+// esclata en zona: llamps a cada distracció del voltant (blast × el dany) que les deixen parades un moment.
+function tdbCapacitor(t, dt) {
   const c = TD_DEFENDERS[t.id].charge;
-  t.charge = Math.min(c.max, (t.charge || 0) + amount);
-  t.svg?.style.setProperty("--q", (t.charge / c.max).toFixed(3));
-  return t.charge >= c.max;
-}
-function tdbDischarge(t) {
-  const c = TD_DEFENDERS[t.id].charge, [x, y] = tdbThrowFrom(t, "c");
+  if ((t.charge ?? 0) < 1) {
+    t.charge = Math.min(1, (t.charge ?? 0) + dt * t.stats.rate);
+    t.svg?.style.setProperty("--q", t.charge.toFixed(3));
+    t.svg?.classList.toggle("full", t.charge >= 1);
+    return;
+  }
+  const tg = tdbTargets(t)[0];
+  if (!tg) return; // ple: espera algú a tir
   t.charge = 0;
   t.svg?.style.setProperty("--q", "0");
-  t.svg?.classList.remove("discharge"); void t.svg?.getBoundingClientRect(); t.svg?.classList.add("discharge");
-  tdbFx("blast", ...tdbS(x, y), TD_GLOW.maq, t.stats.range);
-  for (const e of tdb.enemies) if (tdbVisible(e) && Math.hypot(...tdbPos(e).map((v, i) => v - [x, y][i])) <= t.stats.range) {
-    tdbBolt(tdbS(x, y), tdbS(...tdbPos(e)).map((v, i) => v - (i ? e.size * 0.45 : 0)), TD_GLOW.maq);
-    e.stunT = Math.max(e.stunT, c.stun * t.stats.ability);
-    tdbDamage(e, t.stats.dmg * c.blast * tdbAuraMult(t), TD_GLOW.maq, true);
+  t.svg?.classList.remove("full", "discharge"); void t.svg?.getBoundingClientRect(); t.svg?.classList.add("discharge");
+  tdbProjectile(t, tg, t.stats.dmg * c.blast, { part: "c" });
+}
+function tdbDischarge(t, e, dmg) {
+  const c = TD_DEFENDERS[t.id].charge, [x, y] = tdbPos(e), r = c.radius * t.stats.ability;
+  const [sx, sy] = tdbS(x, y - e.size * 0.45);
+  tdbFx("blast", sx, sy, TD_GLOW.maq, r);
+  for (const o of tdb.enemies) if (tdbVisible(o) && Math.hypot(...tdbPos(o).map((v, i) => v - [x, y][i])) <= r) {
+    if (o !== e) tdbBolt([sx, sy], tdbS(...tdbPos(o)).map((v, i) => v - (i ? o.size * 0.45 : 0)), TD_GLOW.maq);
+    o.stunT = Math.max(o.stunT, c.stun * t.stats.ability);
+    tdbDamage(o, dmg, TD_GLOW.maq, true);
   }
 }
 // ---- bosc
@@ -809,11 +855,13 @@ function tdbBolt([x0, y0], [x1, y1], color) {
 }
 function tdbFx(kind, x, y, color, r = 60) {
   if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
-  const g = el("g", { class: `tdb-fx-${kind}`, transform: `translate(${x} ${y})` }, $("tdb-fx"));
+  // el translate va en un grup de fora: si anara en el mateix, l'escala de l'animació (td-fx) també el multiplicaria
+  // i l'efecte naixeria lluny i viatjaria fins al seu lloc
+  const at = el("g", { transform: `translate(${x} ${y})` }, $("tdb-fx")), g = el("g", { class: `tdb-fx-${kind}` }, at);
   if (kind === "pop") g.innerHTML = [0, 60, 120, 180, 240, 300].map(a => `<line x1="0" y1="0" x2="${Math.cos(a * Math.PI / 180) * 26}" y2="${Math.sin(a * Math.PI / 180) * 26}" stroke="${color}" stroke-width="4" stroke-linecap="round"/>`).join("");
   else if (kind === "summon") g.innerHTML = `<ellipse rx="70" ry="24" cy="34" fill="none" stroke="${color}" stroke-width="4"/><ellipse rx="40" ry="14" cy="34" fill="${color}" opacity="0.3"/>`;
   else g.innerHTML = `<circle r="${r}" fill="${color}" opacity="${kind === "blast" ? 0.18 : 0.12}" stroke="${color}" stroke-width="${kind === "freeze" ? 4 : 3}"/>`;
-  setTimeout(() => g.remove(), kind === "blast" ? 700 : kind === "dissolve" ? 800 : 500);
+  setTimeout(() => at.remove(), kind === "blast" ? 700 : kind === "dissolve" ? 800 : 500);
   return g;
 }
 
@@ -908,7 +956,7 @@ function tdbUpdate(dt) {
       if (aim) aim.style.transform = "rotate(0deg)";
     }
     tdbParts(t, dt);
-    if (TD_DEFENDERS[t.id].role === "capacitor" && !tdbTargets(t)[0]) tdbCharge(t, TD_DEFENDERS[t.id].charge.idle * dt); // sense res a tir, es carrega
+    if (TD_DEFENDERS[t.id].role === "capacitor") { tdbCapacitor(t, dt); continue; } // no dispara: es carrega
     t.cd -= dt;
     if (t.cd <= 0 && tdbFire(t)) t.cd = 1 / t.stats.rate;
     else if (t.cd < 0) t.cd = 0;
