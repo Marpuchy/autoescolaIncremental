@@ -34,6 +34,12 @@ const WHITE = { front: "#f4f2ec", side: "#e2dfd6", top: "#fbfaf6", bottom: "#d8d
   add(s);
 }
 
+// ---------------------------------------------------------------- catifa blanca entre el llit i la vitrina
+{
+  const pts = [[0.32, 0.2], [1.3, 0.2], [1.3, 1.35], [0.32, 1.35]].map(([x, z]) => P(x, 0.004, z).map(r).join(",")).join(" ");
+  add(`<polygon points="${pts}" fill="#f4f2ee" stroke="#e2ded6" stroke-width="2"/>`);
+}
+
 // ---------------------------------------------------------------- finestra (paret del fons del racó)
 {
   let s = "";
@@ -45,22 +51,39 @@ const WHITE = { front: "#f4f2ec", side: "#e2dfd6", top: "#fbfaf6", bottom: "#d8d
   add(s);
 }
 
-// ---------------------------------------------------------------- escriptori (verd al plànol): paret del fons, a l'esquerra del racó
+// ---------------------------------------------------------------- escriptori (verd al plànol): de costat, contra el doblec de la paret, mirant a la dreta
 {
   let s = "";
-  const top = 0.74, x0 = STEP + 0.05, x1 = 0.45, z0 = BACK - 0.6, z1 = BACK;
+  const top = 0.74, x0 = STEP, x1 = STEP + 0.6, z0 = NEAR + 0.25, z1 = BACK - 0.05;
   s += shadow({ x0, x1, z0, z1 }, 0.03, 0.18);
-  for (const x of [x0, x1 - 0.04]) for (const z of [z0, z1 - 0.04]) s += box({ x0: x, x1: x + 0.04, y0: 0, y1: top - 0.03, z0: z, z1: z + 0.04 }, { front: "#e2e2de", side: "#cfcfcb" });
+  for (const x of [x0 + 0.02, x1 - 0.05]) for (const z of [z0, z1 - 0.04]) s += box({ x0: x, x1: x + 0.04, y0: 0, y1: top - 0.03, z0: z, z1: z + 0.04 }, { front: "#e2e2de", side: "#cfcfcb" });
   s += box({ x0, x1, y0: top - 0.03, y1: top, z0, z1 }, { front: "#e8e6e0", side: "#d8d6d0", top: "#f6f5f1" });
-  const m = { x0: -0.2, x1: 0.3, y0: top + 0.1, y1: top + 0.42, z0: BACK - 0.2, z1: BACK - 0.17 };
-  s += box({ x0: 0.03, x1: 0.07, y0: top, y1: top + 0.12, z0: BACK - 0.16, z1: BACK - 0.13 }, { front: "#2b2f35" });
+  // pantalla contra la paret, mirant a la dreta (cap al centre de l'habitació)
+  const m = { x0: STEP + 0.12, x1: STEP + 0.15, y0: top + 0.1, y1: top + 0.42, z0: 2.6, z1: 3.25 };
+  s += box({ x0: STEP + 0.1, x1: STEP + 0.14, y0: top, y1: top + 0.12, z0: 2.9, z1: 2.95 }, { front: "#2b2f35", side: "#23272e" });
   s += box(m, { front: "#16181c", side: "#101216", top: "#22252b" });
-  s += quad(face(m, "front"), 0.04, 0.06, 0.96, 0.92, `fill="#3f7ad8"`);
-  s += box({ x0: -0.15, x1: 0.2, y0: top, y1: top + 0.02, z0: BACK - 0.5, z1: BACK - 0.38 }, { front: "#2b2f35", top: "#3a3f48" });
-  // un prestatge damunt amb el focus d'anell
-  s += box({ x0, x1, y0: 1.6, y1: 1.63, z0: BACK - 0.25, z1: BACK }, WHITE);
-  const [rx, ry] = P(-0.2, 1.82, BACK - 0.12), k = cam.scale(BACK - 0.12) / 100;
+  s += quad(face(m, "left"), 0.04, 0.06, 0.96, 0.92, `fill="#3f7ad8"`);
+  s += box({ x0: STEP + 0.3, x1: STEP + 0.44, y0: top, y1: top + 0.02, z0: 2.75, z1: 3.1 }, { front: "#2b2f35", side: "#23272e", top: "#3a3f48" });
+  // prestatge damunt, a la mateixa paret, amb el focus d'anell
+  s += box({ x0: STEP, x1: STEP + 0.25, y0: 1.6, y1: 1.63, z0, z1 }, WHITE);
+  const [rx, ry] = P(STEP + 0.12, 1.82, 2.6), k = cam.scale(2.6) / 100;
   s += `<circle cx="${r(rx)}" cy="${r(ry)}" r="${r(18 * k)}" fill="url(#room-ring-glow)"/><circle cx="${r(rx)}" cy="${r(ry)}" r="${r(8 * k)}" fill="none" stroke="#fffdf2" stroke-width="${r(3 * k)}"/>`;
+  add(s);
+}
+
+// ---------------------------------------------------------------- cadira davant de l'escriptori, mirant cap a la paret (es veu de costat)
+{
+  let s = "";
+  const cx = STEP + 0.85, cz = 2.9;
+  s += shadow({ x0: cx - 0.28, x1: cx + 0.28, z0: cz - 0.28, z1: cz + 0.28 }, 0.02, 0.2);
+  const [bx, by] = P(cx, 0.06, cz);
+  s += `<g stroke="#b8bcc2" stroke-width="4" stroke-linecap="round">${[0, 72, 144, 216, 288].map(a => {
+    const [px, py] = P(cx + Math.cos(a * Math.PI / 180) * 0.28, 0.05, cz + Math.sin(a * Math.PI / 180) * 0.28);
+    return `<line x1="${r(bx)}" y1="${r(by)}" x2="${r(px)}" y2="${r(py)}"/>`; }).join("")}</g>`;
+  s += box({ x0: cx - 0.02, x1: cx + 0.02, y0: 0.06, y1: 0.45, z0: cz - 0.02, z1: cz + 0.02 }, { front: "#9a9ea4" });
+  s += box({ x0: cx - 0.24, x1: cx + 0.22, y0: 0.45, y1: 0.53, z0: cz - 0.25, z1: cz + 0.25 }, { front: "#222428", side: "#1a1c20", top: "#2e3136" });
+  s += box({ x0: cx + 0.22, x1: cx + 0.27, y0: 0.55, y1: 1.2, z0: cz - 0.23, z1: cz + 0.23 }, { front: "#1a1c20", side: "#222428", top: "#2e3136" }); // respatller
+  s += box({ x0: cx - 0.1, x1: cx + 0.2, y0: 0.53, y1: 0.7, z0: cz - 0.27, z1: cz - 0.23 }, { front: "#1a1c20", top: "#2e3136" });             // reposabraços
   add(s);
 }
 
@@ -75,17 +98,17 @@ const WHITE = { front: "#f4f2ec", side: "#e2dfd6", top: "#fbfaf6", bottom: "#d8d
   add(s);
 }
 
-// ---------------------------------------------------------------- prestatgeria menuda (morat al plànol): racó esquerre, contra la paret de davant del llit
+// ---------------------------------------------------------------- prestatgeria menuda (morat al plànol): contra la paret esquerra, al costat del capçal, mirant a la dreta
 let plate;
 {
   let s = "";
-  const b = { x0: -W + 0.02, x1: -1.2, y0: 0, y1: 1.8, z0: NEAR - 0.32, z1: NEAR };
-  s += box(b, WHITE);
-  const fr = face(b, "front");
+  const b = { x0: -W, x1: -W + 0.32, y0: 0, y1: 1.8, z0: 1.6, z1: NEAR - 0.02 };
+  s += box(b, { ...WHITE, front: "#e2dfd6" });
+  const fr = face(b, "right"); // la cara que mira l'habitació · u: de davant cap al fons
   for (const v of [0.06, 0.28, 0.5, 0.72]) s += quad(fr, 0.06, v, 0.94, v + 0.18, `fill="#2a2a2e"`);
   { let u = 0.1; const cols = ["#d1261f", "#1f6fb2", "#f2c200", "#2f9e55", "#7b3fe4", "#e46a2e"];
-    for (let i = 0; u < 0.88; i++) { const w = 0.07 + (i % 2) * 0.02; s += quad(fr, u, 0.31 + (i % 3) * 0.015, u + w, 0.46, `fill="${cols[i % 6]}"`); u += w + 0.01; } }
-  plate = fr(0.5, 0.235); // al buit de dalt, que el llit no tapa
+    for (let i = 0; u < 0.88; i++) { const w = 0.08 + (i % 2) * 0.02; s += quad(fr, u, 0.31 + (i % 3) * 0.015, u + w, 0.46, `fill="${cols[i % 6]}"`); u += w + 0.01; } }
+  plate = face(b, "front")(0.5, 0.42); // penjada del lateral blanc, el que es veu des de la porta
   add(s);
 }
 
@@ -100,24 +123,38 @@ let plate;
   s += box(tv, { side: "#141414", top: "#2a2a2a", front: "#101010" });
   s += quad(face(tv, "left"), 0.04, 0.06, 0.96, 0.9, `fill="#1a1e24"`);
   const v = { x0: W - 0.38, x1: W, y0: 0, y1: 1.75, z0: 0.3, z1: 1.05 };
-  s += box(v, { side: "#2a2622", top: "#3a3530" });
-  const vf = face(v, "left");
-  s += quad(vf, 0.04, 0.02, 0.96, 0.98, `fill="#3a4248"`);
-  for (const y of [0.27, 0.52, 0.77]) s += quad(vf, 0.04, y, 0.96, y + 0.012, `fill="#9aa6ae"`);
-  s += quad(face(v, "front"), 0, 0, 1, 1, `fill="#cfe0e8" opacity="0.18" stroke="#2a2622" stroke-width="4"`);
+  // vitrina de vidre: les portes (la cara que mira l'habitació) i el costat de davant són transparents;
+  // es veuen les lleixes i el que hi ha dins, i la paret de darrere
+  s += box(v, { top: "#3a3530" });
+  const vf = face(v, "left"), vfr = face(v, "front");
+  const shelves = [0.27, 0.52, 0.77];
+  for (const y of shelves) s += quad(vf, 0.03, y, 0.97, y + 0.012, `fill="#b8c2c8"`);
+  const it = (u0, v0, u1, v1, c) => quad(vf, u0, v0, u1, v1, `fill="${c}"`);
+  s += it(0.2, 0.14, 0.3, 0.27, "#d1261f") + it(0.45, 0.18, 0.55, 0.27, "#f2c200") + it(0.7, 0.12, 0.82, 0.27, "#7b3fe4");
+  s += it(0.25, 0.4, 0.4, 0.52, "#2f9e55") + it(0.6, 0.42, 0.75, 0.52, "#e46a2e");
+  s += it(0.2, 0.66, 0.35, 0.77, "#3a4a8e") + it(0.55, 0.64, 0.8, 0.77, "#c9a678");
+  s += quad(vf, 0, 0, 1, 1, `fill="#cfe0e8" opacity="0.2" stroke="#2a2622" stroke-width="3"`);
+  s += quad(vf, 0.48, 0, 0.52, 1, `fill="#2a2622"`); // junta de les dues portes
+  s += quad(vf, 0.1, 0.02, 0.22, 0.98, `fill="#fff" opacity="0.18"`); // reflex
+  s += quad(vfr, 0, 0, 1, 1, `fill="#cfe0e8" opacity="0.12" stroke="#2a2622" stroke-width="4"`);
+  for (const y of shelves) s += quad(vfr, 0, y, 1, y + 0.012, `fill="#b8c2c8" opacity="0.7"`);
   add(s);
 }
 
-// ---------------------------------------------------------------- llit (blau al plànol): davant a l'esquerra
+// ---------------------------------------------------------------- llit (blau al plànol): capçal i coixí contra la paret esquerra, els peus cap a la dreta
 {
   let s = "";
-  const x0 = -W, x1 = -0.35, z0 = -0.2, z1 = 1.55;
+  const x0 = -W, x1 = 0.2, z0 = 0.15, z1 = 1.55; // 2 m de llarg (x) i 1,4 m d'ample (z)
   s += shadow({ x0, x1, z0, z1 }, 0.04, 0.25);
-  s += box({ x0, x1, y0: 0, y1: 0.85, z0: z1, z1: z1 + 0.06 }, { front: "#3a2a20", side: "#2e2018", top: "#4a3628" });
-  s += box({ x0, x1, y0: 0.06, y1: 0.3, z0, z1 }, { front: "#3a2a20", side: "#2e2018" });
-  s += box({ x0: x0 + 0.1, x1: x1 - 0.1, y0: 0.5, y1: 0.62, z0: z1 - 0.45, z1: z1 - 0.06 }, { front: "#2a3a6a", side: "#22305a", top: "#33467a" });
-  const dB = { x0: x0 + 0.01, x1: x1 + 0.04, y0: 0.18, y1: 0.56, z0: z0 - 0.04, z1: z1 - 0.5 };
-  s += box(dB, { front: "url(#room-duvet-v)", side: "url(#room-duvet-v)", top: "url(#room-duvet)" });
+  s += box({ x0, x1: x0 + 0.06, y0: 0, y1: 0.9, z0, z1 }, { front: "#3a2a20", side: "#2e2018", top: "#4a3628" });  // capçal, a la paret
+  s += box({ x0: x0 + 0.06, x1, y0: 0.06, y1: 0.3, z0, z1 }, { front: "#3a2a20", side: "#2e2018" });              // estructura
+  s += box({ x0: x0 + 0.08, x1: x1 - 0.02, y0: 0.3, y1: 0.48, z0: z0 + 0.02, z1: z1 - 0.02 }, { front: "#f2f0ea", top: "#f6f4ef" });
+  // coixí al costat de la paret
+  s += box({ x0: x0 + 0.1, x1: x0 + 0.5, y0: 0.48, y1: 0.62, z0: z0 + 0.12, z1: z1 - 0.12 }, { front: "#2a3a6a", side: "#22305a", top: "#33467a" });
+  // edredó de cercles: de després del coixí fins als peus, i cau pel costat de davant i pels peus
+  const dB = { x0: x0 + 0.52, x1: x1 + 0.04, y0: 0.18, y1: 0.54, z0: z0 - 0.04, z1: z1 + 0.02 };
+  s += box(dB, { front: "url(#room-duvet-v)", top: "url(#room-duvet)" });
+  s += quad(face(dB, "front"), 0, 0, 0.012, 1, `fill="#000" opacity="0.15"`);
   add(s);
 }
 
@@ -126,13 +163,17 @@ let plate;
   const PLATE = `<g transform="scale(0.9)"><rect x="-15" y="-30" width="30" height="30" rx="2.6" fill="#fff" stroke="#c8c3b6" stroke-width="0.6"/>
       <rect x="-13" y="-28" width="26" height="26" rx="1.6" fill="#009b48"/><path d="M-5.5 -23 H-0.5 V-10.5 H7 V-6 H-5.5 Z" fill="#fff"/></g>`;
   const [px, py] = P(...plate);
-  const s = `<ellipse cx="${r(px)}" cy="${r(py - 14)}" rx="48" ry="44" fill="url(#room-l-glow)"/>` + figure(PLATE, ...plate);
+  // un clau i el cordill d'on penja
+  const k = cam.scale(plate[2]) / 100, [nx, ny] = P(plate[0], plate[1] + 0.12, plate[2]);
+  const s = `<ellipse cx="${r(px)}" cy="${r(py - 14)}" rx="48" ry="44" fill="url(#room-l-glow)"/>`
+    + `<path d="M${r(px - 11 * k)} ${r(py - 27 * k)} L${r(nx)} ${r(ny)} L${r(px + 11 * k)} ${r(py - 27 * k)}" stroke="#5a4a3a" stroke-width="1.2" fill="none"/><circle cx="${r(nx)}" cy="${r(ny)}" r="2" fill="#6b6b6b"/>`
+    + figure(PLATE, ...plate);
   add(s, { spot: "dgt", title: "Placa L: anar a la DGT (autoescola)", hit: [r(px - 34), r(py - 52), 68, 58] });
 }
 
 // ---------------------------------------------------------------- motxilla recolzada al llit (→ joc d'estudi)
 {
-  const bx = -0.22, bz = 0.6;
+  const bx = 0.4, bz = 0.75; // recolzada als peus del llit
   const BAG = `<g transform="scale(1.15)"><ellipse cx="-4" cy="0" rx="22" ry="4" fill="#1a1a4e" opacity="0.25"/>
     <g transform="rotate(-12 0 0)">
       <path d="M-6 -44 C-6 -53 6 -53 6 -44" stroke="#2a2a30" stroke-width="2.6" fill="none"/>
