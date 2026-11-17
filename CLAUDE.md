@@ -54,10 +54,10 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
 - Juego de estudio: se entra por la mochila. Sala arcana con puntos (altar = invocar, prestatgeria = apuntar estudio,
   grimori (libro con páginas por asignatura + pestaña de equipo), bestiari (libro), portal = mundos, cristall = millores, estudiant = artefactos, rellotge = reiniciar, porta = habitación).
   Reglas del usuario: los pergamins (tiradas) **solo** salen de estudiar (nunca del combate); en combate se gana maná
-  y saber (para subir niveles); el mítico solo con un 8+ en el final; los jefes dan artefactos al estudiante (3 huecos).
+  y saber (para subir niveles); el mítico solo con un 8+ en el final; los jefes dan artefactos al estudiante (3 espacios por parte del cuerpo, `TD_EQUIP_SLOTS`: cap, mà, esquena; uno por espacio).
   Probabilidades 66 / 27 / 6 / 1 con garantía (épico 30, legendario 90); cada invocación solo da criaturas
   del campo elegido. Las asignaturas se agrupan en **campos** (`TD_SUBJECTS[k].classes`): pergamins, garantía y
-  criaturas son por campo; se apunta el estudio por asignatura (también «Anar a classe»). Maná del combate: solo el inicial y el que dan los enemigos al morir (nada por tiempo). Copias → estrellas (1/2/4/7/11).
+  criaturas son por campo; se apunta el estudio por asignatura en la prestatgeria (una lleixa por asignatura, un libro por actividad, también «Anar a classe» y «Fer un projecte»). Nivel máximo = 5 × estrellas; niveles 10 y 20 mejoran la habilidad. Maná del combate: solo el inicial y el que dan los enemigos al morir (nada por tiempo). Copias → estrellas (1/2/4/7/11).
   Atención al detalle en todos los dibujos (lo pide el usuario): proporciones reales, mesas con 4 patas, nada de trazos
   sin sentido, cada proyectil es la pieza que la criatura lanza (desaparece del cuerpo mientras vuela y se vuelve a
   formar), los artefactos se llevan puestos en el estudiante (`TD_ARTIFACT_WEAR`), sin bandas en los lados de las escenas

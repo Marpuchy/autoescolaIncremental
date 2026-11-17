@@ -17,7 +17,7 @@ const tdDev = {
   maxStars() { tdDev.allCreatures(TD_STAR_COPIES[TD_STAR_COPIES.length - 1]); },
   allArtifacts() {
     for (const id of Object.keys(TD_ARTIFACTS)) td.artifacts[id] = Math.max(td.artifacts[id] || 0, 1);
-    td.equipped = Object.keys(TD_ARTIFACTS).slice(0, TD_ARTIFACT_SLOTS);
+    td.equipped = Object.keys(TD_ARTIFACTS).filter((id, i, a) => a.findIndex(o => tdArtSlot(o) === tdArtSlot(id)) === i);
     tdSave(); tdRefreshAll();
   },
   // combat

@@ -175,16 +175,21 @@ function tdsTap(ev) {
 }
 
 // ---- escriptori (apuntar l'estudi)
+let tdExamFor = null; // assignatura de la qual s'apunta un examen
 function tdStudyHtml() {
-  const s = tdSubj, left = tdDailyLeft(s), cls = tdClass[s] || TD_SUBJECTS[s].classes[0];
-  const log = td.log.filter(l => l.subj === s).slice(0, 6);
+  const f = tdSubj, left = tdDailyLeft(f), F = TD_SUBJECTS[f];
+  const log = td.log.filter(l => l.subj === f).slice(0, 5);
+  if (tdExamFor && !F.classes.includes(tdExamFor)) tdExamFor = null;
   return `${tdSubjTabs()}
-    <div class="td-classes">${TD_SUBJECTS[s].classes.map(c => `<button class="tdbook-filter${c === cls ? " on" : ""}" data-cls="${c}">${c}</button>`).join("")}</div>
-    <p class="td-hint">Apunta el que has fet de <strong>${cls}</strong>: els pergamins són de ${TD_SUBJECTS[s].name}. Et queden <strong>${left}</strong> per a hui en aquest camp (sense comptar els exàmens).</p>
-    <div class="td-acts">${TD_ACTIVITIES.map(a => `<button class="td-act" data-act="${a.id}" ${left <= 0 ? "disabled" : ""}><span>${a.icon}</span>${a.name}<strong>+${a.rolls} 📜</strong></button>`).join("")}</div>
-    <div class="td-exam"><label>Nota de l'examen <input type="number" id="td-nota" min="0" max="10" step="0.1" placeholder="7,5"></label>
+    <p class="td-hint">Cada lleixa és una assignatura: agafa el llibre del que has fet. Hui et queden <strong>${left}</strong> pergamins de ${F.name} (els exàmens no compten).</p>
+    <div class="td-bookcase s-${f}">${F.classes.map(cls => `<div class="td-shelf"><div class="td-shelf-label">${cls}</div>
+      <div class="td-shelf-books">${TD_ACTIVITIES.map(a => `<button class="td-spine" data-act="${a.id}" data-cls="${cls}" style="--c:${a.color};--h:${a.h}%" title="${a.name} · +${a.rolls} pergamins" ${left <= 0 ? "disabled" : ""}>
+          <span class="td-spine-i">${a.icon}</span><span class="td-spine-t">${a.short}</span><span class="td-spine-r">+${a.rolls}</span></button>`).join("")}
+        <button class="td-spine exam${tdExamFor === cls ? " open" : ""}" data-examfor="${cls}" style="--c:#7a1f2e;--h:100%" title="Examen: apunta la nota">
+          <span class="td-spine-i">🎓</span><span class="td-spine-t">Examen</span><span class="td-spine-r">nota</span></button></div></div>`).join("")}</div>
+    ${tdExamFor ? `<div class="td-exam"><label>Examen de <strong>${tdExamFor}</strong>: nota <input type="number" id="td-nota" min="0" max="10" step="0.1" placeholder="7,5"></label>
       <button class="secondary" data-exam="parcial">📄 Parcial</button><button data-exam="final">🎓 Final</button></div>
-    <p class="td-hint">Parcial o final: 5 → 3 pergamins … 10 → 10. Amb un <strong>${TD_MYTHIC_GRADE} o més al final</strong>, la criatura mítica del camp.</p>
+      <p class="td-hint">5 → 3 pergamins … 10 → 10. Amb un <strong>${TD_MYTHIC_GRADE} o més al final</strong>, la criatura mítica de ${F.name}.</p>` : ""}
     ${log.length ? `<ul class="td-log">${log.map(l => `<li>${l.what} <span>+${l.rolls} 📜${l.mythic ? " · ✨ mític" : ""}</span></li>`).join("")}</ul>` : ""}`;
 }
 function tdDoStudy(actId) {
@@ -197,7 +202,8 @@ function tdDoStudy(actId) {
 function tdDoExam(kind) {
   const nota = Number(String($("td-nota").value).replace(",", "."));
   if (!(nota >= 0 && nota <= 10) || $("td-nota").value === "") { toast("Escriu una nota de 0 a 10", "bad"); return; }
-  const r = tdRegisterExam(tdSubj, nota, kind === "final", tdClass[tdSubj] || TD_SUBJECTS[tdSubj].classes[0]);
+  const r = tdRegisterExam(tdSubj, nota, kind === "final", tdExamFor || TD_SUBJECTS[tdSubj].classes[0]);
+  tdExamFor = null;
   toast(`📜 +${r.rolls} pergamins de ${TD_SUBJECTS[tdSubj].short}`, "good");
   if (r.mythic) tdReveal([r.mythic]);
   tdRenderPanel();
@@ -219,12 +225,13 @@ function tdBookHtml(kind) {
   let left, right, nav = "";
   if (tab === "team") [left, right] = tdTeamPages();
   else {
-    // al grimori, cada assignatura comença amb un índex
-    const list = kind === "bestiary" ? tdBookList(kind, tab) : ["index", ...tdBookList(kind, tab)];
+    // els dos llibres comencen amb un índex
+    const list = ["index", ...tdBookList(kind, tab)];
     tdBook.page = Math.max(0, Math.min(tdBook.page, list.length - 1));
     const id = list[tdBook.page];
-    [left, right] = kind === "bestiary" ? tdBeastPages(id) : id === "index" ? tdIndexPages(tab, list.slice(1)) : tdCreaturePages(id);
-    nav = `${kind !== "bestiary" && tdBook.page > 0 ? `<button class="secondary small tdbook-toindex" data-goto="0">☰ Índex</button>` : ""}<button class="tdbook-turn prev" data-bk="prev" ${tdBook.page === 0 ? "disabled" : ""} aria-label="Pàgina anterior">◀</button>
+    [left, right] = id === "index" ? (kind === "bestiary" ? tdBeastIndexPages(list.slice(1)) : tdIndexPages(tab, list.slice(1)))
+      : kind === "bestiary" ? tdBeastPages(id) : tdCreaturePages(id);
+    nav = `${tdBook.page > 0 ? `<button class="secondary small tdbook-toindex" data-goto="0">☰ Índex</button>` : ""}<button class="tdbook-turn prev" data-bk="prev" ${tdBook.page === 0 ? "disabled" : ""} aria-label="Pàgina anterior">◀</button>
       <span class="tdbook-num">${tdBook.page + 1} / ${list.length}</span>
       <button class="tdbook-turn next" data-bk="next" ${tdBook.page >= list.length - 1 ? "disabled" : ""} aria-label="Pàgina següent">▶</button>`;
   }
@@ -276,6 +283,21 @@ function tdCreaturePages(id) {
      <div class="tdbook-btns">${lvlBtn}
        <button class="secondary" data-team="${id}" title="${td.team.includes(id) ? "Traure de l'equip" : "Posar a l'equip"}">${td.team.includes(id) ? "➖" : "➕"}<span class="lbl"> Equip</span></button>
        <button class="secondary tdbook-fav${td.favs.includes(id) ? " on" : ""}" data-fav="${id}" aria-pressed="${td.favs.includes(id)}" title="Preferida: ix primer a la llista de l'equip">${td.favs.includes(id) ? "★" : "☆"}<span class="lbl"> Preferida</span></button></div>`];
+}
+// Índex del bestiari: introducció a l'esquerra i, a la dreta, les distraccions (les que no has vist, amb interrogants)
+function tdBeastIndexPages(list) {
+  const seen = list.filter(id => td.seen.includes(id)).length;
+  const row = (id, i) => {
+    const e = TD_ENEMIES[id], o = td.seen.includes(id);
+    return `<li><button class="tdbook-idx${o ? "" : " unknown"}" data-goto="${i + 1}" style="--rc:${e.boss ? "#ff5a4a" : "#aab3c0"}">
+      <span class="tdbook-idx-name">${o ? e.name : "???"}</span>${e.boss ? `<span class="tdbook-idx-rar">Cap</span>` : ""}
+      <span class="tdbook-idx-dots"></span><span class="tdbook-idx-pg">${i + 2}</span></button></li>`;
+  };
+  return [`<div class="tdbook-intro"><div class="tdbook-intro-icon">🔔</div><h3 class="tdbook-name">Bestiari</h3>
+      <p class="tdbook-text">Les distraccions que intenten arribar al cristall mentre estudies: notificacions, son, procrastinació… Cada una té el seu truc.</p>
+      <p class="tdbook-text muted">Una pàgina s'escriu sola la primera vegada que una t'ataca. Els caps apareixen a les onades 5 i 10 i deixen artefactes.</p>
+      <p class="tdbook-intro-count">N'has vist <strong>${seen}</strong> de <strong>${list.length}</strong></p></div>`,
+    `<h3 class="tdbook-name">Índex</h3><ol class="tdbook-index">${list.map(row).join("")}</ol>`];
 }
 function tdBeastPages(id) {
   const e = TD_ENEMIES[id], seen = td.seen.includes(id);
@@ -353,32 +375,64 @@ function tdWorldsHtml() {
 }
 
 // ---- cristall (millores)
+// Cristall al centre: cada millora comprada encén una faceta més i el fa brillar més
+function tdCrystalSvg(frac) {
+  const F = 16, lit = Math.round(frac * F);
+  // facetes: dos anells de triangles al voltant de l'eix (part de dalt i de baix del cristall)
+  const top = [0, -120], mid = [[-62, -14], [-34, -4], [0, 2], [34, -4], [62, -14]], bot = [0, 120];
+  const mid2 = [[-62, -14], [-30, -26], [0, -30], [30, -26], [62, -14]];
+  const tri = [];
+  for (let i = 0; i < 4; i++) tri.push([top, mid2[i], mid2[i + 1]]);
+  for (let i = 0; i < 4; i++) tri.push([mid2[i], mid2[i + 1], mid[i + 1]], [mid2[i], mid[i], mid[i + 1]]);
+  for (let i = 0; i < 4; i++) tri.push([mid[i], mid[i + 1], bot]);
+  const order = tri.map((_, i) => i).sort((a, b) => ((a * 7) % F) - ((b * 7) % F)); // s'encenen escampades
+  const on = new Set(order.slice(0, lit));
+  return `<svg viewBox="-110 -150 220 300" class="td-crys" style="--g:${(0.12 + 0.75 * frac).toFixed(2)}">
+    <defs><radialGradient id="td-crys-glow"><stop offset="0" stop-color="#7fe8ff" stop-opacity="0.9"/><stop offset="1" stop-color="#7fe8ff" stop-opacity="0"/></radialGradient></defs>
+    <ellipse class="td-crys-glow" rx="${100 + 30 * frac}" ry="${130 + 30 * frac}" fill="url(#td-crys-glow)"/>
+    ${tri.slice(0, F).map((t, i) => `<polygon points="${t.map(p => p.join(",")).join(" ")}" class="td-facet${on.has(i) ? " on" : ""}"/>`).join("")}
+    <path d="M0 -120 L-62 -14 L0 120 L62 -14 Z" fill="none" stroke="#7fe8ff" stroke-width="3" stroke-linejoin="round"/>
+    <ellipse cy="138" rx="70" ry="10" fill="#7fe8ff" opacity="${(0.08 + 0.3 * frac).toFixed(2)}"/></svg>`;
+}
 function tdUpgradesHtml() {
-  return `<p class="td-hint">Millores permanents, amb el saber que guanyes als mons. Tens ✨ <strong>${fmtNum(Math.floor(td.saber))}</strong>.</p>
-    <div class="td-ups">${Object.entries(TD_UPGRADES).map(([id, u]) => {
-      const lvl = td.upgrades[id], max = lvl >= u.max, cost = tdUpgradeCost(id);
-      return `<div class="td-up"><span class="td-up-icon">${u.icon}</span><div><strong>${u.name}</strong> <span class="muted">${lvl} / ${u.max}</span><div class="muted">${u.desc}</div></div>
-        <button data-up="${id}" ${max || td.saber < cost ? "disabled" : ""}>${max ? "Màxim" : `✨ ${fmtNum(cost)}`}</button></div>`;
-    }).join("")}</div>`;
+  const ids = Object.keys(TD_UPGRADES);
+  const total = ids.reduce((s, id) => s + td.upgrades[id], 0), max = ids.reduce((s, id) => s + TD_UPGRADES[id].max, 0);
+  const node = (id, i) => {
+    const u = TD_UPGRADES[id], lvl = td.upgrades[id], full = lvl >= u.max, cost = tdUpgradeCost(id);
+    return `<div class="td-cnode td-cnode-${i}"><div class="td-cnode-head"><span class="td-up-icon">${u.icon}</span><strong>${u.name}</strong></div>
+      <div class="td-cnode-bar"><div style="width:${100 * lvl / u.max}%"></div><span>${lvl} / ${u.max}</span></div>
+      <div class="muted">${u.desc}${lvl ? ` · ara ${u.per(lvl)}` : ""}</div>
+      <button data-up="${id}" ${full || td.saber < cost ? "disabled" : ""}>${full ? "Màxim" : `✨ ${fmtNum(cost)}`}</button></div>`;
+  };
+  return `<p class="td-hint">Millores permanents amb el saber dels mons: cada una encén el cristall. Tens ✨ <strong>${fmtNum(Math.floor(td.saber))}</strong>.</p>
+    <div class="td-crystal-menu">${node(ids[0], 0)}<div class="td-crystal-core">${tdCrystalSvg(total / max)}<div class="td-crystal-pct">${Math.round(100 * total / max)} %</div></div>${ids.slice(1).map((id, i) => node(id, i + 1)).join("")}</div>`;
 }
 
 // ---- estudiant (artefactes)
+let tdEquipSlot = "cap"; // espai triat a la finestra de l'estudiant
 function tdStudentHtml() {
-  const owned = Object.keys(td.artifacts);
-  return `<div class="td-student-row"><div class="td-student-big">${tdStudentSvg(td.equipped)}</div>
-    <div><p class="td-hint">L'estudiant mira la partida des d'una cantonada del mapa i porta fins a <strong>${TD_ARTIFACT_SLOTS}</strong> artefactes, que milloren totes les criatures. Els caps els deixen; si en tornes a derrotar un, el seu artefacte puja de nivell (fins al 5).</p>
-    <div class="td-slots">${Array.from({ length: TD_ARTIFACT_SLOTS }, (_, i) => { const id = td.equipped[i];
-      return `<div class="td-aslot">${id ? `${TD_ARTIFACTS[id].icon}<small>${TD_ARTIFACTS[id].name}</small>` : "<small>buit</small>"}</div>`; }).join("")}</div></div></div>
-    ${owned.length ? `<div class="td-arts">${owned.map(id => { const a = TD_ARTIFACTS[id], on = td.equipped.includes(id);
-      return `<div class="td-art-row"><span class="td-up-icon">${a.icon}</span><div><strong>${a.name}</strong> <span class="muted">nivell ${td.artifacts[id]}</span><div class="muted">${a.desc(td.artifacts[id])}</div></div>
-        <button class="${on ? "secondary" : ""}" data-equip="${id}">${on ? "Llevar" : "Posar"}</button></div>`; }).join("")}</div>`
-      : `<p class="td-hint">Encara no tens artefactes. Derrota els caps dels mons (onades 5 i 10).</p>`}`;
+  const slot = TD_EQUIP_SLOTS.find(x => x.id === tdEquipSlot) || TD_EQUIP_SLOTS[0];
+  const worn = sid => td.equipped.find(id => tdArtSlot(id) === sid);
+  const own = Object.keys(td.artifacts).filter(id => tdArtSlot(id) === slot.id);
+  const cur = worn(slot.id);
+  return `<div class="td-inv">
+    <div class="td-inv-stage"><div class="td-inv-student">${tdStudentSvg(td.equipped)}</div>
+      ${TD_EQUIP_SLOTS.map((x, i) => { const id = worn(x.id);
+        return `<button class="td-inv-slot td-inv-slot-${i}${x.id === slot.id ? " selected" : ""}${id ? "" : " empty"}" data-eslot="${x.id}">
+          <span class="td-inv-slot-item">${id ? TD_ARTIFACTS[id].icon : x.icon}</span><span class="td-inv-slot-name">${x.name}</span></button>`; }).join("")}</div>
+    <div class="td-inv-side"><h3>${slot.icon} ${slot.name}</h3>
+      ${own.length ? `<div class="td-inv-items">${own.map(id => { const a = TD_ARTIFACTS[id], on = td.equipped.includes(id);
+        return `<button class="td-inv-item${on ? " equipped" : ""}" data-equip="${id}" aria-pressed="${on}" title="${on ? "Llevar" : "Posar"}">
+          <span class="td-inv-icon">${a.icon}</span><span><strong>${a.name}</strong> <span class="muted">Nv. ${td.artifacts[id]}</span>
+          <span class="td-inv-desc">${a.desc(td.artifacts[id])}</span></span>${on ? `<span class="td-inv-check">✔ Posat</span>` : ""}</button>`; }).join("")}</div>`
+        : `<p class="muted">Encara no tens res per a aquest espai.</p>`}
+      ${cur ? "" : own.length ? `<p class="muted">Toca un artefacte per a posar-lo.</p>` : ""}
+      <p class="td-hint">Els caps dels mons deixen artefactes; si en tornes a derrotar un, el seu puja de nivell (fins al 5). Milloren totes les criatures.</p></div></div>`;
 }
 function tdToggleEquip(id) {
   if (!td.artifacts[id]) return;
   if (td.equipped.includes(id)) td.equipped = td.equipped.filter(a => a !== id);
-  else if (td.equipped.length < TD_ARTIFACT_SLOTS) td.equipped.push(id);
-  else { toast(`L'estudiant ja porta ${TD_ARTIFACT_SLOTS} artefactes`, "bad"); return; }
+  else td.equipped = [...td.equipped.filter(a => tdArtSlot(a) !== tdArtSlot(id)), id]; // canvia el de l'espai
   tdSave();
   tdRenderPanel();
 }
@@ -411,14 +465,20 @@ function initTdLobby() {
     if (!b || b.disabled) return;
     const ds = b.dataset;
     if (ds.subj) { tdSubj = ds.subj; tdRenderPanel(); }
-    else if (ds.cls) { tdClass[tdSubj] = ds.cls; tdRenderPanel(); }
+    else if (ds.cls && !ds.act) { tdClass[tdSubj] = ds.cls; tdRenderPanel(); }
     else if (ds.bktab) { tdBook = { tab: ds.bktab, page: 0 }; tdRenderPanel(); }
     else if (ds.bk) tdTurnPage(ds.bk === "next" ? 1 : -1);
     else if (ds.goto != null) tdTurnPage(0, Number(ds.goto));
     else if (ds.filter) { tdTeamFilter = ds.filter; tdRenderPanel(); }
     else if (ds.fav) { td.favs = td.favs.includes(ds.fav) ? td.favs.filter(f => f !== ds.fav) : [...td.favs, ds.fav]; tdSave(); tdRenderPanel(); }
     else if (ds.summon) tdDoSummon(Number(ds.summon));
-    else if (ds.act) tdDoStudy(ds.act);
+    else if (ds.act) {
+      const b = ev.target.closest("[data-act]");
+      if (ds.cls) tdClass[tdSubj] = ds.cls;
+      b.classList.add("taken");
+      setTimeout(() => tdDoStudy(ds.act), 380);
+    }
+    else if (ds.examfor) { tdExamFor = tdExamFor === ds.examfor ? null : ds.examfor; tdRenderPanel(); $("td-nota")?.focus(); }
     else if (ds.exam) tdDoExam(ds.exam);
     else if (ds.lvl) {
       if (tdLevelUp(ds.lvl)) {
@@ -428,8 +488,9 @@ function initTdLobby() {
     }
     else if (ds.team) tdToggleTeam(ds.team);
     else if (ds.play) { tdClosePanel(); tdOpenBattle(Number(ds.play)); }
-    else if (ds.up) { if (tdBuyUpgrade(ds.up)) tdRenderPanel(); }
+    else if (ds.up) { if (tdBuyUpgrade(ds.up)) { tdRenderPanel(); document.querySelector(".td-crys")?.classList.add("flash"); } }
     else if (ds.equip) tdToggleEquip(ds.equip);
+    else if (ds.eslot) { tdEquipSlot = ds.eslot; tdRenderPanel(); }
   });
   document.addEventListener("keydown", ev => {
     if (!tdLobbyOpen()) return;
@@ -448,13 +509,13 @@ function initTdLobby() {
 // Quants i com es col·loquen depén de la criatura (en filera per a les que travessen, en grup per a les de zona…).
 const TD_DEMO_SETUP = {
   pierce: { n: 4, gap: 30 }, aoe: { n: 4, gap: 22, spread: 14 }, split: { n: 3, gap: 55 }, smart: { n: 3, gap: 60, mix: true },
-  execute: { n: 2, gap: 90 }, stacks: { n: 4, gap: 45 }, default: { n: 2, gap: 80 },
+  execute: { n: 2, gap: 90 }, stacks: { n: 3, gap: 120 }, align: { n: 4, gap: 50, spread: 16 }, default: { n: 2, gap: 80 },
 };
 let tdDemo = null;
 function tdDemoStart(box) {
   const id = box.dataset.demo, d = TD_DEFENDERS[id], lane = box.querySelector(".tdbook-lane");
-  const set = TD_DEMO_SETUP[d.role] || TD_DEMO_SETUP.default;
-  tdDemo = { box, id, d, lane, set, st: tdStats(id), enemies: [], shots: [], cd: 0.6, side: 0, n: 0, aimA: 0, last: performance.now(), stacks: 0 };
+  const set = TD_DEMO_SETUP[d.special?.type === "align" ? "align" : d.role] || TD_DEMO_SETUP.default;
+  tdDemo = { box, id, d, lane, set, st: tdStats(id), enemies: [], shots: [], cd: 0.6, side: 0, n: d.special ? d.special.every - 2 : 0, aimA: 0, last: performance.now(), stacks: 0 };
   for (let i = 0; i < set.n; i++) tdDemoSpawn(i);
 }
 function tdDemoSpawn(i, fromEdge = false) {
@@ -479,6 +540,7 @@ function tdDemoTick(now) {
   const w = D.lane.clientWidth, k = w / 520; // escala: el carril fa de tram de camí
   for (const e of D.enemies) {
     if (e.dead) continue;
+    if (e.vuln > 0 && (e.vuln -= dt) <= 0) e.el.classList.remove("vuln");
     if (e.stun > 0) e.stun -= dt;
     else e.x += (e.conv > 0 ? 1 : -1) * e.def.speed * k * dt;
     if (e.conv > 0 && (e.conv -= dt) <= 0) e.el.classList.remove("conv");
@@ -515,13 +577,22 @@ function tdDemoFire(target) {
     a = D.aimA + ((a - D.aimA + 540) % 360 - 180);
     D.aimA = a;
     svg.querySelector(".aim").style.transform = `rotate(${a}deg)`;
+    svg.classList.add("load"); // la fletxa es posa dins de la V
   }
   svg.classList.remove("fire"); void svg.getBoundingClientRect(); svg.classList.add("fire");
   setTimeout(() => tdDemo === D && tdDemoLaunch(svg, part, target), d.aim ? 200 : 0);
   // especials cada N atacs, com al combat
   const sp = d.special;
   if (sp && D.n % sp.every === 0) {
-    if (sp.type === "freeze" || sp.type === "align") D.enemies.forEach(e => { e.stun = (sp.dur || 1.4) * D.st.ability; });
+    if (sp.type === "freeze") D.enemies.forEach(e => { e.stun = (sp.dur || 1.4) * D.st.ability; });
+    if (sp.type === "align") { // els alinea en una recta, els para i els fa vulnerables (reben més dany)
+      const h = D.lane.clientHeight;
+      D.enemies.forEach(e => { if (!e.dead) { e.stun = sp.dur * D.st.ability; e.vuln = sp.vulnDur * D.st.ability; e.y = h * 0.8; e.el.classList.add("vuln"); } });
+      const ring = document.createElement("i");
+      ring.className = "tdbook-ring";
+      D.lane.appendChild(ring);
+      setTimeout(() => ring.remove(), 900);
+    }
     if (sp.type === "convert") { const e = D.enemies.filter(e => !e.dead).sort((a, b) => a.hp - b.hp)[0]; if (e) { e.conv = sp.dur * D.st.ability; e.el.classList.add("conv"); } }
     tdDemoText(D.box.querySelector(".tdbook-art"), sp.type === "freeze" ? "congela!" : sp.type === "align" ? "λ · diagonalitzat" : "compilat!", TD_GLOW.gold);
   }
@@ -537,6 +608,10 @@ function tdDemoLaunch(svg, part, target) {
     from = [s.left - b.left + (ax + 6) / 132 * s.width, s.top - b.top + (ay + 10) / 132 * s.height];
   }
   if (pe) svg.classList.add(`thrown-${part}`);
+  if (d.aim) { // ja ha disparat: la V torna a estar dreta
+    svg.classList.remove("load");
+    setTimeout(() => { if (tdDemo === D) { D.aimA = 0; svg.querySelector(".aim").style.transform = "rotate(0deg)"; } }, 450);
+  }
   const [tx, ty] = tdDemoPoint(target.el);
   let to = [tx, ty], hitList = [target];
   if (d.role === "pierce") { // continua recte fins a la vora i travessa tota la filera
@@ -582,6 +657,7 @@ function tdDemoHit(target, from) {
 }
 function tdDemoDamage(e, dmg) {
   if (e.dead) return;
+  if (e.vuln > 0) dmg *= 1 + (tdDemo.d.special?.vuln || 0);
   e.hp -= dmg;
   e.el.classList.remove("hit"); void e.el.offsetWidth; e.el.classList.add("hit");
   tdDemoText(e.el, fmtNum(dmg), TD_GLOW[tdDemo.d.subj] || "#fff");

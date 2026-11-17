@@ -86,19 +86,27 @@ const TD_WAVE_HP = 0.2; // cada onada, +20 % de vida als enemics
 // Artefactes: els donen els caps (la primera vegada i les següents, que els pugen de nivell, fins a 5).
 // L'estudiant en porta 3 com a molt. value: efecte a nivell 1 (cada nivell +25 %).
 const TD_ARTIFACTS = {
-  auriculars: { name: "Auriculars antisoroll", icon: "🎧", boss: "series", stat: "range", value: 0.08,
+  auriculars: { name: "Auriculars antisoroll", icon: "🎧", slot: "cap", boss: "series", stat: "range", value: 0.08,
                 desc: lvl => `El Son no adorm les teues torres. +${Math.round(0.08 * tdArtMult(lvl) * 100)} % d'abast.` },
-  cafe:       { name: "Cafè arcà", icon: "☕", boss: "diumenge", stat: "rate", value: 0.15,
+  cafe:       { name: "Cafè arcà", icon: "☕", slot: "ma", boss: "diumenge", stat: "rate", value: 0.15,
                 desc: lvl => `+${Math.round(0.15 * tdArtMult(lvl) * 100)} % de velocitat d'atac.` },
 };
 const tdArtMult = lvl => 1 + 0.25 * (lvl - 1);
 const TD_ARTIFACT_SLOTS = 3;
+// Espais de l'estudiant (com a l'autoescola): cada artefacte va en el seu; un per espai.
+const TD_EQUIP_SLOTS = [
+  { id: "cap",     icon: "🎩", name: "Cap" },
+  { id: "ma",      icon: "✋", name: "Mà" },
+  { id: "esquena", icon: "🎒", name: "Esquena" },
+];
+const tdArtSlot = id => TD_ARTIFACTS[id]?.slot;
 
 // Millores del cristall (es paguen amb saber)
 const TD_UPGRADES = {
-  vida:  { name: "Cristall resistent", icon: "💎", desc: "+3 de vida del cristall", base: 40, growth: 1.6, max: 10 },
-  mana:  { name: "Concentració", icon: "🔮", desc: "+20 de maná inicial", base: 50, growth: 1.55, max: 10 },
-  saber: { name: "Curiositat", icon: "✨", desc: "+10 % de saber guanyat", base: 80, growth: 1.7, max: 10 },
+  // més nivells que abans (fins a 30) però creixement més suau; la vida del cristall és la més cara
+  vida:  { name: "Cristall resistent", icon: "💎", desc: "+3 de vida del cristall", per: lvl => `+${3 * lvl} de vida`, base: 110, growth: 1.38, max: 30 },
+  mana:  { name: "Concentració", icon: "🔮", desc: "+20 de maná inicial", per: lvl => `+${20 * lvl} de maná`, base: 50, growth: 1.3, max: 30 },
+  saber: { name: "Curiositat", icon: "✨", desc: "+10 % de saber guanyat", per: lvl => `+${10 * lvl} % de saber`, base: 80, growth: 1.33, max: 30 },
 };
 
 // Pujar de nivell una criatura (saber). Nivell màxim 30.
@@ -109,12 +117,14 @@ const tdLevelCost = (rar, lvl) => Math.round(15 * TD_RARITIES[rar].value ** 0.5 
 
 // Què has estudiat → pergamins d'invocació (del camp de l'assignatura). Límit diari per camp (sense comptar els exàmens).
 const TD_ACTIVITIES = [
-  { id: "classe",   icon: "🏫", name: "Anar a classe",               rolls: 2 },
-  { id: "resum",    icon: "📝", name: "Resum (1 pàgina)",            rolls: 3 },
-  { id: "exercici", icon: "✏️", name: "Full d'exercicis",           rolls: 2 },
-  { id: "llarg",    icon: "📐", name: "Problemes llargs o difícils", rolls: 3 },
-  { id: "esquema",  icon: "🗂️", name: "Esquema o apunts nets",       rolls: 2 },
-  { id: "repas",    icon: "🃏", name: "Repàs amb test o targetes",   rolls: 1 },
+  // short i color: el llom del llibre a la prestatgeria; h: alçada del llibre (%)
+  { id: "classe",   icon: "🏫", name: "Anar a classe",               short: "Classe",    color: "#3a6ea8", h: 78, rolls: 2 },
+  { id: "resum",    icon: "📝", name: "Resum (1 pàgina)",            short: "Resum",     color: "#a8463a", h: 92, rolls: 3 },
+  { id: "exercici", icon: "✏️", name: "Full d'exercicis",           short: "Exercicis", color: "#3a8a5a", h: 84, rolls: 2 },
+  { id: "llarg",    icon: "📐", name: "Problemes llargs o difícils", short: "Problemes", color: "#6a4aa8", h: 100, rolls: 3 },
+  { id: "esquema",  icon: "🗂️", name: "Esquema o apunts nets",       short: "Esquema",   color: "#b0862a", h: 74, rolls: 2 },
+  { id: "repas",    icon: "🃏", name: "Repàs amb test o targetes",   short: "Repàs",     color: "#2a8a8e", h: 68, rolls: 1 },
+  { id: "projecte", icon: "🛠️", name: "Fer un projecte (una sessió)", short: "Projecte", color: "#8e3a6e", h: 96, rolls: 4 },
 ];
 const TD_DAILY_CAP = 15;
 // Examen parcial o final: 5 → 3 pergamins … 10 → 10. Suspés: 1 (de consolació).

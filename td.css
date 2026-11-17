@@ -530,12 +530,101 @@
 .tdbook-btns { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 6px; flex-wrap: nowrap; }
 .tdbook-btns button { padding-inline: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.85rem; }
 @media (max-width: 700px) { .tdbook-lane { height: 80px; } .tdbook-btns button { font-size: 0.75rem; } }
-/* vector: la V gira per a apuntar; la fletxa s'estira cap a fora abans d'eixir */
-.tdc-vector .aim { transform-box: view-box; transform-origin: 60px 70px; transition: transform 0.2s ease-out; }
-.tdc-vector.fire .al { animation: td-vec-draw 0.2s ease-in; }
-@keyframes td-vec-draw { 0% { transform: translateY(0); } 100% { transform: translateY(-16px); } }
-.tdbook-prog > span { color: #fff; text-shadow: 0 0 3px #000, 0 0 2px #000; }
-@media (max-width: 700px) { .tdbook-btns { grid-template-columns: 2fr 1fr 1fr; } .tdbook-btns .lbl { display: none; } }
-.tdbook-lane { height: 108px; background-position: 0 80%; }
-.tdbook-foe-hp { top: 4%; }
-@media (max-width: 700px) { .tdbook-lane { height: 88px; } }
+/* vector: en disparar, la fletxa es posa dins de la V (més menuda, separada de la punta), la V gira cap a
+   l'objectiu i la fletxa ix; després la V torna a estar dreta i la fletxa es torna a formar damunt */
+.tdc-vector .aim { transform-box: view-box; transform-origin: 60px 76px; transition: transform 0.22s ease-in-out; }
+.tdc-vector .al { transition: transform 0.22s ease-in-out; }
+.tdc-vector.load .al { transform: translate(2px, 38px) rotate(-90deg) scale(0.58); }
+
+/* estudiant dalt d'una torre arcana, al racó del mapa */
+.tdb-perch { pointer-events: none; }
+
+/* prestatgeria d'estudi: una lleixa per assignatura, un llibre per activitat */
+.td-bookcase { display: grid; gap: 0; padding: 10px 10px 0; border-radius: 10px; background: #4a3020; border: 6px solid #5c3c26;
+  box-shadow: inset 0 0 0 2px #3a2416, 0 10px 24px rgba(0, 0, 0, 0.4); }
+.td-shelf { display: grid; grid-template-columns: 120px 1fr; align-items: end; gap: 10px; padding: 8px 8px 0; background: linear-gradient(#1c130c, #2a1c12);
+  border-bottom: 10px solid #6b4a32; box-shadow: 0 3px 0 #3a2416; margin-bottom: 10px; }
+.td-shelf-label { align-self: center; font-size: 0.8rem; font-weight: 800; color: #ffe2b0; background: #6b4a32; border: 1px solid #c9a678; border-radius: 4px;
+  padding: 4px 6px; text-align: center; box-shadow: 0 2px 0 #3a2416; }
+.td-shelf-books { display: flex; align-items: flex-end; gap: 3px; height: 112px; }
+.td-spine { position: relative; width: 38px; height: var(--h); flex-shrink: 0; padding: 4px 0; border: 0; border-radius: 3px 3px 1px 1px;
+  display: flex; flex-direction: column; align-items: center; justify-content: space-between; color: #fff; cursor: pointer;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--c) 60%, #000) 0, var(--c) 22%, color-mix(in srgb, var(--c) 80%, #fff) 50%, var(--c) 78%, color-mix(in srgb, var(--c) 55%, #000) 100%);
+  box-shadow: inset 0 6px 0 -3px rgba(255, 226, 150, 0.6), inset 0 -8px 0 -5px rgba(255, 226, 150, 0.6); transition: transform 0.2s ease-out, filter 0.2s; }
+.td-spine:hover:not(:disabled), .td-spine:focus-visible { transform: translateY(-6px); filter: brightness(1.12); }
+.td-spine:disabled { opacity: 0.45; cursor: not-allowed; }
+.td-spine.taken { animation: td-take 0.38s ease-in forwards; }
+@keyframes td-take { 40% { transform: translateY(-22px) rotate(-4deg); } 100% { transform: translateY(-40px) rotate(-8deg); opacity: 0; } }
+.td-spine-i { font-size: 1rem; line-height: 1; }
+.td-spine-t { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.5px; white-space: nowrap; text-shadow: 0 1px 2px #000; }
+.td-spine-r { font-size: 0.62rem; font-weight: 900; color: #ffe27a; text-shadow: 0 1px 2px #000; }
+.td-spine.exam { width: 44px; }
+.td-spine.exam.open { transform: translateY(-10px); outline: 2px solid #ffc23f; }
+@media (max-width: 700px) {
+  .td-bookcase { padding: 6px 6px 0; border-width: 4px; }
+  .td-shelf { grid-template-columns: 1fr; gap: 4px; padding: 4px 4px 0; }
+  .td-shelf-label { justify-self: start; }
+  .td-shelf-books { height: 96px; gap: 2px; }
+  .td-spine { width: calc((100% - 16px) / 8); min-width: 0; }
+  .td-spine.exam { width: calc((100% - 16px) / 8); }
+  .td-spine-t { font-size: 0.6rem; }
+}
+/* inventari de l'estudiant: com a l'autoescola, l'estudiant al centre i els espais al voltant */
+.td-inv { display: grid; grid-template-columns: minmax(220px, 300px) 1fr; gap: 16px; }
+.td-inv-stage { position: relative; height: 290px; border-radius: 12px; background: radial-gradient(circle at 50% 62%, #1f2540, #0b0e16 70%); border: 1px solid #2c3350; }
+.td-inv-student { position: absolute; left: 50%; bottom: 14px; width: 150px; transform: translateX(-50%); }
+.td-inv-student svg { width: 100%; height: auto; display: block; }
+.td-inv-slot { position: absolute; width: 74px; height: 74px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  background: #121729; color: #e6e6e6; border: 2px solid #3a4266; border-radius: 12px; padding: 4px; }
+.td-inv-slot.selected { border-color: #ffc23f; box-shadow: 0 0 0 3px rgba(255, 194, 63, 0.25); }
+.td-inv-slot.empty .td-inv-slot-item { opacity: 0.35; filter: grayscale(1); }
+.td-inv-slot-item { font-size: 1.6rem; line-height: 1; }
+.td-inv-slot-name { font-size: 0.68rem; font-weight: 700; color: #aab3c0; }
+.td-inv-slot-0 { left: 50%; top: 10px; transform: translateX(-50%); }
+.td-inv-slot-1 { left: 10px; top: 120px; }
+.td-inv-slot-2 { right: 10px; top: 120px; }
+.td-inv-side h3 { margin: 0 0 8px; color: #c9bfff; }
+.td-inv-items { display: grid; gap: 8px; }
+.td-inv-item { display: flex; align-items: center; gap: 10px; text-align: left; background: #161b2b; color: #e6e6e6; border: 2px solid #2c3350; padding: 8px 10px; }
+.td-inv-item.equipped { border-color: #3fdc8a; }
+.td-inv-icon { font-size: 1.6rem; }
+.td-inv-desc { display: block; font-size: 0.8rem; color: #aab3c0; }
+.td-inv-check { margin-left: auto; color: #3fdc8a; font-weight: 800; white-space: nowrap; font-size: 0.8rem; }
+@media (max-width: 700px) { .td-inv { grid-template-columns: 1fr; } .td-inv-stage { height: 250px; } .td-inv-student { width: 128px; } .td-inv-slot { width: 64px; height: 64px; } .td-inv-slot-1, .td-inv-slot-2 { top: 100px; } }
+/* demostració de λ: anell i enemics vulnerables */
+.tdbook-ring { position: absolute; left: 0; top: 50%; width: 60px; height: 60px; margin: -30px 0 0 -30px; border-radius: 50%; border: 3px solid #ff5ad1;
+  box-shadow: 0 0 14px #ff5ad1; pointer-events: none; animation: tdbook-ring 0.9s ease-out forwards; }
+@keyframes tdbook-ring { 0% { transform: scale(0.3); opacity: 1; } 100% { transform: scale(9); opacity: 0; } }
+.tdbook-foe.vuln svg { filter: drop-shadow(0 0 5px #ff5ad1) drop-shadow(0 0 2px #ff5ad1); }
+/* sala: el que es pot tocar brilla suau i poc sovint (abans cansava la vista) */
+.td-art { animation: td-hint 9s ease-in-out infinite; }
+.td-art:nth-of-type(2n) { animation-delay: 3s; }
+.td-art:nth-of-type(3n) { animation-delay: 6s; }
+@keyframes td-hint { 0%, 86%, 100% { filter: none; } 93% { filter: drop-shadow(0 0 4px rgba(201, 191, 255, 0.45)); } }
+.td-art.hot { animation: none; filter: drop-shadow(0 0 5px rgba(201, 191, 255, 0.7)); }
+
+/* millores: el cristall al centre s'encén a mesura que en compres */
+.td-crystal-menu { display: grid; grid-template-columns: 1fr minmax(180px, 230px) 1fr; grid-template-areas: "a c b" ". e ."; gap: 12px; align-items: center; }
+.td-crystal-core { grid-area: c; position: relative; text-align: center; }
+.td-crystal-pct { font-weight: 900; color: #bff4ff; text-shadow: 0 0 8px #7fe8ff; }
+.td-crys { width: 100%; height: auto; overflow: visible; }
+.td-crys .td-crys-glow { opacity: var(--g); animation: td-crys-breathe 4s ease-in-out infinite; }
+@keyframes td-crys-breathe { 50% { opacity: calc(var(--g) * 0.75); } }
+.td-facet { fill: #0b2a3a; stroke: #2a6a80; stroke-width: 1; transition: fill 0.5s; }
+.td-facet.on { fill: #6fd6f0; stroke: #bff4ff; }
+.td-facet.on:nth-child(3n) { fill: #9fe8fa; }
+.td-facet.on:nth-child(4n) { fill: #4fbad8; }
+.td-crys.flash { animation: td-crys-flash 0.6s ease-out; }
+@keyframes td-crys-flash { 30% { filter: brightness(1.8) drop-shadow(0 0 14px #7fe8ff); transform: scale(1.04); } }
+.td-cnode { display: grid; gap: 6px; background: #0b0e16; border: 1px solid #2c3350; border-radius: 12px; padding: 10px 12px; }
+.td-cnode-0 { grid-area: a; } .td-cnode-1 { grid-area: b; } .td-cnode-2 { grid-area: e; }
+.td-cnode-head { display: flex; align-items: center; gap: 8px; }
+.td-cnode-bar { position: relative; height: 16px; border-radius: 8px; background: #1a2033; overflow: hidden; }
+.td-cnode-bar > div { height: 100%; background: linear-gradient(90deg, #2a8ab0, #7fe8ff); }
+.td-cnode-bar > span { position: absolute; inset: 0; display: grid; place-items: center; font-size: 0.72rem; font-weight: 900; text-shadow: 0 0 3px #000; }
+@media (max-width: 700px) {
+  .td-crystal-menu { grid-template-columns: 1fr; grid-template-areas: "c" "a" "b" "e"; }
+  .td-crystal-core { width: 150px; justify-self: center; }
+}
+/* lleixes: els llibres omplin l'amplària */
+.td-spine { flex: 1 1 38px; max-width: 58px; }

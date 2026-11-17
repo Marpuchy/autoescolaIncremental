@@ -94,6 +94,20 @@ function tdbBuildView() {
   el("g", { id: "tdb-fx" }, svg);
   // estudiant a la cantonada, amb els artefactes que porta
   const [stx, sty] = tdbS(...tdb.world.student);
+  // torre arcana on està l'estudiant: plataforma rúnica i cos de pedra que es perd cap avall
+  const perch = el("g", { class: "tdb-perch", transform: `translate(${stx} ${sty})` }, svg);
+  const bricks = [0, 1, 2, 3].map(r => [0, 1, 2, 3].map(c => {
+    const x = -54 + c * 27 + (r % 2 ? 13 : 0), y = 70 + r * 22;
+    return `<path d="M${x} ${y} h24" stroke="#2a3150" stroke-width="2"/><path d="M${x + 25} ${y - 21} v20" stroke="#2a3150" stroke-width="2"/>`;
+  }).join("")).join("");
+  perch.innerHTML = `<defs><linearGradient id="tdb-perch-fade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b2138"/><stop offset="0.75" stop-color="#121628"/><stop offset="1" stop-color="#121628" stop-opacity="0"/></linearGradient>
+      <clipPath id="tdb-perch-clip"><rect x="-58" y="58" width="116" height="110"/></clipPath></defs>
+    <rect x="-58" y="58" width="116" height="110" fill="url(#tdb-perch-fade)"/>
+    <g clip-path="url(#tdb-perch-clip)" opacity="0.8">${bricks}</g>
+    <path d="M-58 58 V168 M58 58 V168" stroke="#7d5cff" stroke-width="2" opacity="0.35"/>
+    <ellipse cx="0" cy="58" rx="70" ry="17" fill="#232a48" stroke="#7d5cff" stroke-width="2.5"/>
+    <ellipse cx="0" cy="58" rx="52" ry="11" fill="none" stroke="#b39dff" stroke-width="1.4" stroke-dasharray="4 6" opacity="0.8"/>
+    ${[-1, 1].map(sx => `<circle cx="${sx * 60}" cy="54" r="5" fill="#ffc23f" opacity="0.9"/><circle cx="${sx * 60}" cy="54" r="11" fill="#ffc23f" opacity="0.18"/>`).join("")}`;
   const st = el("g", { id: "tdb-student", transform: `translate(${stx} ${sty})` }, svg);
   st.innerHTML = tdStudentSvg(td.equipped, `x="-76" y="-84" width="152" height="160"`) +
     `<title>Estudiant${td.equipped.length ? ": " + td.equipped.map(id => TD_ARTIFACTS[id].name).join(", ") : ""}</title>`;
@@ -121,17 +135,18 @@ function tdbBackground(world) {
 }
 
 // ---------------------------------------------------------------- criatures (torres)
+const TDB_TOWER_Y = -77; // el cercle rúnic de la criatura (y 108 del dibuix) cau damunt de l'anell de la plataforma (y 34)
 function tdbDrawTower(t) {
   t.el?.remove();
   const [x, y] = tdbS(...tdb.world.slots[t.slot]);
   t.el = el("g", { class: `tdb-tower rar-${TD_DEFENDERS[t.id].rar}`, "data-slot": t.slot, transform: `translate(${x} ${y})` }, $("tdb-towers"));
-  t.el.innerHTML = tdCreatureSvg(t.id).replace("<svg ", `<svg x="-62" y="-92" width="124" height="124" `) +
+  t.el.innerHTML = tdCreatureSvg(t.id).replace("<svg ", `<svg x="-62" y="${TDB_TOWER_Y}" width="124" height="124" `) +
     `<text class="tdb-tower-lvl" y="62" text-anchor="middle">${"◆".repeat(t.up + 1)}</text><text class="tdb-zz" x="30" y="-70" opacity="0">Zz</text>`;
   t.svg = t.el.querySelector(".tdc");
 }
 // Punt del mapa d'on ix la peça que llança la criatura (l / r / c), a partir del dibuix (viewBox -6 -10 132 132 en 124 px)
 function tdbThrowFrom(t, side) {
-  const part = side !== "c" && t.svg?.querySelector(side === "r" ? ".ar" : ".al");
+  const part = side === "c" ? null : t.svg?.querySelector(side === "r" ? ".ar" : ".al");
   const r = part?.getBoundingClientRect();
   if (r && r.width > 1) {
     const ctm = $("tdb-svg").getScreenCTM();
@@ -144,7 +159,7 @@ function tdbThrowFrom(t, side) {
   const [ax, ay] = th[side] || th.l || th.c || [60, 60];
   const [sx, sy] = tdbS(...tdb.world.slots[t.slot]);
   const k = 124 / 132;
-  return tdbM(sx - 62 + (ax + 6) * k, sy - 92 + (ay + 10) * k);
+  return tdbM(sx - 62 + (ax + 6) * k, sy + TDB_TOWER_Y + (ay + 10) * k);
 }
 function tdbPlace(slot, id) {
   const cost = TD_DEFENDERS[id].cost;
@@ -264,7 +279,7 @@ function tdbBossDown(type) {
   const had = td.artifacts[id] || 0;
   if (had >= 5) return;
   td.artifacts[id] = had + 1;
-  if (!had && td.equipped.length < TD_ARTIFACT_SLOTS) td.equipped.push(id);
+  if (!had && !td.equipped.some(o => tdArtSlot(o) === tdArtSlot(id))) td.equipped.push(id); // si el seu espai està lliure
   tdb.artifactsWon.push(id);
   tdSave();
   $("tdb-student")?.classList.add("cheer");
@@ -300,9 +315,10 @@ function tdbFire(t) {
     if (t.stacks >= d.stacks) { t.stacks = 0; tdbBlast(t); }
   }
   const part = (TD_ART[t.id].throw || {}).c ? "c" : t.side ? "r" : "l";
-  if (d.aim) { // apunta (la V gira) i la fletxa ix de dins quan ja està encarada
+  if (d.aim) { // la fletxa es posa dins de la V, que gira cap a l'objectiu; quan ja està encarada, dispara
     tdbAim(t, targets[0]);
-    t.pending = { target: targets[0], wait: 0.2, part };
+    t.svg.classList.add("load");
+    t.pending = { target: targets[0], wait: 0.26, part };
     return true;
   }
   const shoot = target => tdbProjectile(t, target, t.stats.dmg, { part, depth: d.depth || 0, bounces: d.role === "bounce" ? d.bounces + (ab > 1 ? 1 : 0) : 0 });
@@ -533,7 +549,14 @@ function tdbUpdate(dt) {
         t.pending = null;
         const tg = target.hp > 0 ? target : tdbTargets(t)[0];
         if (tg) tdbProjectile(t, tg, t.stats.dmg, { part });
+        t.svg?.classList.remove("load");
+        t.aimBack = 0.45;
       }
+    }
+    if (t.aimBack > 0 && (t.aimBack -= dt) <= 0) { // la V torna a estar dreta
+      t.aimA = 0;
+      const aim = t.svg?.querySelector(".aim");
+      if (aim) aim.style.transform = "rotate(0deg)";
     }
     t.cd -= dt;
     if (t.cd <= 0 && tdbFire(t)) t.cd = 1 / t.stats.rate;
@@ -714,7 +737,7 @@ function tdbPreview(id) {
   tdbShowRange({ slot: tdb.pickSlot, stats: tdStats(id) }, true);
   const [x, y] = tdbS(...tdb.world.slots[tdb.pickSlot]);
   const g = el("g", { class: "tdb-ghost", transform: `translate(${x} ${y})` }, $("tdb-range"));
-  g.innerHTML = tdCreatureSvg(id).replace("<svg ", `<svg x="-62" y="-92" width="124" height="124" `);
+  g.innerHTML = tdCreatureSvg(id).replace("<svg ", `<svg x="-62" y="${TDB_TOWER_Y}" width="124" height="124" `);
 }
 function tdbCloseBottom() {
   tdb.pickSlot = null;

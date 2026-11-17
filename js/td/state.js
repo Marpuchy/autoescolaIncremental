@@ -60,7 +60,8 @@ function tdLoad() {
     for (const id of Object.keys(td.artifacts)) if (!TD_ARTIFACTS[id]) delete td.artifacts[id];
     td.team = td.team.filter(id => td.owned[id]).slice(0, 6);
     td.favs = td.favs.filter(id => TD_DEFENDERS[id]);
-    td.equipped = td.equipped.filter(id => td.artifacts[id]).slice(0, TD_ARTIFACT_SLOTS);
+    // un artefacte per espai
+    td.equipped = td.equipped.filter((id, i, a) => td.artifacts[id] && a.findIndex(o => tdArtSlot(o) === tdArtSlot(id)) === i).slice(0, TD_ARTIFACT_SLOTS);
   } catch {}
 }
 

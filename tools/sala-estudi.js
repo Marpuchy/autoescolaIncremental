@@ -231,12 +231,62 @@ const V = "#9d8bff", G = "#3fdc8a", PINK = "#ff5ab0", GOLD = "#ffc23f", CYAN = "
   add(s, { spot: "gacha", title: "Altar: invocar criatures amb pergamins", hit: bbox([[-1.25, 0, z - 0.6], [1.25, 0, z + 0.6], [0, 1.5, z]]) });
 }
 
+// ---------------------------------------------------------------- decoració: estendards a la paret, planta i piles de llibres
+{
+  let s = "";
+  // dos estendards de tela que pengen d'una barra, entre les finestres i el portal
+  for (const [bx, c, glyph] of [[-2.08, V, "Σ"], [2.08, G, "{ }"]]) {
+    const y0 = 3.55, y1 = 2.05, hw = 0.32, zb = BACK - 0.01;
+    const [ax, ay] = P(bx - hw, y0, zb), [cx, cy] = P(bx + hw, y1, zb), [mx, my] = P(bx, y1 - 0.18, zb);
+    s += `<rect x="${r(ax - 8)}" y="${r(ay - 6)}" width="${r(cx - ax + 16)}" height="6" rx="3" fill="#c9a678"/>`;
+    s += `<path d="M${r(ax)} ${r(ay)} H${r(cx)} V${r(cy)} L${r(mx)} ${r(my)} L${r(ax)} ${r(cy)} Z" fill="#241a3a" stroke="${c}" stroke-width="2"/>`;
+    s += `<path d="M${r(ax + 6)} ${r(ay + 6)} H${r(cx - 6)} V${r(cy - 4)} L${r(mx)} ${r(my - 9)} L${r(ax + 6)} ${r(cy - 4)} Z" fill="none" stroke="${GOLD}" stroke-width="1" opacity="0.6"/>`;
+    s += `<text x="${r(mx)}" y="${r((ay + cy) / 2 + 12)}" text-anchor="middle" font-family="Georgia, serif" font-size="34" font-weight="700" fill="${c}" opacity="0.9">${glyph}</text>`;
+  }
+  // piles de llibres a terra, al costat de la prestatgeria (llibres de 4-6 cm de gruix)
+  for (const [x, z, n] of [[-3.55, 3.3, 4], [-3.2, 2.15, 3]]) {
+    let y = 0;
+    for (let i = 0; i < n; i++) {
+      const th = 0.05 + (i % 3) * 0.01, w = 0.3 - i * 0.025, d = 0.22 - i * 0.015, dx = ((i * 37) % 7 - 3) * 0.012;
+      const c = ["#8a2a4a", "#2f6fc0", "#1f9e5c", "#a37a2a", "#5a43d6"][(i + n) % 5];
+      s += box({ x0: x - w / 2 + dx, x1: x + w / 2 + dx, y0: y, y1: y + th, z0: z - d / 2, z1: z + d / 2 },
+        { front: c, side: "#efe6d0", top: c });
+      y += th;
+    }
+  }
+  // planta arcana en un test: fulles que brillen una mica
+  {
+    const x = 3.95, z = 8.35; // racó del fons a la dreta, que no tape res
+    s += box({ x0: x - 0.16, x1: x + 0.16, y0: 0, y1: 0.34, z0: z - 0.16, z1: z + 0.16 }, { front: "#6b3a2a", side: "#5a3022", top: "#3a2016" });
+    const [px, py] = P(x, 0.34, z), k = cam.scale(z) / 100;
+    s += `<g transform="translate(${r(px)} ${r(py)}) scale(${k.toFixed(3)})">
+      ${[[-28, -70, -30], [26, -76, 28], [-8, -96, -6], [40, -46, 50], [-42, -44, -52]].map(([lx, ly, rot]) =>
+        `<path d="M0 0 Q${lx * 0.4} ${ly * 0.5} ${lx} ${ly}" stroke="#2f8a5a" stroke-width="3" fill="none"/>
+         <ellipse cx="${lx}" cy="${ly}" rx="9" ry="20" transform="rotate(${rot} ${lx} ${ly})" fill="#1f9e5c" stroke="${G}" stroke-width="1.5"/>`).join("")}
+      <circle cx="-8" cy="-100" r="4" fill="#fff" opacity="0.8"/><circle cx="-8" cy="-100" r="10" fill="${G}" opacity="0.2"/></g>`;
+  }
+  add(s);
+}
+
 // ---------------------------------------------------------------- estudiant (dreta, davant): els artefactes que porta
 {
+  // catifa rectangular amb vora, rombe al centre i serrell davant; l'estudiant hi trepitja de veritat
+  const X0 = 1.35, X1 = 2.45, Z0 = 2.0, Z1 = 2.85, y = 0.006;
+  const fl = (x, z) => P(x, y, z), pts = a => a.map(p => p.map(r).join(",")).join(" ");
+  let rug = `<polygon points="${pts([fl(X0, Z0), fl(X1, Z0), fl(X1, Z1), fl(X0, Z1)])}" fill="#5a1f3a"/>`;
+  rug += `<polygon points="${pts([fl(X0 + 0.07, Z0 + 0.06), fl(X1 - 0.07, Z0 + 0.06), fl(X1 - 0.07, Z1 - 0.06), fl(X0 + 0.07, Z1 - 0.06)])}" fill="#3a1830" stroke="${GOLD}" stroke-width="2"/>`;
+  const cxr = (X0 + X1) / 2, czr = (Z0 + Z1) / 2;
+  rug += `<polygon points="${pts([fl(cxr, Z0 + 0.14), fl(X1 - 0.2, czr), fl(cxr, Z1 - 0.14), fl(X0 + 0.2, czr)])}" fill="none" stroke="${PINK}" stroke-width="2" opacity="0.8"/>`;
+  rug += `<polygon points="${pts([fl(cxr, Z0 + 0.25), fl(X1 - 0.38, czr), fl(cxr, Z1 - 0.25), fl(X0 + 0.38, czr)])}" fill="${GOLD}" opacity="0.25"/>`;
+  for (let i = 0; i <= 14; i++) { // serrell
+    const x = X0 + 0.03 + i * (X1 - X0 - 0.06) / 14, [ax, ay] = fl(x, Z0), [bx, by] = fl(x, Z0 - 0.05);
+    rug += `<line x1="${r(ax)}" y1="${r(ay)}" x2="${r(bx)}" y2="${r(by)}" stroke="#e8c98a" stroke-width="1.6"/>`;
+  }
   const [sx, sy] = P(1.9, 0, 2.4), k = cam.scale(2.4) / 100;
-  const rug = ellipseOnFloor(1.9, 2.4, 0.55, 0.28);
-  add(`<path d="${rug}" fill="#2a2235"/>${neon(rug, GOLD, 1.6)}<g transform="translate(${r(sx)} ${r(sy)}) scale(${k.toFixed(3)})"><g transform="translate(-50 -108)">%STUDENT%</g></g>`,
-    { spot: "student", title: "Estudiant: artefactes", hit: [r(sx - 60 * k), r(sy - 115 * k), r(120 * k), r(120 * k)] });
+  // ombra de contacte als peus; el dibuix (viewBox -4 -6 152 160 → 100 × 105) toca terra a la y 150
+  rug += `<ellipse cx="${r(sx)}" cy="${r(sy)}" rx="${r(46 * k)}" ry="${r(10 * k)}" fill="#000" opacity="0.35"/>`;
+  add(`${rug}<g transform="translate(${r(sx)} ${r(sy)}) scale(${k.toFixed(3)})"><g transform="translate(-50 -101)">%STUDENT%</g></g>`,
+    { spot: "student", title: "Estudiant: artefactes", hit: [r(sx - 60 * k), r(sy - 112 * k), r(120 * k), r(120 * k)] });
 }
 
 // ---------------------------------------------------------------- definicions
