@@ -152,11 +152,13 @@ add(rugSvg(-W + 0.02, -2.6, 6.75, 7.65, { base: "#1f2a4a", inner: "#2a3a66", lin
   const [hx, hy] = P(...df(0.85, 0.5));
   s += `<circle cx="${r(hx)}" cy="${r(hy)}" r="5" fill="${GOLD}"/>`;
   // cartell d'eixida verd, com el de la DGT
-  const [sx, sy] = P(...df(0.5, -0.12));
-  s += `<g transform="translate(${r(sx)} ${r(sy)}) scale(0.9)"><rect x="-34" y="-14" width="68" height="28" rx="3" fill="#1e9e4a" stroke="#fff" stroke-width="1.5"/>
+  // el cartell va pla damunt de la paret: el dibuix (68 × 28) es projecta sobre el pla de la paret
+  const sp = (u, v) => P(...df(u, v));
+  const SIGN = `<g transform="translate(34 14)"><rect x="-34" y="-14" width="68" height="28" rx="3" fill="#1e9e4a" stroke="#fff" stroke-width="1.5"/>
     <path d="M-26 0 H-12 M-17 -6 L-11 0 L-17 6" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     <rect x="12" y="-10" width="14" height="20" fill="none" stroke="#fff" stroke-width="2.4"/><circle cx="2" cy="-6" r="3" fill="#fff"/>
     <path d="M1 -2 L-1 6 M-1 2 L-5 4 M1 0 L6 2" stroke="#fff" stroke-width="3" stroke-linecap="round"/></g>`;
+  s += `<g transform="${cam.affine(sp(0.12, -0.2), sp(0.88, -0.2), sp(0.12, -0.06), 68, 28)}">${SIGN}</g>`;
   add(s, { spot: "exit", title: "Porta: tornar a l'habitació", hit: bbox([...corners(dB), df(0.5, -0.2)]) });
   // rellotge de sorra damunt d'una tauleta (reiniciar sense perdre la col·lecció)
   let h = "";

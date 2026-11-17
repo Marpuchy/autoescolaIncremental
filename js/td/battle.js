@@ -389,7 +389,7 @@ function tdbHit(p, e) {
     const [x, y] = tdbPos(e);
     tdb.enemies.filter(o => tdbVisible(o) && o !== e).map(o => [o, Math.hypot(...tdbPos(o).map((v, i) => v - [x, y][i]))])
       .filter(([, dd]) => dd < 220).sort((a, b) => a[1] - b[1]).slice(0, d.splits)
-      .forEach(([o]) => tdbProjectile(p.t, o, dmg * 0.6, { from: [x, y], depth: p.depth - 1 }));
+      .forEach(([o]) => { tdbBolt(tdbS(x, y - e.size * 0.45), tdbS(...tdbPos(o)).map((v, i) => v - (i ? o.size * 0.45 : 0)), TD_GLOW.prg); tdbProjectile(p.t, o, dmg * 0.6, { from: [x, y], depth: p.depth - 1 }); });
   }
 }
 function tdbSlow(e, amount, dur) { e.slowMult = Math.min(e.slowMult, 1 - amount); e.slowT = Math.max(e.slowT, dur); }
@@ -410,9 +410,29 @@ function tdbSpecial(t, target) {
   } else if (s.type === "convert") {
     const weak = tdbTargets(t, 20).filter(e => !e.def.boss).sort((a, b) => a.hp - b.hp)[0];
     if (weak) {
-      weak.convertT = s.dur * ab;
-      weak.el.classList.add("converted");
-      tdbNumber(...tdbS(...tdbPos(weak)).map((v, i) => v - (i ? weak.size : 0)), "compilat!", TD_GLOW.gold, true);
+      // la roda dentada de dalt ix volant, colpeja l'enemic i el compila; després es torna a formar
+      const gear = t.svg?.querySelector(".gear"), ctm = $("tdb-svg").getScreenCTM();
+      const gr = gear?.getBoundingClientRect();
+      const [ex, ey] = tdbS(...tdbPos(weak));
+      const hitIt = () => {
+        if (weak.hp <= 0) return;
+        weak.convertT = s.dur * ab;
+        weak.el.classList.add("converted");
+        tdbFx("ring", ex, ey - weak.size * 0.45, TD_GLOW.gold, 40);
+        tdbNumber(ex, ey - weak.size, "compilat!", TD_GLOW.gold, true);
+      };
+      if (!gear || !gr?.width || !ctm) { hitIt(); return; }
+      const p0 = new DOMPoint(gr.x + gr.width / 2, gr.y + gr.height / 2).matrixTransform(ctm.inverse());
+      const k = gr.width / (ctm.a || 1) / 26; // mida de la roda en unitats del mapa
+      const fly = el("g", { class: "tdb-gearfly" }, $("tdb-fx"));
+      fly.innerHTML = `<g transform="scale(${k.toFixed(2)})"><circle r="12" fill="none" stroke="${TD_GLOW.gold}" stroke-width="6" stroke-dasharray="4.4 3"/><circle r="7" fill="none" stroke="#fff" stroke-width="2"/></g>`;
+      gear.classList.add("gone");
+      const a = fly.animate([
+        { transform: `translate(${p0.x}px, ${p0.y}px) rotate(0deg)` },
+        { transform: `translate(${(p0.x + ex) / 2}px, ${Math.min(p0.y, ey) - 90}px) rotate(360deg)`, offset: 0.5 },
+        { transform: `translate(${ex}px, ${ey - weak.size * 0.45}px) rotate(720deg)` },
+      ], { duration: 520 / (tdb.speed * tdDevSpeed), easing: "ease-in" });
+      a.onfinish = () => { fly.remove(); hitIt(); gear.classList.remove("gone"); gear.classList.add("regrow"); setTimeout(() => gear.classList.remove("regrow"), 600); };
     }
   }
 }
@@ -460,6 +480,14 @@ function tdbNumber(x, y, text, color, big = false) {
   const t = el("text", { x, y, class: `tdb-num${big ? " big" : ""}`, fill: color }, fx);
   t.textContent = text;
   setTimeout(() => t.remove(), 800);
+}
+// Rajolí en zig-zag entre dos punts (pantalla) que s'esvaïx
+function tdbBolt([x0, y0], [x1, y1], color) {
+  const n = 6, dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L;
+  const pts = Array.from({ length: n + 1 }, (_, i) => { const t = i / n, j = i && i < n ? (Math.random() - 0.5) * 26 : 0; return `${(x0 + dx * t + nx * j).toFixed(1)},${(y0 + dy * t + ny * j).toFixed(1)}`; }).join(" ");
+  const g = el("g", { class: "tdb-bolt" }, $("tdb-fx"));
+  g.innerHTML = `<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="7" opacity="0.35" stroke-linejoin="round"/><polyline points="${pts}" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/>`;
+  setTimeout(() => g.remove(), 320);
 }
 function tdbFx(kind, x, y, color, r = 60) {
   if (!Number.isFinite(x) || !Number.isFinite(y)) return null;

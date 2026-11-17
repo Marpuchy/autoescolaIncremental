@@ -696,3 +696,12 @@
 .tdbook-ascend { margin: 6px auto 0; display: block; background: linear-gradient(90deg, #ffc23f, #ffdf7a); color: #2a1a0c; font-weight: 900; animation: tdbook-ready 1.6s ease-in-out infinite; }
 .tdbook-ascend:disabled { animation: none; }
 @keyframes tdbook-ready { 50% { box-shadow: 0 0 0 4px rgba(255, 194, 63, 0.35); } }
+
+/* recursió: rajolí entre els enemics; compilador: la roda vola; determinant: el braç tarda a tornar a formar-se */
+.tdb-bolt, .tdb-gearfly { pointer-events: none; }
+.tdb-bolt { animation: tdb-bolt 0.32s ease-out forwards; }
+@keyframes tdb-bolt { 0% { opacity: 1; } 100% { opacity: 0; } }
+.tdc-compilador .gear.gone { opacity: 0; animation: none; }
+.tdc-compilador .gear.regrow { animation: td-regrow 0.5s cubic-bezier(.3, 1.6, .5, 1); }
+.tdc-determinant.regrow-l .al, .tdc-determinant.regrow-r .ar { animation: td-regrow-slow 2.2s ease-out; }
+@keyframes td-regrow-slow { 0%, 50% { transform: scale(0); opacity: 0; } 60% { opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
