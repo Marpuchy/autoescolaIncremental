@@ -135,10 +135,13 @@ let plate;
   const bx = -0.22, bz = 0.6;
   const BAG = `<g transform="scale(1.15)"><ellipse cx="-4" cy="0" rx="22" ry="4" fill="#1a1a4e" opacity="0.25"/>
     <g transform="rotate(-12 0 0)">
-      <path d="M-6 -44 C-6 -53 6 -53 6 -44" stroke="#7a1f1a" stroke-width="2.6" fill="none"/>
+      <path d="M-6 -44 C-6 -53 6 -53 6 -44" stroke="#2a2a30" stroke-width="2.6" fill="none"/>
       <path d="M-17 -2 L-18 -34 C-18 -44 -10 -46 0 -46 C10 -46 18 -44 18 -34 L17 -2 Q0 2 -17 -2 Z" fill="url(#room-bag)"/>
-      <path d="M-12 -4 L-12 -18 Q0 -22 12 -18 L12 -4 Q0 -1 -12 -4 Z" fill="#b8312a"/>
-      <circle cx="8" cy="-28" r="3.2" fill="#3fdc8a"/><circle cx="8" cy="-28" r="1.4" fill="#fff"/>
+      <path d="M-12 -4 L-12 -18 Q0 -22 12 -18 L12 -4 Q0 -1 -12 -4 Z" fill="#1c1c20"/>
+      <path d="M-11 -17 Q0 -20.5 11 -17" stroke="#3a3a42" stroke-width="1.2" fill="none"/>
+      <!-- xapa redona blava amb un toc taronja (un planeta amb anell) -->
+      <circle cx="8" cy="-29" r="4.4" fill="#1f4fa8" stroke="#c9d6e8" stroke-width="0.8"/>
+      <circle cx="8" cy="-29" r="2" fill="#4aa8ff"/><ellipse cx="8" cy="-29" rx="3.6" ry="1" fill="none" stroke="#ff8a1f" stroke-width="0.8" transform="rotate(-20 8 -29)"/>
     </g></g>`;
   add(figure(BAG, bx, 0, bz), { spot: "study", title: "Motxilla: anar a estudiar (tower defense)", hit: bbox([[bx - 0.3, 0, bz], [bx + 0.3, 0.62, bz]]) });
 }
@@ -163,7 +166,7 @@ const defs = `${cam.defs}
   <pattern id="room-duvet-v" width="30" height="15" patternUnits="userSpaceOnUse"><rect width="30" height="15" fill="#c8d4e2"/>${circles(30, DUV)}</pattern>
   <radialGradient id="room-ring-glow"><stop offset="0" stop-color="#ffffff" stop-opacity="0.75"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
   <radialGradient id="room-l-glow"><stop offset="0" stop-color="#3fdc8a" stop-opacity="0.35"/><stop offset="1" stop-color="#3fdc8a" stop-opacity="0"/></radialGradient>
-  <linearGradient id="room-bag" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#c23a31"/><stop offset="0.6" stop-color="#e0514a"/><stop offset="1" stop-color="#b8312a"/></linearGradient>
+  <linearGradient id="room-bag" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#18181c"/><stop offset="0.6" stop-color="#2e2e34"/><stop offset="1" stop-color="#16161a"/></linearGradient>
   <pattern id="room-sisal" width="8" height="4" patternUnits="userSpaceOnUse"><rect width="8" height="4" fill="#d8c08f"/><rect y="2.6" width="8" height="1.4" fill="#b89c68"/></pattern>
   <pattern id="room-sisal-side" width="8" height="4" patternUnits="userSpaceOnUse"><rect width="8" height="4" fill="#c4ac7c"/><rect y="2.6" width="8" height="1.4" fill="#a68a58"/></pattern>
   <radialGradient id="room-vignette" gradientUnits="userSpaceOnUse" cx="800" cy="450" r="1150"><stop offset="0.5" stop-color="#1a1a2e" stop-opacity="0"/><stop offset="0.8" stop-color="#1a1a2e" stop-opacity="0.3"/></radialGradient>`;
