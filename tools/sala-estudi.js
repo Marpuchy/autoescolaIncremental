@@ -167,11 +167,18 @@ const V = "#9d8bff", G = "#3fdc8a", PINK = "#ff5ab0", GOLD = "#ffc23f", CYAN = "
       u += th + 0.002;
     }
   }
-  // un pergamí que sobreïx i brilla: ací s'apunta el que has estudiat
-  const [px, py] = P(...sf(0.5, 0.29)), pk = cam.scale(3.8) / 100;
-  s += `<g transform="translate(${r(px)} ${r(py)}) scale(${pk.toFixed(3)})"><ellipse rx="40" ry="26" fill="${G}" opacity="0.14"/>
-    <rect x="-14" y="-10" width="28" height="18" rx="2" fill="#efe6d0"/><rect x="-16" y="-12" width="4" height="22" rx="2" fill="#c9a678"/><rect x="12" y="-12" width="4" height="22" rx="2" fill="#c9a678"/>
-    <path d="M-7 -3 H7 M-7 1 H4" stroke="#1f9e5c" stroke-width="1.6"/></g>`;
+  // un pergamí desplegat que penja de la segona balda, damunt del pla de la prestatgeria (en perspectiva) i brilla
+  const pu0 = 0.42, pu1 = 0.62, pv0 = 0.27, pv1 = 0.47; // u: al llarg de la paret · v: de dalt a baix
+  s += poly([sf(pu0 - 0.05, pv0 - 0.05), sf(pu1 + 0.05, pv0 - 0.05), sf(pu1 + 0.05, pv1 + 0.06), sf(pu0 - 0.05, pv1 + 0.06)], `fill="${G}" opacity="0.18" filter="url(#pv-soft)"`);
+  s += quad(sf, pu0, pv0, pu1, pv1, `fill="#efe6d0"`);
+  s += quad(sf, pu0 - 0.008, pv0 - 0.012, pu1 + 0.008, pv0 + 0.012, `fill="#c9a678"`); // vareta de dalt
+  s += quad(sf, pu0 - 0.008, pv1 - 0.012, pu1 + 0.008, pv1 + 0.012, `fill="#c9a678"`); // vareta de baix
+  for (let i = 0; i < 5; i++) {
+    const v = pv0 + 0.045 + i * 0.03, len = i % 2 ? 0.7 : 0.9;
+    s += line(sf(pu0 + 0.025, v), sf(pu0 + 0.025 + (pu1 - pu0 - 0.05) * len, v), `stroke="#1f9e5c" stroke-width="1.6"`);
+  }
+  s += line(sf(pu1 - 0.04, pv1 - 0.04), sf(pu1 - 0.015, pv1 - 0.065), `stroke="#1f9e5c" stroke-width="2.2"`); // un ✓
+  s += line(sf(pu1 - 0.055, pv1 - 0.055), sf(pu1 - 0.04, pv1 - 0.04), `stroke="#1f9e5c" stroke-width="2.2"`);
   add(s, { spot: "study", title: "Prestatgeria: apuntar el que has estudiat (pergamins d'invocació)", hit: bbox(corners(shB)) });
 }
 

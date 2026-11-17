@@ -177,15 +177,19 @@ const TD_STUDENT_HAT = `<g class="hat"><path d="M30 46 L66 2 Q70 -2 74 2 L110 46
   <path d="M16 46 Q70 58 124 46 Q70 38 16 46 Z" fill="#2b3a7a" stroke="#1a1a4e" stroke-width="2"/>
   <path d="M34 42 Q70 50 106 42" stroke="#9d8bff" stroke-width="2.5" fill="none"/>
   <g fill="#ffe27a"><path d="M68 16 l2.4 5 5.4 0.8 -4 3.8 1 5.4 -4.8 -2.6 -4.8 2.6 1 -5.4 -4 -3.8 5.4 -0.8 z"/><circle cx="54" cy="34" r="2"/><circle cx="86" cy="28" r="1.7"/></g></g>`;
-const TD_STUDENT_FRONT = `<g class="td-book"><path d="M34 128 L70 120 L106 128 L106 146 L70 138 L34 146 Z" fill="#fff6d8" stroke="#8a6440" stroke-width="2.5" stroke-linejoin="round"/>
-  <line x1="70" y1="120" x2="70" y2="138" stroke="#8a6440" stroke-width="2"/>${[0, 1, 2].map(i => `<line x1="42" y1="${131 + i * 4}" x2="64" y2="${127 + i * 4}" stroke="#aab3c0" stroke-width="1.6"/><line x1="76" y1="${127 + i * 4}" x2="98" y2="${131 + i * 4}" stroke="#aab3c0" stroke-width="1.6"/>`).join("")}</g>
-  <ellipse cx="38" cy="140" rx="12" ry="7" fill="#4fa64d"/><ellipse cx="102" cy="140" rx="12" ry="7" fill="#4fa64d"/>`;
-// Peces dels artefactes: `back` es pinta davall del barret (diadema), `front` damunt de tot
+// llibre obert cap a nosaltres: les pàgines cauen cap al llom (el llom és el punt més baix), amb la coberta per davall
+const TD_STUDENT_FRONT = `<g class="td-book"><path d="M32 122 Q52 118 70 128 Q88 118 108 122 L108 142 Q88 138 70 148 Q52 138 32 142 Z" fill="#7a2a4a" stroke="#4a1a2e" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M35 119 Q53 115 70 125 L70 144 Q53 134 35 138 Z" fill="#fff6d8" stroke="#8a6440" stroke-width="1.6" stroke-linejoin="round"/>
+  <path d="M105 119 Q87 115 70 125 L70 144 Q87 134 105 138 Z" fill="#fff6d8" stroke="#8a6440" stroke-width="1.6" stroke-linejoin="round"/>
+  ${[0, 1, 2].map(i => `<path d="M40 ${123 + i * 4.5} Q53 ${120 + i * 4.5} 64 ${127 + i * 4.5}" stroke="#aab3c0" stroke-width="1.4" fill="none"/><path d="M100 ${123 + i * 4.5} Q87 ${120 + i * 4.5} 76 ${127 + i * 4.5}" stroke="#aab3c0" stroke-width="1.4" fill="none"/>`).join("")}</g>
+  <ellipse class="hand-l" cx="38" cy="140" rx="12" ry="7" fill="#4fa64d"/><ellipse class="hand-r" cx="102" cy="140" rx="12" ry="7" fill="#4fa64d"/>`;
+// Peces dels artefactes: `back` es pinta davall del barret (diadema), `front` damunt de tot.
+// `hides`: parts de la granoteta que deixen de veure's (la mà dreta, si l'artefacte la fa servir: només en té dues)
 const TD_ARTIFACT_WEAR = {
   auriculars: { back: `<path d="M20 64 C18 30 122 30 120 64" stroke="#2b2f35" stroke-width="7" fill="none" stroke-linecap="round"/>`,
     front: `<g><rect x="10" y="52" width="16" height="26" rx="7" fill="#2b2f35"/><rect x="114" y="52" width="16" height="26" rx="7" fill="#2b2f35"/>
       <rect x="13" y="56" width="10" height="18" rx="5" fill="#9d8bff"/><rect x="117" y="56" width="10" height="18" rx="5" fill="#9d8bff"/></g>` },
-  cafe: { front: `<g><path d="M116 108 h22 v20 q0 8 -8 8 h-6 q-8 0 -8 -8 z" fill="#fff6d8" stroke="#8a6440" stroke-width="2.2"/>
+  cafe: { hides: ["hand-r"], front: `<g><path d="M116 108 h22 v20 q0 8 -8 8 h-6 q-8 0 -8 -8 z" fill="#fff6d8" stroke="#8a6440" stroke-width="2.2"/>
       <path d="M138 114 q8 0 8 7 q0 7 -8 7" stroke="#8a6440" stroke-width="2.4" fill="none"/><rect x="118" y="110" width="18" height="4" fill="#6b4220"/>
       <g class="steam" stroke="#cfe6f5" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.8"><path d="M122 104 q-3 -5 0 -10 q3 -5 0 -10"/><path d="M130 104 q-3 -5 0 -10 q3 -5 0 -10"/></g>
       <ellipse cx="114" cy="124" rx="9" ry="6" fill="#4fa64d"/></g>` },
@@ -194,7 +198,7 @@ const TD_ARTIFACT_WEAR = {
 function tdStudentSvg(equipped = [], attrs = "") {
   const w = equipped.map(id => TD_ARTIFACT_WEAR[id]).filter(Boolean);
   return `<svg viewBox="-4 -6 152 160" class="td-student-svg" aria-label="Estudiant" overflow="visible" ${attrs}>${TD_STUDENT_BACK}
-    ${w.map(x => x.back || "").join("")}${TD_STUDENT_HAT}${TD_STUDENT_FRONT}${w.map(x => x.front || "").join("")}</svg>`;
+    ${w.map(x => x.back || "").join("")}${TD_STUDENT_HAT}${w.flatMap(x => x.hides || []).reduce((f, cls) => f.replace(new RegExp(`<ellipse class="${cls}"[^>]*/>`), ""), TD_STUDENT_FRONT)}${w.map(x => x.front || "").join("")}</svg>`;
 }
 const TD_STUDENT_SVG = tdStudentSvg();
 

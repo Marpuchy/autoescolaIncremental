@@ -260,16 +260,30 @@ function tdTeamPages() {
     `<h3 class="tdbook-name">Les teues criatures</h3><p class="tdbook-text muted">Toca'n una per a posar-la a l'equip.</p>
       <div class="tdbook-owned">${owned.map(id => `<button class="tdbook-mini rar-${TD_DEFENDERS[id].rar}${td.team.includes(id) ? " inteam" : ""}" data-team="${id}" title="${TD_DEFENDERS[id].name}">${tdCreatureSvg(id)}</button>`).join("")}</div>`];
 }
-// Passar pàgina amb animació (la pàgina es gira i ix la següent)
+// Passar pàgina com en un llibre de veritat: la fulla gira sobre el llom (davant, la pàgina vella; darrere, la nova)
+// i el que hi ha davall no canvia fins que la fulla cau. En mòbil (una pàgina damunt de l'altra), es fon.
 function tdTurnPage(dir) {
   const spread = document.querySelector(".tdbook-spread");
-  if (!spread || spread.classList.contains("turning")) return;
-  spread.classList.add("turning", dir > 0 ? "turn-next" : "turn-prev");
-  setTimeout(() => {
-    tdBook.page += dir;
-    tdRenderPanel();
-    document.querySelector(".tdbook-spread")?.classList.add(dir > 0 ? "land-next" : "land-prev");
-  }, 260);
+  if (!spread || spread.dataset.turning) return;
+  const oldL = spread.querySelector(".left").innerHTML, oldR = spread.querySelector(".right").innerHTML;
+  tdBook.page += dir;
+  tdRenderPanel();
+  const sp = document.querySelector(".tdbook-spread");
+  if (getComputedStyle(sp).gridTemplateColumns.split(" ").length < 3) { sp.classList.add("fade-in"); return; }
+  sp.dataset.turning = "1";
+  const under = sp.querySelector(dir > 0 ? ".left" : ".right"), newUnder = under.innerHTML;
+  const newFace = sp.querySelector(dir > 0 ? ".left" : ".right").innerHTML;
+  under.innerHTML = dir > 0 ? oldL : oldR; // davall, la pàgina vella fins que la tapa la fulla
+  const leaf = document.createElement("div");
+  leaf.className = `tdbook-leaf ${dir > 0 ? "next" : "prev"}`;
+  leaf.innerHTML = `<div class="tdbook-page face front ${dir > 0 ? "right" : "left"}">${dir > 0 ? oldR : oldL}</div>
+    <div class="tdbook-page face back ${dir > 0 ? "left" : "right"}">${newFace}</div>`;
+  sp.appendChild(leaf);
+  leaf.addEventListener("animationend", () => {
+    under.innerHTML = newUnder;
+    leaf.remove();
+    delete sp.dataset.turning;
+  }, { once: true });
 }
 function tdToggleTeam(id) {
   if (!td.owned[id]) return;
