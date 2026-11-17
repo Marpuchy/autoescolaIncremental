@@ -78,6 +78,9 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   actúa, no solo flota. Lo que lanza es una pieza real de su cuerpo con el mismo tamaño, forma y orientación, y el cuerpo
   reacciona para dispararla (gira, apunta, se recarga, alterna piezas). Ejemplo: la Brúixola gira la aguja para que la
   mitad que toca (roja o blanca, iguales) apunte al enemigo, la dispara y vuelve a crecer (`aim`, `aimHold`, `alt`, `projR`).
+  **Aparador del grimorio** (siempre, para cada criatura nueva o cambiada): la demostración del libro usa la composición
+  que mejor enseña su habilidad y sus mejoras (`TD_DEMO_SETUP`: por id, por habilidad o por rol; enemigos en fila, en
+  grupo, uno fuerte, un amigo dentro del aura…) y dibuja los mismos efectos que el combate (anillos, fuego, raíces, anilla).
   Invocación: pantalla propia; «Saltar» se para en legendarias y míticas; la mítica se monta pieza a pieza.
   Estilo de las criaturas: símbolos de energía en neón sobre fondo oscuro (referencia: «Animation vs. Math»), sin
   caras; cada una hecha con los símbolos de su asignatura y la pieza que lanza forma parte del cuerpo. Pocas y cuidadas.

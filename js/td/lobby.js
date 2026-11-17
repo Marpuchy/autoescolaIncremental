@@ -609,16 +609,28 @@ function initTdLobby() {
 }
 
 // ---- demostració al grimori: enemics del món 1 caminen pel carril cap a la criatura, que els ataca com al combat.
-// Quants i com es col·loquen depén de la criatura (en filera per a les que travessen, en grup per a les de zona…).
+// Quants i com es col·loquen depén de la criatura (en filera per a les que travessen, en grup per a les de zona…):
+// la composició ha de deixar veure la seua habilitat i les millores (n'hi ha per criatura, per habilitat i per rol).
+// ally: una criatura amiga al carril (per a les que milloren les altres, com la Carrasca).
 const TD_DEMO_SETUP = {
   pierce: { n: 4, gap: 30 }, aoe: { n: 4, gap: 22, spread: 14 }, split: { n: 3, gap: 55 }, smart: { n: 3, gap: 60, mix: true },
   execute: { n: 2, gap: 90 }, stacks: { n: 3, gap: 120 }, align: { n: 4, gap: 50, spread: 16 }, default: { n: 2, gap: 80 },
+  pulse: { n: 4, gap: 34, spread: 12 }, burn: { n: 4, gap: 22, spread: 10 }, mark: { n: 3, gap: 55, mix: true },
+  carrasca: { n: 3, gap: 26, spread: 12, ally: "pi" }, projecte: { n: 4, gap: 28, spread: 12 },
 };
 let tdDemo = null;
 function tdDemoStart(box) {
   const id = box.dataset.demo, d = TD_DEFENDERS[id], lane = box.querySelector(".tdbook-lane");
-  const set = TD_DEMO_SETUP[d.special?.type === "align" ? "align" : d.role] || TD_DEMO_SETUP.default;
-  tdDemo = { box, id, d, lane, set, st: tdStats(id), enemies: [], shots: [], cd: 0.6, side: 0, n: d.special ? d.special.every - 2 : 0, aimA: 0, last: performance.now(), stacks: 0 };
+  const set = TD_DEMO_SETUP[id] || TD_DEMO_SETUP[d.special?.type === "align" ? "align" : d.role] || TD_DEMO_SETUP.default;
+  tdDemo = { box, id, d, lane, set, st: tdStats(id), enemies: [], shots: [], burns: [], cd: 0.6, side: 0, n: d.special ? d.special.every - 2 : 0, aimA: 0, last: performance.now(), stacks: 0 };
+  lane.querySelectorAll(".tdbook-ally, .tdbook-burn").forEach(n => n.remove());
+  if (set.ally) { // criatura amiga dins de l'aura: brilla i fa més mal
+    const a = document.createElement("div");
+    a.className = "tdbook-ally";
+    a.innerHTML = tdCreatureSvg(set.ally);
+    lane.appendChild(a);
+    tdDemo.ally = { el: a, id: set.ally, st: tdStats(set.ally), cd: 0.4 };
+  }
   for (let i = 0; i < set.n; i++) tdDemoSpawn(i);
 }
 function tdDemoSpawn(i, fromEdge = false) {
@@ -649,10 +661,29 @@ function tdDemoTick(now) {
     if (e.conv > 0 && (e.conv -= dt) <= 0) e.el.classList.remove("conv");
     if (e.x < -e.size) { e.x = w + 20; e.hp = e.max; } // arriba al final del tram: torna a eixir
     e.el.classList.toggle("stun", e.stun > 0);
+    if (e.trapped && e.stun <= 0) tdbUntrap(e);
+    e.el.classList.toggle("trapped", !!e.trapped);
     e.el.style.transform = `translate(${e.x - e.size / 2}px, ${e.y - e.size}px)`;
     e.el.querySelector("b").style.width = `${100 * Math.max(0, e.hp) / e.max}%`;
   }
   D.enemies = D.enemies.filter(e => !e.gone);
+  for (const b of D.burns) { // franja de foc del Contrafoc: crema el que hi passa
+    b.t -= dt; b.tick -= dt;
+    const inside = D.enemies.filter(e => !e.dead && Math.abs(e.x - b.x) <= b.w / 2);
+    if (b.tick <= 0) { b.tick = 0.5; inside.forEach(e => tdDemoDamage(e, b.dps * 0.5, "#ff8a3a")); }
+    if (b.t <= 0) b.el.remove();
+  }
+  D.burns = D.burns.filter(b => b.t > 0);
+  if (D.ally && (D.ally.cd -= dt) <= 0) { // l'amic dins de l'aura de la Carrasca
+    const tg = D.enemies.filter(e => !e.dead && e.x < w - 6).sort((a, b) => a.x - b.x)[0];
+    if (tg) {
+      D.ally.cd = 1 / D.ally.st.rate;
+      const sv = D.ally.el.querySelector(".tdc");
+      sv.classList.remove("fire"); void sv.getBoundingClientRect(); sv.classList.add("fire");
+      tdDemoDamage(tg, D.ally.st.dmg * (1 + D.d.aura.dmg), TD_GLOW.mnt);
+      tdDemoText(D.ally.el, "+30 %", TD_GLOW.mnt);
+    } else D.ally.cd = 0.2;
+  }
   // atacar quan algun enemic és dins del carril
   D.cd -= dt;
   const alive = D.enemies.filter(e => !e.dead && e.x < w - 6 && e.conv <= 0).sort((a, b) => a.x - b.x);
@@ -660,6 +691,7 @@ function tdDemoTick(now) {
     D.cd = 1 / D.st.rate;
     let target = alive[0];
     if (D.d.role === "smart") target = alive.reduce((a, b) => b.hp > a.hp ? b : a);
+    if (D.d.role === "mark") target = alive.slice().sort((a, b) => (!!a.mark - !!b.mark) || b.hp - a.hp)[0];
     tdDemoFire(target);
   }
   requestAnimationFrame(tdDemoTick);
@@ -683,19 +715,39 @@ function tdDemoFire(target) {
     svg.classList.add("load"); // la fletxa es posa dins de la V
   }
   svg.classList.remove("fire"); void svg.getBoundingClientRect(); svg.classList.add("fire");
-  if (d.role === "pulse") { // l'anell ix de la criatura i s'eixampla per tota la filera
+  if (d.role === "pulse") { // l'anell ix del centre de la criatura i s'eixampla fins a la punta del carril
+    const [cx, cy] = tdDemoPoint(svg), R = D.box.clientWidth - cx, ry = D.box.clientHeight * 0.42, dur = 700;
     const ring = document.createElement("i");
-    ring.className = "tdbook-ring pulse";
-    D.lane.appendChild(ring);
-    setTimeout(() => ring.remove(), 900);
-    D.enemies.filter(e => !e.dead).forEach((e, i) => setTimeout(() => tdDemo === D && tdDemoDamage(e, D.st.dmg), 150 + i * 120));
+    ring.className = "tdbook-pulse";
+    Object.assign(ring.style, { left: `${cx - R}px`, top: `${cy - ry}px`, width: `${2 * R}px`, height: `${2 * ry}px`, animationDuration: `${dur}ms` });
+    D.box.appendChild(ring);
+    setTimeout(() => ring.remove(), dur);
+    for (const e of D.enemies.filter(e => !e.dead)) { // el colp arriba quan l'anell hi passa
+      const [ex] = tdDemoPoint(e.el);
+      setTimeout(() => tdDemo === D && tdDemoDamage(e, D.st.dmg), Math.max(0, (ex - cx) / R) * dur);
+    }
+    tdDemoSpecial(target);
     return;
   }
   setTimeout(() => tdDemo === D && tdDemoLaunch(svg, part, target), d.aim ? (d.aimWait || 0.2) * 1000 : 0);
-  // especials cada N atacs, com al combat
-  const sp = d.special;
+  tdDemoSpecial(target);
+}
+// especials cada N atacs, com al combat
+function tdDemoSpecial(target) {
+  const D = tdDemo, { d } = D, sp = d.special;
   if (sp && D.n % sp.every === 0) {
-    if (sp.type === "freeze" || sp.type === "root") D.enemies.forEach(e => { e.stun = (sp.dur || 1.4) * D.st.ability; });
+    if (sp.type === "freeze" || sp.type === "root") D.enemies.forEach(e => {
+      if (e.dead) return;
+      e.stun = (sp.dur || 1.4) * D.st.ability;
+      if (sp.type === "root" || d.subj === "mnt") tdbTrap(e, sp.type === "root" ? "root" : "resin");
+    });
+    if (sp.type === "echo") { // fa l'habilitat d'una altra criatura del bosc, més forta (n'escull una cada vegada)
+      const [name, act] = [["Carrasca", "root"], ["Anells", "resin"], ["Contrafoc", "burn"], ["Anellador", "mark"]][Math.floor(Math.random() * 4)];
+      tdDemoText(D.box.querySelector(".tdbook-art"), `🧩 ${name}`, TD_GLOW.myth);
+      if (act === "root" || act === "resin") D.enemies.filter(e => !e.dead).forEach(e => { e.stun = 1.5 * sp.boost; tdbTrap(e, act); });
+      if (act === "burn") tdDemoBurn(target, D.st.dmg * TD_DEFENDERS.contrafoc.burn.dps * sp.boost, 4 * sp.boost);
+      if (act === "mark") tdbMark(target, TD_DEFENDERS.anellador.mark * sp.boost);
+    }
     if (sp.type === "align") { // els alinea en una recta, els para i els fa vulnerables (reben més dany)
       const h = D.lane.clientHeight;
       D.enemies.forEach(e => { if (!e.dead) { e.stun = sp.dur * D.st.ability; e.vuln = sp.vulnDur * D.st.ability; e.y = h * 0.8; e.el.classList.add("vuln"); } });
@@ -705,8 +757,7 @@ function tdDemoFire(target) {
       setTimeout(() => ring.remove(), 900);
     }
     if (sp.type === "convert") { const e = D.enemies.filter(e => !e.dead).sort((a, b) => a.hp - b.hp)[0]; if (e) { e.conv = sp.dur * D.st.ability; e.el.classList.add("conv"); } }
-    if (sp.type === "echo") D.enemies.filter(e => !e.dead).forEach(e => tdDemoDamage(e, D.st.dmg * 1.5));
-    tdDemoText(D.box.querySelector(".tdbook-art"), { freeze: d.subj === "mnt" ? "resina!" : "congela!", align: "λ · diagonalitzat", convert: "compilat!", root: "arrels!", echo: "🧩 projecte!" }[sp.type] || "!", TD_GLOW.gold);
+    if (sp.type !== "echo") tdDemoText(D.box.querySelector(".tdbook-art"), { freeze: d.subj === "mnt" ? "resina!" : "congela!", align: "λ · diagonalitzat", convert: "compilat!", root: "arrels!" }[sp.type] || "!", TD_GLOW.gold);
   }
 }
 function tdDemoLaunch(svg, part, target) {
@@ -736,7 +787,7 @@ function tdDemoLaunch(svg, part, target) {
   p.className = "tdbook-shot";
   p.innerHTML = `<svg viewBox="-40 -40 80 80" width="${80 * k}" height="${80 * k}" overflow="visible"><g>${part === "r" && art.projR ? art.projR : art.proj}</g></svg>`;
   D.box.appendChild(p);
-  const rot = ["vector", "ifelse", "determinant", "compilador"].includes(id) ? Math.atan2(to[1] - from[1], to[0] - from[0]) * 180 / Math.PI : 0;
+  const rot = ["vector", "ifelse", "determinant", "compilador", "bruixola"].includes(id) ? Math.atan2(to[1] - from[1], to[0] - from[0]) * 180 / Math.PI : 0;
   const dist = Math.hypot(to[0] - from[0], to[1] - from[1]), dur = dist / 0.55;
   const fly = p.animate([
     { transform: `translate(${from[0]}px, ${from[1]}px) translate(-50%, -50%) rotate(${rot}deg)` },
@@ -762,21 +813,36 @@ function tdDemoHit(target, from) {
   if (d.role === "aoe") { const [tx, ty] = tdDemoPoint(target.el); hits = D.enemies.filter(e => !e.dead && Math.hypot(...tdDemoPoint(e.el).map((v, i) => v - [tx, ty][i])) <= 46); }
   if (d.role === "execute" && target.hp - dmg <= target.max * (d.execute || 0.15)) { dmg = target.hp; tdDemoText(target.el, "det = 0", TD_GLOW.gold); }
   if (d.role === "stacks" && ++D.stacks >= (d.stacks || 10)) { D.stacks = 0; hits = D.enemies.filter(e => !e.dead); dmg *= d.blast || 12; tdDemoText(D.box.querySelector(".tdbook-art"), "overflow!", "#ff8a1f"); }
-  if (d.role === "burn") { hits = D.enemies.filter(e => !e.dead).slice(0, 3); tdDemoText(target.el, "🔥", "#ff8a3a"); }
-  if (d.role === "mark" && !target.vuln) { target.vuln = 99; target.el.classList.add("vuln"); tdDemoText(target.el, "anellat!", "#d8dde6"); }
-  for (const e of hits) tdDemoDamage(e, dmg * (target.vuln === 99 && e === target ? 1 + d.mark : 1));
+  if (d.role === "burn") tdDemoBurn(target, dmg * d.burn.dps, d.burn.dur * D.st.ability);
+  if (d.role === "mark" && !target.mark) { tdbMark(target, d.mark * D.st.ability); tdDemoText(target.el, "anellat!", "#d8dde6"); }
+  for (const e of hits) tdDemoDamage(e, dmg);
   if (d.role === "split" && !target.child) { // es dividix en dos cap als enemics de darrere
     D.enemies.filter(e => !e.dead && e !== target).slice(0, 2).forEach((e, i) => setTimeout(() => tdDemo === D && !e.dead && tdDemoDamage(e, dmg * 0.6), 180 + i * 60));
   }
 }
-function tdDemoDamage(e, dmg) {
+// Franja de foc al carril (Contrafoc, o el Projecte quan la copia)
+function tdDemoBurn(target, dps, dur) {
+  const D = tdDemo, k = D.lane.clientWidth / 520, w = 110 * k;
+  const b = { x: target.x, w, t: dur, tick: 0.25, dps, el: document.createElement("div") };
+  b.el.className = "tdbook-burn";
+  Object.assign(b.el.style, { left: `${b.x - w / 2}px`, width: `${w}px` });
+  b.el.innerHTML = `<svg viewBox="-60 -30 120 40" preserveAspectRatio="none">${[-40, -14, 12, 38].map((x, i) => `<g transform="translate(${x} 0)"><path class="tdb-burn-f" style="animation-delay:${-i * 0.15}s" d="M0 -22 C10 -8 10 4 0 8 C-10 4 -10 -8 0 -22 Z" fill="#ff8a3a" stroke="#ffc23f" stroke-width="2"/></g>`).join("")}</svg>`;
+  D.lane.appendChild(b.el);
+  D.burns.push(b);
+}
+function tdDemoDamage(e, dmg, color) {
   if (e.dead) return;
   if (e.vuln > 0) dmg *= 1 + (tdDemo.d.special?.vuln || 0);
+  dmg *= 1 + (e.mark || 0); // l'anella: rep més mal de tot
   e.hp -= dmg;
   e.el.classList.remove("hit"); void e.el.offsetWidth; e.el.classList.add("hit");
-  tdDemoText(e.el, fmtNum(dmg), TD_GLOW[tdDemo.d.subj] || "#fff");
+  tdDemoText(e.el, fmtNum(dmg), color || TD_GLOW[tdDemo.d.subj] || "#fff");
   if (e.hp <= 0) { // es dissol i n'ix un altre per la dreta
     e.dead = true;
+    if (e.mark) { // l'anella salta a la més pròxima
+      const next = tdDemo.enemies.filter(o => !o.dead && !o.mark).sort((a, b) => Math.abs(a.x - e.x) - Math.abs(b.x - e.x))[0];
+      if (next) { tdbMark(next, e.mark); tdDemoText(next.el, "anellat!", "#d8dde6"); }
+    }
     e.el.classList.add("dying");
     setTimeout(() => { e.el.remove(); e.gone = true; if (tdDemo) tdDemoSpawn(0, true); }, 500);
   }
