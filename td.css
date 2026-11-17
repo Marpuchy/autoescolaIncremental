@@ -840,3 +840,16 @@
 @keyframes tdb-fall { to { transform: translateY(30px); opacity: 0; } }
 .tdbook-demo iframe.tdbook-lane { border: 0; display: block; background: #07090f; height: 128px; }
 @media (max-width: 700px) { .tdbook-demo iframe.tdbook-lane { height: 104px; } }
+
+/* fitxa de criatura al grimori: dalt (1/3) dibuix i dades, baix (2/3) el combat de demostració, dins de la pàgina */
+.tdbook-creature { width: 100%; flex: 1; min-height: 0; display: grid; grid-template-rows: minmax(0, 1fr) minmax(0, 2fr); gap: 10px; }
+.tdbook-head { display: flex; align-items: center; gap: 14px; min-height: 0; }
+.tdbook-head .tdbook-art { width: 118px; height: 118px; flex-shrink: 0; padding: 14px; box-sizing: border-box; }
+.tdbook-head .tdbook-art svg { width: 100%; height: 100%; }
+.tdbook-id { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; min-width: 0; }
+.tdbook-id .tdbook-name { margin: 0; text-align: left; font-size: 1.2rem; line-height: 1.1; }
+.tdbook-id .tdbook-prog { margin: 2px 0 0; width: min(200px, 100%); }
+.tdbook-id .tdbook-buy, .tdbook-id .tdbook-ascend { margin-top: 3px; }
+.tdbook-arena { width: 100%; height: 100%; min-height: 150px; border: 0; display: block; border-radius: 12px; background: #07090f;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 45%, transparent), 0 6px 14px rgba(0, 0, 0, 0.3); }
+@media (max-width: 700px) { .tdbook-arena { min-height: 190px; } .tdbook-head .tdbook-art { width: 92px; height: 92px; } }

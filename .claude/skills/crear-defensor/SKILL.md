@@ -56,10 +56,12 @@ Reúne lo que el usuario ha ido pidiendo criatura a criatura. Seguir el orden y 
 - **Es el combate real** dentro de un iframe: el mismo código y las mismas animaciones (raíces, fuego, anillos, anilla,
   crecimiento de las piezas…). Nunca hacer una animación aparte para el libro: si algo se ve distinto, es un error.
 - Solo cambian las condiciones, favorables para lucir el arma: un escenario por criatura (o por rol) en
-  `TD_DEMO_SCENES` con `path` (recto o en U, entre dos tramos), `view` (vista acercada a la acción), `slots` (la primera
+  `TD_DEMO_SCENES` con `path` (recto o en U, entre dos tramos), `view` (vista acercada a la acción, proporción ~1,4), `slots` (la primera
   es la criatura), `allies` (otras criaturas al lado, p. ej. un Pi dentro del aura de la Carrasca), `spawn` (qué
   distracciones salen juntas y cada cuánto) y `gap`.
 - No guarda nada (`tdSave` vacío, partida en memoria) y no carga la autoescola ni la nube.
+- Página izquierda del grimorio: arriba (1/3) dibujo, nombre, rareza, estrellas, progreso y botones de copias; abajo
+  (2/3) el recuadro del combate, siempre dentro de la página.
 
 ## 6. Balance: `python tools/td-bot.py <id> [--mon]`
 - Prueba de daño: DPS y DPS por 100 de maná de la criatura sola, comparado con la media de su rareza. Las de zona salen

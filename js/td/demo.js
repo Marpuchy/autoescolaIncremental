@@ -9,27 +9,27 @@ function toast() {}                       // a la demostració no hi ha avisos
 tdSave = () => {};                        // ni es guarda res
 const TD_DEMO_ID = new URLSearchParams(location.search).get("d");
 
-// Camins (coordenades del mapa 1600×900). view: el tros que es veu (la criatura, a l'esquerra, fora del cercle del
-// dibuix del llibre; les distraccions entren per la dreta)
+// Camins (coordenades del mapa 1600×900). view: el tros que es veu (proporció ~1,4, com el requadre del llibre),
+// centrat en la criatura; les distraccions entren per la dreta
 const TD_DEMO_ROAD = [[1400, 470], [-160, 470]];                                   // un camí recte de dreta a esquerra
 const TD_DEMO_U = [[1640, 300], [330, 300], [330, 640], [1760, 640]];              // dos trams, un damunt de l'altre
 
 // Escenaris: per criatura i, si no n'hi ha, per rol. slots: on va cada criatura (la primera és la que es mostra);
 // allies: les amigues; spawn: [distraccions que ixen juntes, segons entre grups]; gap: segons entre les d'un grup.
 const TD_DEMO_SCENES = {
-  default:   { view: [440, 235, 900, 290], path: TD_DEMO_ROAD, slots: [[640, 320]], spawn: [["notificacio"], 1.3] },
-  pierce:    { view: [180, 235, 900, 290], path: TD_DEMO_ROAD, slots: [[380, 330]], spawn: [["notificacio", "notificacio", "notificacio", "notificacio"], 3.6], gap: 0.3 },
-  aoe:       { view: [480, 235, 900, 290], path: TD_DEMO_ROAD, slots: [[680, 320]], spawn: [["notificacio", "notificacio", "notificacio", "notificacio"], 3.4], gap: 0.22 },
-  pulse:     { view: [500, 235, 900, 290], path: TD_DEMO_ROAD, slots: [[700, 320]], spawn: [["notificacio", "notificacio", "notificacio", "notificacio"], 3], gap: 0.25 },
+  default:   { view: [420, 150, 720, 500], path: TD_DEMO_ROAD, slots: [[640, 320]], spawn: [["notificacio"], 1.3] },
+  pierce:    { view: [200, 150, 720, 500], path: TD_DEMO_ROAD, slots: [[380, 330]], spawn: [["notificacio", "notificacio", "notificacio", "notificacio"], 3.6], gap: 0.3 },
+  aoe:       { view: [440, 150, 720, 500], path: TD_DEMO_ROAD, slots: [[680, 320]], spawn: [["notificacio", "notificacio", "notificacio", "notificacio"], 3.4], gap: 0.22 },
+  pulse:     { view: [460, 150, 720, 500], path: TD_DEMO_ROAD, slots: [[700, 320]], spawn: [["notificacio", "notificacio", "notificacio", "notificacio"], 3], gap: 0.25 },
   smart:     { path: TD_DEMO_ROAD, slots: [[640, 320]], spawn: [["notificacio", "procrastinacio", "notificacio"], 3.4], gap: 0.5 },
   execute:   { path: TD_DEMO_ROAD, slots: [[640, 320]], spawn: [["procrastinacio"], 3.5] },
   stacks:    { path: TD_DEMO_ROAD, slots: [[640, 320]], spawn: [["notificacio", "notificacio", "notificacio"], 2.6], gap: 0.4 },
-  line:      { view: [300, 200, 1300, 480], path: TD_DEMO_U, slots: [[980, 470]], spawn: [["notificacio", "notificacio"], 1.8], gap: 0.6 },
-  mark:      { view: [360, 235, 900, 290], path: TD_DEMO_ROAD, slots: [[560, 320], [880, 320]], allies: ["pi"], spawn: [["procrastinacio", "notificacio", "notificacio"], 3.6], gap: 0.6 },
+  line:      { view: [560, 180, 760, 540], path: TD_DEMO_U, slots: [[980, 470]], spawn: [["notificacio", "notificacio"], 1.8], gap: 0.6 },
+  mark:      { view: [400, 150, 720, 500], path: TD_DEMO_ROAD, slots: [[560, 320], [880, 320]], allies: ["pi"], spawn: [["procrastinacio", "notificacio", "notificacio"], 3.6], gap: 0.6 },
   lambda:    { path: TD_DEMO_ROAD, slots: [[640, 320]], spawn: [["notificacio", "notificacio", "notificacio", "notificacio"], 3.6], gap: 0.4 },
-  samara:    { view: [-20, 200, 1300, 340], path: TD_DEMO_ROAD, slots: [[180, 320]], spawn: [["notificacio"], 1.6] },
-  carrasca:  { view: [360, 235, 900, 290], path: TD_DEMO_ROAD, slots: [[560, 320], [880, 320]], allies: ["pi"], spawn: [["notificacio", "notificacio", "notificacio"], 3], gap: 0.25 },
-  projecte:  { view: [180, 190, 1140, 360], path: TD_DEMO_ROAD, slots: [[640, 320], [380, 320], [900, 320], [1160, 320]], allies: ["carrasca", "contrafoc", "anells"],
+  samara:    { view: [40, 120, 1000, 700], path: TD_DEMO_ROAD, slots: [[180, 320]], spawn: [["notificacio"], 1.6] },
+  carrasca:  { view: [400, 150, 720, 500], path: TD_DEMO_ROAD, slots: [[560, 320], [880, 320]], allies: ["pi"], spawn: [["notificacio", "notificacio", "notificacio"], 3], gap: 0.25 },
+  projecte:  { view: [260, 110, 1060, 740], path: TD_DEMO_ROAD, slots: [[640, 320], [380, 320], [900, 320], [1160, 320]], allies: ["carrasca", "contrafoc", "anells"],
                spawn: [["notificacio", "notificacio", "procrastinacio", "notificacio"], 3.2], gap: 0.35 },
 };
 

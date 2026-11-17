@@ -350,13 +350,16 @@ function tdCreaturePages(id) {
   const steps = [...TD_ABILITY_LEVELS.map(l => [`Nv. ${l}`, o.level >= l]), ["★3", st.stars >= 3], ["★5", st.stars >= 5]];
   const lvlBtn = cost != null ? `<button data-lvl="${id}" ${td.saber < cost ? "disabled" : ""}>⬆ Nv. ${o.level + 1} · ✨ ${fmtNum(cost)}</button>`
     : `<button disabled>${o.level >= TD_LEVEL_MAX ? "Nivell màxim" : `Cal ★${st.stars + 1}`}</button>`;
-  return [`<div class="tdbook-demo" data-demo="${id}"><div class="tdbook-art rar-${d.rar}">${tdCreatureSvg(id)}</div><iframe class="tdbook-lane" src="tddemo.html?d=${id}" title="Demostració: ${d.name} en combat" tabindex="-1" loading="lazy"></iframe></div>
-      <h3 class="tdbook-name">${d.name}</h3>
-      <div class="tdbook-rar" style="color:${r.color}">${r.name}</div><div class="tdbook-stars">${tdStarStr(st.stars)}</div>
-      <div class="tdbook-prog" title="Còpies per a la següent estrela"><div style="width:${next ? Math.min(100, 100 * next.have / next.need) : 100}%"></div>
-        <span>${next ? `${next.have} / ${next.need}` : "MÀX"}</span></div>
-      ${tdCanBuyCopy(id) ? `<button class="secondary small tdbook-buy" data-buy="${id}" ${(td.stelles[tdModeOf(id)] || 0) < tdCopyPrice(id) ? "disabled" : ""} title="Tens ${td.stelles[tdModeOf(id)] || 0} ${TD_POINTS[tdModeOf(id)].name}">+1 còpia · ${TD_POINTS[tdModeOf(id)].icon} ${tdCopyPrice(id)}</button>` : ""}
-      ${next && next.have >= next.need ? `<button class="tdbook-ascend" data-ascend="${id}" ${td.saber < tdAscendCost(id) ? "disabled" : ""}>⭐ Pujar a ★${st.stars + 1} · ✨ ${fmtNum(tdAscendCost(id))}</button>` : ""}`,
+  // pàgina esquerra: dalt (1/3) la fitxa (dibuix, nom, raresa, estreles, còpies); baix (2/3) el combat de demostració
+  return [`<div class="tdbook-creature"><div class="tdbook-head">
+      <div class="tdbook-art rar-${d.rar}">${tdCreatureSvg(id)}</div>
+      <div class="tdbook-id"><h3 class="tdbook-name">${d.name}</h3>
+        <div class="tdbook-rar" style="color:${r.color}">${r.name}</div><div class="tdbook-stars">${tdStarStr(st.stars)}</div>
+        <div class="tdbook-prog" title="Còpies per a la següent estrela"><div style="width:${next ? Math.min(100, 100 * next.have / next.need) : 100}%"></div>
+          <span>${next ? `${next.have} / ${next.need}` : "MÀX"}</span></div>
+        ${tdCanBuyCopy(id) ? `<button class="secondary small tdbook-buy" data-buy="${id}" ${(td.stelles[tdModeOf(id)] || 0) < tdCopyPrice(id) ? "disabled" : ""} title="Tens ${td.stelles[tdModeOf(id)] || 0} ${TD_POINTS[tdModeOf(id)].name}">+1 còpia · ${TD_POINTS[tdModeOf(id)].icon} ${tdCopyPrice(id)}</button>` : ""}
+        ${next && next.have >= next.need ? `<button class="tdbook-ascend" data-ascend="${id}" ${td.saber < tdAscendCost(id) ? "disabled" : ""}>⭐ Pujar a ★${st.stars + 1} · ✨ ${fmtNum(tdAscendCost(id))}</button>` : ""}</div></div>
+      <iframe class="tdbook-arena" src="tddemo.html?d=${id}" title="Demostració: ${d.name} en combat" tabindex="-1" loading="lazy"></iframe></div>`,
     `<p class="tdbook-text">${d.desc}</p>
      <table class="tdbook-stats"><tr><th>Nivell</th><td>${o.level} / ${cap}${cap < TD_LEVEL_MAX ? ` <span class="muted">(més amb ★${st.stars + 1})</span>` : ""}</td></tr><tr><th>Dany</th><td>${fmtNum(st.dmg)}</td></tr>
        <tr><th>Velocitat</th><td>${st.rate.toFixed(2)} / s</td></tr><tr><th>Abast</th><td>${Math.round(st.range)}</td></tr><tr><th>Cost</th><td>🔮 ${d.cost}</td></tr>
