@@ -628,8 +628,9 @@ let tdDemo = null;
 function tdDemoStart(box) {
   const id = box.dataset.demo, d = TD_DEFENDERS[id], lane = box.querySelector(".tdbook-lane");
   const set = TD_DEMO_SETUP[id] || TD_DEMO_SETUP[d.special?.type === "align" ? "align" : d.role] || TD_DEMO_SETUP.default;
-  tdDemo = { box, id, d, lane, set, st: tdStats(id), enemies: [], shots: [], burns: [], cd: 0.6, side: 0, n: d.special ? d.special.every - 2 : 0, aimA: 0, last: performance.now(), stacks: 0 };
-  lane.querySelectorAll(".tdbook-ally, .tdbook-burn").forEach(n => n.remove()); // d'una pàgina anterior
+  box.querySelector(".tdc")?.style.setProperty("--regrow", `${tdRegrowTime(id)}s`);
+  tdDemo = { box, id, d, lane, set, st: tdStats(id), enemies: [], shots: [], burns: [], parts: {}, cd: 0.6, side: 0, n: d.special ? d.special.every - 2 : 0, aimA: 0, last: performance.now(), stacks: 0 };
+  lane.querySelectorAll(".tdbook-ally, .tdbook-burn, .tdbook-auraroots").forEach(n => n.remove()); // d'una pàgina anterior
   tdDemo.allies = (set.allies || []).map((o, i) => { // criatures amigues, en fila al principi del carril
     const a = document.createElement("div");
     a.className = `tdbook-ally${o.bonus === "aura" ? " aura" : ""}`;
@@ -637,6 +638,17 @@ function tdDemoStart(box) {
     a.innerHTML = tdCreatureSvg(o.id);
     lane.appendChild(a);
     return { ...o, el: a, st: tdStats(o.id), cd: 0.4 + i * 0.2 };
+  });
+  const aura = tdDemo.allies.find(A => A.bonus === "aura");
+  if (aura) requestAnimationFrame(() => { // arrels des de la Carrasca (a l'esquerra del carril) fins a la base de l'amic
+    if (tdDemo?.lane !== lane) return;
+    const W = lane.clientWidth, H = lane.clientHeight, r = aura.el.getBoundingClientRect(), L = lane.getBoundingClientRect();
+    const x1 = r.left - L.left + r.width / 2, y1 = r.bottom - L.top - 4;
+    const svg = document.createElementNS(SVGNS, "svg");
+    svg.setAttribute("class", "tdbook-auraroots");
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    svg.innerHTML = [-1, 1].map(s => `<path pathLength="100" d="M-30 ${H * 0.9} Q${x1 * 0.5} ${H * 0.9 + s * 8} ${x1} ${y1} q${s * 10} -4 ${s * 4} -14 q${-s * 8} -6 ${-s * 14} 2"/>`).join("");
+    lane.prepend(svg);
   });
   for (let i = 0; i < set.n; i++) tdDemoSpawn(i);
   if (d.role === "line") tdDemoBurn({ x: lane.clientWidth * 0.42 }, tdDemo.st.dmg * d.line.dps, Infinity);
@@ -690,12 +702,12 @@ function tdDemoTick(now) {
     const sv = A.el.querySelector(".tdc");
     sv.classList.remove("fire"); void sv.getBoundingClientRect(); sv.classList.add("fire");
     tdDemoDamage(tg, A.st.dmg * (A.bonus === "aura" ? 1 + D.d.aura.dmg : 1), TD_GLOW.mnt);
-    if (A.bonus === "aura") tdDemoText(A.el, "+30 %", TD_GLOW.mnt);
   }
   // atacar quan algun enemic és dins del carril
   D.cd -= dt;
   const alive = D.enemies.filter(e => !e.dead && e.x < w - 6 && e.conv <= 0).sort((a, b) => a.x - b.x);
-  if (D.cd <= 0 && alive.length) {
+  const nextPart = (TD_ART[D.id].throw || {}).c ? "c" : (D.d.alt ? 1 - D.side : 0) ? "r" : "l";
+  if (D.cd <= 0 && alive.length && !(D.parts[nextPart]?.readyAt > now)) {
     D.cd = 1 / D.st.rate;
     let target = alive[0];
     if (D.d.role === "smart") target = alive.reduce((a, b) => b.hp > a.hp ? b : a);
@@ -802,7 +814,7 @@ function tdDemoLaunch(svg, part, target) {
   p.innerHTML = `<svg viewBox="-40 -40 80 80" width="${80 * k}" height="${80 * k}" overflow="visible"><g>${part === "r" && art.projR ? art.projR : art.proj}</g></svg>`;
   D.box.appendChild(p);
   const rot = ["vector", "ifelse", "determinant", "compilador", "bruixola"].includes(id) ? Math.atan2(to[1] - from[1], to[0] - from[0]) * 180 / Math.PI : 0;
-  const dist = Math.hypot(to[0] - from[0], to[1] - from[1]), dur = dist / 0.55;
+  const v = 0.55 * (d.projSpeed || 1), dist = Math.hypot(to[0] - from[0], to[1] - from[1]), dur = dist / v;
   const fly = p.animate([
     { transform: `translate(${from[0]}px, ${from[1]}px) translate(-50%, -50%) rotate(${rot}deg)` },
     { transform: `translate(${to[0]}px, ${to[1]}px) translate(-50%, -50%) rotate(${rot}deg)` },
@@ -810,11 +822,18 @@ function tdDemoLaunch(svg, part, target) {
   // cada enemic rep el colp quan el projectil hi arriba
   for (const e of hitList) {
     const [ex, ey] = tdDemoPoint(e.el);
-    setTimeout(() => tdDemo === D && tdDemoHit(e, from), Math.hypot(ex - from[0], ey - from[1]) / 0.55);
+    setTimeout(() => tdDemo === D && tdDemoHit(e, from), Math.hypot(ex - from[0], ey - from[1]) / v);
   }
-  const regrow = () => { if (pe) { svg.classList.remove(`thrown-${part}`, `regrow-${part}`); void svg.getBoundingClientRect(); svg.classList.add(`regrow-${part}`); } };
-  fly.onfinish = () => { p.remove(); regrow(); };
-  fly.oncancel = regrow;
+  // la peça torna a créixer just a temps per al tir que la tornarà a fer servir (com al combat)
+  if (pe) {
+    const R = tdRegrowTime(id), period = 1 / D.st.rate; // acaba de créixer just quan ix el tir següent
+    D.parts[part] = { readyAt: performance.now() + period * 1000 };
+    setTimeout(() => {
+      if (tdDemo !== D) return;
+      svg.classList.remove(`thrown-${part}`, `regrow-${part}`); void svg.getBoundingClientRect(); svg.classList.add(`regrow-${part}`);
+    }, Math.max(50, (period - R) * 1000));
+  }
+  fly.onfinish = () => p.remove();
 }
 function tdDemoNearLine([ax, ay], [bx, by], [px, py], r) {
   const dx = bx - ax, dy = by - ay, t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy)));
@@ -833,14 +852,20 @@ function tdDemoHit(target, from) {
     D.enemies.filter(e => !e.dead && e !== target).slice(0, 2).forEach((e, i) => setTimeout(() => tdDemo === D && !e.dead && tdDemoDamage(e, dmg * 0.6), 180 + i * 60));
   }
 }
-// Franja de foc al carril (Contrafoc, o el Projecte quan la copia)
+// Línia de foc al carril (Contrafoc, o el Projecte quan la copia): al terra, davall de les distraccions. El carril es
+// veu de costat, així que la línia que travessa el camí va cap al fons: un tram en diagonal amb flames, més menudes
+// les del fons.
 function tdDemoBurn(target, dps, dur) {
-  const D = tdDemo, k = D.lane.clientWidth / 520, w = (dur === Infinity ? 46 : 110) * k; // la línia del Contrafoc és estreta
+  const D = tdDemo, k = D.lane.clientWidth / 520, w = 130 * k;
   const b = { x: target.x, w, t: dur, tick: 0.25, dps, el: document.createElement("div") };
   b.el.className = "tdbook-burn";
   Object.assign(b.el.style, { left: `${b.x - w / 2}px`, width: `${w}px` });
-  b.el.innerHTML = `<svg viewBox="-60 -30 120 40" preserveAspectRatio="none">${[-40, -14, 12, 38].map((x, i) => `<g transform="translate(${x} 0)"><path class="tdb-burn-f" style="animation-delay:${-i * 0.15}s" d="M0 -22 C10 -8 10 4 0 8 C-10 4 -10 -8 0 -22 Z" fill="#ff8a3a" stroke="#ffc23f" stroke-width="2"/></g>`).join("")}</svg>`;
-  D.lane.appendChild(b.el);
+  const pts = [[38, 30, 0.55], [33, 44, 0.7], [28, 58, 0.85], [23, 72, 1]];
+  b.el.innerHTML = `<svg viewBox="0 0 60 80" preserveAspectRatio="xMidYMax meet">
+    <path d="M40 26 L20 78" stroke="#2a1206" stroke-width="12" stroke-linecap="round" opacity="0.7"/>
+    <path d="M40 26 L20 78" stroke="#ff8a3a" stroke-width="4" stroke-linecap="round" class="tdb-embers"/>
+    ${pts.map(([x, y, s], i) => `<g transform="translate(${x} ${y}) scale(${s})"><path class="tdb-burn-f" style="animation-delay:${-i * 0.15}s" d="M0 -22 C10 -8 10 4 0 8 C-10 4 -10 -8 0 -22 Z" fill="#ff8a3a" stroke="#ffc23f" stroke-width="2"/><path d="M0 -8 C4 -4 4 0 0 4 C-4 0 -4 -4 0 -8 Z" fill="#fff3c0"/></g>`).join("")}</svg>`;
+  D.lane.prepend(b.el); // davall de les distraccions
   D.burns.push(b);
 }
 function tdDemoDamage(e, dmg, color) {

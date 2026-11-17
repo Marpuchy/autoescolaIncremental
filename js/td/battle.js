@@ -200,6 +200,8 @@ function tdbDrawTower(t) {
   t.el.innerHTML = tdCreatureSvg(t.id).replace("<svg ", `<svg x="-62" y="${TDB_TOWER_Y}" width="124" height="124" `) +
     `<text class="tdb-tower-lvl" y="62" text-anchor="middle">${"◆".repeat(t.up + 1)}</text><text class="tdb-zz" x="30" y="-70" opacity="0">Zz</text>`;
   t.svg = t.el.querySelector(".tdc");
+  t.svg.style.setProperty("--regrow", `${tdRegrowTime(t.id)}s`);
+  for (const part of ["l", "r"]) if (t.parts?.[part]?.out) t.svg.classList.add(`thrown-${part}`);
 }
 // Punt del mapa d'on ix la peça que llança la criatura (l / r / c), a partir del dibuix (viewBox -6 -10 132 132 en 124 px)
 function tdbThrowFrom(t, side) {
@@ -366,9 +368,15 @@ function tdbFire(t) {
   const n = d.role === "multi" ? d.targets + (ab > 1 ? 1 : 0) : 1;
   const targets = tdbTargets(t, n, d.role === "smart" ? "smart" : d.role === "mark" ? "strong" : "first");
   if (!targets.length) return false;
+  const nextSide = d.alt ? 1 - t.side : 0, th = TD_ART[t.id].throw || {};
+  if (!th.c && !tdbPartReady(t, nextSide ? "r" : "l")) { // la peça encara no ha tornat a créixer: espera
+    const P = t.parts[nextSide ? "r" : "l"];
+    if (P.out) tdbPartGrow(t, nextSide ? "r" : "l");
+    return false;
+  }
   t.shots++;
   // animació: la peça que llança (alterna esquerra / dreta si en té dues)
-  t.side = d.alt ? 1 - t.side : 0;
+  t.side = nextSide;
   t.svg.classList.remove("fire");
   void t.svg.getBoundingClientRect();
   t.svg.classList.add("fire");
@@ -406,7 +414,7 @@ function tdbProjectile(t, target, dmg, opts = {}) {
   const d = TD_DEFENDERS[t.id];
   const [sx, sy] = opts.from || tdbThrowFrom(t, opts.part || "l");
   // la peça que es llança desapareix de la criatura mentre vola (es torna a formar en arribar)
-  if (!opts.from && opts.part && opts.part !== "c") tdbPartOut(t, opts.part, 1);
+  if (!opts.from && opts.part && opts.part !== "c") tdbPartOut(t, opts.part);
   const p = { t, d, target, dmg, x: sx, y: sy, hit: new Set(), traveled: 0, ...opts };
   if (d.role === "pierce") { // la llança va recta en la direcció de l'objectiu i travessa
     const [ex, ey] = tdbPos(target);
@@ -516,8 +524,29 @@ function tdbAuraMult(t) {
   return m;
 }
 // Les criatures que reben l'aura brillen de verd (es recalcula en posar o vendre)
+// Les arrels de la Carrasca ixen de terra fins a les criatures del voltant i s'hi lliguen; mentre hi estan, aquelles
+// tenen una aura verda (i fan més dany). Es tornen a dibuixar en posar, millorar o vendre.
 function tdbAuraMarks() {
-  for (const t of Object.values(tdb.towers)) t.el?.classList.toggle("tdb-aura", tdbAuraMult(t) > 1);
+  const layer = $("tdb-lines");
+  layer?.querySelectorAll(".tdb-auraroots").forEach(n => n.remove());
+  for (const t of Object.values(tdb.towers)) {
+    const on = tdbAuraMult(t) > 1;
+    t.el?.classList.toggle("tdb-aura", on);
+    if (on && t.el && !t.el.querySelector(".tdb-aura-ring")) t.el.insertAdjacentHTML("afterbegin", `<ellipse class="tdb-aura-ring" cy="34" rx="66" ry="23"/>`);
+    if (!on) t.el?.querySelector(".tdb-aura-ring")?.remove();
+  }
+  if (!layer) return;
+  for (const c of Object.values(tdb.towers)) {
+    const a = TD_DEFENDERS[c.id].aura;
+    if (!a) continue;
+    const [cx, cy] = tdbS(...tdb.world.slots[c.slot]);
+    for (const o of Object.values(tdb.towers)) {
+      if (o === c || Math.hypot(...tdb.world.slots[o.slot].map((v, i) => v - tdb.world.slots[c.slot][i])) > a.radius) continue;
+      const [ox, oy] = tdbS(...tdb.world.slots[o.slot]), y0 = cy + 34, y1 = oy + 34, mx = (cx + ox) / 2, my = (y0 + y1) / 2;
+      const g = el("g", { class: "tdb-auraroots" }, layer);
+      g.innerHTML = [-1, 1].map(s => `<path d="M${cx} ${y0} Q${mx + s * 18} ${my + s * 26} ${ox} ${y1} q${s * 14} -6 ${s * 6} -18 q${-s * 10} -8 ${-s * 18} 2" pathLength="100" class="tdb-auraroot"/>`).join("");
+    }
+  }
 }
 // Contrafoc: no dispara. Aboca foc al tram del camí més pròxim i hi deixa una línia recta de foc que travessa el
 // camí (perpendicular) i crema sempre: tot el que la creua es crema mentre hi és. El Projecte en pot fer una de temporal.
@@ -660,17 +689,31 @@ function tdbBlast(t) {
 }
 
 // Peces en vol de cada costat: quan torna l'última, la peça es torna a formar
-function tdbPartOut(t, part, delta) {
-  t.out = t.out || { l: 0, r: 0 };
-  t.out[part] = Math.max(0, t.out[part] + delta);
+// Peces que es llancen (al / ar): en llançar-la, desapareix del cos i torna a créixer de manera que acabe just al tir
+// següent (quan creix una, ix la següent bala), i no es pot disparar una peça que no ha acabat de créixer.
+function tdbPartOut(t, part) {
+  const period = 1 / t.stats.rate, R = tdRegrowTime(t.id); // acaba de créixer just quan ix el tir següent
+  t.parts = t.parts || {};
+  t.parts[part] = { out: true, growIn: Math.max(0.05, period - R), ready: 0 };
+  t.svg?.classList.remove(`regrow-${part}`);
+  t.svg?.classList.add(`thrown-${part}`);
+}
+function tdbPartGrow(t, part) { // comença a créixer: estarà a punt quan acabe l'animació
+  const P = t.parts[part];
+  P.out = false; P.growIn = 0; P.ready = tdRegrowTime(t.id);
   if (!t.svg) return;
-  t.svg.classList.toggle(`thrown-${part}`, t.out[part] > 0);
-  if (delta < 0 && t.out[part] === 0) {
-    t.svg.classList.remove(`regrow-${part}`);
-    void t.svg.getBoundingClientRect();
-    t.svg.classList.add(`regrow-${part}`);
+  t.svg.classList.remove(`thrown-${part}`, `regrow-${part}`);
+  void t.svg.getBoundingClientRect();
+  t.svg.classList.add(`regrow-${part}`);
+}
+function tdbParts(t, dt) {
+  for (const part in t.parts || {}) {
+    const P = t.parts[part];
+    if (P.out && (P.growIn -= dt) <= 0) tdbPartGrow(t, part);
+    else if (P.ready > 0) P.ready -= dt;
   }
 }
+const tdbPartReady = (t, part) => { const P = t.parts?.[part]; return !P || (!P.out && P.ready <= 0); };
 
 // ---------------------------------------------------------------- efectes
 // La distracció es dissol: el dibuix s'apaga i en surten partícules del seu color
@@ -801,6 +844,7 @@ function tdbUpdate(dt) {
       const aim = t.svg?.querySelector(".aim");
       if (aim) aim.style.transform = "rotate(0deg)";
     }
+    tdbParts(t, dt);
     t.cd -= dt;
     if (t.cd <= 0 && tdbFire(t)) t.cd = 1 / t.stats.rate;
     else if (t.cd < 0) t.cd = 0;
@@ -822,7 +866,7 @@ function tdbUpdate(dt) {
     if (dd < speed * dt + 8) { p.done = true; tdbHit(p, p.target); continue; }
     p.x += dx / dd * speed * dt; p.y += dy / dd * speed * dt; p.ang = Math.atan2(dy, dx);
   }
-  for (const p of tdb.projs) if (p.done) { p.el.remove(); if (!p.from && p.part && p.part !== "c") tdbPartOut(p.t, p.part, -1); }
+  for (const p of tdb.projs) if (p.done) p.el.remove();
   tdb.projs = tdb.projs.filter(p => !p.done);
   // fi de l'onada
   if (tdb.waveRunning && !tdb.spawnQueue.length && !tdb.enemies.length) tdbWaveDone();

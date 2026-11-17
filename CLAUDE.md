@@ -74,10 +74,13 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   sin sentido, cada proyectil es la pieza que la criatura lanza (desaparece del cuerpo mientras vuela y se vuelve a
   formar), los artefactos se llevan puestos en el estudiante (`TD_ARTIFACT_WEAR`), sin bandas en los lados de las escenas
   (el fondo y la viñeta continúan fuera del viewBox). Los enemigos mueren disolviéndose en su color.
+  **Para crear o retocar una criatura: skill `crear-defensor`** (ficha, dibujo, animación, grimorio, integración y
+  comprobación fotograma a fotograma). Lo esencial:
   **Criaturas participativas** (lo pide el usuario; tenerlo en cuenta al crear cualquiera): en combate el sprite
   actúa, no solo flota. Lo que lanza es una pieza real de su cuerpo con el mismo tamaño, forma y orientación, y el cuerpo
   reacciona para dispararla (gira, apunta, se recarga, alterna piezas). Ejemplo: la Brúixola gira la aguja para que la
-  mitad que toca (roja o blanca, iguales) apunte al enemigo, la dispara y vuelve a crecer (`aim`, `aimHold`, `alt`, `projR`).
+  mitad que toca (roja o blanca, iguales) apunte al enemigo, la dispara y vuelve a crecer (`aim`, `aimHold`, `alt`, `projR`). La pieza lanzada vuelve a crecer
+  despacio y acaba justo cuando sale el tiro siguiente; no se dispara una pieza a medio crecer (`regrow`, `tdbPartOut`).
   **Aparador del grimorio** (siempre, para cada criatura nueva o cambiada): la demostración del libro usa la composición
   que mejor enseña su habilidad y sus mejoras (`TD_DEMO_SETUP`: por id, por habilidad o por rol; enemigos en fila, en
   grupo, uno fuerte, otras criaturas como amigas en el carril —`allies`— o en otro sitio…) y dibuja los mismos efectos que

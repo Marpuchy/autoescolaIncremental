@@ -163,9 +163,10 @@ const TD_ART = {
   samara: {
     svg: `${runeBase(GN)}<g class="b">${tube("M60 82 Q62 94 60 104", GB, 3)}${core(60, 82, GN, 3)}</g>
       <g class="al"><g class="flutter">${samara(56, 80, -1, 1.05, -4)}</g></g><g class="ar"><g class="flutter">${samara(64, 80, 1, 1.05, 4)}</g></g>${sparks(GN)}`,
-    // en l'aire gira com un helicòpter al voltant de la llavor (vista una mica de costat: l'ala s'aplana i s'obri)
-    proj: `<g transform="scale(1 0.62)"><g class="samara-spin">${samara(0, 0, -1, 0.8)}</g></g>`,
-    projR: `<g transform="scale(1 0.62)"><g class="samara-spin rev">${samara(0, 0, 1, 0.8)}</g></g>`, throw: { l: [44, 58], r: [76, 58] },
+    // en l'aire gira en horitzontal com un helicòpter: la llavor davall i l'ala que fa voltes al seu voltant (vista de
+    // costat, l'ala passa d'un costat a l'altre i s'estreny quan està de cara)
+    proj: `<g class="samara-spin">${samara(0, 0, -1, 0.8, 18)}</g>`,
+    projR: `<g class="samara-spin rev">${samara(0, 0, 1, 0.8, -18)}</g>`, throw: { l: [44, 58], r: [76, 58] },
   },
   // Anellador: una ploma gran amb l'anella al cànem; les dues anelles amb plaqueta dels costats són les que llança
   anellador: {

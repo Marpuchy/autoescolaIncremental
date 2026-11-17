@@ -16,6 +16,8 @@ const TD_SUBJECTS = {
          classes: ["Projecte intermodular", "Gestió cinegètica", "Gestió de la pesca continental", "Itinerari personal per a l'ocupabilitat II"] },
 };
 const tdFieldsOf = mode => Object.keys(TD_SUBJECTS).filter(s => TD_SUBJECTS[s].mode === mode);
+// Temps que tarda a tornar a créixer la peça que llança una criatura (regrow a la seua fitxa; per defecte 0,7 s)
+const tdRegrowTime = id => TD_DEFENDERS[id].regrow || 0.7;
 const tdModeOf = id => TD_SUBJECTS[TD_DEFENDERS[id].subj].mode;
 
 // Si a un camp li falta la raresa que ix a la tirada (no tots tenen les cinc), es donen punts d'estrella
@@ -51,7 +53,7 @@ const TD_DEFENDERS = {
                  desc: "Llança alternativament els dos + menuts que té de braços." },
   vector:      { subj: "alg", rar: "epic", name: "Vector", dmg: 30, rate: 0.5, range: 430, cost: 80, role: "pierce", aim: true,
                  desc: "La llança travessa tots els enemics que troba en línia recta." },
-  determinant: { subj: "alg", rar: "llegendari", name: "Determinant |A|", dmg: 40, rate: 0.5, range: 300, cost: 120, role: "execute", execute: 0.15, alt: true,
+  determinant: { subj: "alg", rar: "llegendari", name: "Determinant |A|", dmg: 40, rate: 0.5, range: 300, cost: 120, role: "execute", execute: 0.15, alt: true, regrow: 2.2,
                  desc: "Colps molt forts, un braç cada vegada. Si a l'enemic li queda menys d'un 15 % de vida, det = 0: l'elimina." },
   lambda:      { subj: "alg", rar: "mitic", name: "Diagonalitzador λ", dmg: 30, rate: 1.0, range: 340, cost: 150, role: "single",
                  special: { every: 6, type: "align", dur: 2, vuln: 0.5, vulnDur: 5 },
@@ -81,7 +83,7 @@ const TD_DEFENDERS = {
   bruixola:    { subj: "pin", rar: "comu", name: "Brúixola", dmg: 4, rate: 2.4, range: 200, cost: 25, role: "single",
                  aim: true, aimHold: true, aimWait: 0.16, alt: true,
                  desc: "Barata i rapidíssima: l'agulla gira cap a l'enemic i dispara una meitat i després l'altra (la roja i la blanca), que tornen a créixer." },
-  samara:      { subj: "pin", rar: "epic", name: "Sàmara", dmg: 24, rate: 0.45, range: 1900, cost: 85, role: "single", alt: true, projSpeed: 0.35,
+  samara:      { subj: "pin", rar: "epic", name: "Sàmara", dmg: 24, rate: 0.45, range: 1900, cost: 85, role: "single", alt: true, projSpeed: 0.25, regrow: 1.2,
                  desc: "Deixa anar les seues dues llavors alades, una i després l'altra: volen a poc a poc per tot el mapa, girant com quan cauen dels arbres, fins a la distracció més avançada." },
   anellador:   { subj: "pin", rar: "llegendari", name: "Anellador", dmg: 30, rate: 0.6, range: 300, cost: 120, role: "mark", mark: 0.4, alt: true,
                  desc: "Posa una anella a la distracció més forta: totes les criatures li fan un 40 % més de dany. Si mor, l'anella salta a la més pròxima." },
