@@ -69,9 +69,9 @@ const TD_DEFENDERS = {
   // ---- Gestió de monts (Forestal)
   pi:          { subj: "mnt", rar: "comu", name: "Pi", dmg: 6, rate: 1.5, range: 230, cost: 30, role: "single", alt: true,
                  desc: "Llança les pinyes que li pengen de les branques." },
-  anells:      { subj: "mnt", rar: "rar", name: "Anells del tronc", dmg: 8, rate: 0.85, range: 230, cost: 60, role: "aoe", aoe: 70,
+  anells:      { subj: "mnt", rar: "rar", name: "Anells del tronc", dmg: 5, rate: 1.6, range: 230, cost: 60, role: "pulse", pulse: 620,
                  special: { every: 5, type: "freeze", radius: 120, dur: 1.2 },
-                 desc: "Els anells s'eixamplen i fan dany en zona. Cada 5 atacs, la resina deixa enganxada la zona 1,2 s." },
+                 desc: "Li ixen anells grans del centre que s'eixamplen fins a l'abast i fan mal a tot el que travessen. Ataca molt sovint, amb poc dany. Cada 5 atacs, la resina deixa enganxada la zona 1,2 s." },
   contrafoc:   { subj: "mnt", rar: "llegendari", name: "Contrafoc", dmg: 16, rate: 0.55, range: 300, cost: 120, role: "burn", burn: { radius: 95, dur: 4, dps: 1.6 },
                  desc: "Encén una franja del camí durant 4 s: tot el que hi passa es crema poc a poc." },
   carrasca:    { subj: "mnt", rar: "mitic", name: "Carrasca mil·lenària", dmg: 26, rate: 0.9, range: 320, cost: 150, role: "single",

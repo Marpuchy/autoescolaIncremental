@@ -782,3 +782,11 @@
 @keyframes tdb-root-back { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 100; } }
 .tdb-enemy.trapped .tde { filter: none; animation: tdb-struggle 0.32s ease-in-out infinite; animation-play-state: running; transform-origin: 50% 96%; transform-box: view-box; }
 @keyframes tdb-struggle { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-4deg) translateY(-1px); } 75% { transform: rotate(4deg); } }
+
+/* Anells del tronc: en atacar, l'anell del mig ix cap a fora i se'n torna a formar un altre al centre */
+.tdc-anells .al { animation: none; transform-box: view-box; transform-origin: 60px 64px; }
+.tdc-anells.fire .al { animation: td-ring-out 0.55s ease-out; }
+@keyframes td-ring-out { 0% { transform: scale(1); opacity: 1; } 60% { transform: scale(2.6); opacity: 0; } 61% { transform: scale(0.2); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+.tdc-anells.fire .rings { animation: td-rings-kick 0.4s ease-out; }
+@keyframes td-rings-kick { 30% { transform: scale(1.12); } }
+.tdbook-ring.pulse { border-color: #e8ffb0; box-shadow: 0 0 14px #8fd45a; }

@@ -44,7 +44,7 @@ function tdOpenBattle(worldId = 1) {
     lives: TD_BATTLE.lives + 3 * td.upgrades.vida, mana: TD_BATTLE.startMana + 20 * td.upgrades.mana,
     saber: 0, kills: 0, enemies: [], towers: {}, projs: [], selected: null, selectedTower: null,
     speed: 1, over: false, time: 0, rushT: 0, uid: 0, artifactsWon: [], bossesSeen: new Set(),
-    god: false, zones: [],
+    god: false, zones: [], pulses: [],
   };
   $("td-lobby").hidden = true;
   $("td-battle").hidden = false;
@@ -375,6 +375,7 @@ function tdbFire(t) {
     if (t.stacks >= d.stacks) { t.stacks = 0; tdbBlast(t); }
   }
   const part = (TD_ART[t.id].throw || {}).c ? "c" : t.side ? "r" : "l";
+  if (d.role === "pulse") { tdbPulse(t); return true; }
   if (d.aim) { // la fletxa es posa dins de la V (o l'agulla gira), s'encara a l'objectiu i dispara
     tdbAim(t, targets[0], part === "r");
     t.svg.classList.add("load");
@@ -455,6 +456,29 @@ function tdbHit(p, e) {
   }
 }
 // ---- bosc
+// Anells del tronc: un anell gran ix del centre de la criatura i s'eixampla fins a l'abast; fa mal (una vegada) a cada
+// distracció que travessa
+function tdbPulse(t) {
+  const [x, y] = tdbThrowFrom(t, "c"), max = t.stats.range, [sx, sy] = tdbS(x, y);
+  const g = el("g", { class: "tdb-pulse", transform: `translate(${sx} ${sy})` }, $("tdb-fx"));
+  g.innerHTML = `<circle r="1" fill="none" stroke="${TD_GLOW.mnt}" stroke-width="10" opacity="0.25"/><circle r="1" fill="none" stroke="#e8ffb0" stroke-width="3.5"/>`;
+  tdb.pulses.push({ t, x, y, r: 12, max, dmg: t.stats.dmg * tdbAuraMult(t), hit: new Set(), el: g });
+}
+function tdbPulses(dt) {
+  for (const p of tdb.pulses) {
+    p.r += TD_DEFENDERS[p.t.id].pulse * dt;
+    const k = Math.min(1, p.r / p.max);
+    for (const c of p.el.children) c.setAttribute("r", p.r.toFixed(1));
+    p.el.setAttribute("opacity", (1 - k * k).toFixed(2));
+    for (const e of tdb.enemies) {
+      if (e.hp <= 0 || e.convertT || p.hit.has(e)) continue;
+      const [ex, ey] = tdbPos(e);
+      if (Math.hypot(ex - p.x, ey - p.y) <= p.r + e.size * 0.3) { p.hit.add(e); tdbDamage(e, p.dmg, TD_GLOW.mnt); }
+    }
+    if (p.r >= p.max) p.el.remove();
+  }
+  tdb.pulses = tdb.pulses.filter(p => p.r < p.max);
+}
 // Atrapats: arrels que pugen des de terra i s'enrosquen al cos, o resina d'ambre que els cobrix de baix a dalt.
 // Es dibuixa dins del dibuix de la distracció (viewBox 0-100, base a y = 96); l'enemic forceja mentre dura.
 function tdbTrap(e, kind) {
@@ -693,6 +717,7 @@ function tdbUpdate(dt) {
   }
   if (tdb.rushT > 0) tdb.rushT -= dt;
   if (tdb.zones.length) tdbZones(dt);
+  if (tdb.pulses.length) tdbPulses(dt);
   // enemics
   for (const e of tdb.enemies) {
     if (e.hp <= 0) continue;

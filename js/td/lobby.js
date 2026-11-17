@@ -683,6 +683,14 @@ function tdDemoFire(target) {
     svg.classList.add("load"); // la fletxa es posa dins de la V
   }
   svg.classList.remove("fire"); void svg.getBoundingClientRect(); svg.classList.add("fire");
+  if (d.role === "pulse") { // l'anell ix de la criatura i s'eixampla per tota la filera
+    const ring = document.createElement("i");
+    ring.className = "tdbook-ring pulse";
+    D.lane.appendChild(ring);
+    setTimeout(() => ring.remove(), 900);
+    D.enemies.filter(e => !e.dead).forEach((e, i) => setTimeout(() => tdDemo === D && tdDemoDamage(e, D.st.dmg), 150 + i * 120));
+    return;
+  }
   setTimeout(() => tdDemo === D && tdDemoLaunch(svg, part, target), d.aim ? (d.aimWait || 0.2) * 1000 : 0);
   // especials cada N atacs, com al combat
   const sp = d.special;
