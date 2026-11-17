@@ -59,10 +59,17 @@ const WHITE = { front: "#f4f2ec", side: "#e2dfd6", top: "#fbfaf6", bottom: "#d8d
   for (const x of [x0 + 0.02, x1 - 0.05]) for (const z of [z0, z1 - 0.04]) s += box({ x0: x, x1: x + 0.04, y0: 0, y1: top - 0.03, z0: z, z1: z + 0.04 }, { front: "#e2e2de", side: "#cfcfcb" });
   s += box({ x0, x1, y0: top - 0.03, y1: top, z0, z1 }, { front: "#e8e6e0", side: "#d8d6d0", top: "#f6f5f1" });
   // pantalla contra la paret, mirant a la dreta (cap al centre de l'habitació)
-  const m = { x0: STEP + 0.12, x1: STEP + 0.15, y0: top + 0.1, y1: top + 0.42, z0: 2.6, z1: 3.25 };
-  s += box({ x0: STEP + 0.1, x1: STEP + 0.14, y0: top, y1: top + 0.12, z0: 2.9, z1: 2.95 }, { front: "#2b2f35", side: "#23272e" });
-  s += box(m, { front: "#16181c", side: "#101216", top: "#22252b" });
-  s += quad(face(m, "left"), 0.04, 0.06, 0.96, 0.92, `fill="#3f7ad8"`);
+  // dues pantalles, una al costat de l'altra, girades un poc cap a la cadira (si no, des de la porta només es veuen de cantell)
+  const screen = (cx, cz, wid, th, c) => {
+    const n = [Math.cos(th), Math.sin(th)], wv = [-Math.sin(th), Math.cos(th)]; // normal i amplària al pla (x, z)
+    const at = (u, y) => [cx + wv[0] * u, y, cz + wv[1] * u];
+    const y0 = top + 0.1, y1 = top + 0.42, hw = wid / 2;
+    let t = line([cx, top, cz], [cx, y0, cz], `stroke="#2b2f35" stroke-width="5"`);
+    t += poly([at(-hw, y1), at(hw, y1), at(hw, y0), at(-hw, y0)], `fill="#16181c"`);
+    t += poly([at(-hw + 0.02, y1 - 0.02), at(hw - 0.02, y1 - 0.02), at(hw - 0.02, y0 + 0.03), at(-hw + 0.02, y0 + 0.03)], `fill="${c}"`);
+    return t;
+  };
+  s += screen(STEP + 0.17, 3.18, 0.52, -0.5, "#2a3a55") + screen(STEP + 0.17, 2.66, 0.52, -0.25, "#3f7ad8");
   s += box({ x0: STEP + 0.3, x1: STEP + 0.44, y0: top, y1: top + 0.02, z0: 2.75, z1: 3.1 }, { front: "#2b2f35", side: "#23272e", top: "#3a3f48" });
   // prestatge damunt, a la mateixa paret, amb el focus d'anell
   s += box({ x0: STEP, x1: STEP + 0.25, y0: 1.6, y1: 1.63, z0, z1 }, WHITE);
@@ -83,16 +90,26 @@ const WHITE = { front: "#f4f2ec", side: "#e2dfd6", top: "#fbfaf6", bottom: "#d8d
   s += box({ x0: cx - 0.02, x1: cx + 0.02, y0: 0.06, y1: 0.45, z0: cz - 0.02, z1: cz + 0.02 }, { front: "#9a9ea4" });
   s += box({ x0: cx - 0.24, x1: cx + 0.22, y0: 0.45, y1: 0.53, z0: cz - 0.25, z1: cz + 0.25 }, { front: "#222428", side: "#1a1c20", top: "#2e3136" });
   s += box({ x0: cx + 0.22, x1: cx + 0.27, y0: 0.55, y1: 1.2, z0: cz - 0.23, z1: cz + 0.23 }, { front: "#1a1c20", side: "#222428", top: "#2e3136" }); // respatller
-  s += box({ x0: cx - 0.1, x1: cx + 0.2, y0: 0.53, y1: 0.7, z0: cz - 0.27, z1: cz - 0.23 }, { front: "#1a1c20", top: "#2e3136" });             // reposabraços
+  for (const z of [cz + 0.23, cz - 0.27]) s += box({ x0: cx - 0.1, x1: cx + 0.2, y0: 0.53, y1: 0.7, z0: z, z1: z + 0.04 }, { front: "#1a1c20", side: "#141518", top: "#2e3136" }); // dos reposabraços
   add(s);
 }
 
 // ---------------------------------------------------------------- zona de la gata (groc al plànol): racó del fons a la dreta
 {
   let s = "";
-  s += box({ x0: W - 0.4, x1: W - 0.04, y0: 0, y1: 0.05, z0: BACK - 0.7, z1: BACK - 0.05 }, { front: "#e6dcc8", side: "#d6ccb8", top: "#efe6d4" });
-  s += box({ x0: W - 0.28, x1: W - 0.18, y0: 0.05, y1: 1.1, z0: BACK - 0.45, z1: BACK - 0.35 }, { front: "url(#room-sisal)", side: "url(#room-sisal-side)" });
-  s += box({ x0: W - 0.4, x1: W - 0.04, y0: 1.1, y1: 1.15, z0: BACK - 0.6, z1: BACK - 0.2 }, { front: "#efe6d4", side: "#ddd2be", top: "#f6efe0" });
+  // torre de la gata, 3 nivells: (1) una caseta amb forat i una manteta, (2) una plataforma sobre dos pals
+  // i (3) dalt de tot una plataforma sobre un sol pal
+  const tx0 = W - 0.44, tx1 = W - 0.04, tz0 = BACK - 0.72, tz1 = BACK - 0.08, PL = { front: "#efe6d4", side: "#ddd2be", top: "#f6efe0" };
+  const cave = { x0: tx0, x1: tx1, y0: 0, y1: 0.36, z0: tz0, z1: tz1 };
+  s += box(cave, PL);
+  const cf = face(cave, "left"); // forat redó a la cara que mira l'habitació, amb la manteta que en trau el cap
+  const ring = Array.from({ length: 25 }, (_, i) => { const a = i / 24 * Math.PI * 2; return P(...cf(0.5 + Math.cos(a) * 0.26, 0.55 + Math.sin(a) * 0.32)).map(r).join(" "); });
+  s += `<path d="M${ring.join(" L")} Z" fill="#3a3028"/>`;
+  s += quad(cf, 0.3, 0.72, 0.7, 0.87, `fill="#c96a8a"`) + quad(cf, 0.36, 0.74, 0.44, 0.86, `fill="#e88aa8"`);
+  for (const z of [tz0 + 0.12, tz1 - 0.2]) s += box({ x0: W - 0.29, x1: W - 0.2, y0: 0.36, y1: 0.72, z0: z, z1: z + 0.09 }, { front: "url(#room-sisal)", side: "url(#room-sisal-side)" });
+  s += box({ x0: tx0, x1: tx1, y0: 0.72, y1: 0.77, z0: tz0 + 0.04, z1: tz1 - 0.04 }, PL);
+  s += box({ x0: W - 0.29, x1: W - 0.2, y0: 0.77, y1: 1.1, z0: (tz0 + tz1) / 2 - 0.045, z1: (tz0 + tz1) / 2 + 0.045 }, { front: "url(#room-sisal)", side: "url(#room-sisal-side)" });
+  s += box({ x0: tx0 + 0.04, x1: tx1, y0: 1.1, y1: 1.15, z0: tz0 + 0.14, z1: tz1 - 0.14 }, PL);
   s += box({ x0: 0.95, x1: 1.2, y0: 0, y1: 0.05, z0: BACK - 0.45, z1: BACK - 0.3 }, { front: "#d8c6a8", top: "#e6d6b8" }); // menjador
   s += box({ x0: 1.0, x1: 1.35, y0: 0, y1: 0.1, z0: 2.55, z1: 2.85 }, { front: "#2a2620", side: "#221f1a", top: "#d8cba8" });  // sorral
   add(s);
@@ -146,11 +163,15 @@ let plate;
   let s = "";
   const x0 = -W, x1 = 0.2, z0 = 0.15, z1 = 1.55; // 2 m de llarg (x) i 1,4 m d'ample (z)
   s += shadow({ x0, x1, z0, z1 }, 0.04, 0.25);
-  s += box({ x0, x1: x0 + 0.06, y0: 0, y1: 0.9, z0, z1 }, { front: "#3a2a20", side: "#2e2018", top: "#4a3628" });  // capçal, a la paret
-  s += box({ x0: x0 + 0.06, x1, y0: 0.06, y1: 0.3, z0, z1 }, { front: "#3a2a20", side: "#2e2018" });              // estructura
+  s += box({ x0, x1: x0 + 0.06, y0: 0, y1: 0.9, z0, z1 }, { front: "#efede8", side: "#e0ddd6", top: "#f8f7f3" });  // capçal blanc, a la paret
+  s += box({ x0: x0 + 0.06, x1, y0: 0.06, y1: 0.3, z0, z1 }, { front: "#ebe9e4", side: "#dcd9d2" });              // estructura blanca
   s += box({ x0: x0 + 0.08, x1: x1 - 0.02, y0: 0.3, y1: 0.48, z0: z0 + 0.02, z1: z1 - 0.02 }, { front: "#f2f0ea", top: "#f6f4ef" });
   // coixí al costat de la paret
-  s += box({ x0: x0 + 0.1, x1: x0 + 0.5, y0: 0.48, y1: 0.62, z0: z0 + 0.12, z1: z1 - 0.12 }, { front: "#2a3a6a", side: "#22305a", top: "#33467a" });
+  { // coixí: blanc, una mica abombat
+    const pb = { x0: x0 + 0.1, x1: x0 + 0.46, y0: 0.48, y1: 0.6, z0: z0 + 0.14, z1: z1 - 0.14 };
+    s += box(pb, { front: "#e9edf2", side: "#dde2e8", top: "#f6f8fb" });
+    s += quad(face(pb, "top"), 0.15, 0.1, 0.85, 0.9, `fill="#fff" opacity="0.6"`);
+  }
   // edredó de cercles: de després del coixí fins als peus, i cau pel costat de davant i pels peus
   const dB = { x0: x0 + 0.52, x1: x1 + 0.04, y0: 0.18, y1: 0.54, z0: z0 - 0.04, z1: z1 + 0.02 };
   s += box(dB, { front: "url(#room-duvet-v)", top: "url(#room-duvet)" });
@@ -171,20 +192,21 @@ let plate;
   add(s, { spot: "dgt", title: "Placa L: anar a la DGT (autoescola)", hit: [r(px - 34), r(py - 52), 68, 58] });
 }
 
-// ---------------------------------------------------------------- motxilla recolzada al llit (→ joc d'estudi)
+// ---------------------------------------------------------------- motxilla, de costat, recolzada als peus del llit (→ joc d'estudi)
 {
-  const bx = 0.4, bz = 0.75; // recolzada als peus del llit
-  const BAG = `<g transform="scale(1.15)"><ellipse cx="-4" cy="0" rx="22" ry="4" fill="#1a1a4e" opacity="0.25"/>
-    <g transform="rotate(-12 0 0)">
-      <path d="M-6 -44 C-6 -53 6 -53 6 -44" stroke="#2a2a30" stroke-width="2.6" fill="none"/>
-      <path d="M-17 -2 L-18 -34 C-18 -44 -10 -46 0 -46 C10 -46 18 -44 18 -34 L17 -2 Q0 2 -17 -2 Z" fill="url(#room-bag)"/>
-      <path d="M-12 -4 L-12 -18 Q0 -22 12 -18 L12 -4 Q0 -1 -12 -4 Z" fill="#1c1c20"/>
-      <path d="M-11 -17 Q0 -20.5 11 -17" stroke="#3a3a42" stroke-width="1.2" fill="none"/>
-      <!-- xapa redona blava amb un toc taronja (un planeta amb anell) -->
-      <circle cx="8" cy="-29" r="4.4" fill="#1f4fa8" stroke="#c9d6e8" stroke-width="0.8"/>
-      <circle cx="8" cy="-29" r="2" fill="#4aa8ff"/><ellipse cx="8" cy="-29" rx="3.6" ry="1" fill="none" stroke="#ff8a1f" stroke-width="0.8" transform="rotate(-20 8 -29)"/>
+  const bx = 0.36, bz = 0.85;
+  // es veu de perfil: l'esquena (amb les tires) toca el llit, a l'esquerra; la butxaca de davant, a la dreta
+  const BAG = `<g transform="scale(1.15)"><ellipse cx="2" cy="0" rx="16" ry="3.5" fill="#1a1a4e" opacity="0.25"/>
+    <g transform="rotate(-14 0 0)">
+      <path d="M-6 -44 C-4 -52 4 -52 5 -45" stroke="#2a2a30" stroke-width="2.6" fill="none"/>
+      <path d="M-9 -2 L-10 -38 C-10 -46 -4 -48 2 -47 C9 -46 11 -40 11 -32 L12 -2 Q2 1 -9 -2 Z" fill="url(#room-bag)"/>
+      <path d="M-10 -36 C-14 -26 -14 -12 -10 -4" stroke="#0e0e12" stroke-width="2.4" fill="none"/>
+      <path d="M8 -22 C15 -21 16 -6 12 -3 L9 -3 Z" fill="#1c1c20"/>
+      <path d="M2 -46 C8 -45 11 -39 11 -32" stroke="#3a3a42" stroke-width="1" fill="none"/>
+      <circle cx="12.2" cy="-14" r="3.2" fill="#1f4fa8" stroke="#c9d6e8" stroke-width="0.6"/><circle cx="12.2" cy="-14" r="1.4" fill="#4aa8ff"/>
+      <ellipse cx="12.2" cy="-14" rx="2.6" ry="0.8" fill="none" stroke="#ff8a1f" stroke-width="0.7" transform="rotate(-20 12.2 -14)"/>
     </g></g>`;
-  add(figure(BAG, bx, 0, bz), { spot: "study", title: "Motxilla: anar a estudiar (tower defense)", hit: bbox([[bx - 0.3, 0, bz], [bx + 0.3, 0.62, bz]]) });
+  add(figure(BAG, bx, 0, bz), { spot: "study", title: "Motxilla: anar a estudiar (tower defense)", hit: bbox([[bx - 0.2, 0, bz], [bx + 0.22, 0.62, bz]]) });
 }
 
 // ---------------------------------------------------------------- definicions
