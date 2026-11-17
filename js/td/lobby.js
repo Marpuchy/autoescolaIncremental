@@ -254,7 +254,8 @@ function tdCreaturePages(id) {
     `<p class="tdbook-text">Encara no has invocat aquesta criatura.</p><p class="tdbook-text muted">${d.rar === "mitic" ? `Només es pot aconseguir traent un ${TD_MYTHIC_GRADE} o més a l'examen final d'una assignatura de ${TD_SUBJECTS[d.subj].name} (${TD_SUBJECTS[d.subj].classes.join(", ")}).` : `Pot eixir a l'altar, amb pergamins de ${TD_SUBJECTS[d.subj].name}.`}</p>`];
   const st = tdStats(id), next = tdNextStar(id);
   const cost = o.level < TD_LEVEL_MAX ? tdLevelCost(d.rar, o.level) : null;
-  return [`<div class="tdbook-art rar-${d.rar}">${tdCreatureSvg(id)}</div><h3 class="tdbook-name">${d.name}</h3>
+  return [`<div class="tdbook-demo" data-demo="${id}"><div class="tdbook-art rar-${d.rar}">${tdCreatureSvg(id)}</div>
+      <div class="tdbook-dummy" title="Ninot d'entrenament">${tdEnemySvg("notificacio")}</div></div><h3 class="tdbook-name">${d.name}</h3>
       <div class="tdbook-rar" style="color:${r.color}">${r.name}</div><div class="tdbook-stars">${tdStarStr(st.stars)}</div>`,
     `<p class="tdbook-text">${d.desc}</p>
      <table class="tdbook-stats"><tr><th>Nivell</th><td>${o.level} / ${TD_LEVEL_MAX}</td></tr><tr><th>Dany</th><td>${fmtNum(st.dmg)}</td></tr>
@@ -424,4 +425,60 @@ function initTdLobby() {
     if (!$("td-summon").hidden) tdsClose();
     else if (!$("td-dialog").hidden) tdClosePanel();
   });
+}
+
+// ---- demostració d'atac a la pàgina de cada criatura del grimori: llança la seua peça contra un ninot
+// (la peça desapareix del cos mentre vola i es torna a formar, com al combat)
+const tdDemo = { id: null, next: 0, side: 0 };
+setInterval(() => {
+  const box = document.querySelector("#td-dialog:not([hidden]) .tdbook-spread:not([data-turning]) .tdbook-demo");
+  if (!box) { tdDemo.id = null; return; }
+  const id = box.dataset.demo, now = performance.now();
+  if (tdDemo.id !== id) { tdDemo.id = id; tdDemo.next = now + 500; tdDemo.side = 0; return; }
+  if (now < tdDemo.next) return;
+  const d = TD_DEFENDERS[id], st = tdStats(id);
+  tdDemo.next = now + Math.min(1800, Math.max(700, 1000 / st.rate));
+  tdDemoShot(box, id, d, st);
+}, 100);
+function tdDemoShot(box, id, d, st) {
+  const svg = box.querySelector(".tdc"), dummy = box.querySelector(".tdbook-dummy");
+  if (!svg || !dummy) return;
+  const art = TD_ART[id], th = art.throw || {};
+  tdDemo.side = d.alt ? 1 - tdDemo.side : 0;
+  const part = th.c ? "c" : tdDemo.side ? "r" : "l";
+  const [ax, ay] = th[part] || th.l || [60, 60];
+  const b = box.getBoundingClientRect(), s = svg.getBoundingClientRect(), t = dummy.getBoundingClientRect();
+  const x0 = s.left - b.left + (ax + 6) / 132 * s.width, y0 = s.top - b.top + (ay + 10) / 132 * s.height;
+  const x1 = t.left - b.left + t.width * 0.5, y1 = t.top - b.top + t.height * 0.45;
+  svg.classList.remove("fire"); void svg.getBoundingClientRect(); svg.classList.add("fire");
+  if (part !== "c") svg.classList.add(`thrown-${part}`);
+  const p = document.createElement("div");
+  p.className = "tdbook-shot";
+  const k = s.width / 132 * (art.projScale || 1.25); // la peça, a la mateixa escala que el dibuix
+  p.innerHTML = `<svg viewBox="-40 -40 80 80" width="${80 * k}" height="${80 * k}" overflow="visible"><g>${part === "r" && art.projR ? art.projR : art.proj}</g></svg>`;
+  box.appendChild(p);
+  const ang = Math.atan2(y1 - y0, x1 - x0) * 180 / Math.PI, spin = TD_ART[id].projScale ? 0 : ang;
+  const dur = 380 + Math.hypot(x1 - x0, y1 - y0) * 0.6;
+  const fly = p.animate([
+    { transform: `translate(${x0}px, ${y0}px) translate(-50%, -50%) rotate(${spin}deg)` },
+    { transform: `translate(${(x0 + x1) / 2}px, ${Math.min(y0, y1) - 30}px) translate(-50%, -50%) rotate(${spin}deg)`, offset: 0.5 },
+    { transform: `translate(${x1}px, ${y1}px) translate(-50%, -50%) rotate(${spin}deg)` },
+  ], { duration: dur, easing: "ease-in" });
+  const regrow = () => {
+    if (part === "c") return;
+    svg.classList.remove(`thrown-${part}`, `regrow-${part}`); void svg.getBoundingClientRect(); svg.classList.add(`regrow-${part}`);
+  };
+  fly.onfinish = () => {
+    p.remove();
+    regrow();
+    dummy.classList.remove("hit"); void dummy.offsetWidth; dummy.classList.add("hit");
+    const n = document.createElement("span");
+    n.className = "tdbook-dmg";
+    n.style.left = `${x1}px`; n.style.top = `${y1 - 20}px`;
+    n.style.color = TD_GLOW[d.subj] || "#fff";
+    n.textContent = fmtNum(st.dmg);
+    box.appendChild(n);
+    setTimeout(() => n.remove(), 800);
+  };
+  fly.oncancel = regrow;
 }
