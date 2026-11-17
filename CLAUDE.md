@@ -14,6 +14,7 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
 - Balance: `node tools/bot.js` (tests por escenario, jugador medio y bueno) · `node tools/tune.js --targets '{...}'`.
 - Capturas: `node tools/captura.js --level 140 --items all --tab inventory` · `--svg img/escenari-13.svg`.
 - Habitación (pantalla de inicio): `node tools/habitacio.js` (regenera `js/data/room-art.js`).
+- Sala del juego de estudio: `node tools/sala-estudi.js` (regenera `js/data/td-lobby-art.js`).
 - Escena de la DGT: `node tools/dgt.js` (regenera `js/data/hub-art.js`; motor de perspectiva en `tools/perspectiva.js`).
   Con Playwright (instalado para Python): skill `webapp-testing`, abriendo `index.html` como `file://`.
 - No hay build, lint ni tests automáticos.
@@ -25,6 +26,10 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   `combat.js`, `upgrades.js`, `inventory.js`, `evolutions.js` (ramas de evolución de objetos, datos en
   `data/evolutions.js`), `hub.js` (DGT: espacio común), `room.js` (habitación de inicio), `progress.js`, `exam.js`, `tests.js`, `shop.js`, `bestiary.js`.
 - Pintado: `render.js` (cada fotograma), `fx.js` (animaciones y números), `style.css`. `dev.js`: consola de desarrollo.
+- `js/td/` — **juego de estudio** (tower defense gacha), aparte de la autoescuela: `data.js` (todo su balance: criaturas,
+  enemigos, mundos, probabilidades, tiradas por estudiar), `art.js` (criaturas SVG), `state.js` (guardado propio
+  `TD_SAVE_KEY`, gacha, estrellas, niveles), `battle.js` (combate), `lobby.js` (sala y ventanas), `dev.js` (sección 📚 de
+  la consola dev, `tdDev`). Estilos en `td.css`.
 - `img/` — fondos `escenari-N.svg` (1600×900), sprites SVG y fotos de jefes. `tools/` — bot, ajustador y capturas (no los carga el juego).
 
 ## Convenciones
@@ -46,6 +51,16 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
 - Rumbo: el juego pasa a ser de **estudio general** con varios juegos (autoescuela, grado, carrera…) unidos como
   salas dibujadas, sin menús. Se entra por la **habitación** (`js/room.js`): la placa L lleva a la DGT y la mochila al
   juego de estudio (tower defense, aún por hacer: de momento un aviso). Desde la DGT se vuelve por la puerta de eixida.
+- Juego de estudio: se entra por la mochila. Sala arcana con puntos (altar = invocar, escritorio = apuntar estudio,
+  grimori, bestiari, portal = mundos, cristall = millores, estudiant = artefactos, rellotge = reiniciar, porta = habitación).
+  Reglas del usuario: los pergamins (tiradas) **solo** salen de estudiar (nunca del combate); en combate se gana maná
+  y saber (para subir niveles); el mítico solo con un 8+ en el final; los jefes dan artefactos al estudiante (3 huecos).
+  Probabilidades 70 / 25 / 4,5 / 0,5 con garantía (épico 30, legendario 150). Copias → estrellas (1/2/4/7/11).
+  Estilo de las criaturas: símbolos de energía en neón sobre fondo oscuro (referencia: «Animation vs. Math»), sin
+  caras; cada una hecha con los símbolos de su asignatura y la pieza que lanza forma parte del cuerpo. Pocas y cuidadas.
+  Reiniciar (rellotge) conserva criaturas, pergamins, artefactos y registro; pierde saber, niveles, millores y mundos.
+  Hoy: modo Informático, Àlgebra Lineal y Programació I (7 criaturas cada una), mundo 1 (Serp). Asignaturas del usuario
+  y modo Forestal: pendientes.
 - Botiga, tests, compendio e inventario viven en la DGT (`js/hub.js`): pantalla completa con el interior dibujado y
   4 puntos interactivos (caixer, instructor, llibre, espill). Ya no hay panel derecho.
 - Cada zona nueva trae un enemigo nuevo y temático (nunca una "versión más fuerte"); jefe con nombre cada 3 zonas,

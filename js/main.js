@@ -58,8 +58,8 @@ let last = performance.now();
 function loop(now) {
   const dt = Math.min((now - last) / 1000, 1);
   last = now;
-  // a l'habitació l'autoescola està parada: ni combat ni pintat (no gasta recursos i en tornar seguix on estava)
-  if (roomOpen()) { requestAnimationFrame(loop); return; }
+  // a l'habitació i al joc d'estudi l'autoescola està parada: ni combat ni pintat (no gasta recursos i en tornar seguix on estava)
+  if (roomOpen() || tdOpen()) { requestAnimationFrame(loop); return; }
   if (!examOpen()) update(dt * CONFIG.debug.speed * gameSpeed); // el combat es para mentre hi ha examen
   render();
   requestAnimationFrame(loop);
@@ -68,8 +68,11 @@ function loop(now) {
 initInventory();
 initHub();
 initRoom();
+initTdLobby();
+initTdBattle();
 checkItemRewards(false); // partides d'abans: si ja havien derrotat un cap que dona equipament, el reben ara
 initDevConsole();
+initTdDev();
 renderUpgrades();
 renderTestPanel();
 renderShop();

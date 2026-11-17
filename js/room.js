@@ -1,7 +1,7 @@
 // ===== HABITACIÓ: PANTALLA D'INICI =====
 // L'habitació de l'estudiant, dibuixada en perspectiva (tools/habitacio.js → js/data/room-art.js). No hi ha menús:
 // cada objecte porta a un joc d'estudi.
-//   placa L penjada a la paret → DGT (autoescola) · motxilla → joc d'estudi (tower defense, encara per fer)
+//   placa L penjada a la paret → DGT (autoescola) · motxilla → sala del joc d'estudi (js/td/lobby.js)
 // Des de la DGT es torna ací per la porta d'eixida. Mentre s'està ací, l'autoescola està parada (js/main.js).
 const roomOpen = () => !$("room").hidden;
 
@@ -18,7 +18,7 @@ function closeRoom() {
 
 function goRoomSpot(name) {
   if (name === "dgt") { closeRoom(); openHub(); return; }
-  if (name === "study") toast("🎒 El joc d'estudi (tower defense) arriba prompte!", "good");
+  if (name === "study") { closeRoom(); tdOpenLobby(); }
 }
 
 // El dibuix no canvia: es pinta una vegada. Com a la DGT, la zona de toc de cada punt va al final, damunt de tot.

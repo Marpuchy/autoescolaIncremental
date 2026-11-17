@@ -671,9 +671,9 @@ video.hub-tv-media::-webkit-media-controls { display: none !important; }
 @media (max-aspect-ratio: 1/1) and (min-width: 701px) { .room-actions { grid-template-columns: repeat(2, 1fr); } }
 body.room-open #toasts { position: fixed; top: 70px; left: 50%; z-index: 45; }
 /* a l'habitació l'autoescola està parada: el que queda davall no es pinta (els avisos sí) */
-body.room-open > header, body.room-open > #upgrades { display: none; }
-body.room-open #middle { visibility: hidden; }
-body.room-open #toasts { visibility: visible; }
+body:is(.room-open, .td-open) > header, body:is(.room-open, .td-open) > #upgrades { display: none; }
+body:is(.room-open, .td-open) #middle { visibility: hidden; }
+body:is(.room-open, .td-open) #toasts { visibility: visible; position: fixed; top: 70px; left: 50%; z-index: 45; }
 @media (max-width: 700px) { .room-hint { display: none; } }
 /* els avisos han de veure's també dins de la DGT */
 body.hub-open #toasts { position: fixed; top: 70px; left: 50%; z-index: 45; }
