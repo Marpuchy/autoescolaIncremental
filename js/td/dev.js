@@ -11,6 +11,7 @@ const tdDev = {
     for (const id of Object.keys(TD_DEFENDERS)) {
       const o = td.owned[id] || (td.owned[id] = { copies: 0, level: 1 });
       o.copies = Math.max(o.copies, copies);
+      o.stars = Math.max(o.stars || 1, tdStarsByCopies(o.copies)); // a la consola, les estrelles ja pagades
     }
     tdSave(); tdRefreshAll();
   },

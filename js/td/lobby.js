@@ -137,7 +137,7 @@ function tdsNext() {
   box.querySelector(".tds-creature").innerHTML = tdCreatureSvg(r.id);
   box.querySelector(".tds-rar").textContent = TD_RARITIES[d.rar].name;
   box.querySelector(".tds-name").textContent = d.name;
-  box.querySelector(".tds-tag").innerHTML = r.isNew ? "NOVA!" : r.starUp ? `Puja a ${tdStarStr(r.stars)}` : r.saber ? `Repetida al màxim: +${r.saber} ✨` : `Còpia · ${tdStarStr(r.stars)}`;
+  box.querySelector(".tds-tag").innerHTML = r.isNew ? "NOVA!" : r.ready ? `Còpia · ja pot pujar a ★${r.stars + 1} (grimori)` : r.saber ? `Repetida al màxim: +${r.saber} ✨` : `Còpia · ${tdStarStr(r.stars)}`;
   box.querySelector(".tds-desc").textContent = d.desc;
   box.querySelector(".tds-count").textContent = run.res.length > 1 ? `${run.i + 1} / ${run.res.length}` : "";
   void box.offsetWidth; // reinicia les animacions
@@ -159,7 +159,7 @@ function tdsSummary() {
   box.querySelector(".tds-cards").innerHTML = tdsRun.res.map((r, i) => {
     const d = TD_DEFENDERS[r.id];
     return `<div class="td-rcard rar-${d.rar}" style="animation-delay:${i * 0.06}s"><div class="td-rcard-art">${tdCreatureSvg(r.id)}</div>
-      <div class="td-rcard-name">${d.name}</div><div class="td-rcard-tag">${r.isNew ? "NOVA!" : r.starUp ? `★ ${r.stars}` : r.saber ? `+${r.saber} ✨` : tdStarStr(r.stars)}</div></div>`;
+      <div class="td-rcard-name">${d.name}</div><div class="td-rcard-tag">${r.isNew ? "NOVA!" : r.ready ? `⬆ ★${r.stars + 1}` : r.saber ? `+${r.saber} ✨` : tdStarStr(r.stars)}</div></div>`;
   }).join("");
   box.querySelector(".tds-summary").hidden = false;
   tdsRun.phase = "summary";
@@ -307,7 +307,8 @@ function tdCreaturePages(id) {
       <h3 class="tdbook-name">${d.name}</h3>
       <div class="tdbook-rar" style="color:${r.color}">${r.name}</div><div class="tdbook-stars">${tdStarStr(st.stars)}</div>
       <div class="tdbook-prog" title="Còpies per a la següent estrela"><div style="width:${next ? Math.min(100, 100 * next.have / next.need) : 100}%"></div>
-        <span>${next ? `${next.have} / ${next.need}` : "MÀX"}</span></div>`,
+        <span>${next ? `${next.have} / ${next.need}` : "MÀX"}</span></div>
+      ${next && next.have >= next.need ? `<button class="tdbook-ascend" data-ascend="${id}" ${td.saber < tdAscendCost(id) ? "disabled" : ""}>⭐ Pujar a ★${st.stars + 1} · ✨ ${fmtNum(tdAscendCost(id))}</button>` : ""}`,
     `<p class="tdbook-text">${d.desc}</p>
      <table class="tdbook-stats"><tr><th>Nivell</th><td>${o.level} / ${cap}${cap < TD_LEVEL_MAX ? ` <span class="muted">(més amb ★${st.stars + 1})</span>` : ""}</td></tr><tr><th>Dany</th><td>${fmtNum(st.dmg)}</td></tr>
        <tr><th>Velocitat</th><td>${st.rate.toFixed(2)} / s</td></tr><tr><th>Abast</th><td>${Math.round(st.range)}</td></tr><tr><th>Cost</th><td>🔮 ${d.cost}</td></tr>
@@ -523,6 +524,7 @@ function initTdLobby() {
     else if (ds.play) { tdClosePanel(); tdOpenBattle(Number(ds.play)); }
     else if (ds.up) { if (tdBuyUpgrade(ds.up)) { tdRenderPanel(); tdRenderLobby(); document.querySelector(".td-card .td-crys")?.classList.add("flash"); } }
     else if (ds.equip) tdToggleEquip(ds.equip);
+    else if (ds.ascend) { if (tdAscend(ds.ascend)) { toast(`⭐ ${TD_DEFENDERS[ds.ascend].name} puja a ★${tdStars(ds.ascend)}!`, "good"); tdRenderPanel(); } }
     else if (ds.eslot) { tdEquipSlot = ds.eslot; tdRenderPanel(); }
   });
   document.addEventListener("keydown", ev => {

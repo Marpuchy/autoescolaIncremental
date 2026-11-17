@@ -21,6 +21,8 @@ const TD_RARITIES = {
 };
 const TD_PITY = { epic: 30, llegendari: 90 }; // garantia: èpic com a molt a la tirada 30 i llegendari a la 90 (per camp)
 // Còpies totals per a cada estrela (★1 en traure-la; ★5 amb 11 còpies). Les que sobren es tornen saber.
+// Pujar d'estrella costa saber (a més de les còpies): base × √(valor de la raresa) × multiplicador de l'estrella
+const TD_STAR_COST = [1, 3, 8, 20];
 const TD_STAR_COPIES = [1, 2, 4, 7, 11];
 
 // Criatures. dmg: dany per atac · rate: atacs per segon · range: abast · cost: maná per a posar-la

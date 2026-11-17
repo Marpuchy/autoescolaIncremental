@@ -56,6 +56,8 @@ function tdLoad() {
       td.favs = td.favs.map(id => id === old ? to : id).filter((id, i, a) => a.indexOf(id) === i);
       delete td.owned[old];
     }
+    // partides d'abans: les estrelles que ja tenien per còpies queden pagades
+    for (const o of Object.values(td.owned)) if (o && typeof o === "object" && !o.stars) o.stars = tdStarsByCopies(Number(o.copies) || 0) || 1;
     // criatures o artefactes que ja no existixen: fora
     for (const id of Object.keys(td.owned)) if (!TD_DEFENDERS[id]) delete td.owned[id];
     for (const id of Object.keys(td.artifacts)) if (!TD_ARTIFACTS[id]) delete td.artifacts[id];
@@ -67,11 +69,27 @@ function tdLoad() {
 }
 
 // ---------------------------------------------------------------- criatures: estrelles i estadístiques
-function tdStars(id) {
-  const c = td.owned[id]?.copies || 0;
+// Estrelles: les copies només ho permeten; per a pujar-la cal pagar (tdAscend). o.stars guarda les pagades.
+function tdStarsByCopies(c) {
   let s = 0;
   for (const need of TD_STAR_COPIES) if (c >= need) s++;
   return s;
+}
+function tdStars(id) {
+  const o = td.owned[id];
+  if (!o) return 0;
+  return Math.max(1, Math.min(o.stars || 1, tdStarsByCopies(o.copies || 0)));
+}
+const tdAscendCost = id => Math.round(100 * TD_RARITIES[TD_DEFENDERS[id].rar].value ** 0.5 * TD_STAR_COST[tdStars(id) - 1]);
+const tdCanAscend = id => { const n = tdNextStar(id); return !!n && n.have >= n.need; };
+function tdAscend(id) {
+  if (!tdCanAscend(id)) return false;
+  const cost = tdAscendCost(id);
+  if (td.saber < cost) return false;
+  td.saber -= cost;
+  td.owned[id].stars = tdStars(id) + 1;
+  tdSave();
+  return true;
 }
 // Còpies que falten per a la pròxima estrela (null si ja té ★5)
 function tdNextStar(id) {
@@ -126,9 +144,10 @@ function tdGrant(id) {
     saber = 20 * TD_RARITIES[TD_DEFENDERS[id].rar].value;
     td.saber += saber;
   } else o.copies++;
+  if (before === 0) td.owned[id].stars = 1;
   const after = tdStars(id);
   if (before === 0 && td.team.length < 6) td.team.push(id);
-  return { id, isNew: before === 0, starUp: before > 0 && after > before, stars: after, saber };
+  return { id, isNew: before === 0, ready: before > 0 && tdCanAscend(id), stars: after, saber };
 }
 function tdSummon(subj, n = 1) {
   n = Math.min(n, td.pergamins[subj]);

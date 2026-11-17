@@ -692,3 +692,7 @@
 @keyframes sl-roll-t { 0%, 12%, 92%, 100% { transform: translateY(23px); } 28%, 76% { transform: translateY(0); } }
 @keyframes sl-roll-b { 0%, 12%, 92%, 100% { transform: translateY(-21px); } 28%, 76% { transform: translateY(0); } }
 @media (prefers-reduced-motion: reduce) { .sl-bob, .sl-candle-in, .sl-flame, .sl-glyph, .sl-paper, .sl-roll-t, .sl-roll-b { animation: none; } }
+
+.tdbook-ascend { margin: 6px auto 0; display: block; background: linear-gradient(90deg, #ffc23f, #ffdf7a); color: #2a1a0c; font-weight: 900; animation: tdbook-ready 1.6s ease-in-out infinite; }
+.tdbook-ascend:disabled { animation: none; }
+@keyframes tdbook-ready { 50% { box-shadow: 0 0 0 4px rgba(255, 194, 63, 0.35); } }
