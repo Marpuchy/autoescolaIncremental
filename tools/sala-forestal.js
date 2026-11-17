@@ -221,25 +221,36 @@ const fern = (x, y, s, flip = 1) => { // falguera: fulles corbades amb folíols
 // ---------------------------------------------------------------- prestatgeria tallada a la paret dreta: llibres, rotlles, plantetes i lianes
 {
   let s = "";
-  const b = { x0: W - 0.5, x1: W, y0: 0, y1: 3.2, z0: 3.0, z1: 6.3 };
+  // moble de fusta contra la paret, amb buits de 40 cm de fons: es veu el fons, la lleixa (o el sostre del buit)
+  // i el costat del fons de cada buit; els llibres estan drets dins
+  const b = { x0: W - 0.55, x1: W, y0: 0, y1: 3.2, z0: 3.0, z1: 6.3 }, d = 0.4;
   const lf = face(b, "left"); // u: del fons cap al davant · v: de dalt a baix
-  // buit tallat a l'escorça, amb la vora gruixuda
-  s += quad(lf, -0.03, -0.03, 1.03, 1.0, `fill="${BARK_L}"`);
+  const at = (x, u, v) => [x, b.y1 - (b.y1 - b.y0) * v, b.z1 - (b.z1 - b.z0) * u];
+  s += box(b, { front: "#5a3e28", side: BARK_L, top: "#7a5a3a" });
+  s += quad(lf, 0, 0, 1, 1, `fill="${BARK_L}"`);
   const rows = [0.04, 0.29, 0.54, 0.79];
-  for (const v of rows) {
-    s += quad(lf, 0.03, v, 0.97, v + 0.2, `fill="#22170f"`);
-    s += quad(lf, 0.02, v + 0.2, 0.98, v + 0.225, `fill="#7a5a3a"`); // lleixa
+  for (const v0 of rows) {
+    const v1 = v0 + 0.2, u0 = 0.03, u1 = 0.97, xb = b.x0 + d;
+    const F = (u, v) => at(b.x0, u, v), B = (u, v) => at(xb, u, v);
+    s += poly([B(u0, v0), B(u1, v0), B(u1, v1), B(u0, v1)], `fill="#1a110a"`);                                   // fons
+    const yTop = at(0, 0, v0)[1], yBot = at(0, 0, v1)[1];
+    if (yTop > cam.eye) s += poly([F(u0, v0), F(u1, v0), B(u1, v0), B(u0, v0)], `fill="#2a1c12"`);              // sostre del buit
+    if (yBot < cam.eye) s += poly([F(u0, v1), F(u1, v1), B(u1, v1), B(u0, v1)], `fill="#6a4a2e"`);              // lleixa
+    s += poly([F(u0, v0), B(u0, v0), B(u0, v1), F(u0, v1)], `fill="#24180f"`);                                   // costat del fons
+    // llibres drets, rotlles i testos, recolzats al fons del buit
+    const xi = xb - 0.06, T = (u, v) => at(xi, u, v);
     let u = 0.06, i = 0;
     while (u < 0.92) {
-      const kind = (i * 7 + Math.round(v * 10)) % 9, th = 0.022 + (i % 3) * 0.006;
-      if (kind === 4) { // rotlle tombat
-        s += quad(lf, u, v + 0.15, u + 0.09, v + 0.2, `fill="#e9dcbc"`) + quad(lf, u + 0.085, v + 0.15, u + 0.095, v + 0.2, `fill="#c9a678"`); u += 0.11;
-      } else if (kind === 7) { // test amb un brot
-        s += quad(lf, u, v + 0.15, u + 0.06, v + 0.2, `fill="#a8582e"`);
-        const [px, py] = P(...lf(u + 0.03, v + 0.15)); s += leaf(px - 4, py, 9, -30) + leaf(px + 4, py, 9, 30) + leaf(px, py - 2, 11, 0, LEAF_L); u += 0.08;
+      const kind = (i * 7 + Math.round(v0 * 10)) % 9, th = 0.022 + (i % 3) * 0.006;
+      if (kind === 4) { s += poly([T(u, v1 - 0.05), T(u + 0.09, v1 - 0.05), T(u + 0.09, v1), T(u, v1)], `fill="#e9dcbc"`); u += 0.11; }
+      else if (kind === 7) {
+        s += poly([T(u, v1 - 0.05), T(u + 0.06, v1 - 0.05), T(u + 0.06, v1), T(u, v1)], `fill="#a8582e"`);
+        const [px, py] = P(...T(u + 0.03, v1 - 0.05)); s += leaf(px - 4, py, 8, -30) + leaf(px + 4, py, 8, 30) + leaf(px, py - 2, 10, 0, LEAF_L); u += 0.08;
       } else {
-        const hh = 0.13 + (i % 4) * 0.012, c = ["#6a3a24", "#3a5a2a", "#8a6a3a", "#2f4a3a", "#7a2a22", "#5a4a2a"][(i + Math.round(v * 9)) % 6];
-        s += quad(lf, u, v + 0.2 - hh, u + th, v + 0.2, `fill="${c}"`) + quad(lf, u, v + 0.2 - hh + 0.02, u + th, v + 0.2 - hh + 0.03, `fill="#c9a070" opacity="0.6"`); u += th + 0.004;
+        const hh = 0.13 + (i % 4) * 0.012, c = ["#6a3a24", "#3a5a2a", "#8a6a3a", "#2f4a3a", "#7a2a22", "#5a4a2a"][(i + Math.round(v0 * 9)) % 6];
+        s += poly([T(u, v1 - hh), T(u + th, v1 - hh), T(u + th, v1), T(u, v1)], `fill="${c}"`);
+        s += poly([T(u, v1 - hh + 0.02), T(u + th, v1 - hh + 0.02), T(u + th, v1 - hh + 0.03), T(u, v1 - hh + 0.03)], `fill="#c9a070" opacity="0.6"`);
+        u += th + 0.004;
       }
       i++;
     }
