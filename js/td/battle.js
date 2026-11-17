@@ -75,7 +75,7 @@ function tdbBuildView() {
   // cristall
   const [cx, cy] = tdbS(...tdb.world.crystal);
   const crystal = el("g", { id: "tdb-crystal", transform: `translate(${cx} ${cy})` }, svg);
-  crystal.innerHTML = `<circle r="70" fill="#4ad8ff" opacity="0.12"/><g class="tdb-crystal-gem">
+  crystal.innerHTML = `<circle r="70" fill="#4ad8ff" opacity="0.12"/><circle r="70" class="tdb-crystal-glow"/><g class="tdb-crystal-gem">
     <path d="M0 -62 L30 -14 L0 40 L-30 -14 Z" fill="#0b2a3a" stroke="#7fe8ff" stroke-width="5" stroke-linejoin="round"/>
     <path d="M0 -62 L0 40 M-30 -14 H30" stroke="#bff4ff" stroke-width="2" opacity="0.8"/></g>
     <text y="74" text-anchor="middle" font-size="26" font-weight="800" fill="#bff4ff" id="tdb-lives-map"></text>`;
@@ -145,7 +145,7 @@ function tdbPlace(slot, id) {
   t.stats = tdStats(id, 0);
   tdb.towers[slot] = t;
   tdbDrawTower(t);
-  tdbFx("summon", ...tdbS(...tdb.world.slots[slot]), TD_RARITIES[TD_DEFENDERS[id].rar].color);
+  tdbSummonFromStudent(t);
   return true;
 }
 const tdbUpCost = t => t.up >= 2 ? null : Math.round(TD_DEFENDERS[t.id].cost * TD_BATTLE.upgradeCost[t.up]);
@@ -192,9 +192,56 @@ function tdbDamage(e, amount, color = "#fff", big = false) {
   tdbNumber(x, y - e.size, Math.round(amount), color, big);
   if (e.hp <= 0) tdbKill(e);
 }
+// La criatura ix del llibre de l'estudiant, vola fent un arc i creix fins al buit
+const TDB_FLY = 520; // ms
+function tdbSummonFromStudent(t) {
+  const color = TD_RARITIES[TD_DEFENDERS[t.id].rar].color;
+  const [x0, y0] = tdbS(...tdb.world.student), [x1, y1] = tdbS(...tdb.world.slots[t.slot]);
+  const bx = x0 + 8, by = y0 + 24; // el llibre obert
+  const mx = (bx + x1) / 2, my = Math.min(by, y1) - 160;
+  const st = $("tdb-student");
+  st.classList.remove("cast"); void st.getBBox(); st.classList.add("cast");
+  setTimeout(() => st.classList.remove("cast"), 500);
+  tdbFx("summon", bx, by - 30, color);
+  t.cd += TDB_FLY / 1000;
+  t.el.animate([
+    { transform: `translate(${bx}px, ${by}px) scale(0.15)`, opacity: 0.4 },
+    { transform: `translate(${mx}px, ${my}px) scale(0.55)`, opacity: 1, offset: 0.5 },
+    { transform: `translate(${x1}px, ${y1}px) scale(1)`, opacity: 1 },
+  ], { duration: TDB_FLY, easing: "ease-in-out" });
+  // estela de llum darrere
+  const trail = el("path", { d: `M${bx} ${by} Q${2 * mx - (bx + x1) / 2} ${2 * my - (by + y1) / 2} ${x1} ${y1}`, class: "tdb-trail", stroke: color, style: `color:${color}`, pathLength: 1 }, $("tdb-fx"));
+  setTimeout(() => trail.remove(), TDB_FLY + 300);
+  setTimeout(() => tdb && tdbFx("summon", x1, y1, color), TDB_FLY);
+}
+// L'ànima de l'enemic vola fins al cristall, que s'il·lumina en rebre-la
+function tdbSoul(e) {
+  const fx = $("tdb-fx");
+  if (fx.querySelectorAll(".tdb-soul").length > 24) return;
+  const [x0, y0] = tdbS(...tdbPos(e)), [x1, y1] = tdbS(...tdb.world.crystal);
+  const c = TD_ENEMY_GLOW[e.def.art || e.type] || "#aab3c0";
+  const g = el("g", { class: "tdb-soul" }, fx);
+  g.innerHTML = `<circle r="${e.def.boss ? 16 : 9}" fill="${c}" opacity="0.35"/><circle r="${e.def.boss ? 8 : 4.5}" fill="#fff"/>`;
+  const sy = y0 - e.size * 0.45, mx = (x0 + x1) / 2 + (Math.random() - 0.5) * 120, my = Math.min(sy, y1) - 120 - Math.random() * 80;
+  const dur = 650 + Math.hypot(x1 - x0, y1 - y0) * 0.35;
+  const a = g.animate([
+    { transform: `translate(${x0}px, ${sy}px) scale(0.3)` },
+    { transform: `translate(${x0}px, ${sy - 30}px) scale(1)`, offset: 0.15 },
+    { transform: `translate(${mx}px, ${my}px) scale(1)`, offset: 0.55 },
+    { transform: `translate(${x1}px, ${y1 - 10}px) scale(0.6)` },
+  ], { duration: dur, easing: "ease-in", delay: 250, fill: "backwards" });
+  a.onfinish = () => {
+    g.remove();
+    const cr = $("tdb-crystal");
+    if (!cr) return;
+    cr.style.setProperty("--soul", c);
+    cr.classList.remove("feed"); void cr.getBBox(); cr.classList.add("feed");
+  };
+}
 function tdbKill(e, byTower) {
   e.hp = 0;
   tdbDissolve(e);
+  tdbSoul(e);
   tdb.kills++;
   tdb.mana += e.def.mana + (byTower ? TD_DEFENDERS[byTower.id].manaOnKill || 0 : 0);
   tdb.saber += e.def.saber * (1 + 0.1 * td.upgrades.saber);
@@ -589,6 +636,8 @@ function tdbHud() {
   else next.hidden = true;
   // cartes: les que no et pots permetre, apagades
   document.querySelectorAll("#tdb-deck [data-card]").forEach(c => c.classList.toggle("poor", tdb.mana < TD_DEFENDERS[c.dataset.card].cost));
+  const pb = document.querySelector("#tdb-deck [data-place]");
+  if (pb && tdb.pickId && pb.disabled !== tdb.mana < TD_DEFENDERS[tdb.pickId].cost) $("tdb-deck").querySelector(".tdb-pick-info").outerHTML = tdbPickInfo();
   if (tdb.selectedTower) tdbTowerPanel();
 }
 
@@ -599,9 +648,18 @@ function tdbRenderDeck() {
   $("tdb-deck").innerHTML = `<div class="tdb-pick-head"><span>Tria una criatura per al buit</span><button class="secondary small" data-pick="close" aria-label="Tancar">✕</button></div>
     <div class="tdb-pick-cards">${td.team.map(id => {
       const d = TD_DEFENDERS[id];
-      return `<button class="tdb-card rar-${d.rar}" data-card="${id}" title="${d.name}: ${d.desc}">
+      return `<button class="tdb-card rar-${d.rar}${tdb.pickId === id ? " sel" : ""}${tdb.mana < d.cost ? " poor" : ""}" data-card="${id}" aria-pressed="${tdb.pickId === id}">
         <span class="tdb-card-art">${tdCreatureSvg(id)}</span><span class="tdb-card-name">${d.name}</span><span class="tdb-card-cost">🔮 ${d.cost}</span></button>`;
-    }).join("")}</div>`;
+    }).join("")}</div>${tdbPickInfo()}`;
+}
+// Fitxa de la criatura triada: el que fa i les dades, abans d'invocar-la
+function tdbPickInfo() {
+  const id = tdb.pickId;
+  if (!id) return "";
+  const d = TD_DEFENDERS[id], s = tdStats(id), can = tdb.mana >= d.cost;
+  return `<div class="tdb-pick-info"><div class="tdb-panel-info"><strong>${d.name}</strong> <span class="td-stars">${"★".repeat(s.stars)}</span> · Nv. ${s.level}
+      <div class="muted">⚔️ ${fmtNum(s.dmg)} · ⏱ ${s.rate.toFixed(1)}/s · 🎯 ${Math.round(s.range)} · ${fmtNum(s.dmg * s.rate)} de dany/s</div><div class="tdb-panel-desc">${d.desc}</div></div>
+    <button data-place="${id}" ${can ? "" : "disabled"}>${can ? `✨ Invocar · 🔮 ${d.cost}` : `🔮 Et falten ${Math.ceil(d.cost - tdb.mana)}`}</button></div>`;
 }
 function tdbOpenPicker(slot) {
   tdbCloseBottom();
@@ -610,15 +668,24 @@ function tdbOpenPicker(slot) {
   tdbRenderDeck();
   tdbHud();
   $("tdb-deck").hidden = false;
-  const first = td.team.find(id => TD_DEFENDERS[id].cost <= tdb.mana) || td.team[0];
-  tdbPreview(first);
+  tdbSelectCard(td.team.find(id => TD_DEFENDERS[id].cost <= tdb.mana) || td.team[0]);
+}
+// Triar una carta: es veu la fitxa, l'abast i la criatura en transparència al buit; s'invoca amb el botó
+function tdbSelectCard(id) {
+  tdb.pickId = id;
+  tdbRenderDeck();
+  tdbPreview(id);
 }
 function tdbPreview(id) {
   if (tdb.pickSlot == null || !id) return tdbShowRange(null);
   tdbShowRange({ slot: tdb.pickSlot, stats: tdStats(id) }, true);
+  const [x, y] = tdbS(...tdb.world.slots[tdb.pickSlot]);
+  const g = el("g", { class: "tdb-ghost", transform: `translate(${x} ${y})` }, $("tdb-range"));
+  g.innerHTML = tdCreatureSvg(id).replace("<svg ", `<svg x="-62" y="-92" width="124" height="124" `);
 }
 function tdbCloseBottom() {
   tdb.pickSlot = null;
+  tdb.pickId = null;
   tdb.selectedTower = null;
   document.querySelectorAll("#tdb-slots .picking").forEach(e => e.classList.remove("picking"));
   $("tdb-deck").hidden = true;
@@ -667,10 +734,12 @@ function initTdBattle() {
   $("tdb-svg").addEventListener("click", tdbClickMap);
   $("tdb-deck").addEventListener("click", ev => {
     if (ev.target.closest('[data-pick="close"]')) { tdbCloseBottom(); return; }
-    const c = ev.target.closest("[data-card]");
+    const c = ev.target.closest("[data-card], [data-place]");
     if (!c || tdb.pickSlot == null) return;
-    const id = c.dataset.card;
-    if (tdb.mana < TD_DEFENDERS[id].cost) { toast("🔮 No tens prou maná", "bad"); tdbPreview(id); return; }
+    const id = c.dataset.card || c.dataset.place;
+    // primer toc: fitxa i previsualització; segon toc a la mateixa carta (o el botó): invocar
+    if (c.dataset.card && tdb.pickId !== id) { tdbSelectCard(id); return; }
+    if (tdb.mana < TD_DEFENDERS[id].cost) { toast("🔮 No tens prou maná", "bad"); return; }
     const slot = tdb.pickSlot;
     tdbCloseBottom();
     tdbPlace(slot, id);
@@ -679,6 +748,7 @@ function initTdBattle() {
     const c = ev.target.closest("[data-card]");
     if (c) tdbPreview(c.dataset.card);
   });
+  $("tdb-deck").addEventListener("pointerleave", () => { if (tdb?.pickId) tdbPreview(tdb.pickId); });
   $("tdb-panel").addEventListener("click", ev => {
     const b = ev.target.closest("[data-tp]");
     if (!b || !tdb.selectedTower) return;

@@ -456,3 +456,26 @@
 .tdbook-mini.fav::before { content: "★"; position: absolute; top: 2px; right: 5px; color: #ffc23f; font-size: 0.85rem; text-shadow: 0 0 4px #000; }
 .tdbook-fav.on { color: #ffc23f; }
 .td-classes { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 2px; --ink: #e6e6e6; --accent: #7d5cff; }
+
+/* fitxa abans d'invocar, criatura en transparència al buit */
+.tdb-pick-info { display: flex; gap: 12px; align-items: center; margin-top: 8px; padding-top: 8px; border-top: 1px solid #2c3350; }
+.tdb-pick-info > button { flex-shrink: 0; }
+.tdb-ghost { opacity: 0.45; pointer-events: none; animation: tdb-ghost 1.4s ease-in-out infinite; }
+@keyframes tdb-ghost { 50% { opacity: 0.25; } }
+/* invocació: l'estudiant alça el llibre, la criatura vola amb una estela */
+#tdb-student.cast svg { animation: tdb-cast 0.45s ease-out; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes tdb-cast { 35% { transform: translateY(-10px) scale(1.04); } }
+.tdb-trail { fill: none; stroke-width: 5; stroke-linecap: round; opacity: 0.7; stroke-dasharray: 0.25 1; stroke-dashoffset: 0.25; pointer-events: none;
+  filter: drop-shadow(0 0 6px currentColor); animation: tdb-trail 0.82s ease-in-out forwards; }
+@keyframes tdb-trail { 63% { stroke-dashoffset: -0.75; opacity: 0.7; } 100% { stroke-dashoffset: -0.75; opacity: 0; } }
+/* ànimes cap al cristall */
+.tdb-soul { pointer-events: none; filter: drop-shadow(0 0 6px #fff); }
+.tdb-crystal-glow { fill: var(--soul, #7fe8ff); opacity: 0; pointer-events: none; }
+#tdb-crystal.feed .tdb-crystal-glow { animation: tdb-feed 0.5s ease-out; }
+#tdb-crystal.feed .tdb-crystal-gem path:first-child { animation: tdb-feed-gem 0.5s ease-out; }
+@keyframes tdb-feed { 0% { opacity: 0.55; } 100% { opacity: 0; } }
+@keyframes tdb-feed-gem { 0% { fill: #bff4ff; } 100% { fill: #0b2a3a; } }
+@media (max-width: 700px) {
+  .tdb-pick-info { flex-wrap: wrap; gap: 6px; }
+  .tdb-pick-info > button { width: 100%; }
+}
