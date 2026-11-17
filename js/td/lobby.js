@@ -8,9 +8,19 @@ const tdOpen = () => tdLobbyOpen() || tdBattleOpen();
 let tdSubj = "alg";       // camp triat als panells
 let tdClass = {};         // assignatura triada dins de cada camp (prestatgeria d'estudi)
 
-function tdOpenLobby() {
+// Dues sales amb els mateixos punts: Informàtica (sala arcana, tools/sala-estudi.js) i Forestal (l'interior d'un
+// arbre, tools/sala-forestal.js). De Forestal encara no hi ha assignatures ni criatures: els punts ho avisen.
+let tdRoom = "informatic";
+const TD_ROOMS = {
+  informatic: { art: () => TD_LOBBY_ART, title: "📚 Sala d'estudi · Informàtica", label: "Sala d'estudi d'Informàtica" },
+  forestal:   { art: () => TD_FOREST_ART, title: "🌳 Sala del bosc · Forestal", label: "Sala del bosc de Forestal" },
+};
+function tdOpenLobby(room = tdRoom) {
   if (typeof roomOpen === "function" && roomOpen()) closeRoom();
+  tdRoom = TD_ROOMS[room] ? room : "informatic";
   $("td-lobby").hidden = false;
+  $("td-lobby").classList.toggle("forest", tdRoom === "forestal");
+  $("td-lobby-top").querySelector("h2").textContent = TD_ROOMS[tdRoom].title;
   document.body.classList.add("td-open");
   tdRenderLobby();
 }
@@ -26,14 +36,15 @@ function tdRenderLobby() {
   const ups = Object.keys(TD_UPGRADES), frac = ups.reduce((a, id) => a + td.upgrades[id], 0) / ups.reduce((a, id) => a + TD_UPGRADES[id].max, 0);
   const crystal = tdCrystalSvg(frac).replace("<svg ", `<svg x="-42" y="-64" width="84" height="114" `);
   const spots = [];
-  const layers = TD_LOBBY_ART.layers.map(l => {
+  const ART = TD_ROOMS[tdRoom].art();
+  const layers = ART.layers.map(l => {
     const svg = l.svg.replace("%STUDENT%", student).replace("%CRYSTAL%", crystal);
     if (!l.spot) return svg;
     const [x, y, w, h] = l.hit;
     spots.push([w * h, `<rect class="hub-hit" data-td="${l.spot}" tabindex="0" role="button" aria-label="${l.title}" x="${x}" y="${y}" width="${w}" height="${h}" fill="transparent"><title>${l.title}</title></rect>`]);
     return `<g class="hub-art td-art" id="td-art-${l.spot}">${svg}</g>`;
   }).join("");
-  $("td-lobby-scene").innerHTML = `<svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet" aria-label="Sala d'estudi"><defs>${TD_LOBBY_ART.defs}</defs>${layers}${spots.sort((x, y) => y[0] - x[0]).map(x => x[1]).join("")}</svg>`; // les zones menudes, damunt
+  $("td-lobby-scene").innerHTML = `<svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet" aria-label="${TD_ROOMS[tdRoom].label}"><defs>${ART.defs}</defs>${layers}${spots.sort((x, y) => y[0] - x[0]).map(x => x[1]).join("")}</svg>`; // les zones menudes, damunt
   tdLobbyHud();
 }
 function tdLobbyHud() {
@@ -48,6 +59,7 @@ const TD_PANELS = {
 };
 function tdSpot(name) {
   if (name === "exit") { tdCloseLobby(); openRoom(); return; }
+  if (tdRoom === "forestal") { toast("🌱 Les assignatures i les criatures de Forestal encara s'estan preparant", "info"); return; }
   if (name === "reset") { tdAskRestart(); return; }
   $("td-card").dataset.panel = name;
   if (name === "grimori" || name === "bestiary") tdBook = { tab: name === "grimori" ? tdSubj : "best", page: 0 };

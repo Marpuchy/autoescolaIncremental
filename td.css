@@ -705,3 +705,16 @@
 .tdc-compilador .gear.regrow { animation: td-regrow 0.5s cubic-bezier(.3, 1.6, .5, 1); }
 .tdc-determinant.regrow-l .al, .tdc-determinant.regrow-r .ar { animation: td-regrow-slow 2.2s ease-out; }
 @keyframes td-regrow-slow { 0%, 50% { transform: scale(0); opacity: 0; } 60% { opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+
+/* sala del bosc (Forestal): animacions suaus i barra verda */
+#td-lobby.forest .td-top { border-bottom-color: #7cc04a; }
+#td-lobby.forest .td-top h2 { color: #b8ff7a; }
+.fo-vine { animation: fo-sway 6s ease-in-out infinite; }
+@keyframes fo-sway { 0%, 100% { transform: rotate(-1.2deg); } 50% { transform: rotate(1.2deg); } }
+.fo-glow { animation: fo-glow 5s ease-in-out infinite; }
+@keyframes fo-glow { 0%, 100% { opacity: 0.85; } 50% { opacity: 1; } }
+.fo-fly { animation: fo-fly 7s ease-in-out infinite; }
+@keyframes fo-fly { 0%, 100% { transform: translate(0, 0); opacity: 0.4; } 30% { transform: translate(14px, -10px); opacity: 1; } 65% { transform: translate(-8px, -18px); opacity: 0.7; } }
+.fo-rays { animation: fo-rays 9s ease-in-out infinite; }
+@keyframes fo-rays { 0%, 100% { opacity: 0.75; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .fo-vine, .fo-glow, .fo-fly, .fo-rays { animation: none; } }

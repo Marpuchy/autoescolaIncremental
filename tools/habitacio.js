@@ -7,7 +7,7 @@
 //   amb el doblec de la paret a x = -0.4. Llit a l'esquerra davant; prestatgeria menuda al racó esquerre (amb la
 //   placa L); escriptori a la paret del fons, a l'esquerra del racó; zona de la gata al racó del fons a la dreta;
 //   moble llarg (calaixera i vitrina) a la paret dreta. Versió minimalista: després es detalla.
-// Punts interactius: la placa L (→ DGT), l'ordinador (→ sala d'Informàtica) i la motxilla (→ sala de Forestal, pròximament).
+// Punts interactius: la placa L (→ DGT), l'ordinador (→ sala d'Informàtica) i la motxilla (→ sala del bosc de Forestal).
 const fs = require("fs"), path = require("path");
 const { camera, r } = require("./perspectiva");
 
@@ -280,7 +280,7 @@ let plate;
       <circle cx="12.2" cy="-14" r="3.2" fill="#1f4fa8" stroke="#c9d6e8" stroke-width="0.6"/><circle cx="12.2" cy="-14" r="1.4" fill="#4aa8ff"/>
       <ellipse cx="12.2" cy="-14" rx="2.6" ry="0.8" fill="none" stroke="#ff8a1f" stroke-width="0.7" transform="rotate(-20 12.2 -14)"/>
     </g></g>`;
-  add(figure(BAG, bx, 0, bz), { spot: "forestal", title: "Motxilla: sala d'estudi de Forestal (pròximament)", hit: bbox([[bx - 0.2, 0, bz], [bx + 0.22, 0.62, bz]]) });
+  add(figure(BAG, bx, 0, bz), { spot: "forestal", title: "Motxilla: sala del bosc (Forestal)", hit: bbox([[bx - 0.2, 0, bz], [bx + 0.22, 0.62, bz]]) });
 }
 
 // ---------------------------------------------------------------- definicions

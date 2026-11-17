@@ -18,8 +18,8 @@ function closeRoom() {
 
 function goRoomSpot(name) {
   if (name === "dgt") { closeRoom(); openHub(); return; }
-  if (name === "study") { closeRoom(); tdOpenLobby(); }                 // l'ordinador: sala d'estudi d'Informàtica
-  if (name === "forestal") toast("🌲 La sala de Forestal encara s'està construint", "info"); // la motxilla
+  if (name === "study") { closeRoom(); tdOpenLobby("informatic"); }     // l'ordinador: sala d'estudi d'Informàtica
+  if (name === "forestal") { closeRoom(); tdOpenLobby("forestal"); }  // la motxilla: sala del bosc de Forestal
 }
 
 // El dibuix no canvia: es pinta una vegada. Com a la DGT, la zona de toc de cada punt va al final, damunt de tot.

@@ -14,7 +14,8 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
 - Balance: `node tools/bot.js` (tests por escenario, jugador medio y bueno) · `node tools/tune.js --targets '{...}'`.
 - Capturas: `node tools/captura.js --level 140 --items all --tab inventory` · `--svg img/escenari-13.svg`.
 - Habitación (pantalla de inicio): `node tools/habitacio.js` (regenera `js/data/room-art.js`).
-- Sala del juego de estudio: `node tools/sala-estudi.js` (regenera `js/data/td-lobby-art.js`).
+- Salas del juego de estudio: `node tools/sala-estudi.js` (Informàtica, regenera `js/data/td-lobby-art.js`) y
+  `node tools/sala-forestal.js` (Forestal, el interior de un árbol: regenera `js/data/td-forest-art.js`).
 - Escena de la DGT: `node tools/dgt.js` (regenera `js/data/hub-art.js`; motor de perspectiva en `tools/perspectiva.js`).
   Con Playwright (instalado para Python): skill `webapp-testing`, abriendo `index.html` como `file://`.
 - No hay build, lint ni tests automáticos.
@@ -50,7 +51,8 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   escritorio, tablet y móvil (1440 / 820 / 390 px). Comprobarlo con captura.
 - Rumbo: el juego pasa a ser de **estudio general** con varios juegos (autoescuela, grado, carrera…) unidos como
   salas dibujadas, sin menús. Se entra por la **habitación** (`js/room.js`, dibujada a partir del cuarto real del autor): la placa L lleva a la DGT,
-  el ordenador a la sala de estudio de Informàtica y la mochila a la de Forestal (pendiente: de momento un aviso). Desde la DGT se vuelve por la puerta de eixida.
+  el ordenador a la sala de estudio de Informàtica y la mochila a la sala del bosc de Forestal (`tdRoom`; mismos puntos,
+  otra temática y distribución; sus asignaturas y criaturas están pendientes: de momento los puntos avisan). Desde la DGT se vuelve por la puerta de eixida.
 - Juego de estudio: se entra por el ordenador de la habitación. Sala arcana con puntos (altar = invocar, prestatgeria = apuntar estudio,
   grimori (libro con páginas por asignatura + pestaña de equipo), bestiari (libro), portal = mundos, cristall = millores, estudiant = artefactos, rellotge = reiniciar, porta = habitación).
   Reglas del usuario: los pergamins (tiradas) **solo** salen de estudiar (nunca del combate); en combate se gana maná
