@@ -725,12 +725,15 @@ function tdDemoFire(target) {
   svg.classList.remove("fire"); void svg.getBoundingClientRect(); svg.classList.add("fire");
   if (d.role === "line") return; // no dispara: només torna a abocar foc a la línia
   if (d.role === "pulse") { // l'anell ix del centre de la criatura i s'eixampla fins a la punta del carril
-    const [cx, cy] = tdDemoPoint(svg), R = D.box.clientWidth - cx, ry = D.box.clientHeight * 0.42, dur = 700;
+    const [cx, cy] = tdDemoPoint(svg), R = D.box.clientWidth - cx, dur = 700;
+    const clip = document.createElement("div"); // retalla l'anell (rodó) a la caixa de la demostració
+    clip.className = "tdbook-pulse-clip";
     const ring = document.createElement("i");
     ring.className = "tdbook-pulse";
-    Object.assign(ring.style, { left: `${cx - R}px`, top: `${cy - ry}px`, width: `${2 * R}px`, height: `${2 * ry}px`, animationDuration: `${dur}ms` });
-    D.box.appendChild(ring);
-    setTimeout(() => ring.remove(), dur);
+    Object.assign(ring.style, { left: `${cx - R}px`, top: `${cy - R}px`, width: `${2 * R}px`, height: `${2 * R}px`, animationDuration: `${dur}ms` });
+    clip.appendChild(ring);
+    D.box.appendChild(clip);
+    setTimeout(() => clip.remove(), dur);
     for (const e of D.enemies.filter(e => !e.dead)) { // el colp arriba quan l'anell hi passa
       const [ex] = tdDemoPoint(e.el);
       setTimeout(() => tdDemo === D && tdDemoDamage(e, D.st.dmg), Math.max(0, (ex - cx) / R) * dur);

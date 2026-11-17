@@ -792,6 +792,7 @@
 .tdbook-ring.pulse { border-color: #e8ffb0; box-shadow: 0 0 14px #8fd45a; }
 
 /* aparador del grimori: anell que s'eixampla, franja de foc, amic dins de l'aura, atrapats */
+.tdbook-pulse-clip { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 2; border-radius: 0 14px 14px 0; }
 .tdbook-pulse { position: absolute; border-radius: 50%; border: 3px solid #e8ffb0; box-shadow: 0 0 12px #8fd45a, inset 0 0 12px rgba(143, 212, 90, 0.5);
   pointer-events: none; z-index: 2; animation: tdbook-pulse linear forwards; }
 @keyframes tdbook-pulse { from { transform: scale(0.06); opacity: 1; } 80% { opacity: 0.8; } to { transform: scale(1); opacity: 0; } }
