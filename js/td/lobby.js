@@ -833,7 +833,12 @@ function tdDemoLaunch(svg, part, target) {
       svg.classList.remove(`thrown-${part}`, `regrow-${part}`); void svg.getBoundingClientRect(); svg.classList.add(`regrow-${part}`);
     }, Math.max(50, (period - R) * 1000));
   }
-  fly.onfinish = () => p.remove();
+  fly.onfinish = () => {
+    if (!d.fall) return p.remove();
+    // les que planegen (sàmara) cauen a terra i s'apaguen
+    p.animate([{ transform: `translate(${to[0]}px, ${to[1]}px) translate(-50%, -50%)`, opacity: 1 },
+      { transform: `translate(${to[0]}px, ${to[1] + 26}px) translate(-50%, -50%)`, opacity: 0 }], { duration: 850, easing: "ease-in", fill: "forwards" }).onfinish = () => p.remove();
+  };
 }
 function tdDemoNearLine([ax, ay], [bx, by], [px, py], r) {
   const dx = bx - ax, dy = by - ay, t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy)));

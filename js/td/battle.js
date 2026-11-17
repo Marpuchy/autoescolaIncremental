@@ -872,14 +872,23 @@ function tdbUpdate(dt) {
       if (p.traveled > p.t.stats.range * 1.3) p.done = true;
       continue;
     }
-    if (!p.target || p.target.hp <= 0) { p.done = true; continue; }
+    if (!p.target || p.target.hp <= 0) { // l'objectiu ja no hi és: les que planegen (sàmara) busquen una altra
+      const next = p.d.fall && tdbTargets(p.t)[0];
+      if (next) p.target = next; else { p.done = true; continue; }
+    }
     const [ex, ey] = tdbPos(p.target);
     const ty = ey - p.target.size * 0.45;
     const dx = ex - p.x, dy = ty - p.y, dd = Math.hypot(dx, dy);
     if (dd < speed * dt + 8) { p.done = true; tdbHit(p, p.target); continue; }
     p.x += dx / dd * speed * dt; p.y += dy / dd * speed * dt; p.ang = Math.atan2(dy, dx);
   }
-  for (const p of tdb.projs) if (p.done) p.el.remove();
+  for (const p of tdb.projs) if (p.done) {
+    if (p.d.fall) { // no desapareix en l'aire: cau a terra girant i s'apaga
+      const inner = p.el.firstElementChild;
+      inner?.classList.add("tdb-falling");
+      setTimeout(() => p.el.remove(), 900);
+    } else p.el.remove();
+  }
   tdb.projs = tdb.projs.filter(p => !p.done);
   // fi de l'onada
   if (tdb.waveRunning && !tdb.spawnQueue.length && !tdb.enemies.length) tdbWaveDone();
