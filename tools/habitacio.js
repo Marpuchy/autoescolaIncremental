@@ -174,7 +174,21 @@ let plate;
   }
   // edredó de cercles: de després del coixí fins als peus, i cau pel costat de davant i pels peus
   const dB = { x0: x0 + 0.52, x1: x1 + 0.04, y0: 0.18, y1: 0.54, z0: z0 - 0.04, z1: z1 + 0.02 };
-  s += box(dB, { front: "url(#room-duvet-v)", top: "url(#room-duvet)" });
+  // el patró de cercles es dibuixa damunt de l'edredó en 3D (cada cercle projectat), així segueix la perspectiva
+  const DUV = ["#1e2f5a", "#2f8a5a", "#9fb8d8", "#1e2f5a", "#3a5a9a", "#9fb8d8", "#2f8a5a", "#1e2f5a"];
+  const pattern = (fn, uLen, vLen, id) => { // fn(u, v) en [0,1]² → punt 3D de la cara; uLen/vLen: mida en metres
+    const R = 0.055, step = 0.085, pts = [];
+    let out = `<clipPath id="${id}"><polygon points="${[fn(0, 0), fn(1, 0), fn(1, 1), fn(0, 1)].map(p => P(...p).map(r).join(",")).join(" ")}"/></clipPath><g clip-path="url(#${id})">`;
+    out += poly([fn(0, 0), fn(1, 0), fn(1, 1), fn(0, 1)], `fill="#dfe8f2"`);
+    for (let i = 0, v = 0; v < vLen + step; v += step * 0.5, i++) for (let j = 0, u = (i % 2) * step * 0.5; u < uLen + step; u += step, j++) {
+      const c = DUV[(i * 3 + j) % DUV.length];
+      const ring = Array.from({ length: 10 }, (_, k) => { const a = k / 10 * Math.PI * 2; return fn((u + Math.cos(a) * R) / uLen, (v + Math.sin(a) * R) / vLen); });
+      out += poly(ring, `fill="${c}"`);
+    }
+    return out + "</g>";
+  };
+  s += pattern(face(dB, "top"), dB.x1 - dB.x0, dB.z1 - dB.z0, "duv-top");
+  s += pattern(face(dB, "front"), dB.x1 - dB.x0, dB.y1 - dB.y0, "duv-front");
   s += quad(face(dB, "front"), 0, 0, 0.012, 1, `fill="#000" opacity="0.15"`);
   add(s);
 }
