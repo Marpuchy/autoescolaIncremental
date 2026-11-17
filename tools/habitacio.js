@@ -7,7 +7,7 @@
 //   amb el doblec de la paret a x = -0.4. Llit a l'esquerra davant; prestatgeria menuda al racó esquerre (amb la
 //   placa L); escriptori a la paret del fons, a l'esquerra del racó; zona de la gata al racó del fons a la dreta;
 //   moble llarg (calaixera i vitrina) a la paret dreta. Versió minimalista: després es detalla.
-// Punts interactius: la placa L (→ DGT) i la motxilla recolzada al llit (→ joc d'estudi).
+// Punts interactius: la placa L (→ DGT), l'ordinador (→ sala d'Informàtica) i la motxilla (→ sala de Forestal, pròximament).
 const fs = require("fs"), path = require("path");
 const { camera, r } = require("./perspectiva");
 
@@ -51,6 +51,7 @@ const WHITE = { front: "#f4f2ec", side: "#e2dfd6", top: "#fbfaf6", bottom: "#d8d
   add(s);
 }
 
+let pcSvg = "";
 // ---------------------------------------------------------------- escriptori (verd al plànol): de costat, contra el doblec de la paret, mirant a la dreta
 {
   let s = "";
@@ -69,7 +70,8 @@ const WHITE = { front: "#f4f2ec", side: "#e2dfd6", top: "#fbfaf6", bottom: "#d8d
     t += poly([at(-hw + 0.02, y1 - 0.02), at(hw - 0.02, y1 - 0.02), at(hw - 0.02, y0 + 0.03), at(-hw + 0.02, y0 + 0.03)], `fill="${c}"`);
     return t;
   };
-  s += screen(STEP + 0.17, 3.18, 0.52, -0.5, "#2a3a55") + screen(STEP + 0.17, 2.66, 0.52, -0.25, "#3f7ad8");
+  // les pantalles van a part: són el punt interactiu de la sala d'Informàtica
+  pcSvg = screen(STEP + 0.17, 3.18, 0.52, -0.5, "#2a3a55") + screen(STEP + 0.17, 2.66, 0.52, -0.25, "#3f7ad8");
   s += box({ x0: STEP + 0.3, x1: STEP + 0.44, y0: top, y1: top + 0.02, z0: 2.75, z1: 3.1 }, { front: "#2b2f35", side: "#23272e", top: "#3a3f48" });
   // prestatge damunt, a la mateixa paret, amb el focus d'anell
   s += box({ x0: STEP, x1: STEP + 0.25, y0: 1.6, y1: 1.63, z0, z1 }, WHITE);
@@ -77,6 +79,9 @@ const WHITE = { front: "#f4f2ec", side: "#e2dfd6", top: "#fbfaf6", bottom: "#d8d
   s += `<circle cx="${r(rx)}" cy="${r(ry)}" r="${r(18 * k)}" fill="url(#room-ring-glow)"/><circle cx="${r(rx)}" cy="${r(ry)}" r="${r(8 * k)}" fill="none" stroke="#fffdf2" stroke-width="${r(3 * k)}"/>`;
   add(s);
 }
+
+// ---------------------------------------------------------------- l'ordinador (→ sala d'estudi d'Informàtica)
+add(pcSvg, { spot: "study", title: "Ordinador: sala d'estudi d'Informàtica", hit: bbox([[STEP + 0.05, 0.74, 2.3], [STEP + 0.35, 1.2, 3.5]]) });
 
 // ---------------------------------------------------------------- cadira davant de l'escriptori, mirant cap a la paret (es veu de costat)
 {
@@ -257,7 +262,7 @@ let plate;
   add(s, { spot: "dgt", title: "Placa L: anar a la DGT (autoescola)", hit: [r(px - 34), r(py - 52), 68, 58] });
 }
 
-// ---------------------------------------------------------------- motxilla, de costat, recolzada als peus del llit (→ joc d'estudi)
+// ---------------------------------------------------------------- motxilla, de costat, recolzada als peus del llit (→ sala de Forestal)
 {
   const bx = 0.36, bz = 0.85;
   // es veu de perfil: l'esquena (amb les tires) toca el llit, a l'esquerra; la butxaca de davant, a la dreta
@@ -275,7 +280,7 @@ let plate;
       <circle cx="12.2" cy="-14" r="3.2" fill="#1f4fa8" stroke="#c9d6e8" stroke-width="0.6"/><circle cx="12.2" cy="-14" r="1.4" fill="#4aa8ff"/>
       <ellipse cx="12.2" cy="-14" rx="2.6" ry="0.8" fill="none" stroke="#ff8a1f" stroke-width="0.7" transform="rotate(-20 12.2 -14)"/>
     </g></g>`;
-  add(figure(BAG, bx, 0, bz), { spot: "study", title: "Motxilla: anar a estudiar (tower defense)", hit: bbox([[bx - 0.2, 0, bz], [bx + 0.22, 0.62, bz]]) });
+  add(figure(BAG, bx, 0, bz), { spot: "forestal", title: "Motxilla: sala d'estudi de Forestal (pròximament)", hit: bbox([[bx - 0.2, 0, bz], [bx + 0.22, 0.62, bz]]) });
 }
 
 // ---------------------------------------------------------------- definicions

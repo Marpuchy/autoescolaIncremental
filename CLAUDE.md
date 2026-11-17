@@ -49,9 +49,9 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
 - Toda interfaz nueva debe caber sin scroll (horizontal siempre; vertical en ventanas como el inventario) en
   escritorio, tablet y móvil (1440 / 820 / 390 px). Comprobarlo con captura.
 - Rumbo: el juego pasa a ser de **estudio general** con varios juegos (autoescuela, grado, carrera…) unidos como
-  salas dibujadas, sin menús. Se entra por la **habitación** (`js/room.js`): la placa L lleva a la DGT y la mochila al
-  juego de estudio (tower defense, aún por hacer: de momento un aviso). Desde la DGT se vuelve por la puerta de eixida.
-- Juego de estudio: se entra por la mochila. Sala arcana con puntos (altar = invocar, prestatgeria = apuntar estudio,
+  salas dibujadas, sin menús. Se entra por la **habitación** (`js/room.js`, dibujada a partir del cuarto real del autor): la placa L lleva a la DGT,
+  el ordenador a la sala de estudio de Informàtica y la mochila a la de Forestal (pendiente: de momento un aviso). Desde la DGT se vuelve por la puerta de eixida.
+- Juego de estudio: se entra por el ordenador de la habitación. Sala arcana con puntos (altar = invocar, prestatgeria = apuntar estudio,
   grimori (libro con páginas por asignatura + pestaña de equipo), bestiari (libro), portal = mundos, cristall = millores, estudiant = artefactos, rellotge = reiniciar, porta = habitación).
   Reglas del usuario: los pergamins (tiradas) **solo** salen de estudiar (nunca del combate); en combate se gana maná
   y saber (para subir niveles); el mítico solo con un 8+ en el final; los jefes dan artefactos al estudiante (3 espacios por parte del cuerpo, `TD_EQUIP_SLOTS`: cap, mà, esquena; uno por espacio).
