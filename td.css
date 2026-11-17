@@ -749,8 +749,12 @@
 .tdc-samara .flutter { transform-origin: 50% 100%; animation: td-flutter 1.6s ease-in-out infinite; }
 .tdc-samara .al .flutter { animation-delay: -0.8s; }
 @keyframes td-flutter { 50% { transform: rotate(-6deg); } }
-.tdc-bruixola .needle { transform-origin: 50% 0%; animation: td-needle 2.8s ease-in-out infinite; }
-@keyframes td-needle { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg); } }
+/* l'agulla gira sobre el centre de la caixa; les meitats no suren (formen una sola agulla) */
+.tdc-bruixola .aim { transform-box: view-box; transform-origin: 60px 64px; transition: transform 0.15s ease-out; }
+.tdc-bruixola .al, .tdc-bruixola .ar { animation: none; }
+.tdc-bruixola.regrow-l .al, .tdc-bruixola.regrow-r .ar { transform-box: view-box; transform-origin: 60px 64px; animation: td-regrow 0.3s cubic-bezier(.3, 1.6, .5, 1); }
+.tdc-bruixola:not(.load) .aim { animation: td-needle 2.6s ease-in-out infinite; }
+@keyframes td-needle { 0%, 100% { rotate: -6deg; } 50% { rotate: 6deg; } }
 .tdc-projecte .orbit { transform-box: view-box; transform-origin: 60px 52px; animation: td-spin 7s linear infinite; }
 .tdc-carrasca .al { transform-origin: 50% 0%; }
 

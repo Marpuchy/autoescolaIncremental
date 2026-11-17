@@ -79,7 +79,8 @@ const TD_DEFENDERS = {
                  desc: "Les criatures que té a prop fan un 30 % més de dany. Cada 6 atacs deixa caure una gla: brollen arrels que atrapen els enemics 1,5 s." },
   // ---- Projecte intermodular (Forestal)
   bruixola:    { subj: "pin", rar: "comu", name: "Brúixola", dmg: 4, rate: 2.4, range: 200, cost: 25, role: "single",
-                 desc: "Barata i rapidíssima: dispara la punta de l'agulla, que torna a créixer." },
+                 aim: true, aimHold: true, aimWait: 0.16, alt: true,
+                 desc: "Barata i rapidíssima: l'agulla gira cap a l'enemic i dispara una meitat i després l'altra (la roja i la blanca), que tornen a créixer." },
   samara:      { subj: "pin", rar: "epic", name: "Sàmara", dmg: 24, rate: 0.45, range: 1900, cost: 85, role: "single",
                  desc: "La llavor alada vola per tot el mapa i cau girant damunt de la distracció més avançada." },
   anellador:   { subj: "pin", rar: "llegendari", name: "Anellador", dmg: 30, rate: 0.6, range: 300, cost: 120, role: "mark", mark: 0.4, alt: true,

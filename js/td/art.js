@@ -48,6 +48,8 @@ const anella = (x, y, k = 1) => `<g transform="translate(${x} ${y}) scale(${k})"
   <path d="M-11 -5 V5 A11 4.5 0 0 0 11 5 V-5" fill="#9aa3b0" stroke="#eef2f7" stroke-width="2"/>
   <ellipse cy="-5" rx="11" ry="4.5" fill="#2a2f38" stroke="#eef2f7" stroke-width="2"/>
   <path d="M-6 2.5 H-1 M2 3 H7 M-4 6 H4" stroke="#3a4250" stroke-width="1.4" stroke-linecap="round"/></g>`;
+// Meitat de l'agulla de la brúixola: triangle de 24 que ix del punt (x, y) cap amunt (rot gira al voltant d'eixe punt)
+const agulla = (fill, edge, x, y, rot = 0) => `<path d="M${x} ${y - 24} L${x + 7} ${y} H${x - 7} Z" fill="${fill}" stroke="${edge}" stroke-width="2" stroke-linejoin="round" transform="rotate(${rot} ${x} ${y})"/>`;
 const fulla = (x, y, k = 1) => `<g transform="translate(${x} ${y}) scale(${k})">${tube("M-10 0 Q0 -10 10 0 Q0 10 -10 0 M-10 0 H8", GM, 2.6)}</g>`;
 
 const TD_ART = {
@@ -149,13 +151,13 @@ const TD_ART = {
       <g class="al">${gla(42, 80)}</g>${sparks(TD_GLOW.myth)}`,
     proj: gla(0, 0), throw: { l: [42, 80] },
   },
-  // Brúixola: la caixa redona amb les marques; la punta roja de l'agulla és el que dispara, i torna a créixer
+  // Brúixola: la caixa redona amb les marques. L'agulla té dues meitats iguals, la roja i la blanca: gira perquè la
+  // que toca dispare apunte a l'enemic (la blanca ha de fer mitja volta) i la meitat llançada torna a créixer
   bruixola: {
-    svg: `${runeBase(GN)}<g class="b"><g class="hop">${tube("M60 34 A30 30 0 1 1 59.9 34", GN, 6)}
-      ${tube("M60 40 V46 M60 82 V88 M36 64 H42 M78 64 H84", GN, 2.4)}${tube("M60 26 V34", GN, 4)}
-      <g class="needle"><path d="M60 64 L67 68 L60 86 L53 68 Z" fill="#e9eef5" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/>${core(60, 66, GN, 3)}</g></g></g>
-      <g class="al"><g class="hop"><path d="M60 42 L67 62 H53 Z" fill="#ff5a4a" stroke="#ffd0c4" stroke-width="2" stroke-linejoin="round"/></g></g>${sparks(GN)}`,
-    proj: `<path d="M0 -10 L7 8 H-7 Z" fill="#ff5a4a" stroke="#ffd0c4" stroke-width="2" stroke-linejoin="round" transform="rotate(90)"/>`, throw: { l: [60, 54] },
+    svg: `${runeBase(GN)}<g class="b">${tube("M60 34 A30 30 0 1 1 59.9 34", GN, 6)}
+      ${tube("M60 40 V46 M60 82 V88 M36 64 H42 M78 64 H84", GN, 2.4)}${tube("M60 26 V34", GN, 4)}</g>
+      <g class="aim"><g class="al">${agulla("#ff5a4a", "#ffd0c4", 60, 64)}</g><g class="ar">${agulla("#e9eef5", "#ffffff", 60, 64, 180)}</g>${core(60, 64, GN, 3)}</g>${sparks(GN)}`,
+    proj: agulla("#ff5a4a", "#ffd0c4", -12, 0, 90), projR: agulla("#e9eef5", "#ffffff", -12, 0, 90), throw: { l: [60, 52], r: [60, 76] },
   },
   // Sàmara: dues llavors alades d'auró unides pel peduncle; la de l'esquerra vola girant fins a l'altra punta del mapa
   samara: {

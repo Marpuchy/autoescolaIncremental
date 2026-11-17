@@ -676,14 +676,14 @@ function tdDemoFire(target) {
   const tp = () => { const [x, y] = tdDemoPoint(target.el); return [x, y - target.size * 0.05]; };
   if (d.aim) { // el vector gira cap a l'enemic i després la fletxa ix de la V
     const [x0, y0] = tdDemoPoint(svg), [x1, y1] = tp();
-    let a = Math.atan2(y1 - y0, x1 - x0) * 180 / Math.PI + 90;
+    let a = Math.atan2(y1 - y0, x1 - x0) * 180 / Math.PI + 90 + (part === "r" ? 180 : 0);
     a = D.aimA + ((a - D.aimA + 540) % 360 - 180);
     D.aimA = a;
     svg.querySelector(".aim").style.transform = `rotate(${a}deg)`;
     svg.classList.add("load"); // la fletxa es posa dins de la V
   }
   svg.classList.remove("fire"); void svg.getBoundingClientRect(); svg.classList.add("fire");
-  setTimeout(() => tdDemo === D && tdDemoLaunch(svg, part, target), d.aim ? 200 : 0);
+  setTimeout(() => tdDemo === D && tdDemoLaunch(svg, part, target), d.aim ? (d.aimWait || 0.2) * 1000 : 0);
   // especials cada N atacs, com al combat
   const sp = d.special;
   if (sp && D.n % sp.every === 0) {
@@ -712,8 +712,8 @@ function tdDemoLaunch(svg, part, target) {
     from = [s.left - b.left + (ax + 6) / 132 * s.width, s.top - b.top + (ay + 10) / 132 * s.height];
   }
   if (pe) svg.classList.add(`thrown-${part}`);
-  if (d.aim) { // ja ha disparat: la V torna a estar dreta
-    svg.classList.remove("load");
+  if (d.aim) svg.classList.remove("load");
+  if (d.aim && !d.aimHold) { // ja ha disparat: la V torna a estar dreta
     setTimeout(() => { if (tdDemo === D) { D.aimA = 0; svg.querySelector(".aim").style.transform = "rotate(0deg)"; } }, 450);
   }
   const [tx, ty] = tdDemoPoint(target.el);

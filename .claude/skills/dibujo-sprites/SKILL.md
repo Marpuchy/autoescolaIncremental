@@ -61,6 +61,13 @@ degradado suave. Sin imágenes externas salvo las fotos de jefes (`img/*.jpeg`).
   Si el mismo dibujo lo usa un jefe, se gira con CSS (`scale: -1 1`).
 - Icono para el inventario (`look`): SVG pequeño (`class="item-icon"`), legible a 2,2 rem.
 
+## Criaturas del juego de estudio (`js/td/art.js`)
+- **Participativas y animadas en combate**: la pieza que lanzan es parte real del cuerpo (`.al` / `.ar`), con el mismo
+  tamaño, forma y orientación que el proyectil (`proj`, y `projR` si la derecha es distinta), y el cuerpo hace algo para
+  dispararla: girar y apuntar (`.aim` + `aim: true`; `aimHold` para que se quede encarada), alternar piezas (`alt`),
+  cargar, inclinarse… Referencia: la Brúixola (agulla roja y blanca iguales; gira la que toca hacia el enemigo).
+- Comprobar en combate con una secuencia de capturas fotograma a fotograma, no solo con el dibujo quieto.
+
 ## Comprobar siempre
 1. Validar el XML: `python -c "import xml.dom.minidom as m; m.parse('img/escenari-N.svg')"` o `node --check` si va en un `.js`.
 2. Renderizar y mirar la imagen: `node tools/captura.js --svg img/escenari-N.svg` (fondos y sprites sueltos) o

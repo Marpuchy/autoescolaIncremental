@@ -375,10 +375,10 @@ function tdbFire(t) {
     if (t.stacks >= d.stacks) { t.stacks = 0; tdbBlast(t); }
   }
   const part = (TD_ART[t.id].throw || {}).c ? "c" : t.side ? "r" : "l";
-  if (d.aim) { // la fletxa es posa dins de la V, que gira cap a l'objectiu; quan ja està encarada, dispara
-    tdbAim(t, targets[0]);
+  if (d.aim) { // la fletxa es posa dins de la V (o l'agulla gira), s'encara a l'objectiu i dispara
+    tdbAim(t, targets[0], part === "r");
     t.svg.classList.add("load");
-    t.pending = { target: targets[0], wait: 0.26, part };
+    t.pending = { target: targets[0], wait: d.aimWait || 0.26, part };
     return true;
   }
   const shoot = target => tdbProjectile(t, target, t.stats.dmg, { part, depth: d.depth || 0, bounces: d.role === "bounce" ? d.bounces + (ab > 1 ? 1 : 0) : 0 });
@@ -386,11 +386,11 @@ function tdbFire(t) {
   else targets.forEach(shoot);
   return true;
 }
-function tdbAim(t, target) {
+function tdbAim(t, target, flip = false) { // flip: la peça que dispara mira avall (la meitat blanca de l'agulla)
   const aim = t.svg?.querySelector(".aim");
   if (!aim) return;
   const [sx, sy] = tdbS(...tdb.world.slots[t.slot]), [ex, ey] = tdbS(...tdbPos(target));
-  let a = Math.atan2(ey - (sy - 30), ex - sx) * 180 / Math.PI + 90; // la fletxa mira cap amunt
+  let a = Math.atan2(ey - (sy - 30), ex - sx) * 180 / Math.PI + 90 + (flip ? 180 : 0); // la fletxa mira cap amunt
   const prev = t.aimA ?? 0;
   a = prev + ((a - prev + 540) % 360 - 180); // el camí curt
   t.aimA = a;
@@ -710,7 +710,7 @@ function tdbUpdate(dt) {
         const tg = target.hp > 0 ? target : tdbTargets(t)[0];
         if (tg) tdbProjectile(t, tg, t.stats.dmg, { part });
         t.svg?.classList.remove("load");
-        t.aimBack = 0.45;
+        if (!TD_DEFENDERS[t.id].aimHold) t.aimBack = 0.45;
       }
     }
     if (t.aimBack > 0 && (t.aimBack -= dt) <= 0) { // la V torna a estar dreta
@@ -829,7 +829,7 @@ function tdbRender() {
     const ang = p.dir ? Math.atan2(p.dir[1], p.dir[0]) : p.ang || 0;
     const rot = (ang * 180 / Math.PI + (tdb.portrait ? 90 : 0)) || 0;
     // les peces simètriques (+, punts, ×) no giren; les fletxes i llances, sí
-    const turn = ["vector", "ifelse", "determinant", "compilador"].includes(p.t.id) ? rot : 0;
+    const turn = ["vector", "ifelse", "determinant", "compilador", "bruixola"].includes(p.t.id) ? rot : 0;
     p.el.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${turn.toFixed(0)}) scale(${p.scale})`);
   }
   for (const t of Object.values(tdb.towers)) {
