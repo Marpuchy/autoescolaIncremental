@@ -27,6 +27,8 @@ const TD_DEMO_SCENES = {
   line:      { view: [560, 180, 760, 540], path: TD_DEMO_U, slots: [[980, 470]], spawn: [["notificacio", "notificacio"], 1.8], gap: 0.6 },
   mark:      { view: [400, 150, 720, 500], path: TD_DEMO_ROAD, slots: [[560, 320], [880, 320]], allies: ["pi"], spawn: [["procrastinacio", "notificacio", "notificacio"], 3.6], gap: 0.6 },
   lambda:    { path: TD_DEMO_ROAD, slots: [[640, 320]], spawn: [["notificacio", "notificacio", "notificacio", "notificacio"], 3.6], gap: 0.4 },
+  chain:     { view: [420, 150, 720, 500], path: TD_DEMO_ROAD, slots: [[600, 320]], spawn: [["notificacio", "notificacio", "notificacio", "notificacio", "notificacio"], 3.4], gap: 0.4 },
+  capacitor: { view: [420, 150, 720, 500], path: TD_DEMO_ROAD, slots: [[640, 320]], spawn: [["notificacio", "notificacio", "notificacio", "notificacio"], 5], gap: 0.3 },
   samara:    { view: [40, 120, 1000, 700], path: TD_DEMO_ROAD, slots: [[180, 320]], spawn: [["notificacio"], 1.6] },
   carrasca:  { view: [400, 150, 720, 500], path: TD_DEMO_ROAD, slots: [[560, 320], [880, 320]], allies: ["pi"], spawn: [["notificacio", "notificacio", "notificacio"], 3], gap: 0.25 },
   projecte:  { view: [260, 110, 1060, 740], path: TD_DEMO_ROAD, slots: [[640, 320], [380, 320], [900, 320], [1160, 320]], allies: ["carrasca", "contrafoc", "anells"],

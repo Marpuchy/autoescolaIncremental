@@ -5,7 +5,7 @@
 // com a projectil i es tornen a formar (td.css). Totes: viewBox 0 0 120 120, base a y ≈ 108.
 // Projectils (`proj`): dibuix menut centrat en 0,0 (≈ 20×20).
 
-const TD_GLOW = { alg: "#9d8bff", prg: "#3fdc8a", mnt: "#8fd45a", pin: "#e8a64a", gold: "#ffc23f", myth: "#ff5ab0", bad: "#ff5a4a" };
+const TD_GLOW = { alg: "#9d8bff", prg: "#3fdc8a", maq: "#5ad8ff", mnt: "#8fd45a", pin: "#e8a64a", gold: "#ffc23f", myth: "#ff5ab0", bad: "#ff5a4a" };
 
 // Traç de neó: halo ample i transparent + tub de color + nucli blanc
 function tube(d, c, w = 7, extra = "") {
@@ -30,6 +30,11 @@ const sparks = c => `<g class="sparks">${[[30, 60], [92, 50], [84, 92], [38, 92]
 
 const GA = TD_GLOW.alg, GP = TD_GLOW.prg;
 const GM = TD_GLOW.mnt, GN = TD_GLOW.pin, GB = "#c98a4a"; // fulla, ambre i fusta
+const GQ = TD_GLOW.maq; // blau elèctric
+// Peces de la Màquina: la bola de càrrega de la Tesla (amb espurnes) i un electró (e⁻) del condensador
+const bolaTesla = (x, y) => `<g transform="translate(${x} ${y})"><circle r="13" fill="${GQ}" opacity="0.2"/><circle r="6.5" fill="#e8fbff" stroke="${GQ}" stroke-width="2.4"/>
+  ${tube("M7 -2 L11 -6 L10 -1 L15 -4 M-7 2 L-11 5 L-10 0 L-15 3", "#e8fbff", 1.4)}</g>`;
+const electro = (x, y) => `<g transform="translate(${x} ${y})"><circle r="10" fill="${GQ}" opacity="0.22"/><circle r="5" fill="#e8fbff" stroke="${GQ}" stroke-width="2"/>${tube("M-2.4 0 H2.4", GQ, 1.8)}</g>`;
 // Peces del bosc (centrades en x, y): pinya, flama, gla, sàmara, anella de marcatge i fulla
 const pinya = (x, y) => `<g><ellipse cx="${x}" cy="${y}" rx="11" ry="13" fill="${GB}" opacity="0.2"/><ellipse cx="${x}" cy="${y}" rx="5.6" ry="8" fill="#5a3412" stroke="${GB}" stroke-width="2.2"/>
   <path d="M${x - 5} ${y - 3} L${x} ${y + 1} L${x + 5} ${y - 3} M${x - 5} ${y + 2} L${x} ${y + 6} L${x + 5} ${y + 2}" stroke="#ffd9a0" stroke-width="1.3" fill="none"/>${tube(`M${x} ${y - 8} V${y - 12}`, GB, 2)}</g>`;
@@ -116,6 +121,29 @@ const TD_ART = {
       <g class="flame">${[[52, 36], [60, 28], [68, 34], [56, 22], [65, 18]].map(([x, y], i) =>
         `<circle cx="${x}" cy="${y}" r="${3.4 - i * 0.4}" fill="#ffe27a" stroke="#ff8a1f" stroke-width="2" style="animation-delay:${i * 0.12}s"/>`).join("")}</g></g>`,
     proj: `<circle r="9" fill="#ff8a1f" opacity="0.3"/><circle r="5" fill="#ffe27a" stroke="#ff8a1f" stroke-width="2"/>`, throw: { c: [60, 28] },
+  },
+
+  // ================================================================ MÀQUINA (electrònica): blau elèctric
+  // Bobina de Tesla: base, el cilindre amb el bobinat de fil en espiral i el toroide de dalt; la bola de càrrega que
+  // sura damunt del toroide és el que llança (en tocar, el raig salta de distracció en distracció)
+  tesla: {
+    svg: `${runeBase(TD_GLOW.gold)}<g class="b">${tube("M38 98 H82 V106 H38 Z", GQ, 5)}${tube("M50 50 V98 M70 50 V98", GQ, 4)}
+      ${Array.from({ length: 12 }, (_, i) => tube(`M50 ${54 + i * 3.6} L70 ${52 + i * 3.6}`, "#b8f0ff", 1.4, 'opacity="0.8"')).join("")}
+      <g class="torus">${tube("M38 44 C38 36 82 36 82 44 C82 52 38 52 38 44 Z", GQ, 6)}${tube("M50 44 C50 41 70 41 70 44 C70 47 50 47 50 44 Z", GQ, 2)}</g>
+      ${core(60, 76, GQ, 3.2)}</g>
+      <g class="al">${bolaTesla(60, 22)}</g>${sparks(GQ)}`,
+    proj: bolaTesla(0, 0), throw: { l: [60, 22] },
+  },
+  // Condensador: les dues plaques paral·leles amb els fils (com el símbol del circuit), + a una i − a l'altra; entre les
+  // plaques es veu com puja la càrrega (--q). Dispara electrons; ple, ho descarrega tot
+  condensador: {
+    svg: `${runeBase(TD_GLOW.myth)}<g class="b">${tube("M22 70 H44 M76 70 H98 M22 70 V100 M98 70 V100", GQ, 3.4)}
+      <rect class="charge" x="47" y="40" width="26" height="58" rx="2" fill="${GQ}" opacity="0.35"/>
+      ${tube("M45 36 V102", GQ, 7)}${tube("M75 36 V102", GQ, 7)}
+      ${tube("M30 52 H38 M34 48 V56", "#ffffff", 2.4)}${tube("M82 52 H90", "#ffffff", 2.4)}
+      ${core(60, 108, TD_GLOW.myth, 3.4)}</g>
+      <g class="al">${electro(60, 68)}</g>${sparks(TD_GLOW.myth)}`,
+    proj: electro(0, 0), throw: { c: [60, 68] },
   },
 
   // ================================================================ FORESTAL: bioluminescència (verd fulla i ambre)

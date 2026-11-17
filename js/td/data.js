@@ -5,10 +5,14 @@
 const TD_SUBJECTS = {
   // Camps d'estudi: cada camp ajunta diverses assignatures (pergamins, garantia i criatures compartits),
   // perquè no cal estudiar tant per a omplir cada gacha. Les claus (alg, prg) són de la partida: no canviar-les.
+  // Informàtica (1r del grau a l'UJI, pla EI26xx), per zones: Matemàtiques, Programació i Màquina. Pròxima zona: Lògica
+  // i dades (Discreta i Estadística); fins que tinga criatures, les seues assignatures continuen a Matemàtiques.
   alg: { name: "Matemàtiques", short: "Matemàtiques", icon: "➕", mode: "informatic",
          classes: ["Àlgebra Lineal", "Càlcul", "Matemàtica Discreta", "Estadística"] },
-  prg: { name: "Informàtica", short: "Informàtica", icon: "⌨️", mode: "informatic",
-         classes: ["Programació I", "Programació II", "Eines de Programació", "Fonaments de Computadors", "Electrònica", "Dret de les TIC"] },
+  prg: { name: "Programació", short: "Programació", icon: "⌨️", mode: "informatic",
+         classes: ["Programació I", "Programació II", "Eines de Programació", "Dret de les TIC"] },
+  maq: { name: "Màquina", short: "Màquina", icon: "⚡", mode: "informatic",
+         classes: ["Electrònica", "Fonaments de Computadors"] },
   // Forestal (2n del cicle superior de Gestió Forestal i del Medi Natural). Llista provisional: falta que Alba la confirme.
   // Camps per zones temàtiques. Pròxima zona: Fauna (cinegètica i pesca); fins que tinga criatures, les seues
   // assignatures continuen al Quadern de camp.
@@ -72,6 +76,13 @@ const TD_DEFENDERS = {
                  desc: "Dany en zona. Cada 6 atacs compila l'enemic més feble i el torna aliat 4 s." },
   stack:       { subj: "prg", rar: "mitic", name: "Stack Overflow", dmg: 20, rate: 1.2, range: 300, cost: 150, role: "stacks", stacks: 10, blast: 12,
                  desc: "Cada atac apila. Amb 10 piles, el desbordament explota per tot el mapa (12 × el dany)." },
+  // ---- Màquina (Informàtica: electrònica i fonaments de computadors)
+  tesla:       { subj: "maq", rar: "llegendari", name: "Bobina de Tesla", dmg: 18, rate: 0.6, range: 300, cost: 120, role: "chain", projSpeed: 1.6,
+                 chain: { jumps: 4, falloff: 0.75, radius: 210 },
+                 desc: "Llança la bola de càrrega que té dalt: en tocar, el raig salta d'una distracció a la més pròxima fins a 4 vegades, i perd força a cada salt." },
+  condensador: { subj: "maq", rar: "mitic", name: "Condensador", dmg: 14, rate: 1.1, range: 300, cost: 150, role: "capacitor",
+                 charge: { max: 8, idle: 1, blast: 9, stun: 0.6 },
+                 desc: "Entre les plaques es va carregant: amb cada tir i, encara més, quan no té res a tir. Quan està ple, ho descarrega tot de colp: un llamp a cada distracció de l'abast (9 × el dany) que les deixa parades un moment." },
   // ---- Gestió de monts (Forestal)
   pi:          { subj: "mnt", rar: "comu", name: "Pi", dmg: 6, rate: 1.5, range: 230, cost: 30, role: "single", alt: true,
                  desc: "Llança les pinyes que li pengen de les branques." },

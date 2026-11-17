@@ -142,6 +142,7 @@ const TDS_CHARGE = { comu: 900, rar: 1000, epic: 1500, llegendari: 2400, mitic: 
 const TDS_BIG = ["llegendari", "mitic"]; // aquestes no es poden saltar: es veu tota la cerimònia
 // Símbols del cercle segons l'assignatura (repartits pel cercle, fins i rectes)
 const TDS_GLYPHS = { alg: ["+", "×", "λ", "Σ", "det", "[ ]", "Aᵀ", "v⃗", "−", "∑"], prg: [";", "{ }", "if", "for", "//", "</>", "( )", "==", "[i]", "++"],
+  maq: ["Ω", "V", "A", "∿", "⏚", "Hz", "1", "0", "+", "−"],
   mnt: ["ᚠ", "ᚱ", "ᛉ", "ᛃ", "ᚦ", "ᛟ", "ᚨ", "ᛒ", "ᛚ", "ᛗ"], pin: ["N", "↗", "E", "⌖", "S", "↙", "O", "⊕", "△", "◯"] };
 function tdsGlyphs(subj) {
   const list = TDS_GLYPHS[subj] || TDS_GLYPHS.alg;
@@ -244,7 +245,7 @@ function tdsTap(ev) {
 let tdExamOpen = null;  // camp de l'examen obert (llibre d'exàmens)
 let tdExamClass = {};   // assignatura triada a l'examen, per camp
 const TD_SHELF_ROWS = 4; // lleixes de la prestatgeria: una per camp; les que sobren, buides de moment
-const TD_FIELD_HUE = { alg: 258, prg: 150, mnt: 105, pin: 32 };
+const TD_FIELD_HUE = { alg: 258, prg: 150, maq: 195, mnt: 105, pin: 32 };
 // Color del llom: tots els llibres d'un camp són de la mateixa gamma
 const tdSpineColor = (f, i) => `hsl(${TD_FIELD_HUE[f] + ((i * 5) % 3 - 1) * 14} ${42 + (i % 3) * 8}% ${26 + ((i * 3) % 4) * 5}%)`;
 function tdMissionsHtml() {
@@ -341,6 +342,7 @@ function tdBookHtml(kind) {
 const TD_FIELD_INTRO = {
   alg: "Criatures fetes de símbols matemàtics: sumes, vectors, matrius i determinants que prenen vida amb el que estudies. Colpegen fort i controlen el camí.",
   prg: "Criatures fetes de codi: puntuació, condicions i compiladors. Ràpides, llestes i plenes de trucs.",
+  maq: "Criatures de la màquina: bobines, condensadors i corrent elèctric. Carreguen energia i la descarreguen de colp, saltant d'una distracció a l'altra.",
   mnt: "Criatures del mateix bosc: pins, anells de tronc, foc controlat i carrasques velles. Aguanten el camí i protegixen les del costat.",
   pin: "El quadern de camp: brúixoles, llavors que volen lluny, anelles de marcatge i el projecte que ho ajunta tot.",
 };

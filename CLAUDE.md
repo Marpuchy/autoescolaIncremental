@@ -92,8 +92,10 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   Criaturas por campo: obligatorias solo la legendaria y la mítica; 2 comunes por carrera. Si una tirada saca una rareza
   que el campo no tiene, da puntos de estrella (`td.stelles[mode]`; «espores» en el bosque, `TD_POINTS`) que en el grimorio
   compran copias de cualquier criatura de la carrera menos la mítica (`tdBuyCopy`). Las retiradas se fusionan con `TD_MERGED`.
-  Hoy: Informàtica con Matemàtiques (`alg`: Sumador, Vector épico, Determinant, λ) e Informàtica (`prg`: Punt i coma, If/else,
-  Compilador, Stack). Forestal (Alba, asignaturas provisionales de 2.º de Gestió Forestal) con Gestió de monts (`mnt`: Pi,
+  Hoy: Informàtica (1.º del grado en la UJI, plan EI26xx) por zonas: Matemàtiques (`alg`: Sumador, Vector épico, Determinant, λ;
+  Càlcul y Àlgebra, más Discreta y Estadística hasta que exista la zona Lògica i dades), Programació (`prg`: Punt i coma,
+  If/else, Compilador, Stack; Prog I y II, Eines, Dret TIC) y Màquina (`maq`: Bobina de Tesla, Condensador; Electrònica y
+  Fonaments de Computadors). Forestal (Alba, asignaturas provisionales de 2.º de Gestió Forestal) con Gestió de monts (`mnt`: Pi,
   Anells, Contrafoc, Carrasca) y Quadern de camp (`pin`, projecte intermodular e IPO: Brúixola, Sàmara, Anellador, Projecte integrador). Los campos se hacen
   por zonas temáticas; las asignaturas de una zona futura (p. ej. Fauna: cinegètica y pesca) siguen en su campo actual hasta
   que la zona tenga criaturas. En el
