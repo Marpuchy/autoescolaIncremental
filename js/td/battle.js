@@ -455,6 +455,28 @@ function tdbHit(p, e) {
   }
 }
 // ---- bosc
+// Atrapats: arrels que pugen des de terra i s'enrosquen al cos, o resina d'ambre que els cobrix de baix a dalt.
+// Es dibuixa dins del dibuix de la distracció (viewBox 0-100, base a y = 96); l'enemic forceja mentre dura.
+function tdbTrap(e, kind) {
+  const svg = e.el.querySelector("svg");
+  if (!svg) return;
+  svg.querySelector(".tdb-trap")?.remove();
+  const roots = [[22, 1], [38, -1], [62, 1], [78, -1]].map(([x, d], i) =>
+    `<path class="tdb-root" style="animation-delay:${i * 0.06}s" d="M${x} 99 C${x + d * 6} 80 ${50 - d * 26} 74 ${50 + d * 4} 62 S${50 + d * 22} 44 ${50 + d * 10} 36" pathLength="100"/>`).join("");
+  svg.insertAdjacentHTML(kind === "resin" ? "beforeend" : "beforeend", kind === "root"
+    ? `<g class="tdb-trap root">${roots}${[[30, 96], [70, 96], [50, 98]].map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="9" ry="3" fill="#2a1a0c"/>`).join("")}</g>`
+    : `<g class="tdb-trap resin"><path d="M8 98 C6 74 18 58 30 62 C36 48 48 44 56 52 C66 44 82 52 80 64 C94 66 96 84 92 98 Z" fill="#e8a64a" opacity="0.55" stroke="#ffd27a" stroke-width="2.4"/>
+        <path d="M24 70 Q30 64 36 68 M62 60 Q68 56 72 62" stroke="#fff3c8" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.8"/>
+        <path d="M30 98 Q31 104 29 108 M72 98 Q73 103 71 106" stroke="#e8a64a" stroke-width="4" fill="none" stroke-linecap="round" class="tdb-drip"/></g>`);
+  e.trapped = true;
+}
+function tdbUntrap(e) {
+  const g = e.el.querySelector(".tdb-trap");
+  e.trapped = false;
+  if (!g) return;
+  g.classList.add("off"); // les arrels es retiren / la resina es trenca
+  setTimeout(() => g.remove(), 300);
+}
 // Carrasca: les criatures del voltant (no ella mateixa) fan més dany
 function tdbAuraMult(t) {
   let m = 1;
@@ -520,13 +542,16 @@ function tdbSpecial(t, target) {
   if (s.type === "freeze") {
     const [x, y] = tdbPos(target);
     tdbFx("freeze", ...tdbS(x, y), "#9fe0ff", s.radius * ab);
-    for (const e of tdb.enemies) if (e.hp > 0 && Math.hypot(...tdbPos(e).map((v, i) => v - [x, y][i])) <= s.radius * ab) e.stunT = Math.max(e.stunT, s.dur * ab);
+    for (const e of tdb.enemies) if (e.hp > 0 && Math.hypot(...tdbPos(e).map((v, i) => v - [x, y][i])) <= s.radius * ab) {
+      e.stunT = Math.max(e.stunT, s.dur * ab);
+      if (TD_DEFENDERS[t.id].subj === "mnt") tdbTrap(e, "resin"); // la resina dels anells els deixa enganxats
+    }
   } else if (s.type === "root") { // la gla cau i en brollen arrels que atrapen
     const [x, y] = tdbPos(target), r = s.radius * Math.min(1.5, ab);
     const g = tdbFx("roots", ...tdbS(x, y), TD_GLOW.mnt, r);
     if (g) g.innerHTML = `<ellipse rx="${r}" ry="${r * 0.4}" fill="${TD_GLOW.mnt}" opacity="0.14"/>${Array.from({ length: 7 }, (_, i) => { const a = i / 7 * Math.PI * 2, ex = Math.cos(a) * r * 0.9, ey = Math.sin(a) * r * 0.36;
       return `<path d="M0 0 Q${(ex * 0.5 + ey * 0.4).toFixed(0)} ${(ey * 0.5 - 26).toFixed(0)} ${ex.toFixed(0)} ${ey.toFixed(0)}" stroke="#c98a4a" stroke-width="6" fill="none" stroke-linecap="round"/>`; }).join("")}`;
-    for (const e of tdb.enemies) if (e.hp > 0 && Math.hypot(...tdbPos(e).map((v, i) => v - [x, y][i])) <= r) e.stunT = Math.max(e.stunT, s.dur * ab);
+    for (const e of tdb.enemies) if (e.hp > 0 && Math.hypot(...tdbPos(e).map((v, i) => v - [x, y][i])) <= r) { e.stunT = Math.max(e.stunT, s.dur * ab); tdbTrap(e, "root"); }
   } else if (s.type === "echo") { // fa l'especial d'una altra criatura del mapa, més fort
     const others = Object.values(tdb.towers).filter(o => o !== t && (TD_DEFENDERS[o.id].special?.type && TD_DEFENDERS[o.id].special.type !== "echo" || ["burn", "mark", "stacks"].includes(TD_DEFENDERS[o.id].role)));
     const o = others[Math.floor(Math.random() * others.length)];
@@ -828,6 +853,8 @@ function tdbRender() {
     e.hpBar.setAttribute("width", Math.max(0, 50 * e.hp / e.maxHp).toFixed(1));
     e.el.classList.toggle("stealth", !!e.def.stealth && e.dist < e.def.stealth * tdb.path.total);
     e.el.classList.toggle("stunned", e.stunT > 0);
+    if (e.trapped && e.stunT <= 0) tdbUntrap(e);
+    e.el.classList.toggle("trapped", !!e.trapped);
     e.el.classList.toggle("slowed", e.slowT > 0);
     e.el.classList.toggle("rushed", tdb.rushT > 0);
   }

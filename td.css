@@ -768,3 +768,17 @@
 .tdb-mark { animation: tdb-mark-on 0.35s cubic-bezier(.3, 1.6, .5, 1); }
 @keyframes tdb-mark-on { from { transform: scale(2.4); opacity: 0; } }
 .tdb-aura .tdc { filter: drop-shadow(0 0 10px rgba(143, 212, 90, 0.75)); }
+
+/* atrapats al bosc: arrels que creixen i s'enrosquen, resina que cobrix; la distracció forceja */
+.tdb-trap .tdb-root { fill: none; stroke: #8a5a2a; stroke-width: 5; stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: 100;
+  filter: drop-shadow(0 0 3px rgba(143, 212, 90, 0.6)); animation: tdb-root-grow 0.35s ease-out forwards; }
+@keyframes tdb-root-grow { to { stroke-dashoffset: 0; } }
+.tdb-trap.resin { transform-box: fill-box; transform-origin: 50% 100%; animation: tdb-resin-up 0.3s ease-out; }
+@keyframes tdb-resin-up { from { transform: scaleY(0); } }
+.tdb-trap .tdb-drip { animation: tdb-drip 1.2s ease-in infinite; }
+@keyframes tdb-drip { 0%, 30% { stroke-dasharray: 2 20; } 100% { stroke-dasharray: 12 20; } }
+.tdb-trap.off { transition: opacity 0.3s; opacity: 0; }
+.tdb-trap.root.off .tdb-root { animation: tdb-root-back 0.3s ease-in forwards; }
+@keyframes tdb-root-back { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 100; } }
+.tdb-enemy.trapped .tde { filter: none; animation: tdb-struggle 0.32s ease-in-out infinite; animation-play-state: running; transform-origin: 50% 96%; transform-box: view-box; }
+@keyframes tdb-struggle { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-4deg) translateY(-1px); } 75% { transform: rotate(4deg); } }
