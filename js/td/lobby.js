@@ -204,6 +204,7 @@ function tdDoExam(kind) {
 // ---- llibres (grimori i bestiari): una criatura o distracció per doble pàgina; es passa pàgina
 // Marcapàgines: una assignatura per marcapàgines (cada una amb el seu paper) i, al grimori, l'equip.
 let tdBook = { tab: "alg", page: 0 };
+let tdTeamFilter = "all"; // filtre de «Les teues criatures»: all · fav · alg · prg
 const TD_RAR_ORDER = ["comu", "rar", "epic", "llegendari", "mitic"];
 function tdBookList(kind, tab) {
   if (kind === "bestiary") return Object.keys(TD_ENEMIES).filter(id => !TD_ENEMIES[id].hidden);
@@ -242,7 +243,8 @@ function tdCreaturePages(id) {
        <tr><th>Velocitat</th><td>${st.rate.toFixed(2)} / s</td></tr><tr><th>Abast</th><td>${Math.round(st.range)}</td></tr><tr><th>Cost</th><td>🔮 ${d.cost}</td></tr>
        <tr><th>Còpies</th><td>${next ? `${next.have} / ${next.need} per a la ★${st.stars + 1}` : "estreles al màxim"}</td></tr></table>
      <div class="tdbook-btns">${cost != null ? `<button data-lvl="${id}" ${td.saber < cost ? "disabled" : ""}>⬆ Nivell ${o.level + 1} · ✨ ${fmtNum(cost)}</button>` : `<button disabled>Nivell màxim</button>`}
-       <button class="secondary" data-team="${id}">${td.team.includes(id) ? "➖ Traure de l'equip" : "➕ Posar a l'equip"}</button></div>`];
+       <button class="secondary" data-team="${id}">${td.team.includes(id) ? "➖ Traure de l'equip" : "➕ Posar a l'equip"}</button>
+       <button class="secondary tdbook-fav${td.favs.includes(id) ? " on" : ""}" data-fav="${id}" aria-pressed="${td.favs.includes(id)}" title="Preferida: ix primer a la llista de l'equip">${td.favs.includes(id) ? "★ Preferida" : "☆ Preferida"}</button></div>`];
 }
 function tdBeastPages(id) {
   const e = TD_ENEMIES[id], seen = td.seen.includes(id);
@@ -253,12 +255,18 @@ function tdBeastPages(id) {
 }
 function tdTeamPages() {
   const slots = Array.from({ length: 6 }, (_, i) => td.team[i]);
-  const owned = Object.keys(TD_DEFENDERS).filter(id => td.owned[id]);
+  // les preferides, primer; després, per assignatura i raresa
+  const owned = Object.keys(TD_DEFENDERS).filter(id => td.owned[id])
+    .filter(id => tdTeamFilter === "all" || (tdTeamFilter === "fav" ? td.favs.includes(id) : TD_DEFENDERS[id].subj === tdTeamFilter))
+    .sort((a, b) => (td.favs.includes(b) - td.favs.includes(a)) || 0);
+  const filters = [["all", "Totes"], ["fav", "★ Preferides"], ...Object.entries(TD_SUBJECTS).map(([s, d]) => [s, `${d.icon} ${d.short}`])];
   return [`<h3 class="tdbook-name">Equip</h3><p class="tdbook-text muted">Les 6 criatures que portes al combat. Toca'n una per a traure-la.</p>
-      <div class="tdbook-team">${slots.map(id => id ? `<button class="tdbook-tslot rar-${TD_DEFENDERS[id].rar}" data-team="${id}" title="Traure ${TD_DEFENDERS[id].name}">${tdCreatureSvg(id)}<span>${TD_DEFENDERS[id].name}</span></button>`
+      <div class="tdbook-team">${slots.map(id => id ? `<button class="tdbook-tslot rar-${TD_DEFENDERS[id].rar}" data-team="${id}" title="Traure ${TD_DEFENDERS[id].name}">${tdCreatureSvg(id)}<span>${TD_DEFENDERS[id].name}</span><span class="tdbook-cost">🔮 ${TD_DEFENDERS[id].cost}</span></button>`
         : `<div class="tdbook-tslot empty">+</div>`).join("")}</div>`,
-    `<h3 class="tdbook-name">Les teues criatures</h3><p class="tdbook-text muted">Toca'n una per a posar-la a l'equip.</p>
-      <div class="tdbook-owned">${owned.map(id => `<button class="tdbook-mini rar-${TD_DEFENDERS[id].rar}${td.team.includes(id) ? " inteam" : ""}" data-team="${id}" title="${TD_DEFENDERS[id].name}">${tdCreatureSvg(id)}</button>`).join("")}</div>`];
+    `<h3 class="tdbook-name">Les teues criatures</h3>
+      <div class="tdbook-filters">${filters.map(([f, l]) => `<button class="tdbook-filter${tdTeamFilter === f ? " on" : ""}" data-filter="${f}">${l}</button>`).join("")}</div>
+      ${owned.length ? "" : `<p class="tdbook-text muted">${tdTeamFilter === "fav" ? "Encara no tens preferides: marca-les amb ☆ a les pàgines del grimori." : "No en tens cap d'aquesta assignatura."}</p>`}
+      <div class="tdbook-owned">${owned.map(id => `<button class="tdbook-mini rar-${TD_DEFENDERS[id].rar}${td.team.includes(id) ? " inteam" : ""}${td.favs.includes(id) ? " fav" : ""}" data-team="${id}" title="${TD_DEFENDERS[id].name} · ${TD_DEFENDERS[id].cost} de maná">${tdCreatureSvg(id)}<span class="tdbook-cost">🔮 ${TD_DEFENDERS[id].cost}</span></button>`).join("")}</div>`];
 }
 // Passar pàgina com en un llibre de veritat: la fulla gira sobre el llom (davant, la pàgina vella; darrere, la nova)
 // i el que hi ha davall no canvia fins que la fulla cau. En mòbil (una pàgina damunt de l'altra), es fon.
@@ -373,6 +381,8 @@ function initTdLobby() {
     if (ds.subj) { tdSubj = ds.subj; tdRenderPanel(); }
     else if (ds.bktab) { tdBook = { tab: ds.bktab, page: 0 }; tdRenderPanel(); }
     else if (ds.bk) tdTurnPage(ds.bk === "next" ? 1 : -1);
+    else if (ds.filter) { tdTeamFilter = ds.filter; tdRenderPanel(); }
+    else if (ds.fav) { td.favs = td.favs.includes(ds.fav) ? td.favs.filter(f => f !== ds.fav) : [...td.favs, ds.fav]; tdSave(); tdRenderPanel(); }
     else if (ds.summon) tdDoSummon(Number(ds.summon));
     else if (ds.act) tdDoStudy(ds.act);
     else if (ds.exam) tdDoExam(ds.exam);

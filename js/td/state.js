@@ -10,6 +10,7 @@ function tdNewState() {
     pity: { alg: { epic: 0, llegendari: 0 }, prg: { epic: 0, llegendari: 0 } },
     owned: { sumador: { copies: 1, level: 1 }, puntcoma: { copies: 1, level: 1 } }, // les dues primeres criatures
     team: ["sumador", "puntcoma"],
+    favs: [],                                         // criatures preferides (grimori)
     saber: 0,
     upgrades: { vida: 0, mana: 0, saber: 0 },
     artifacts: {},                                    // id → nivell
@@ -47,6 +48,7 @@ function tdLoad() {
     for (const id of Object.keys(td.owned)) if (!TD_DEFENDERS[id]) delete td.owned[id];
     for (const id of Object.keys(td.artifacts)) if (!TD_ARTIFACTS[id]) delete td.artifacts[id];
     td.team = td.team.filter(id => td.owned[id]).slice(0, 6);
+    td.favs = td.favs.filter(id => TD_DEFENDERS[id]);
     td.equipped = td.equipped.filter(id => td.artifacts[id]).slice(0, TD_ARTIFACT_SLOTS);
   } catch {}
 }

@@ -402,7 +402,10 @@
 .tdbook-tslot.empty { border-style: dashed; color: var(--muted-ink); font-size: 2rem; background: transparent; }
 .tdbook-owned { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; width: 100%; }
 .tdbook-mini { aspect-ratio: 1; border-radius: 10px; background: radial-gradient(circle, #1a2033, #07090f 75%); border: 2px solid var(--rc, #6b7480); padding: 4px; }
-.tdbook-mini svg { width: 100%; height: 100%; }
+.tdbook-mini { position: relative; display: flex; flex-direction: column; align-items: center; color: #e6e6e6; }
+.tdbook-mini svg { width: 100%; height: 100%; min-height: 0; flex: 1; }
+.tdbook-cost { font-size: 0.7rem; font-weight: 800; color: #c9bfff; white-space: nowrap; }
+.tdbook-mini .tdbook-cost { position: absolute; bottom: 2px; left: 0; right: 0; text-align: center; background: rgba(7, 9, 15, 0.75); border-radius: 0 0 8px 8px; }
 .tdbook-mini.inteam { opacity: 0.35; }
 /* passar pàgina: una fulla de dues cares gira sobre el llom */
 .tdbook-spread { position: relative; }
@@ -445,3 +448,10 @@
 @keyframes tds-myth-glow { 0% { filter: brightness(3) drop-shadow(0 0 30px var(--rc)); } 100% { filter: none; } }
 /* mentre la fulla gira sobreïx un poc del llibre: sense barra de desplaçament (en mòbil no hi ha fulla, es fon) */
 @media (min-width: 701px) { .td-card:is([data-panel="grimori"], [data-panel="bestiary"]) { overflow: visible; max-height: none; } }
+
+/* filtres i preferides del grimori */
+.tdbook-filters { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 4px 0 8px; }
+.tdbook-filter { padding: 3px 10px; font-size: 0.78rem; border-radius: 12px; background: transparent; color: var(--ink); border: 1px solid color-mix(in srgb, var(--ink) 35%, transparent); }
+.tdbook-filter.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+.tdbook-mini.fav::before { content: "★"; position: absolute; top: 2px; right: 5px; color: #ffc23f; font-size: 0.85rem; text-shadow: 0 0 4px #000; }
+.tdbook-fav.on { color: #ffc23f; }
