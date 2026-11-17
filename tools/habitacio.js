@@ -115,6 +115,18 @@ const WHITE = { front: "#f4f2ec", side: "#e2dfd6", top: "#fbfaf6", bottom: "#d8d
   add(s);
 }
 
+// ---------------------------------------------------------------- peluix menut de la gata, davall de la finestra (un cocodril blau genèric)
+{
+  const CROC = `<g transform="scale(0.9)"><ellipse cy="0" rx="10" ry="2.4" fill="#000" opacity="0.2"/>
+    <ellipse cx="0" cy="-7" rx="8" ry="7" fill="#3a8ad8"/><ellipse cx="0" cy="-5.5" rx="4.5" ry="5" fill="#f2e2b0"/>
+    <path d="M-3 -13 Q-9 -16 -14 -13 Q-15 -10 -9 -9.5 L-3 -10 Z" fill="#3a8ad8"/><path d="M-14 -11.5 L-4 -11" stroke="#1a3a6a" stroke-width="0.7"/>
+    <circle cx="-1.5" cy="-15.5" r="3" fill="#3a8ad8"/><circle cx="-1.6" cy="-15.8" r="1.4" fill="#fff"/><circle cx="-2" cy="-15.8" r="0.7" fill="#1a1a1a"/>
+    <path d="M6 -4 Q13 -3 14 -8" stroke="#3a8ad8" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+    <path d="M3 -13 l2 -2 l1 2 M6 -10 l2 -2 l1 2" fill="#2a6ab0"/>
+    <ellipse cx="-5" cy="-0.8" rx="2.4" ry="1.4" fill="#3a8ad8"/><ellipse cx="4" cy="-0.8" rx="2.4" ry="1.4" fill="#3a8ad8"/></g>`;
+  add(figure(CROC, 1.05, 0, BACK - 0.14));
+}
+
 // ---------------------------------------------------------------- prestatgeria menuda (morat al plànol): contra la paret esquerra, al costat del capçal, mirant a la dreta
 let plate;
 {
@@ -139,22 +151,25 @@ let plate;
   const tv = { x0: W - 0.3, x1: W - 0.26, y0: 0.92, y1: 1.4, z0: 1.3, z1: 2.1 };
   s += box(tv, { side: "#141414", top: "#2a2a2a", front: "#101010" });
   s += quad(face(tv, "left"), 0.04, 0.06, 0.96, 0.9, `fill="#1a1e24"`);
+  // una vitrina de vidre: l'interior (lleixes i el que hi ha) en 3D, i al damunt els vidres i el marc
   const v = { x0: W - 0.38, x1: W, y0: 0, y1: 1.75, z0: 0.3, z1: 1.05 };
-  // vitrina de vidre: les portes (la cara que mira l'habitació) i el costat de davant són transparents;
-  // es veuen les lleixes i el que hi ha dins, i la paret de darrere
-  s += box(v, { top: "#3a3530" });
-  const vf = face(v, "left"), vfr = face(v, "front");
-  const shelves = [0.27, 0.52, 0.77];
-  for (const y of shelves) s += quad(vf, 0.03, y, 0.97, y + 0.012, `fill="#b8c2c8"`);
-  const it = (u0, v0, u1, v1, c) => quad(vf, u0, v0, u1, v1, `fill="${c}"`);
-  s += it(0.2, 0.14, 0.3, 0.27, "#d1261f") + it(0.45, 0.18, 0.55, 0.27, "#f2c200") + it(0.7, 0.12, 0.82, 0.27, "#7b3fe4");
-  s += it(0.25, 0.4, 0.4, 0.52, "#2f9e55") + it(0.6, 0.42, 0.75, 0.52, "#e46a2e");
-  s += it(0.2, 0.66, 0.35, 0.77, "#3a4a8e") + it(0.55, 0.64, 0.8, 0.77, "#c9a678");
-  s += quad(vf, 0, 0, 1, 1, `fill="#cfe0e8" opacity="0.2" stroke="#2a2622" stroke-width="3"`);
-  s += quad(vf, 0.48, 0, 0.52, 1, `fill="#2a2622"`); // junta de les dues portes
-  s += quad(vf, 0.1, 0.02, 0.22, 0.98, `fill="#fff" opacity="0.18"`); // reflex
-  s += quad(vfr, 0, 0, 1, 1, `fill="#cfe0e8" opacity="0.12" stroke="#2a2622" stroke-width="4"`);
-  for (const y of shelves) s += quad(vfr, 0, y, 1, y + 0.012, `fill="#b8c2c8" opacity="0.7"`);
+  s += box({ ...v, y0: 0, y1: 0.06 }, { side: "#2a2622", front: "#2a2622", top: "#3a3530" });
+  const levels = [0.06, 0.48, 0.9, 1.32];
+  const goods = [ // [x, z, ample, alt, color] per lleixa: figuretes i records de viatges
+    [[1.55, 0.45, 0.08, 0.2, "#d1261f"], [1.62, 0.7, 0.1, 0.14, "#cfe6f5"], [1.55, 0.9, 0.07, 0.24, "#b8a070"]],
+    [[1.6, 0.42, 0.12, 0.16, "#2f9e55"], [1.55, 0.66, 0.08, 0.22, "#7b3fe4"], [1.62, 0.88, 0.1, 0.12, "#f2c200"]],
+    [[1.58, 0.45, 0.1, 0.18, "#3a4a8e"], [1.6, 0.72, 0.14, 0.1, "#e8e2d0"], [1.55, 0.92, 0.07, 0.2, "#e46a2e"]],
+    [[1.6, 0.5, 0.12, 0.14, "#9a6a3a"], [1.56, 0.8, 0.08, 0.22, "#c84a3a"]],
+  ];
+  levels.forEach((y, i) => {
+    s += box({ x0: v.x0 + 0.02, x1: v.x1, y0: y, y1: y + 0.012, z0: v.z0 + 0.02, z1: v.z1 - 0.02 }, { side: "#b8c2c8", top: "#d8e0e4", front: "#b8c2c8", bottom: "#a8b2b8" });
+    for (const [x, z, w, h, c] of goods[i]) s += box({ x0: x - w / 2, x1: x + w / 2, y0: y + 0.012, y1: y + 0.012 + h, z0: z - w / 2, z1: z + w / 2 }, { side: c, front: c, top: "#ffffff55" });
+  });
+  for (const [x, z] of [[v.x0, v.z0], [v.x0, v.z1 - 0.025]]) s += box({ x0: x, x1: x + 0.025, y0: 0, y1: v.y1, z0: z, z1: z + 0.025 }, { side: "#2a2622", front: "#2a2622" });
+  s += box({ ...v, y0: v.y1 - 0.03 }, { side: "#2a2622", front: "#2a2622", top: "#3a3530" });
+  // vidres (porta i costat) amb un reflex
+  s += quad(face(v, "left"), 0, 0, 1, 1, `fill="#cfe0e8" opacity="0.16"`) + quad(face(v, "left"), 0.12, 0.04, 0.24, 0.96, `fill="#fff" opacity="0.14"`);
+  s += quad(face(v, "front"), 0, 0, 1, 1, `fill="#cfe0e8" opacity="0.1"`);
   add(s);
 }
 
@@ -164,16 +179,11 @@ let plate;
   const x0 = -W, x1 = 0.2, z0 = 0.15, z1 = 1.55; // 2 m de llarg (x) i 1,4 m d'ample (z)
   s += shadow({ x0, x1, z0, z1 }, 0.04, 0.25);
   s += box({ x0, x1: x0 + 0.06, y0: 0, y1: 0.9, z0, z1 }, { front: "#efede8", side: "#e0ddd6", top: "#f8f7f3" });  // capçal blanc, a la paret
-  s += box({ x0: x0 + 0.06, x1, y0: 0.06, y1: 0.3, z0, z1 }, { front: "#ebe9e4", side: "#dcd9d2" });              // estructura blanca
-  s += box({ x0: x0 + 0.08, x1: x1 - 0.02, y0: 0.3, y1: 0.48, z0: z0 + 0.02, z1: z1 - 0.02 }, { front: "#f2f0ea", top: "#f6f4ef" });
+  s += box({ x0: x0 + 0.06, x1, y0: 0, y1: 0.3, z0, z1 }, { front: "#ebe9e4", side: "#dcd9d2" });                 // estructura blanca, fins a terra
+
   // coixí al costat de la paret
-  { // coixí: blanc, una mica abombat
-    const pb = { x0: x0 + 0.1, x1: x0 + 0.46, y0: 0.48, y1: 0.6, z0: z0 + 0.14, z1: z1 - 0.14 };
-    s += box(pb, { front: "#e9edf2", side: "#dde2e8", top: "#f6f8fb" });
-    s += quad(face(pb, "top"), 0.15, 0.1, 0.85, 0.9, `fill="#fff" opacity="0.6"`);
-  }
   // edredó de cercles: de després del coixí fins als peus, i cau pel costat de davant i pels peus
-  const dB = { x0: x0 + 0.52, x1: x1 + 0.04, y0: 0.18, y1: 0.54, z0: z0 - 0.04, z1: z1 + 0.02 };
+  const dB = { x0: x0 + 0.07, x1: x1 + 0.04, y0: 0.18, y1: 0.54, z0: z0 - 0.04, z1: z1 + 0.02 };
   // el patró de cercles es dibuixa damunt de l'edredó en 3D (cada cercle projectat), així segueix la perspectiva
   const DUV = ["#1e2f5a", "#2f8a5a", "#9fb8d8", "#1e2f5a", "#3a5a9a", "#9fb8d8", "#2f8a5a", "#1e2f5a"];
   const pattern = (fn, uLen, vLen, id) => { // fn(u, v) en [0,1]² → punt 3D de la cara; uLen/vLen: mida en metres
@@ -189,8 +199,37 @@ let plate;
   };
   s += pattern(face(dB, "top"), dB.x1 - dB.x0, dB.z1 - dB.z0, "duv-top");
   s += pattern(face(dB, "front"), dB.x1 - dB.x0, dB.y1 - dB.y0, "duv-front");
+  { // coixí: blanc, una mica abombat
+    const pb = { x0: x0 + 0.1, x1: x0 + 0.46, y0: 0.54, y1: 0.66, z0: z0 + 0.14, z1: z1 - 0.14 };
+    s += box(pb, { front: "#e9edf2", side: "#dde2e8", top: "#f6f8fb" });
+    s += quad(face(pb, "top"), 0.15, 0.1, 0.85, 0.9, `fill="#fff" opacity="0.6"`);
+  }
+
   s += quad(face(dB, "front"), 0, 0, 0.012, 1, `fill="#000" opacity="0.15"`);
   add(s);
+}
+
+// ---------------------------------------------------------------- la Guppy, la gata, dormint feta un rogle damunt del llit
+{
+  // atigrada gris i bruna amb el pit, la panxa i les potes blanques, el nas rosa i la cua amb anells
+  const GUPPY = `<g transform="scale(1.05)">
+    <ellipse cx="2" cy="1" rx="23" ry="6" fill="#000" opacity="0.18"/>
+    <ellipse cx="4" cy="-8" rx="20" ry="10.5" fill="#8a8274"/>
+    <path d="M-6 -17 Q-4 -9 -7 -1 M1 -18.5 Q3 -9 0 -0.5 M8 -18.5 Q10 -9 7 -0.5 M15 -17 Q17 -9 14 -2 M21 -13 Q22 -8 20 -4" stroke="#3a3530" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    <ellipse cx="10" cy="-3" rx="12" ry="5" fill="#f6f4f0"/>
+    <path d="M24 -6 Q26 2 12 3 Q-6 4 -14 0" stroke="#7a7266" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M20 -1.5 l-1 4 M13 0.5 l-0.6 4 M6 1 l-0.4 4 M-1 1 l0 4" stroke="#2e2a26" stroke-width="2"/>
+    <ellipse cx="-11" cy="-2" rx="6" ry="3" fill="#f6f4f0"/>
+    <circle cx="-13" cy="-9" r="8.2" fill="#9a907e"/>
+    <path d="M-19 -14 L-21 -21 L-15 -16 Z M-9 -16 L-6 -22 L-5 -14 Z" fill="#9a907e"/><path d="M-18.6 -15 L-19.8 -19 L-16.4 -16 Z M-8.6 -16 L-6.6 -20 L-6 -15 Z" fill="#e8b0b8"/>
+    <path d="M-16 -16 l1 3 M-13 -17 l0 3 M-10 -16 l-1 3" stroke="#3a3530" stroke-width="1.2"/>
+    <path d="M-15 -7 Q-13 -3.5 -10.5 -7 L-11.5 -2 Q-13 -0.5 -14.5 -2 Z" fill="#f6f4f0"/>
+    <path d="M-17.4 -9.2 q1.6 1.3 3.2 0 M-11.4 -9.2 q1.6 1.3 3.2 0" stroke="#2a2622" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+    <path d="M-13.8 -6.2 L-12.2 -6.2 L-13 -5.2 Z" fill="#f2a0aa"/>
+    <path d="M-17 -5.5 l-5 -0.6 M-17 -4.6 l-5 0.6 M-9 -5.5 l5 -0.6 M-9 -4.6 l5 0.6" stroke="#fff" stroke-width="0.4" opacity="0.8"/>
+    <ellipse cx="-6" cy="0.5" rx="3" ry="1.8" fill="#fbfaf8"/><ellipse cx="-1" cy="1" rx="3" ry="1.8" fill="#fbfaf8"/>
+  </g>`;
+  add(figure(GUPPY, -0.75, 0.56, 0.95));
 }
 
 // ---------------------------------------------------------------- placa L, a la prestatgeria (→ DGT)
@@ -214,7 +253,11 @@ let plate;
     <g transform="rotate(-14 0 0)">
       <path d="M-6 -44 C-4 -52 4 -52 5 -45" stroke="#2a2a30" stroke-width="2.6" fill="none"/>
       <path d="M-9 -2 L-10 -38 C-10 -46 -4 -48 2 -47 C9 -46 11 -40 11 -32 L12 -2 Q2 1 -9 -2 Z" fill="url(#room-bag)"/>
-      <path d="M-10 -36 C-14 -26 -14 -12 -10 -4" stroke="#0e0e12" stroke-width="2.4" fill="none"/>
+      <!-- les dues tires de l'esquena: ixen de dalt, fan l'arc i s'enganxen a baix amb la sivella -->
+      <path d="M-8 -41 C-19 -36 -19 -12 -9 -6" stroke="#0a0a0d" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M-9 -38 C-16 -33 -16 -14 -9 -9" stroke="#26262c" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <rect x="-12" y="-9" width="4" height="3" rx="0.6" fill="#5a5a62"/>
+      <path d="M-8 -41 l0 -2" stroke="#0a0a0d" stroke-width="3"/>
       <path d="M8 -22 C15 -21 16 -6 12 -3 L9 -3 Z" fill="#1c1c20"/>
       <path d="M2 -46 C8 -45 11 -39 11 -32" stroke="#3a3a42" stroke-width="1" fill="none"/>
       <circle cx="12.2" cy="-14" r="3.2" fill="#1f4fa8" stroke="#c9d6e8" stroke-width="0.6"/><circle cx="12.2" cy="-14" r="1.4" fill="#4aa8ff"/>
