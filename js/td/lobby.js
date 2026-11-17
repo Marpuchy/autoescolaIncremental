@@ -219,11 +219,12 @@ function tdBookHtml(kind) {
   let left, right, nav = "";
   if (tab === "team") [left, right] = tdTeamPages();
   else {
-    const list = tdBookList(kind, tab);
+    // al grimori, cada assignatura comença amb un índex
+    const list = kind === "bestiary" ? tdBookList(kind, tab) : ["index", ...tdBookList(kind, tab)];
     tdBook.page = Math.max(0, Math.min(tdBook.page, list.length - 1));
     const id = list[tdBook.page];
-    [left, right] = kind === "bestiary" ? tdBeastPages(id) : tdCreaturePages(id);
-    nav = `<button class="tdbook-turn prev" data-bk="prev" ${tdBook.page === 0 ? "disabled" : ""} aria-label="Pàgina anterior">◀</button>
+    [left, right] = kind === "bestiary" ? tdBeastPages(id) : id === "index" ? tdIndexPages(tab, list.slice(1)) : tdCreaturePages(id);
+    nav = `${kind !== "bestiary" && tdBook.page > 0 ? `<button class="secondary small tdbook-toindex" data-goto="0">☰ Índex</button>` : ""}<button class="tdbook-turn prev" data-bk="prev" ${tdBook.page === 0 ? "disabled" : ""} aria-label="Pàgina anterior">◀</button>
       <span class="tdbook-num">${tdBook.page + 1} / ${list.length}</span>
       <button class="tdbook-turn next" data-bk="next" ${tdBook.page >= list.length - 1 ? "disabled" : ""} aria-label="Pàgina següent">▶</button>`;
   }
@@ -232,9 +233,24 @@ function tdBookHtml(kind) {
     <div class="tdbook-spread"><div class="tdbook-page left">${left}</div><div class="tdbook-spine"></div><div class="tdbook-page right">${right}</div></div>
     <div class="tdbook-nav">${nav}</div></div>`;
 }
+// Índex de l'assignatura: les que tens, amb el nom per a anar-hi directament; les altres, amb interrogants
+function tdIndexPages(tab, list) {
+  const have = list.filter(id => td.owned[id]).length;
+  const row = (id, i) => {
+    const d = TD_DEFENDERS[id], r = TD_RARITIES[d.rar], o = td.owned[id];
+    return `<li><button class="tdbook-idx${o ? "" : " unknown"}" data-goto="${i + 1}" style="--rc:${r.color}">
+      <span class="tdbook-idx-art">${o ? tdCreatureSvg(id) : "?"}</span><span class="tdbook-idx-name">${o ? d.name : "???"}</span>
+      <span class="tdbook-idx-rar">${r.name}${o ? ` · ${"★".repeat(tdStars(id))}` : ""}</span><span class="tdbook-idx-pg">${i + 2}</span></button></li>`;
+  };
+  const half = Math.ceil(list.length / 2);
+  return [`<h3 class="tdbook-name">${TD_SUBJECTS[tab].icon} ${TD_SUBJECTS[tab].name}</h3>
+      <p class="tdbook-text muted">Índex · en tens ${have} de ${list.length}</p><ol class="tdbook-index">${list.slice(0, half).map((id, i) => row(id, i)).join("")}</ol>`,
+    `<ol class="tdbook-index">${list.slice(half).map((id, i) => row(id, i + half)).join("")}</ol>
+      <p class="tdbook-text muted">${TD_SUBJECTS[tab].classes.join(" · ")}</p>`];
+}
 function tdCreaturePages(id) {
   const d = TD_DEFENDERS[id], o = td.owned[id], r = TD_RARITIES[d.rar];
-  if (!o) return [`<div class="tdbook-art locked">${tdCreatureSvg(id)}</div><h3 class="tdbook-name">???</h3><div class="tdbook-rar" style="color:${r.color}">${r.name}</div>`,
+  if (!o) return [`<div class="tdbook-art locked" style="--rc:${r.color}"><span class="tdbook-q">?</span></div><h3 class="tdbook-name">???</h3><div class="tdbook-rar" style="color:${r.color}">${r.name}</div>`,
     `<p class="tdbook-text">Encara no has invocat aquesta criatura.</p><p class="tdbook-text muted">${d.rar === "mitic" ? `Només es pot aconseguir traent un ${TD_MYTHIC_GRADE} o més a l'examen final d'una assignatura de ${TD_SUBJECTS[d.subj].name} (${TD_SUBJECTS[d.subj].classes.join(", ")}).` : `Pot eixir a l'altar, amb pergamins de ${TD_SUBJECTS[d.subj].name}.`}</p>`];
   const st = tdStats(id), next = tdNextStar(id);
   const cost = o.level < TD_LEVEL_MAX ? tdLevelCost(d.rar, o.level) : null;
@@ -272,11 +288,12 @@ function tdTeamPages() {
 }
 // Passar pàgina com en un llibre de veritat: la fulla gira sobre el llom (davant, la pàgina vella; darrere, la nova)
 // i el que hi ha davall no canvia fins que la fulla cau. En mòbil (una pàgina damunt de l'altra), es fon.
-function tdTurnPage(dir) {
+function tdTurnPage(dir, to = null) {
   const spread = document.querySelector(".tdbook-spread");
   if (!spread || spread.dataset.turning) return;
+  if (to != null) { if (to === tdBook.page) return; dir = to > tdBook.page ? 1 : -1; }
   const oldL = spread.querySelector(".left").innerHTML, oldR = spread.querySelector(".right").innerHTML;
-  tdBook.page += dir;
+  tdBook.page = to != null ? to : tdBook.page + dir;
   tdRenderPanel();
   const sp = document.querySelector(".tdbook-spread");
   if (getComputedStyle(sp).gridTemplateColumns.split(" ").length < 3) { sp.classList.add("fade-in"); return; }
@@ -384,6 +401,7 @@ function initTdLobby() {
     else if (ds.cls) { tdClass[tdSubj] = ds.cls; tdRenderPanel(); }
     else if (ds.bktab) { tdBook = { tab: ds.bktab, page: 0 }; tdRenderPanel(); }
     else if (ds.bk) tdTurnPage(ds.bk === "next" ? 1 : -1);
+    else if (ds.goto != null) tdTurnPage(0, Number(ds.goto));
     else if (ds.filter) { tdTeamFilter = ds.filter; tdRenderPanel(); }
     else if (ds.fav) { td.favs = td.favs.includes(ds.fav) ? td.favs.filter(f => f !== ds.fav) : [...td.favs, ds.fav]; tdSave(); tdRenderPanel(); }
     else if (ds.summon) tdDoSummon(Number(ds.summon));

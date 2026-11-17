@@ -479,3 +479,26 @@
   .tdb-pick-info { flex-wrap: wrap; gap: 6px; }
   .tdb-pick-info > button { width: 100%; }
 }
+/* la barra de dalt no canvia d'alçada durant el combat (si canviara, el mapa s'encongiria i creixeria):
+   el botó d'onada guarda el seu lloc encara que no es veja i els números tenen amplària fixa */
+.tdb-next[hidden] { display: inline-block; visibility: hidden; }
+#tdb-wave, #tdb-lives, #tdb-mana, #tdb-saber { display: inline-block; min-width: 3.2ch; font-variant-numeric: tabular-nums; }
+#tdb-mana, #tdb-saber { min-width: 4.5ch; }
+.tdb-next { min-width: 8.2em; white-space: nowrap; }
+
+/* índex del grimori i pàgines amb interrogants */
+.tdbook-index { list-style: none; margin: 6px 0; padding: 0; display: grid; gap: 6px; width: 100%; }
+.tdbook-idx { width: 100%; display: grid; grid-template-columns: 44px 1fr auto; grid-template-rows: auto auto; column-gap: 10px; align-items: center; text-align: left;
+  padding: 4px 8px; background: transparent; color: var(--ink); border: 0; border-bottom: 1px dashed color-mix(in srgb, var(--ink) 30%, transparent); border-radius: 0; box-shadow: none; }
+.tdbook-idx:hover, .tdbook-idx:focus-visible { background: color-mix(in srgb, var(--rc) 14%, transparent); }
+.tdbook-idx-art { grid-row: 1 / 3; width: 44px; height: 44px; border-radius: 50%; background: radial-gradient(circle at 50% 60%, #1a2033, #07090f 72%);
+  border: 2px solid var(--rc); display: grid; place-items: center; overflow: hidden; color: var(--rc); font-size: 1.4rem; font-weight: 900; }
+.tdbook-idx-art svg { width: 100%; height: 100%; }
+.tdbook-idx-name { font-weight: 800; font-size: 0.95rem; }
+.tdbook-idx-rar { grid-column: 2; font-size: 0.75rem; color: var(--rc); font-weight: 700; filter: brightness(0.75); }
+.tdbook-idx-pg { grid-column: 3; grid-row: 1 / 3; font-weight: 800; opacity: 0.55; font-variant-numeric: tabular-nums; }
+.tdbook-idx.unknown .tdbook-idx-name { opacity: 0.6; letter-spacing: 2px; }
+.tdbook-art.locked { display: grid; place-items: center; }
+.tdbook-q { font-size: 7rem; font-weight: 900; color: var(--rc); text-shadow: 0 0 18px var(--rc); opacity: 0.85; }
+.tdbook-toindex { position: absolute; left: 10px; }
+.tdbook-nav { position: relative; }
