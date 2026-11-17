@@ -154,6 +154,7 @@ let plate;
   // una vitrina de vidre: l'interior (lleixes i el que hi ha) en 3D, i al damunt els vidres i el marc
   const v = { x0: W - 0.38, x1: W, y0: 0, y1: 1.75, z0: 0.3, z1: 1.05 };
   s += box({ ...v, y0: 0, y1: 0.06 }, { side: "#2a2622", front: "#2a2622", top: "#3a3530" });
+  for (const z of [v.z0, v.z1 - 0.025]) s += box({ x0: v.x1 - 0.025, x1: v.x1, y0: 0, y1: v.y1, z0: z, z1: z + 0.025 }, { side: "#2a2622", front: "#2a2622" }); // les dues columnes de darrere
   const levels = [0.06, 0.48, 0.9, 1.32];
   const goods = [ // [x, z, ample, alt, color] per lleixa: figuretes i records de viatges
     [[1.55, 0.45, 0.08, 0.2, "#d1261f"], [1.62, 0.7, 0.1, 0.14, "#cfe6f5"], [1.55, 0.9, 0.07, 0.24, "#b8a070"]],
@@ -212,22 +213,30 @@ let plate;
 // ---------------------------------------------------------------- la Guppy, la gata, dormint feta un rogle damunt del llit
 {
   // atigrada gris i bruna amb el pit, la panxa i les potes blanques, el nas rosa i la cua amb anells
-  const GUPPY = `<g transform="scale(1.05)">
-    <ellipse cx="2" cy="1" rx="23" ry="6" fill="#000" opacity="0.18"/>
-    <ellipse cx="4" cy="-8" rx="20" ry="10.5" fill="#8a8274"/>
-    <path d="M-6 -17 Q-4 -9 -7 -1 M1 -18.5 Q3 -9 0 -0.5 M8 -18.5 Q10 -9 7 -0.5 M15 -17 Q17 -9 14 -2 M21 -13 Q22 -8 20 -4" stroke="#3a3530" stroke-width="2.4" fill="none" stroke-linecap="round"/>
-    <ellipse cx="10" cy="-3" rx="12" ry="5" fill="#f6f4f0"/>
-    <path d="M24 -6 Q26 2 12 3 Q-6 4 -14 0" stroke="#7a7266" stroke-width="5" fill="none" stroke-linecap="round"/>
-    <path d="M20 -1.5 l-1 4 M13 0.5 l-0.6 4 M6 1 l-0.4 4 M-1 1 l0 4" stroke="#2e2a26" stroke-width="2"/>
-    <ellipse cx="-11" cy="-2" rx="6" ry="3" fill="#f6f4f0"/>
-    <circle cx="-13" cy="-9" r="8.2" fill="#9a907e"/>
-    <path d="M-19 -14 L-21 -21 L-15 -16 Z M-9 -16 L-6 -22 L-5 -14 Z" fill="#9a907e"/><path d="M-18.6 -15 L-19.8 -19 L-16.4 -16 Z M-8.6 -16 L-6.6 -20 L-6 -15 Z" fill="#e8b0b8"/>
-    <path d="M-16 -16 l1 3 M-13 -17 l0 3 M-10 -16 l-1 3" stroke="#3a3530" stroke-width="1.2"/>
-    <path d="M-15 -7 Q-13 -3.5 -10.5 -7 L-11.5 -2 Q-13 -0.5 -14.5 -2 Z" fill="#f6f4f0"/>
-    <path d="M-17.4 -9.2 q1.6 1.3 3.2 0 M-11.4 -9.2 q1.6 1.3 3.2 0" stroke="#2a2622" stroke-width="0.9" fill="none" stroke-linecap="round"/>
-    <path d="M-13.8 -6.2 L-12.2 -6.2 L-13 -5.2 Z" fill="#f2a0aa"/>
-    <path d="M-17 -5.5 l-5 -0.6 M-17 -4.6 l-5 0.6 M-9 -5.5 l5 -0.6 M-9 -4.6 l5 0.6" stroke="#fff" stroke-width="0.4" opacity="0.8"/>
-    <ellipse cx="-6" cy="0.5" rx="3" ry="1.8" fill="#fbfaf8"/><ellipse cx="-1" cy="1" rx="3" ry="1.8" fill="#fbfaf8"/>
+  // menudeta (encara és una gateta): uns 25 cm feta un rogle. Atigrada gris i bruna, ratlles fosques al llom i la
+  // «M» al front, la ratlla blanca entre els ulls, el morro, el pit, la panxa i les potes blancs; nas i orelles roses
+  const GUPPY = `<g transform="scale(0.55)">
+    <ellipse cx="2" cy="1" rx="23" ry="5.5" fill="#000" opacity="0.18"/>
+    <ellipse cx="4" cy="-8" rx="20" ry="10.5" fill="#8f8676"/>
+    <ellipse cx="6" cy="-12" rx="15" ry="5.5" fill="#6e665a" opacity="0.6"/>
+    <path d="M-6 -17 Q-3 -10 -7 -2 M0 -18.5 Q3 -10 -0.5 -1 M6 -18.6 Q9 -10 5.5 -1 M12 -18 Q15 -10 12 -2 M18 -15.5 Q21 -9 18 -3 M23 -11 Q24.5 -8 22.5 -5" stroke="#2e2a26" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    <ellipse cx="10" cy="-3" rx="12" ry="5" fill="#f8f6f2"/>
+    <path d="M24 -6 Q27 2 12 3.2 Q-6 4.2 -14 0.5" stroke="#857c6e" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M22 -2 l-1.4 4.4 M16 0.4 l-0.8 4.4 M10 1.2 l-0.4 4.4 M4 1.4 l-0.2 4.4 M-2 1.4 l0.2 4.2 M-8 1 l0.4 4" stroke="#2a2622" stroke-width="2.1"/>
+    <path d="M-14 0.5 Q-17 0.3 -18 -1.5" stroke="#2a2622" stroke-width="4.6" fill="none" stroke-linecap="round"/>
+    <ellipse cx="-10" cy="-1.6" rx="7" ry="3.4" fill="#f8f6f2"/>
+    <ellipse cx="-6" cy="0.8" rx="3" ry="1.8" fill="#fbfaf8"/><ellipse cx="-1.4" cy="1.2" rx="3" ry="1.8" fill="#fbfaf8"/>
+    <path d="M-7.5 1.2 h-1 M-3 1.6 h-1" stroke="#e8c8c8" stroke-width="0.6"/>
+    <circle cx="-13" cy="-9" r="8.4" fill="#968c7c"/>
+    <path d="M-19.5 -13 L-21.5 -21.5 L-15 -16 Z M-9.5 -16.5 L-5.5 -22.5 L-5 -14 Z" fill="#968c7c"/>
+    <path d="M-19 -14.5 L-20.4 -19.6 L-16.4 -16.2 Z M-8.8 -16.4 L-6.4 -20.4 L-6 -15.2 Z" fill="#f0b8c0"/>
+    <path d="M-16.5 -15.5 l1.2 3.4 M-13.2 -17.2 l0 3.6 M-9.8 -15.6 l-1.2 3.4 M-19.5 -9.5 l2.6 0.6 M-6.5 -9.5 l-2.6 0.6" stroke="#2e2a26" stroke-width="1.3" stroke-linecap="round"/>
+    <path d="M-14.3 -17 Q-13 -13 -14.4 -6.8 L-11.6 -6.8 Q-13 -13 -11.7 -17 Z" fill="#f8f6f2"/>
+    <path d="M-17.4 -5.8 Q-13 -1 -8.6 -5.8 Q-11 -3.6 -13 -3.6 Q-15 -3.6 -17.4 -5.8 Z" fill="#f8f6f2"/>
+    <path d="M-17.8 -9.2 q1.7 1.4 3.4 0 M-11.6 -9.2 q1.7 1.4 3.4 0" stroke="#2a2622" stroke-width="1" fill="none" stroke-linecap="round"/>
+    <path d="M-13.9 -6.4 L-12.1 -6.4 L-13 -5.3 Z" fill="#f2a0aa"/>
+    <path d="M-13 -5.3 v0.9 M-13 -4.4 q-0.8 0.6 -1.5 0.2 M-13 -4.4 q0.8 0.6 1.5 0.2" stroke="#b07a7a" stroke-width="0.4" fill="none"/>
+    <path d="M-16.5 -5.4 l-6 -1 M-16.5 -4.5 l-6 0.4 M-16.5 -3.6 l-5.4 1.6 M-9.5 -5.4 l6 -1 M-9.5 -4.5 l6 0.4 M-9.5 -3.6 l5.4 1.6" stroke="#ffffff" stroke-width="0.35" opacity="0.9"/>
   </g>`;
   add(figure(GUPPY, -0.75, 0.56, 0.95));
 }
