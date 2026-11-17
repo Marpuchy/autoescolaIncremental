@@ -16,7 +16,9 @@
 .tdc .ar { animation-delay: -0.9s; }
 @keyframes td-hover { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
 /* en disparar: la peça que ix volant es torna a formar; el cos fa un colp de retrocés */
-.tdc.fire-l .al, .tdc.fire-r .ar { animation: td-regrow 0.45s cubic-bezier(.3, 1.6, .5, 1); }
+/* la peça que vola no es veu a la criatura; quan arriba, es torna a formar */
+.tdc.thrown-l .al, .tdc.thrown-r .ar { opacity: 0; animation: none; }
+.tdc.regrow-l .al, .tdc.regrow-r .ar { animation: td-regrow 0.45s cubic-bezier(.3, 1.6, .5, 1); }
 @keyframes td-regrow { 0% { transform: scale(0); opacity: 0; } 40% { opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
 .tdc.fire .b { animation: td-recoil 0.25s ease-out; }
 @keyframes td-recoil { 0% { transform: scale(1.06, 0.94); } 100% { transform: scale(1, 1); } }
@@ -43,8 +45,8 @@
 @keyframes td-type { 0% { transform: scaleX(0.2); } 100% { transform: scaleX(1); } }
 .tdc-bucle .ring { animation: td-spin 8s linear infinite; }
 .tdc-bucle.fire .ring { animation: td-spin 0.45s linear; }
-.tdc-ifelse.fire-l .b { transform-origin: 50% 100%; animation: td-lean-l 0.3s; }
-.tdc-ifelse.fire-r .b { transform-origin: 50% 100%; animation: td-lean-r 0.3s; }
+.tdc-ifelse.thrown-l .b { transform-origin: 50% 100%; animation: td-lean-l 0.3s; }
+.tdc-ifelse.thrown-r .b { transform-origin: 50% 100%; animation: td-lean-r 0.3s; }
 @keyframes td-lean-l { 50% { transform: rotate(-8deg); } }
 @keyframes td-lean-r { 50% { transform: rotate(8deg); } }
 .tdc-recursio .nest { animation: td-nest 1.8s ease-in-out infinite; }
@@ -144,11 +146,13 @@
 #td-summon[hidden] { display: none; }
 .tds-stage { position: relative; width: min(340px, 80vw); aspect-ratio: 1; display: flex; align-items: center; justify-content: center; }
 .tds-circle { position: absolute; inset: 0; width: 100%; height: 100%; animation: td-spin 14s linear infinite; overflow: visible; }
-.tds-ring { fill: none; stroke: #9d8bff; stroke-width: 2; opacity: 0.7; }
+#td-summon { --sc: #9d8bff; --sc2: #ff5ab0; }
+#td-summon[data-subj="prg"] { --sc: #3fdc8a; --sc2: #9fe0ff; }
+.tds-ring { fill: none; stroke: var(--sc); stroke-width: 2; opacity: 0.7; }
 .tds-ring.a { stroke-dasharray: 6 10; } .tds-ring.b { stroke-width: 1.2; } .tds-ring.c { stroke-dasharray: 3 6; }
-.tds-star { fill: none; stroke: #ff5ab0; stroke-width: 1.6; opacity: 0.6; }
-.tds-glyphs text { fill: #c9bfff; font: 800 22px ui-monospace, Consolas, monospace; text-anchor: middle; dominant-baseline: middle; }
-.tds-scroll { position: absolute; width: 70px; height: 52px; border-radius: 4px; background: #efe6d0; box-shadow: 0 0 24px #ff5ab0, inset 6px 0 0 #c9a678, inset -6px 0 0 #c9a678; }
+.tds-star { fill: none; stroke: var(--sc2); stroke-width: 1.2; opacity: 0.55; }
+.tds-glyphs text { fill: var(--sc); opacity: 0.9; font: 400 17px ui-monospace, Consolas, monospace; text-anchor: middle; dominant-baseline: central; }
+.tds-scroll { position: absolute; width: 70px; height: 52px; border-radius: 4px; background: #efe6d0; box-shadow: 0 0 24px var(--sc), inset 6px 0 0 #c9a678, inset -6px 0 0 #c9a678; }
 .tds-beam { position: absolute; left: 50%; top: -60vh; bottom: 30%; width: 120px; translate: -50% 0; opacity: 0; pointer-events: none;
   background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--rc) 75%, transparent) 70%, #fff); filter: blur(8px); }
 .tds-creature { position: absolute; width: 72%; height: 72%; opacity: 0; }
@@ -266,13 +270,14 @@
 .tdb-slot { cursor: pointer; }
 .tdb-slot-ring { fill: rgba(157, 139, 255, 0.06); stroke: #3a4a6b; stroke-width: 2.5; stroke-dasharray: 6 8; }
 .tdb-slot-ring2 { fill: none; stroke: #2a3550; stroke-width: 1.5; }
-#tdb-svg.placing .tdb-slot .tdb-slot-ring { stroke: #ffe27a; fill: rgba(255, 226, 122, 0.12); animation: td-rune 1s linear infinite; }
 .tdb-tower { cursor: pointer; }
 .tdb-tower-lvl { font-size: 18px; fill: #ffe27a; letter-spacing: 2px; }
 .tdb-tower.asleep .tdc { opacity: 0.35; filter: grayscale(1); }
 .tdb-zz { font-size: 28px; font-weight: 900; fill: #7fb8ff; }
 .tdb-tower.asleep .tdb-zz { opacity: 1; animation: td-zz 1.2s ease-in-out infinite; }
 .tdb-range-circle { fill: rgba(157, 139, 255, 0.08); stroke: #9d8bff; stroke-width: 2; stroke-dasharray: 8 8; pointer-events: none; }
+.tdb-range-circle.preview { fill: rgba(255, 226, 122, 0.07); stroke: #ffe27a; animation: td-rune 1.2s linear infinite; }
+.tdb-slot.picking .tdb-slot-ring { stroke: #ffe27a; fill: rgba(255, 226, 122, 0.14); animation: td-rune 1s linear infinite; }
 .tdb-enemy .tde { transition: opacity 0.3s; }
 .tdb-enemy.stealth .tde { opacity: 0.18; }
 .tdb-enemy.stealth .tdb-hp { display: none; }
@@ -281,6 +286,13 @@
 .tdb-enemy.rushed .tde { animation-duration: 0.3s; }
 .tdb-enemy.converted .tde { filter: drop-shadow(0 0 8px #ffc23f) hue-rotate(120deg); }
 .tdb-enemy { pointer-events: none; }
+/* morir: el dibuix s'apaga i es dissol en partícules del seu color */
+.tdb-enemy.dying .tde { animation: td-die 0.4s ease-in forwards; }
+.tdb-enemy.dying .tdb-hp { display: none; }
+@keyframes td-die { 0% { opacity: 1; filter: brightness(2); } 100% { opacity: 0; scale: 0.6; filter: brightness(3) blur(2px); } }
+.tdb-fx-dissolve { pointer-events: none; }
+.tdb-fx-dissolve rect { animation: td-dis 0.8s ease-out forwards; }
+@keyframes td-dis { 0% { opacity: 1; } 100% { opacity: 0; translate: var(--dx) var(--dy); scale: 0.3; } }
 .tdb-proj { pointer-events: none; }
 .tdb-num { font-size: 26px; font-weight: 900; text-anchor: middle; paint-order: stroke; stroke: #000; stroke-width: 5px; pointer-events: none; animation: td-num 0.8s ease-out forwards; }
 .tdb-num.big { font-size: 36px; }
@@ -291,8 +303,12 @@
 #tdb-student.cheer svg { animation: td-hop 0.4s 3; }
 #tdb-student.hurt svg { animation: td-shake 0.4s; }
 /* baix: equip o criatura seleccionada */
-.tdb-bottom { background: #10131d; border-top: 1px solid #2c3350; padding: 8px 10px; }
-.tdb-deck { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; max-width: 900px; margin: 0 auto; }
+/* selector i panell: suren damunt del mapa (el mapa no canvia de mida en obrir-los) */
+.tdb-bottom { position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; background: rgba(16, 19, 29, 0.94); border-top: 1px solid #2c3350; padding: 8px 10px; backdrop-filter: blur(4px); }
+.tdb-bottom:not(:has(> :not([hidden]))) { display: none; }
+.tdb-deck { max-width: 900px; margin: 0 auto; }
+.tdb-pick-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; color: #ffe27a; font-weight: 700; font-size: 0.9rem; }
+.tdb-pick-cards { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
 .tdb-deck[hidden] { display: none; }
 .tdb-card { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 4px; min-width: 0; color: #e6e6e6;
   background: radial-gradient(circle at 50% 55%, color-mix(in srgb, var(--rc) 18%, transparent), #0b0e16 75%); border: 1px solid color-mix(in srgb, var(--rc) 55%, transparent); border-radius: 10px; }
@@ -325,7 +341,7 @@
   .td-student-row { flex-direction: column; }
   .tdb-top { gap: 8px; padding: 6px 8px; font-size: 0.85rem; }
   .tdb-world { width: 100%; }
-  .tdb-deck { gap: 4px; }
+  .tdb-pick-cards { gap: 4px; }
   .tdb-card-art svg { width: 42px; height: 42px; }
   .tdb-card-name { display: none; }
   .tdb-panel { flex-wrap: wrap; }
@@ -335,3 +351,90 @@
   .tdb-panel-art { display: none; }
   .tdb-banner { font-size: 1.8rem; }
 }
+
+/* ===== LLIBRES: grimori i bestiari (pàgines que es passen; cada assignatura amb el seu paper) ===== */
+.td-card:is([data-panel="grimori"], [data-panel="bestiary"]) { background: transparent; border: 0; box-shadow: none; max-width: 980px; padding: 26px 8px 8px; }
+.td-card:is([data-panel="grimori"], [data-panel="bestiary"]) #td-card-title { display: none; }
+.td-card:is([data-panel="grimori"], [data-panel="bestiary"]) .hub-card-close { top: 0; right: 4px; z-index: 2; }
+.tdbook { --cover: #3a2a7a; --paper: #f1ead8; --ink: #2a1f5a; --accent: #5a43d6; --muted-ink: #6a6290;
+  position: relative; background: var(--cover); border-radius: 14px; padding: 16px 16px 10px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.6), inset 0 0 0 3px rgba(255, 255, 255, 0.06), inset 0 0 0 6px rgba(0, 0, 0, 0.25); }
+.tdbook.theme-alg { --cover: #34266e; --paper: #f3ecdb; --ink: #2a1f5a; --accent: #5a43d6; --muted-ink: #6a6290; }
+.tdbook.theme-prg { --cover: #0f3a25; --paper: #0c1712; --ink: #b6f5d2; --accent: #3fdc8a; --muted-ink: #6fae8c; }
+.tdbook.theme-team { --cover: #4a3322; --paper: #efe3c8; --ink: #3a2818; --accent: #a8742a; --muted-ink: #7a6448; }
+.tdbook.theme-best { --cover: #3a1414; --paper: #d8c49a; --ink: #3a1610; --accent: #a8321e; --muted-ink: #6e4a3a; }
+.tdbook-tabs { position: absolute; top: -22px; right: 64px; display: flex; gap: 6px; }
+.tdbook-tab { border-radius: 8px 8px 0 0; padding: 4px 12px 10px; font-size: 0.8rem; font-weight: 800; border: 0; color: #fff; opacity: 0.75; translate: 0 6px; transition: translate 0.15s, opacity 0.15s; }
+.tdbook-tab.tab-alg { background: #5a43d6; } .tdbook-tab.tab-prg { background: #1f9e5c; } .tdbook-tab.tab-team { background: #a8742a; }
+.tdbook-tab.on { opacity: 1; translate: 0 0; }
+.tdbook-spread { display: grid; grid-template-columns: 1fr 18px 1fr; perspective: 1600px; min-height: 380px; }
+.tdbook-page { background: var(--paper); color: var(--ink); padding: 18px 22px; display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 0; }
+.tdbook-page.left { border-radius: 6px 0 0 6px; box-shadow: inset -22px 0 26px -18px rgba(0, 0, 0, 0.45); }
+.tdbook-page.right { border-radius: 0 6px 6px 0; box-shadow: inset 22px 0 26px -18px rgba(0, 0, 0, 0.45); align-items: stretch; }
+.tdbook-spine { background: linear-gradient(90deg, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.05) 50%, rgba(0, 0, 0, 0.35)), var(--paper); }
+/* papers: quadriculat (àlgebra), terminal amb números de línia (programació), pergamí envellit (bestiari) */
+.theme-alg .tdbook-page { background-image: linear-gradient(rgba(90, 67, 214, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(90, 67, 214, 0.08) 1px, transparent 1px); background-size: 18px 18px; }
+.theme-prg .tdbook-page { font-family: ui-monospace, Consolas, monospace; background-image: linear-gradient(90deg, rgba(63, 220, 138, 0.08) 0 28px, transparent 28px); }
+.theme-prg .tdbook-page.right { padding-left: 40px; }
+.theme-best .tdbook-page, .theme-team .tdbook-page { background-image: radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, 0.25), transparent 60%), radial-gradient(ellipse at 80% 90%, rgba(120, 70, 30, 0.18), transparent 60%); }
+.tdbook-art { width: min(220px, 100%); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 50% 60%, #1a2033, #07090f 72%);
+  border: 3px solid var(--accent); box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 20%, transparent), 0 10px 24px rgba(0, 0, 0, 0.35); display: flex; align-items: center; justify-content: center; padding: 12%; }
+.tdbook-art svg { width: 100%; height: 100%; }
+.tdbook-art.locked svg { filter: brightness(0) drop-shadow(0 0 2px #3a4250); opacity: 0.8; }
+.tdbook-name { margin: 6px 0 0; font-size: 1.35rem; color: var(--ink); text-align: center; }
+.tdbook-rar { font-weight: 900; letter-spacing: 2px; text-transform: uppercase; font-size: 0.8rem; }
+.tdbook-rar.boss { color: #a8321e; }
+.tdbook-stars .td-stars .off { color: color-mix(in srgb, var(--ink) 25%, transparent); }
+.tdbook-text { margin: 4px 0; line-height: 1.45; color: var(--ink); }
+.tdbook-text.muted, .tdbook-page .muted { color: var(--muted-ink); }
+.tdbook-stats { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 0.9rem; }
+.tdbook-stats th { text-align: left; font-weight: 600; color: var(--muted-ink); padding: 4px 0; border-bottom: 1px dashed color-mix(in srgb, var(--ink) 25%, transparent); }
+.tdbook-stats td { text-align: right; padding: 4px 0; border-bottom: 1px dashed color-mix(in srgb, var(--ink) 25%, transparent); }
+.tdbook-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto; }
+.tdbook-nav { display: flex; justify-content: center; align-items: center; gap: 16px; padding-top: 10px; color: #e6e6e6; min-height: 38px; }
+.tdbook-turn { background: rgba(255, 255, 255, 0.12); color: #fff; border: 0; width: 44px; height: 34px; }
+.tdbook-num { font-weight: 800; }
+.tdbook-team { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; }
+.tdbook-tslot { aspect-ratio: 1; border-radius: 12px; background: radial-gradient(circle, #1a2033, #07090f 75%); border: 2px solid var(--rc, #6b7480); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #e6e6e6; padding: 4px; min-width: 0; }
+.tdbook-tslot svg { width: 70%; height: 70%; }
+.tdbook-tslot span { font-size: 0.7rem; font-weight: 700; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tdbook-tslot.empty { border-style: dashed; color: var(--muted-ink); font-size: 2rem; background: transparent; }
+.tdbook-owned { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; width: 100%; }
+.tdbook-mini { aspect-ratio: 1; border-radius: 10px; background: radial-gradient(circle, #1a2033, #07090f 75%); border: 2px solid var(--rc, #6b7480); padding: 4px; }
+.tdbook-mini svg { width: 100%; height: 100%; }
+.tdbook-mini.inteam { opacity: 0.35; }
+/* passar pàgina */
+.tdbook-spread.turn-next .right { transform-origin: 0% 50%; animation: tdb-flip-out 0.26s ease-in forwards; }
+.tdbook-spread.turn-prev .left { transform-origin: 100% 50%; animation: tdb-flip-out-l 0.26s ease-in forwards; }
+.tdbook-spread.land-next .left { transform-origin: 100% 50%; animation: tdb-flip-in-l 0.28s ease-out; }
+.tdbook-spread.land-prev .right { transform-origin: 0% 50%; animation: tdb-flip-in 0.28s ease-out; }
+@keyframes tdb-flip-out { to { transform: rotateY(-90deg); filter: brightness(0.6); } }
+@keyframes tdb-flip-out-l { to { transform: rotateY(90deg); filter: brightness(0.6); } }
+@keyframes tdb-flip-in-l { from { transform: rotateY(-90deg); filter: brightness(0.6); } to { transform: none; } }
+@keyframes tdb-flip-in { from { transform: rotateY(90deg); filter: brightness(0.6); } to { transform: none; } }
+@media (max-width: 700px) {
+  .tdbook { padding: 10px 10px 6px; }
+  .tdbook-spread { grid-template-columns: 1fr; min-height: 0; }
+  .tdbook-spine { display: none; }
+  .tdbook-page.left { border-radius: 6px 6px 0 0; box-shadow: inset 0 -18px 22px -18px rgba(0, 0, 0, 0.4); }
+  .tdbook-page.right { border-radius: 0 0 6px 6px; box-shadow: none; }
+  .tdbook-art { width: 150px; }
+  .tdbook-tabs { right: 48px; }
+  .tdbook-tab { padding: 4px 8px 10px; font-size: 0.72rem; }
+}
+
+/* mítica: la criatura es munta peça a peça durant la càrrega (cercle de runes, traços que es dibuixen, nucli, peça) */
+#td-summon.assemble.charging .tds-creature { opacity: 1; }
+#td-summon.assemble.charging .tds-scroll { animation: tds-burn 0.6s ease-in forwards; }
+#td-summon.assemble .tds-creature .rune { animation: tds-a-in 0.6s 0.3s both; }
+#td-summon.assemble .tds-creature .b path { stroke-dasharray: 320; stroke-dashoffset: 320; animation: tds-draw 1.5s 0.8s ease-in-out forwards; }
+#td-summon.assemble .tds-creature .b circle { animation: tds-a-in 0.5s 1.4s both; }
+#td-summon.assemble .tds-creature .core { animation: tds-a-in 0.5s 2.2s both; }
+#td-summon.assemble .tds-creature .al { animation: tds-fly-in 0.8s 2.4s cubic-bezier(.2, 1.4, .4, 1) both; }
+#td-summon.assemble .tds-creature .sparks, #td-summon.assemble .tds-creature .flame { animation: tds-a-in 0.4s 2.9s both; }
+#td-summon.assemble.charging .tds-circle { animation: td-spin 0.6s linear infinite, tds-grow 3.6s ease-in forwards; }
+#td-summon.assemble.shown .tds-creature { opacity: 1; animation: tds-myth-glow 1.2s ease-out; }
+@keyframes tds-draw { to { stroke-dashoffset: 0; } }
+@keyframes tds-a-in { from { opacity: 0; scale: 0.3; } to { opacity: 1; scale: 1; } }
+@keyframes tds-fly-in { from { opacity: 0; translate: -160px -120px; rotate: -200deg; } to { opacity: 1; translate: 0 0; rotate: 0deg; } }
+@keyframes tds-myth-glow { 0% { filter: brightness(3) drop-shadow(0 0 30px var(--rc)); } 100% { filter: none; } }

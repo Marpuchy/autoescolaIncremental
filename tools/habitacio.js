@@ -301,8 +301,8 @@ const defs = `${cam.defs}
   <pattern id="room-sisal" width="8" height="4" patternUnits="userSpaceOnUse"><rect width="8" height="4" fill="#d8c08f"/><rect y="2.6" width="8" height="1.4" fill="#b89c68"/></pattern>
   <pattern id="room-sisal-side" width="8" height="4" patternUnits="userSpaceOnUse"><rect width="8" height="4" fill="#c4ac7c"/><rect y="2.6" width="8" height="1.4" fill="#a68a58"/></pattern>
   <pattern id="room-carpet" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="4" fill="#9a8a78"/><circle cx="2" cy="2" r="0.9" fill="#ab9b88"/></pattern>
-  <radialGradient id="room-vignette" cx="0.5" cy="0.5" r="0.75"><stop offset="0.6" stop-color="#1a1a4e" stop-opacity="0"/><stop offset="1" stop-color="#1a1a4e" stop-opacity="0.3"/></radialGradient>`;
-add(`<rect width="1600" height="900" fill="url(#room-vignette)" pointer-events="none"/>`);
+  <radialGradient id="room-vignette" gradientUnits="userSpaceOnUse" cx="800" cy="450" r="1150"><stop offset="0.5" stop-color="#1a1a4e" stop-opacity="0"/><stop offset="0.8" stop-color="#1a1a4e" stop-opacity="0.3"/></radialGradient>`;
+add(`<rect x="-1600" y="-900" width="4800" height="2700" fill="url(#room-vignette)" pointer-events="none"/>`); // també fora del viewBox: sense bandes
 
 // ---------------------------------------------------------------- eixida
 const out = `// GENERAT per tools/habitacio.js (no l'edites a mà: canvia l'escena allà i torna a executar-lo)

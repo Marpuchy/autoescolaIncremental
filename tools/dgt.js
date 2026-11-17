@@ -463,8 +463,8 @@ const defs = `${cam.defs}
   <linearGradient id="dgt-cone" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffd23f"/><stop offset="1" stop-color="#e0a800"/></linearGradient>
   <linearGradient id="dgt-door" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9aa5ae"/><stop offset="1" stop-color="#b3bcc4"/></linearGradient>
   <radialGradient id="dgt-exit-glow"><stop offset="0" stop-color="#3fdc8a" stop-opacity="0.35"/><stop offset="1" stop-color="#3fdc8a" stop-opacity="0"/></radialGradient>
-  <radialGradient id="dgt-vignette" cx="0.5" cy="0.5" r="0.75"><stop offset="0.6" stop-color="#1a1a4e" stop-opacity="0"/><stop offset="1" stop-color="#1a1a4e" stop-opacity="0.28"/></radialGradient>`;
-add(`<rect width="1600" height="900" fill="url(#dgt-vignette)" pointer-events="none"/>`);
+  <radialGradient id="dgt-vignette" gradientUnits="userSpaceOnUse" cx="800" cy="450" r="1150"><stop offset="0.5" stop-color="#1a1a4e" stop-opacity="0"/><stop offset="0.8" stop-color="#1a1a4e" stop-opacity="0.28"/></radialGradient>`;
+add(`<rect x="-1600" y="-900" width="4800" height="2700" fill="url(#dgt-vignette)" pointer-events="none"/>`); // també fora del viewBox: sense bandes
 
 // ---------------------------------------------------------------- eixida
 const out = `// GENERAT per tools/dgt.js (no l'edites a mà: canvia l'escena allà i torna a executar-lo)

@@ -26,6 +26,7 @@ function tdbPath(points) {
 }
 // Mapa → pantalla (vertical: girat 90°)
 const tdbS = (x, y) => tdb.portrait ? [900 - y, x] : [x, y];
+const tdbM = (sx, sy) => tdb.portrait ? [sy, 900 - sx] : [sx, sy]; // pantalla → mapa
 const el = (tag, attrs = {}, parent) => {
   const e = document.createElementNS(SVGNS, tag);
   for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
@@ -50,6 +51,7 @@ function tdOpenBattle(worldId = 1) {
   document.body.classList.add("td-open");
   tdbBuildView();
   tdbRenderDeck();
+  tdbCloseBottom();
   tdbHud();
   $("tdb-end").hidden = true;
   tdb.last = performance.now();
@@ -93,9 +95,8 @@ function tdbBuildView() {
   // estudiant a la cantonada, amb els artefactes que porta
   const [stx, sty] = tdbS(...tdb.world.student);
   const st = el("g", { id: "tdb-student", transform: `translate(${stx} ${sty})` }, svg);
-  st.innerHTML = TD_STUDENT_SVG.replace("<svg ", `<svg x="-80" y="-90" width="160" height="176" `) +
-    td.equipped.map((id, i) => `<g transform="translate(${-50 + i * 50} 104)"><circle r="20" fill="#121722" stroke="${TD_GLOW.gold}" stroke-width="2"/>
-      <text y="8" text-anchor="middle" font-size="22">${TD_ARTIFACTS[id].icon}</text><title>${TD_ARTIFACTS[id].name}</title></g>`).join("");
+  st.innerHTML = tdStudentSvg(td.equipped, `x="-76" y="-84" width="152" height="160"`) +
+    `<title>Estudiant${td.equipped.length ? ": " + td.equipped.map(id => TD_ARTIFACTS[id].name).join(", ") : ""}</title>`;
   // tornar a pintar les criatures que ja hi havia (canvi d'orientació)
   for (const t of Object.values(tdb.towers)) tdbDrawTower(t);
 }
@@ -103,19 +104,20 @@ function tdbBackground(world) {
   const pts = world.path.map(p => p.join(",")).join(" ");
   // fons fosc amb paper quadriculat, fórmules que suren i el camí de runes
   let grid = "";
-  for (let x = 0; x <= 1600; x += 50) grid += `<line x1="${x}" y1="0" x2="${x}" y2="900"/>`;
-  for (let y = 0; y <= 900; y += 50) grid += `<line x1="0" y1="${y}" x2="1600" y2="${y}"/>`;
+  // el paper quadriculat continua fora del mapa (pantalles més amples o més altes: sense bandes)
+  for (let x = -1600; x <= 3200; x += 50) grid += `<line x1="${x}" y1="-900" x2="${x}" y2="1800"/>`;
+  for (let y = -900; y <= 1800; y += 50) grid += `<line x1="-1600" y1="${y}" x2="3200" y2="${y}"/>`;
   const glyphs = [["∫", 180, 110], ["Σ", 640, 80], ["e^iπ + 1 = 0", 980, 60], ["∇", 1480, 360], ["det(A)", 520, 520], ["f(x)", 1360, 560],
     ["∞", 80, 330], ["λ", 1100, 380], ["{ }", 360, 820], ["if", 1480, 840], ["0110", 900, 470]];
-  return `<rect width="1600" height="900" fill="#0b0e14"/>
-    <radialGradient id="tdb-vig" cx="0.5" cy="0.5" r="0.75"><stop offset="0.55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.55"/></radialGradient>
+  return `<rect x="-1600" y="-900" width="4800" height="2700" fill="#0b0e14"/>
+    <radialGradient id="tdb-vig" gradientUnits="userSpaceOnUse" cx="800" cy="450" r="1150"><stop offset="0.5" stop-color="#000" stop-opacity="0"/><stop offset="0.85" stop-color="#000" stop-opacity="0.55"/></radialGradient>
     <g stroke="#1a2233" stroke-width="1">${grid}</g>
     <g class="tdb-glyphs" fill="#9d8bff" opacity="0.08" font-family="ui-monospace, Consolas, monospace" font-weight="800">${glyphs.map(([t, x, y], i) =>
       `<text x="${x}" y="${y}" font-size="${i % 3 ? 44 : 64}" style="animation-delay:${-i * 1.3}s">${t}</text>`).join("")}</g>
     <polyline points="${pts}" fill="none" stroke="#141a27" stroke-width="86" stroke-linejoin="round" stroke-linecap="round"/>
     <polyline points="${pts}" fill="none" stroke="#2b3a5c" stroke-width="86" stroke-linejoin="round" stroke-linecap="round" opacity="0.35" stroke-dasharray="2 10"/>
     <polyline points="${pts}" fill="none" stroke="#4a5f8f" stroke-width="3" stroke-linejoin="round" stroke-dasharray="14 18" class="tdb-flow"/>
-    <rect width="1600" height="900" fill="url(#tdb-vig)" pointer-events="none"/>`;
+    <rect x="-1600" y="-900" width="4800" height="2700" fill="url(#tdb-vig)" pointer-events="none"/>`;
 }
 
 // ---------------------------------------------------------------- criatures (torres)
@@ -126,6 +128,14 @@ function tdbDrawTower(t) {
   t.el.innerHTML = tdCreatureSvg(t.id).replace("<svg ", `<svg x="-62" y="-92" width="124" height="124" `) +
     `<text class="tdb-tower-lvl" y="62" text-anchor="middle">${"◆".repeat(t.up + 1)}</text><text class="tdb-zz" x="30" y="-70" opacity="0">Zz</text>`;
   t.svg = t.el.querySelector(".tdc");
+}
+// Punt del mapa d'on ix la peça que llança la criatura (l / r / c), a partir del dibuix (viewBox -6 -10 132 132 en 124 px)
+function tdbThrowFrom(t, side) {
+  const th = TD_ART[t.id].throw || {};
+  const [ax, ay] = th[side] || th.l || th.c || [60, 60];
+  const [sx, sy] = tdbS(...tdb.world.slots[t.slot]);
+  const k = 124 / 132;
+  return tdbM(sx - 62 + (ax + 6) * k, sy - 92 + (ay + 10) * k);
 }
 function tdbPlace(slot, id) {
   const cost = TD_DEFENDERS[id].cost;
@@ -153,7 +163,6 @@ function tdbSell(t) {
   tdb.mana += Math.round(t.spent * TD_BATTLE.sellBack);
   t.el.remove();
   delete tdb.towers[t.slot];
-  tdb.selectedTower = null;
 }
 
 // ---------------------------------------------------------------- distraccions
@@ -185,12 +194,10 @@ function tdbDamage(e, amount, color = "#fff", big = false) {
 }
 function tdbKill(e, byTower) {
   e.hp = 0;
-  e.el.remove();
+  tdbDissolve(e);
   tdb.kills++;
   tdb.mana += e.def.mana + (byTower ? TD_DEFENDERS[byTower.id].manaOnKill || 0 : 0);
   tdb.saber += e.def.saber * (1 + 0.1 * td.upgrades.saber);
-  const [x, y] = tdbS(...tdbPos(e));
-  tdbFx("pop", x, y - e.size / 2, e.def.boss ? "#ffc23f" : "#ff5a4a");
   if (e.def.splitInto) for (const off of [-18, 18]) tdbSpawn(e.def.splitInto, Math.max(0, e.dist + off));
   if (e.def.boss) tdbBossDown(e.type);
 }
@@ -227,24 +234,26 @@ function tdbFire(t) {
   t.shots++;
   // animació: la peça que llança (alterna esquerra / dreta si en té dues)
   t.side = d.alt ? 1 - t.side : 0;
-  const cls = t.side ? "fire-r" : "fire-l";
-  t.svg.classList.remove("fire", "fire-l", "fire-r");
+  t.svg.classList.remove("fire");
   void t.svg.getBoundingClientRect();
-  t.svg.classList.add("fire", cls);
+  t.svg.classList.add("fire");
   // especial cada N atacs
   if (d.special && t.shots % d.special.every === 0) tdbSpecial(t, targets[0]);
   if (d.role === "stacks") {
     t.stacks++;
     if (t.stacks >= d.stacks) { t.stacks = 0; tdbBlast(t); }
   }
-  const shoot = target => tdbProjectile(t, target, t.stats.dmg, { depth: d.depth || 0, bounces: d.role === "bounce" ? d.bounces + (ab > 1 ? 1 : 0) : 0 });
+  const part = (TD_ART[t.id].throw || {}).c ? "c" : t.side ? "r" : "l";
+  const shoot = target => tdbProjectile(t, target, t.stats.dmg, { part, depth: d.depth || 0, bounces: d.role === "bounce" ? d.bounces + (ab > 1 ? 1 : 0) : 0 });
   if (d.role === "burst") { t.burst = d.burst - 1; t.burstT = 0.12; t.burstTarget = targets[0]; shoot(targets[0]); }
   else targets.forEach(shoot);
   return true;
 }
 function tdbProjectile(t, target, dmg, opts = {}) {
   const d = TD_DEFENDERS[t.id];
-  const [sx, sy] = opts.from || tdb.world.slots[t.slot].map((v, i) => v - (i ? 50 : 0));
+  const [sx, sy] = opts.from || tdbThrowFrom(t, opts.part || "l");
+  // la peça que es llança desapareix de la criatura mentre vola (es torna a formar en arribar)
+  if (!opts.from && opts.part && opts.part !== "c") tdbPartOut(t, opts.part, 1);
   const p = { t, d, target, dmg, x: sx, y: sy, hit: new Set(), traveled: 0, ...opts };
   if (d.role === "pierce") { // la llança va recta en la direcció de l'objectiu i travessa
     const [ex, ey] = tdbPos(target);
@@ -252,7 +261,9 @@ function tdbProjectile(t, target, dmg, opts = {}) {
     p.dir = [(ex - sx) / len, (ey - sy) / len];
   }
   p.el = el("g", { class: "tdb-proj" }, $("tdb-proj"));
-  p.el.innerHTML = `<g class="tdb-proj-in">${TD_ART[t.id].proj}</g>`;
+  const art = TD_ART[t.id];
+  p.scale = art.projScale || 1.25;
+  p.el.innerHTML = `<g class="tdb-proj-in">${opts.part === "r" && art.projR ? art.projR : art.proj}</g>`;
   tdb.projs.push(p);
 }
 function tdbHit(p, e) {
@@ -328,8 +339,35 @@ function tdbBlast(t) {
   for (const e of [...tdb.enemies]) if (e.hp > 0 && !e.convertT) tdbDamage(e, t.stats.dmg * d.blast * t.stats.ability, "#ff8a1f", true);
 }
 
+// Peces en vol de cada costat: quan torna l'última, la peça es torna a formar
+function tdbPartOut(t, part, delta) {
+  t.out = t.out || { l: 0, r: 0 };
+  t.out[part] = Math.max(0, t.out[part] + delta);
+  if (!t.svg) return;
+  t.svg.classList.toggle(`thrown-${part}`, t.out[part] > 0);
+  if (delta < 0 && t.out[part] === 0) {
+    t.svg.classList.remove(`regrow-${part}`);
+    void t.svg.getBoundingClientRect();
+    t.svg.classList.add(`regrow-${part}`);
+  }
+}
+
 // ---------------------------------------------------------------- efectes
+// La distracció es dissol: el dibuix s'apaga i en surten partícules del seu color
+function tdbDissolve(e) {
+  const el = e.el;
+  el.classList.add("dying");
+  setTimeout(() => el.remove(), 420);
+  const [x, y] = tdbS(...tdbPos(e));
+  const c = TD_ENEMY_GLOW[e.def.art || e.type] || "#aab3c0";
+  const g = tdbFx("dissolve", x, y - e.size * 0.45, c);
+  if (g) g.innerHTML = Array.from({ length: e.def.boss ? 18 : 9 }, (_, i) => {
+    const a = i / (e.def.boss ? 18 : 9) * Math.PI * 2, rr = e.size * 0.25;
+    return `<rect x="${(Math.cos(a) * rr).toFixed(1)}" y="${(Math.sin(a) * rr).toFixed(1)}" width="7" height="7" fill="${c}" style="--dx:${(Math.cos(a) * 30).toFixed(0)}px;--dy:${(Math.sin(a) * 20 - 30).toFixed(0)}px"/>`;
+  }).join("");
+}
 function tdbNumber(x, y, text, color, big = false) {
+  if (!Number.isFinite(x) || !Number.isFinite(y)) return;
   const fx = $("tdb-fx");
   if (fx.childElementCount > 60) return;
   const t = el("text", { x, y, class: `tdb-num${big ? " big" : ""}`, fill: color }, fx);
@@ -337,11 +375,13 @@ function tdbNumber(x, y, text, color, big = false) {
   setTimeout(() => t.remove(), 800);
 }
 function tdbFx(kind, x, y, color, r = 60) {
+  if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
   const g = el("g", { class: `tdb-fx-${kind}`, transform: `translate(${x} ${y})` }, $("tdb-fx"));
   if (kind === "pop") g.innerHTML = [0, 60, 120, 180, 240, 300].map(a => `<line x1="0" y1="0" x2="${Math.cos(a * Math.PI / 180) * 26}" y2="${Math.sin(a * Math.PI / 180) * 26}" stroke="${color}" stroke-width="4" stroke-linecap="round"/>`).join("");
   else if (kind === "summon") g.innerHTML = `<ellipse rx="70" ry="24" cy="34" fill="none" stroke="${color}" stroke-width="4"/><ellipse rx="40" ry="14" cy="34" fill="${color}" opacity="0.3"/>`;
   else g.innerHTML = `<circle r="${r}" fill="${color}" opacity="${kind === "blast" ? 0.18 : 0.12}" stroke="${color}" stroke-width="${kind === "freeze" ? 4 : 3}"/>`;
-  setTimeout(() => g.remove(), kind === "blast" ? 700 : 500);
+  setTimeout(() => g.remove(), kind === "blast" ? 700 : kind === "dissolve" ? 800 : 500);
+  return g;
 }
 
 // ---------------------------------------------------------------- bucle
@@ -411,7 +451,7 @@ function tdbUpdate(dt) {
       t.burstT -= dt;
       if (t.burstT <= 0) {
         const target = t.burstTarget?.hp > 0 ? t.burstTarget : tdbTargets(t)[0];
-        if (target) tdbProjectile(t, target, t.stats.dmg);
+        if (target) tdbProjectile(t, target, t.stats.dmg, { part: "l" });
         t.burst--; t.burstT = 0.12;
       }
     }
@@ -435,7 +475,7 @@ function tdbUpdate(dt) {
     if (dd < speed * dt + 8) { p.done = true; tdbHit(p, p.target); continue; }
     p.x += dx / dd * speed * dt; p.y += dy / dd * speed * dt; p.ang = Math.atan2(dy, dx);
   }
-  for (const p of tdb.projs) if (p.done) p.el.remove();
+  for (const p of tdb.projs) if (p.done) { p.el.remove(); if (!p.from && p.part && p.part !== "c") tdbPartOut(p.t, p.part, -1); }
   tdb.projs = tdb.projs.filter(p => !p.done);
   // fi de l'onada
   if (tdb.waveRunning && !tdb.spawnQueue.length && !tdb.enemies.length) tdbWaveDone();
@@ -525,7 +565,9 @@ function tdbRender() {
     const [x, y] = tdbS(p.x, p.y);
     const ang = p.dir ? Math.atan2(p.dir[1], p.dir[0]) : p.ang || 0;
     const rot = (ang * 180 / Math.PI + (tdb.portrait ? 90 : 0)) || 0;
-    p.el.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${rot.toFixed(0)}) scale(1.7)`);
+    // les peces simètriques (+, punts, ×) no giren; les fletxes i llances, sí
+    const turn = ["vector", "comentari", "ifelse", "determinant", "compilador"].includes(p.t.id) ? rot : 0;
+    p.el.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${turn.toFixed(0)}) scale(${p.scale})`);
   }
   for (const t of Object.values(tdb.towers)) {
     t.el.classList.toggle("asleep", t.sleepT > 0);
@@ -550,29 +592,46 @@ function tdbHud() {
   if (tdb.selectedTower) tdbTowerPanel();
 }
 
-// ---------------------------------------------------------------- equip (baix) i panell de la criatura seleccionada
+// ---------------------------------------------------------------- selector (en tocar un buit buit) i panell de la criatura
+// L'equip no està sempre a la vista: ix quan toques un buit buit. En passar per damunt d'una criatura (o enfocar-la),
+// el buit mostra el seu abast; en tocar-la, es posa.
 function tdbRenderDeck() {
-  $("tdb-deck").innerHTML = td.team.map(id => {
-    const d = TD_DEFENDERS[id];
-    return `<button class="tdb-card rar-${d.rar}" data-card="${id}" title="${d.name}: ${d.desc}">
-      <span class="tdb-card-art">${tdCreatureSvg(id)}</span><span class="tdb-card-name">${d.name}</span><span class="tdb-card-cost">🔮 ${d.cost}</span></button>`;
-  }).join("");
+  $("tdb-deck").innerHTML = `<div class="tdb-pick-head"><span>Tria una criatura per al buit</span><button class="secondary small" data-pick="close" aria-label="Tancar">✕</button></div>
+    <div class="tdb-pick-cards">${td.team.map(id => {
+      const d = TD_DEFENDERS[id];
+      return `<button class="tdb-card rar-${d.rar}" data-card="${id}" title="${d.name}: ${d.desc}">
+        <span class="tdb-card-art">${tdCreatureSvg(id)}</span><span class="tdb-card-name">${d.name}</span><span class="tdb-card-cost">🔮 ${d.cost}</span></button>`;
+    }).join("")}</div>`;
 }
-function tdbSelectCard(id) {
-  tdb.selected = tdb.selected === id ? null : id;
-  tdb.selectedTower = null;
-  $("tdb-panel").hidden = true;
+function tdbOpenPicker(slot) {
+  tdbCloseBottom();
+  tdb.pickSlot = slot;
+  document.querySelector(`#tdb-slots [data-slot="${slot}"]`)?.classList.add("picking");
+  tdbRenderDeck();
+  tdbHud();
   $("tdb-deck").hidden = false;
-  document.querySelectorAll("#tdb-deck [data-card]").forEach(c => c.classList.toggle("sel", c.dataset.card === tdb.selected));
-  $("tdb-svg").classList.toggle("placing", !!tdb.selected);
+  const first = td.team.find(id => TD_DEFENDERS[id].cost <= tdb.mana) || td.team[0];
+  tdbPreview(first);
+}
+function tdbPreview(id) {
+  if (tdb.pickSlot == null || !id) return tdbShowRange(null);
+  tdbShowRange({ slot: tdb.pickSlot, stats: tdStats(id) }, true);
+}
+function tdbCloseBottom() {
+  tdb.pickSlot = null;
+  tdb.selectedTower = null;
+  document.querySelectorAll("#tdb-slots .picking").forEach(e => e.classList.remove("picking"));
+  $("tdb-deck").hidden = true;
+  $("tdb-panel").hidden = true;
+  $("tdb-panel").dataset.html = "";
   tdbShowRange(null);
 }
-function tdbShowRange(t) {
+function tdbShowRange(t, preview = false) {
   const g = $("tdb-range");
   g.innerHTML = "";
   if (!t) return;
   const [x, y] = tdbS(...tdb.world.slots[t.slot]);
-  el("circle", { cx: x, cy: y, r: t.stats.range, class: "tdb-range-circle" }, g);
+  el("circle", { cx: x, cy: y, r: t.stats.range, class: `tdb-range-circle${preview ? " preview" : ""}` }, g);
 }
 function tdbTowerPanel() {
   const t = tdb.selectedTower, d = TD_DEFENDERS[t.id], cost = tdbUpCost(t);
@@ -590,36 +649,43 @@ function tdbTowerPanel() {
 function tdbClickMap(ev) {
   if (!tdb || tdb.over) return;
   const slotEl = ev.target.closest("[data-slot]");
-  if (!slotEl) { tdbSelectCard(null); $("tdb-panel").hidden = true; $("tdb-deck").hidden = false; tdb.selectedTower = null; return; }
+  if (!slotEl) { tdbCloseBottom(); return; }
   const slot = Number(slotEl.dataset.slot), t = tdb.towers[slot];
   if (t) {
-    tdb.selected = null;
-    document.querySelectorAll("#tdb-deck [data-card]").forEach(c => c.classList.remove("sel"));
-    $("tdb-svg").classList.remove("placing");
+    tdbCloseBottom();
     tdb.selectedTower = t;
     tdbTowerPanel();
     $("tdb-panel").hidden = false;
-    $("tdb-deck").hidden = true;
     tdbShowRange(t);
     return;
   }
-  if (!tdb.selected) { toast("Tria una criatura de baix i després el buit"); return; }
-  if (tdb.mana < TD_DEFENDERS[tdb.selected].cost) { toast("🔮 No tens prou maná", "bad"); return; }
-  tdbPlace(slot, tdb.selected);
+  if (tdb.pickSlot === slot) { tdbCloseBottom(); return; }
+  tdbOpenPicker(slot);
 }
 
 function initTdBattle() {
   $("tdb-svg").addEventListener("click", tdbClickMap);
   $("tdb-deck").addEventListener("click", ev => {
+    if (ev.target.closest('[data-pick="close"]')) { tdbCloseBottom(); return; }
     const c = ev.target.closest("[data-card]");
-    if (c) tdbSelectCard(c.dataset.card);
+    if (!c || tdb.pickSlot == null) return;
+    const id = c.dataset.card;
+    if (tdb.mana < TD_DEFENDERS[id].cost) { toast("🔮 No tens prou maná", "bad"); tdbPreview(id); return; }
+    const slot = tdb.pickSlot;
+    tdbCloseBottom();
+    tdbPlace(slot, id);
+  });
+  for (const type of ["pointerover", "focusin"]) $("tdb-deck").addEventListener(type, ev => {
+    const c = ev.target.closest("[data-card]");
+    if (c) tdbPreview(c.dataset.card);
   });
   $("tdb-panel").addEventListener("click", ev => {
     const b = ev.target.closest("[data-tp]");
     if (!b || !tdb.selectedTower) return;
     if (b.dataset.tp === "up") tdbUpgrade(tdb.selectedTower);
     if (b.dataset.tp === "sell") tdbSell(tdb.selectedTower);
-    if (b.dataset.tp === "close" || b.dataset.tp === "sell") { tdb.selectedTower = null; $("tdb-panel").hidden = true; $("tdb-deck").hidden = false; tdbShowRange(null); }
+    if (b.dataset.tp === "close" || b.dataset.tp === "sell") tdbCloseBottom();
+    else if (tdb.selectedTower) tdbShowRange(tdb.selectedTower);
   });
   $("tdb-next").addEventListener("click", () => {
     tdbStartWave();

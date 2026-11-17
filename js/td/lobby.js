@@ -6,7 +6,6 @@
 const tdLobbyOpen = () => !$("td-lobby").hidden;
 const tdOpen = () => tdLobbyOpen() || tdBattleOpen();
 let tdSubj = "alg";       // assignatura triada als panells
-let tdGrimSel = null;     // criatura triada al grimori
 
 function tdOpenLobby() {
   if (typeof roomOpen === "function" && roomOpen()) closeRoom();
@@ -21,7 +20,7 @@ function tdCloseLobby() {
 }
 
 function tdRenderLobby() {
-  const student = `<svg x="0" y="0" width="100" height="108" viewBox="0 -4 140 154" overflow="visible">${TD_STUDENT_SVG.replace(/^<svg[^>]*>/, "").replace(/<\/svg>$/, "")}</svg>`;
+  const student = tdStudentSvg(td.equipped, `x="0" y="0" width="100" height="105"`);
   const spots = [];
   const layers = TD_LOBBY_ART.layers.map(l => {
     const svg = l.svg.replace("%STUDENT%", student);
@@ -40,19 +39,20 @@ function tdLobbyHud() {
 
 // ---------------------------------------------------------------- finestretes
 const TD_PANELS = {
-  gacha: "🔮 Altar d'invocació", study: "📝 Escriptori d'estudi", grimori: "📖 Grimori", bestiary: "👾 Bestiari",
+  gacha: "🔮 Altar d'invocació", study: "📚 Prestatgeria d'estudi", grimori: "📖 Grimori", bestiary: "👾 Bestiari",
   worlds: "🌀 Portal dels mons", upgrades: "💎 Cristall", student: "🐸 Estudiant",
 };
 function tdSpot(name) {
   if (name === "exit") { tdCloseLobby(); openRoom(); return; }
   if (name === "reset") { tdAskRestart(); return; }
   $("td-card").dataset.panel = name;
+  if (name === "grimori" || name === "bestiary") tdBook = { tab: name === "grimori" ? tdSubj : "best", page: 0 };
   $("td-card-title").textContent = TD_PANELS[name];
   $("td-dialog").hidden = false;
   tdRenderPanel();
   $("td-card-close").focus();
 }
-function tdClosePanel() { $("td-dialog").hidden = true; tdGrimSel = null; }
+function tdClosePanel() { $("td-dialog").hidden = true; }
 function tdRenderPanel() {
   const name = $("td-card").dataset.panel;
   const body = $("td-card-body");
@@ -87,24 +87,48 @@ function tdDoSummon(n) {
 // ---------------------------------------------------------------- pantalla d'invocació
 // Cada criatura té la seua cerimònia: el cercle de runes es carrega (més llarg i fosc com més rara és), el pergamí
 // es crema en un esclat, ix un raig del color de la raresa i la criatura es materialitza. Tocar: avança (o accelera la
-// càrrega). En les de 10, «Saltar» porta al resum. Les èpiques i llegendàries ja avisen durant la càrrega.
+// càrrega, menys en llegendàries i mítiques). «Saltar» passa les normals però s'atura en cada llegendària o mítica.
+// La mítica té la seua pròpia cerimònia: es munta peça a peça (cercle, traços, nucli i la peça que llança).
 let tdsRun = null;
-const TDS_CHARGE = { comu: 900, rar: 1000, epic: 1500, llegendari: 2200, mitic: 2200 };
+const TDS_CHARGE = { comu: 900, rar: 1000, epic: 1500, llegendari: 2400, mitic: 3600 };
+const TDS_BIG = ["llegendari", "mitic"]; // aquestes no es poden saltar: es veu tota la cerimònia
+// Símbols del cercle segons l'assignatura (repartits pel cercle, fins i rectes)
+const TDS_GLYPHS = { alg: ["+", "×", "λ", "Σ", "det", "[ ]", "Aᵀ", "v⃗", "−", "∑"], prg: [";", "{ }", "if", "for", "//", "</>", "( )", "==", "[i]", "++"] };
+function tdsGlyphs(subj) {
+  const list = TDS_GLYPHS[subj] || TDS_GLYPHS.alg;
+  document.querySelector("#td-summon .tds-glyphs").innerHTML = list.map((t, i) => {
+    const a = i / list.length * Math.PI * 2 - Math.PI / 2;
+    return `<text x="${(Math.cos(a) * 137).toFixed(1)}" y="${(Math.sin(a) * 137).toFixed(1)}" transform="rotate(${(a * 180 / Math.PI + 90).toFixed(1)} ${(Math.cos(a) * 137).toFixed(1)} ${(Math.sin(a) * 137).toFixed(1)})">${t}</text>`;
+  }).join("");
+}
 function tdReveal(results) {
   clearTimeout(tdsRun?.timer);
-  tdsRun = { res: results, i: -1, phase: "" };
+  tdsRun = { res: results, i: -1, phase: "", skipping: false };
   const box = $("td-summon");
   box.hidden = false;
   box.querySelector(".tds-summary").hidden = true;
+  box.dataset.subj = TD_DEFENDERS[results[0].id].subj;
+  tdsGlyphs(box.dataset.subj);
   $("tds-skip").hidden = results.length < 2;
   tdsNext();
 }
+// «Saltar»: passa de llarg les normals, però s'atura en cada llegendària o mítica perquè es veja; després, el resum
+function tdsSkip() {
+  if (!tdsRun) return;
+  tdsRun.skipping = true;
+  const cur = tdsRun.res[tdsRun.i];
+  if (cur && TD_BIG_SHOWN(cur) && tdsRun.phase === "charging") return; // ja s'està mostrant una gran
+  clearTimeout(tdsRun.timer);
+  tdsNext();
+}
+const TD_BIG_SHOWN = r => TDS_BIG.includes(TD_DEFENDERS[r.id].rar);
 function tdsNext() {
   const run = tdsRun;
   run.i++;
+  if (run.skipping) while (run.i < run.res.length && !TD_BIG_SHOWN(run.res[run.i])) run.i++;
   if (run.i >= run.res.length) { run.res.length > 1 ? tdsSummary() : tdsClose(); return; }
   const r = run.res[run.i], d = TD_DEFENDERS[r.id], box = $("td-summon");
-  box.className = `rar-${d.rar}`;
+  box.className = `rar-${d.rar}${d.rar === "mitic" ? " assemble" : ""}`;
   box.style.setProperty("--rc", TD_RARITIES[d.rar].color);
   box.querySelector(".tds-creature").innerHTML = tdCreatureSvg(r.id);
   box.querySelector(".tds-rar").textContent = TD_RARITIES[d.rar].name;
@@ -144,7 +168,8 @@ function tdsClose() {
 }
 function tdsTap(ev) {
   if (!tdsRun || ev.target.closest("#tds-skip, #tds-done")) return;
-  if (tdsRun.phase === "charging") tdsShow();
+  const big = TD_BIG_SHOWN(tdsRun.res[tdsRun.i] || tdsRun.res[0]);
+  if (tdsRun.phase === "charging" && !big) tdsShow(); // les llegendàries i mítiques no s'acceleren
   else if (tdsRun.phase === "shown") tdsNext();
 }
 
@@ -176,32 +201,75 @@ function tdDoExam(kind) {
   tdRenderPanel();
 }
 
-// ---- grimori (criatures)
-function tdGrimoriHtml() {
-  const s = tdSubj;
-  const order = ["comu", "rar", "epic", "llegendari", "mitic"];
-  const list = Object.entries(TD_DEFENDERS).filter(([, d]) => d.subj === s).sort((a, b) => order.indexOf(a[1].rar) - order.indexOf(b[1].rar));
-  if (!tdGrimSel || TD_DEFENDERS[tdGrimSel].subj !== s) tdGrimSel = list.find(([id]) => td.owned[id])?.[0] || null;
-  return `${tdSubjTabs()}
-    <p class="td-hint">Equip: <strong>${td.team.length} / 6</strong> criatures. Toca'n una per a vore-la, pujar-la de nivell o posar-la a l'equip.</p>
-    <div class="td-grim">${list.map(([id, d]) => {
-      const own = td.owned[id];
-      return `<button class="td-gcell rar-${d.rar}${own ? "" : " locked"}${tdGrimSel === id ? " sel" : ""}${td.team.includes(id) ? " inteam" : ""}" data-grim="${id}" title="${own ? d.name : "???"}">
-        <span class="td-gcell-art">${tdCreatureSvg(id)}</span><span class="td-gcell-name">${own ? d.name : "???"}</span>
-        ${own ? `<span class="td-gcell-meta">${tdStarStr(tdStars(id))} Nv. ${own.level}</span>` : `<span class="td-gcell-meta">${TD_RARITIES[d.rar].name}</span>`}</button>`;
-    }).join("")}</div>
-    ${tdGrimSel ? tdGrimDetail(tdGrimSel) : ""}`;
+// ---- llibres (grimori i bestiari): una criatura o distracció per doble pàgina; es passa pàgina
+// Marcapàgines: una assignatura per marcapàgines (cada una amb el seu paper) i, al grimori, l'equip.
+let tdBook = { tab: "alg", page: 0 };
+const TD_RAR_ORDER = ["comu", "rar", "epic", "llegendari", "mitic"];
+function tdBookList(kind, tab) {
+  if (kind === "bestiary") return Object.keys(TD_ENEMIES).filter(id => !TD_ENEMIES[id].hidden);
+  return Object.keys(TD_DEFENDERS).filter(id => TD_DEFENDERS[id].subj === tab).sort((a, b) => TD_RAR_ORDER.indexOf(TD_DEFENDERS[a].rar) - TD_RAR_ORDER.indexOf(TD_DEFENDERS[b].rar));
 }
-function tdGrimDetail(id) {
-  const d = TD_DEFENDERS[id], o = td.owned[id], st = tdStats(id), next = tdNextStar(id);
+function tdBookHtml(kind) {
+  const tabs = kind === "bestiary" ? [] : [...Object.entries(TD_SUBJECTS).map(([s, d]) => [s, `${d.icon} ${d.short}`]), ["team", "⚔️ Equip"]];
+  const tab = kind === "bestiary" ? "best" : tdBook.tab;
+  const theme = kind === "bestiary" ? "best" : tab;
+  let left, right, nav = "";
+  if (tab === "team") [left, right] = tdTeamPages();
+  else {
+    const list = tdBookList(kind, tab);
+    tdBook.page = Math.max(0, Math.min(tdBook.page, list.length - 1));
+    const id = list[tdBook.page];
+    [left, right] = kind === "bestiary" ? tdBeastPages(id) : tdCreaturePages(id);
+    nav = `<button class="tdbook-turn prev" data-bk="prev" ${tdBook.page === 0 ? "disabled" : ""} aria-label="Pàgina anterior">◀</button>
+      <span class="tdbook-num">${tdBook.page + 1} / ${list.length}</span>
+      <button class="tdbook-turn next" data-bk="next" ${tdBook.page >= list.length - 1 ? "disabled" : ""} aria-label="Pàgina següent">▶</button>`;
+  }
+  return `<div class="tdbook theme-${theme}">
+    ${tabs.length ? `<div class="tdbook-tabs">${tabs.map(([t, l]) => `<button class="tdbook-tab tab-${t}${t === tab ? " on" : ""}" data-bktab="${t}">${l}</button>`).join("")}</div>` : ""}
+    <div class="tdbook-spread"><div class="tdbook-page left">${left}</div><div class="tdbook-spine"></div><div class="tdbook-page right">${right}</div></div>
+    <div class="tdbook-nav">${nav}</div></div>`;
+}
+function tdCreaturePages(id) {
+  const d = TD_DEFENDERS[id], o = td.owned[id], r = TD_RARITIES[d.rar];
+  if (!o) return [`<div class="tdbook-art locked">${tdCreatureSvg(id)}</div><h3 class="tdbook-name">???</h3><div class="tdbook-rar" style="color:${r.color}">${r.name}</div>`,
+    `<p class="tdbook-text">Encara no has invocat aquesta criatura.</p><p class="tdbook-text muted">${d.rar === "mitic" ? `Només es pot aconseguir traent un ${TD_MYTHIC_GRADE} o més a l'examen final de ${TD_SUBJECTS[d.subj].name}.` : `Pot eixir a l'altar, amb pergamins de ${TD_SUBJECTS[d.subj].name}.`}</p>`];
+  const st = tdStats(id), next = tdNextStar(id);
   const cost = o.level < TD_LEVEL_MAX ? tdLevelCost(d.rar, o.level) : null;
-  return `<div class="td-detail rar-${d.rar}"><div class="td-detail-art">${tdCreatureSvg(id)}</div>
-    <div class="td-detail-info"><h3>${d.name} <small style="color:${TD_RARITIES[d.rar].color}">${TD_RARITIES[d.rar].name}</small></h3>
-      <div>${tdStarStr(st.stars)} · Nivell ${o.level}${next ? ` · <span class="muted">còpies ${next.have} / ${next.need} per a la ★${st.stars + 1}</span>` : " · <span class='muted'>estreles al màxim</span>"}</div>
-      <div class="td-detail-stats">⚔️ ${fmtNum(st.dmg)} · ⏱ ${st.rate.toFixed(2)}/s · 🎯 ${Math.round(st.range)} · 🔮 ${d.cost}</div>
-      <p>${d.desc}</p><p class="muted">★3 i ★5 milloren l'habilitat. Cada estrela: +30 % de dany i +10 % de velocitat. Cada nivell: +12 % de dany.</p>
-      <div class="td-detail-btns">${cost != null ? `<button data-lvl="${id}" ${td.saber < cost ? "disabled" : ""}>⬆ Nivell ${o.level + 1} · ✨ ${fmtNum(cost)}</button>` : `<button disabled>Nivell màxim</button>`}
-        <button class="secondary" data-team="${id}">${td.team.includes(id) ? "➖ Traure de l'equip" : "➕ Posar a l'equip"}</button></div></div></div>`;
+  return [`<div class="tdbook-art rar-${d.rar}">${tdCreatureSvg(id)}</div><h3 class="tdbook-name">${d.name}</h3>
+      <div class="tdbook-rar" style="color:${r.color}">${r.name}</div><div class="tdbook-stars">${tdStarStr(st.stars)}</div>`,
+    `<p class="tdbook-text">${d.desc}</p>
+     <table class="tdbook-stats"><tr><th>Nivell</th><td>${o.level} / ${TD_LEVEL_MAX}</td></tr><tr><th>Dany</th><td>${fmtNum(st.dmg)}</td></tr>
+       <tr><th>Velocitat</th><td>${st.rate.toFixed(2)} / s</td></tr><tr><th>Abast</th><td>${Math.round(st.range)}</td></tr><tr><th>Cost</th><td>🔮 ${d.cost}</td></tr>
+       <tr><th>Còpies</th><td>${next ? `${next.have} / ${next.need} per a la ★${st.stars + 1}` : "estreles al màxim"}</td></tr></table>
+     <div class="tdbook-btns">${cost != null ? `<button data-lvl="${id}" ${td.saber < cost ? "disabled" : ""}>⬆ Nivell ${o.level + 1} · ✨ ${fmtNum(cost)}</button>` : `<button disabled>Nivell màxim</button>`}
+       <button class="secondary" data-team="${id}">${td.team.includes(id) ? "➖ Traure de l'equip" : "➕ Posar a l'equip"}</button></div>`];
+}
+function tdBeastPages(id) {
+  const e = TD_ENEMIES[id], seen = td.seen.includes(id);
+  if (!seen) return [`<div class="tdbook-art locked">${tdEnemySvg(id)}</div><h3 class="tdbook-name">???</h3>`, `<p class="tdbook-text">Encara no t'ha atacat.</p>`];
+  return [`<div class="tdbook-art">${tdEnemySvg(id)}</div><h3 class="tdbook-name">${e.name}</h3>${e.boss ? '<div class="tdbook-rar boss">CAP</div>' : ""}`,
+    `<p class="tdbook-text">${e.desc}</p><table class="tdbook-stats"><tr><th>Vida</th><td>${e.hp} <span class="muted">(+${TD_WAVE_HP * 100} % per onada)</span></td></tr>
+      <tr><th>Velocitat</th><td>${e.speed}</td></tr><tr><th>Dany al cristall</th><td>${e.lives}</td></tr><tr><th>Maná en morir</th><td>🔮 ${e.mana}</td></tr></table>`];
+}
+function tdTeamPages() {
+  const slots = Array.from({ length: 6 }, (_, i) => td.team[i]);
+  const owned = Object.keys(TD_DEFENDERS).filter(id => td.owned[id]);
+  return [`<h3 class="tdbook-name">Equip</h3><p class="tdbook-text muted">Les 6 criatures que portes al combat. Toca'n una per a traure-la.</p>
+      <div class="tdbook-team">${slots.map(id => id ? `<button class="tdbook-tslot rar-${TD_DEFENDERS[id].rar}" data-team="${id}" title="Traure ${TD_DEFENDERS[id].name}">${tdCreatureSvg(id)}<span>${TD_DEFENDERS[id].name}</span></button>`
+        : `<div class="tdbook-tslot empty">+</div>`).join("")}</div>`,
+    `<h3 class="tdbook-name">Les teues criatures</h3><p class="tdbook-text muted">Toca'n una per a posar-la a l'equip.</p>
+      <div class="tdbook-owned">${owned.map(id => `<button class="tdbook-mini rar-${TD_DEFENDERS[id].rar}${td.team.includes(id) ? " inteam" : ""}" data-team="${id}" title="${TD_DEFENDERS[id].name}">${tdCreatureSvg(id)}</button>`).join("")}</div>`];
+}
+// Passar pàgina amb animació (la pàgina es gira i ix la següent)
+function tdTurnPage(dir) {
+  const spread = document.querySelector(".tdbook-spread");
+  if (!spread || spread.classList.contains("turning")) return;
+  spread.classList.add("turning", dir > 0 ? "turn-next" : "turn-prev");
+  setTimeout(() => {
+    tdBook.page += dir;
+    tdRenderPanel();
+    document.querySelector(".tdbook-spread")?.classList.add(dir > 0 ? "land-next" : "land-prev");
+  }, 260);
 }
 function tdToggleTeam(id) {
   if (!td.owned[id]) return;
@@ -215,17 +283,8 @@ function tdToggleTeam(id) {
   tdSave();
   tdRenderPanel();
 }
-
-// ---- bestiari
-function tdBestiaryHtml() {
-  return `<p class="td-hint">Les distraccions que t'han atacat. Les que encara no has vist, amagades.</p>
-    <div class="td-beasts">${Object.entries(TD_ENEMIES).filter(([, e]) => !e.hidden).map(([id, e]) => {
-      const seen = td.seen.includes(id);
-      return `<div class="td-beast${seen ? "" : " locked"}${e.boss ? " boss" : ""}"><div class="td-beast-art">${tdEnemySvg(id)}</div>
-        <div><strong>${seen ? e.name : "???"}</strong>${e.boss ? ' <span class="td-boss-tag">CAP</span>' : ""}<p>${seen ? e.desc : "Encara no l'has vista."}</p>
-        ${seen ? `<p class="muted">❤️ ${e.hp} · 🏃 ${e.speed} · 💎 −${e.lives}</p>` : ""}</div></div>`;
-    }).join("")}</div>`;
-}
+const tdBestiaryHtml = () => tdBookHtml("bestiary");
+const tdGrimoriHtml = () => tdBookHtml("grimori");
 
 // ---- portal (mons)
 function tdWorldsHtml() {
@@ -252,7 +311,7 @@ function tdUpgradesHtml() {
 // ---- estudiant (artefactes)
 function tdStudentHtml() {
   const owned = Object.keys(td.artifacts);
-  return `<div class="td-student-row"><div class="td-student-big">${TD_STUDENT_SVG}</div>
+  return `<div class="td-student-row"><div class="td-student-big">${tdStudentSvg(td.equipped)}</div>
     <div><p class="td-hint">L'estudiant mira la partida des d'una cantonada del mapa i porta fins a <strong>${TD_ARTIFACT_SLOTS}</strong> artefactes, que milloren totes les criatures. Els caps els deixen; si en tornes a derrotar un, el seu artefacte puja de nivell (fins al 5).</p>
     <div class="td-slots">${Array.from({ length: TD_ARTIFACT_SLOTS }, (_, i) => { const id = td.equipped[i];
       return `<div class="td-aslot">${id ? `${TD_ARTIFACTS[id].icon}<small>${TD_ARTIFACTS[id].name}</small>` : "<small>buit</small>"}</div>`; }).join("")}</div></div></div>
@@ -291,17 +350,18 @@ function initTdLobby() {
   $("td-card-close").addEventListener("click", tdClosePanel);
   $("td-dialog").addEventListener("click", ev => { if (ev.target === $("td-dialog")) tdClosePanel(); });
   $("td-summon").addEventListener("click", tdsTap);
-  $("tds-skip").addEventListener("click", () => { clearTimeout(tdsRun?.timer); tdsSummary(); });
+  $("tds-skip").addEventListener("click", tdsSkip);
   $("tds-done").addEventListener("click", tdsClose);
   $("td-card-body").addEventListener("click", ev => {
     const b = ev.target.closest("button");
     if (!b || b.disabled) return;
     const ds = b.dataset;
-    if (ds.subj) { tdSubj = ds.subj; tdGrimSel = null; tdRenderPanel(); }
+    if (ds.subj) { tdSubj = ds.subj; tdRenderPanel(); }
+    else if (ds.bktab) { tdBook = { tab: ds.bktab, page: 0 }; tdRenderPanel(); }
+    else if (ds.bk) tdTurnPage(ds.bk === "next" ? 1 : -1);
     else if (ds.summon) tdDoSummon(Number(ds.summon));
     else if (ds.act) tdDoStudy(ds.act);
     else if (ds.exam) tdDoExam(ds.exam);
-    else if (ds.grim) { if (td.owned[ds.grim]) { tdGrimSel = ds.grim; tdRenderPanel(); } }
     else if (ds.lvl) { if (tdLevelUp(ds.lvl)) tdRenderPanel(); }
     else if (ds.team) tdToggleTeam(ds.team);
     else if (ds.play) { tdClosePanel(); tdOpenBattle(Number(ds.play)); }
@@ -309,7 +369,13 @@ function initTdLobby() {
     else if (ds.equip) tdToggleEquip(ds.equip);
   });
   document.addEventListener("keydown", ev => {
-    if (ev.key !== "Escape" || !tdLobbyOpen()) return;
+    if (!tdLobbyOpen()) return;
+    if ((ev.key === "ArrowRight" || ev.key === "ArrowLeft") && !$("td-dialog").hidden) {
+      const b = document.querySelector(`.tdbook-turn.${ev.key === "ArrowRight" ? "next" : "prev"}`);
+      if (b && !b.disabled) tdTurnPage(ev.key === "ArrowRight" ? 1 : -1);
+      return;
+    }
+    if (ev.key !== "Escape") return;
     if (!$("td-summon").hidden) tdsClose();
     else if (!$("td-dialog").hidden) tdClosePanel();
   });

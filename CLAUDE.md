@@ -51,12 +51,17 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
 - Rumbo: el juego pasa a ser de **estudio general** con varios juegos (autoescuela, grado, carrera…) unidos como
   salas dibujadas, sin menús. Se entra por la **habitación** (`js/room.js`): la placa L lleva a la DGT y la mochila al
   juego de estudio (tower defense, aún por hacer: de momento un aviso). Desde la DGT se vuelve por la puerta de eixida.
-- Juego de estudio: se entra por la mochila. Sala arcana con puntos (altar = invocar, escritorio = apuntar estudio,
-  grimori, bestiari, portal = mundos, cristall = millores, estudiant = artefactos, rellotge = reiniciar, porta = habitación).
+- Juego de estudio: se entra por la mochila. Sala arcana con puntos (altar = invocar, prestatgeria = apuntar estudio,
+  grimori (libro con páginas por asignatura + pestaña de equipo), bestiari (libro), portal = mundos, cristall = millores, estudiant = artefactos, rellotge = reiniciar, porta = habitación).
   Reglas del usuario: los pergamins (tiradas) **solo** salen de estudiar (nunca del combate); en combate se gana maná
   y saber (para subir niveles); el mítico solo con un 8+ en el final; los jefes dan artefactos al estudiante (3 huecos).
   Probabilidades 70 / 25 / 4,5 / 0,5 con garantía (épico 30, legendario 150); cada invocación solo da criaturas
   de la asignatura elegida. Maná del combate: solo el inicial y el que dan los enemigos al morir (nada por tiempo). Copias → estrellas (1/2/4/7/11).
+  Atención al detalle en todos los dibujos (lo pide el usuario): proporciones reales, mesas con 4 patas, nada de trazos
+  sin sentido, cada proyectil es la pieza que la criatura lanza (desaparece del cuerpo mientras vuela y se vuelve a
+  formar), los artefactos se llevan puestos en el estudiante (`TD_ARTIFACT_WEAR`), sin bandas en los lados de las escenas
+  (el fondo y la viñeta continúan fuera del viewBox). Los enemigos mueren disolviéndose en su color.
+  Invocación: pantalla propia; «Saltar» se para en legendarias y míticas; la mítica se monta pieza a pieza.
   Estilo de las criaturas: símbolos de energía en neón sobre fondo oscuro (referencia: «Animation vs. Math»), sin
   caras; cada una hecha con los símbolos de su asignatura y la pieza que lanza forma parte del cuerpo. Pocas y cuidadas.
   Reiniciar (rellotge) conserva criaturas, pergamins, artefactos y registro; pierde saber, niveles, millores y mundos.

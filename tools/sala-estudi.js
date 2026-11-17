@@ -3,7 +3,7 @@
 // La sala del joc d'estudi (s'hi entra per la motxilla de l'habitació): una sala arcana fosca, amb traços de neó com les
 // criatures. Escriu js/data/td-lobby-art.js, que pinta js/td/lobby.js. Ús: node tools/sala-estudi.js [--preview fitxer.svg]
 // Sala: 9 m d'ample (x de -4.5 a 4.5), 4,5 m d'alt i 9 m de fons. Càmera a 1,7 m.
-// Punts: portal (mons), altar (invocar), escriptori (estudiar), grimori (criatures), faristol (bestiari),
+// Punts: portal (mons), altar (invocar), prestatgeria (apuntar l'estudi), grimori (criatures i equip), faristol (bestiari),
 // cristall (millores), estudiant (artefactes), porta (eixida) i rellotge de sorra (reiniciar).
 const fs = require("fs"), path = require("path");
 const { camera, r } = require("./perspectiva");
@@ -30,7 +30,7 @@ function lectern({ x, z, top = 1.0, w = 0.62, h = 0.44, tilt = 32, wood = "#2a22
   s += poly([plane(0, 0, -0.02), plane(1, 0, -0.02), plane(1, 0, -0.06), plane(0, 0, -0.06)], `fill="${wood}"`);
   return { svg: s, plane };
 }
-function openBook(plane, { cover, page, line: lc, spine = "#00000055" }) {
+function openBook(plane, { cover, page, line: lc, spine = "#00000055", lines = [7, 7], ink = [] }) {
   // el llibre ocupa el centre del faristol: 0,50 m × 0,33 m de pàgines, amb la coberta 1 cm més gran
   const bu = u => 0.1 + u * 0.8, bv = v => 0.12 + v * 0.75;
   let s = poly([plane(bu(-0.02), bv(-0.03)), plane(bu(1.02), bv(-0.03)), plane(bu(1.02), bv(1.03)), plane(bu(-0.02), bv(1.03))], `fill="${cover}"`);
@@ -40,13 +40,15 @@ function openBook(plane, { cover, page, line: lc, spine = "#00000055" }) {
     s += poly([plane(bu(a), bv(0), 0.004), plane(bu(b), bv(0), 0.004), plane(bu(b), bv(0), 0.016), plane(bu(a), bv(0), 0.016)], `fill="${lc}" opacity="0.6"`);
     const lift = u => (Math.abs(u - outer) < 0.01 ? 0.012 : 0.02);
     s += poly([plane(bu(a), bv(0), lift(a)), plane(bu(b), bv(0), lift(b)), plane(bu(b), bv(1), lift(b)), plane(bu(a), bv(1), lift(a))], `fill="${page}"`);
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < lines[a === 0 ? 0 : 1]; i++) {
       const v = 0.8 - i * 0.1, len = i % 3 === 2 ? 0.6 : 0.85;
       const u0 = a + 0.06, u1 = a + 0.06 + (b - a - 0.12) * len;
       s += line(plane(bu(u0), bv(v), 0.021), plane(bu(u1), bv(v), 0.021), `stroke="${lc}" stroke-width="1.6" opacity="0.7"`);
     }
   }
   s += line(plane(bu(0.5), bv(0), 0.02), plane(bu(0.5), bv(1), 0.02), `stroke="${spine}" stroke-width="3"`);
+  // dibuixos a tinta: [color, gruix, [[u, v], ...]] (u de 0 a 1 en tota la doble pàgina, v de baix a dalt)
+  for (const [c, w, pts] of ink) s += `<polyline points="${pts.map(([u, v]) => P(...plane(bu(u), bv(v), 0.022)).map(r).join(",")).join(" ")}" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
   return s;
 }
 
@@ -165,37 +167,28 @@ const V = "#9d8bff", G = "#3fdc8a", PINK = "#ff5ab0", GOLD = "#ffc23f", CYAN = "
       u += th + 0.002;
     }
   }
-  add(s);
-  // grimori: llibre obert damunt d'un faristol, davant de la prestatgeria; brilla violeta
-  let g = "";
-  const gl = lectern({ x: -3.3, z: 3.6 });
-  g += gl.svg;
-  const [gx, gy] = P(-3.3, 1.25, 3.6), gk = cam.scale(3.6) / 100;
-  g += `<ellipse cx="${r(gx)}" cy="${r(gy)}" rx="${r(70 * gk)}" ry="${r(40 * gk)}" fill="${V}" opacity="0.16"/>`;
-  g += openBook(gl.plane, { cover: "#3a2a7a", page: "#efe6d0", line: "#8a80c8" });
-  g += `<g class="sl-float" transform="translate(${r(gx)} ${r(gy - 40 * gk)}) scale(${gk.toFixed(3)})" font-family="ui-monospace, monospace" font-weight="800" font-size="16">
-    <text x="-24" y="-6" fill="${V}">+</text><text x="4" y="-16" fill="${G}">;</text><text x="22" y="-2" fill="${V}">λ</text></g>`;
-  add(g, { spot: "grimori", title: "Grimori: les teues criatures (nivells, estrelles i equip)", hit: bbox([[-3.55, 0, 3.4], [-3.05, 0, 3.8], [-3.3, 1.75, 3.6]]) });
+  // un pergamí que sobreïx i brilla: ací s'apunta el que has estudiat
+  const [px, py] = P(...sf(0.5, 0.29)), pk = cam.scale(3.8) / 100;
+  s += `<g transform="translate(${r(px)} ${r(py)}) scale(${pk.toFixed(3)})"><ellipse rx="40" ry="26" fill="${G}" opacity="0.14"/>
+    <rect x="-14" y="-10" width="28" height="18" rx="2" fill="#efe6d0"/><rect x="-16" y="-12" width="4" height="22" rx="2" fill="#c9a678"/><rect x="12" y="-12" width="4" height="22" rx="2" fill="#c9a678"/>
+    <path d="M-7 -3 H7 M-7 1 H4" stroke="#1f9e5c" stroke-width="1.6"/></g>`;
+  add(s, { spot: "study", title: "Prestatgeria: apuntar el que has estudiat (pergamins d'invocació)", hit: bbox(corners(shB)) });
 }
 
-// ---------------------------------------------------------------- escriptori d'estudi (esquerra, davant): registrar el que has estudiat
+// ---------------------------------------------------------------- grimori de les criatures (esquerra, davant), damunt d'un faristol
 {
-  let s = "";
-  const dB = { x0: -2.9, x1: -1.5, y0: 0, y1: 0.8, z0: 1.9, z1: 2.6 };
-  s += shadow(dB, 0.08, 0.35);
-  s += box({ ...dB, y0: 0.74 }, { front: "#5a3f2a", side: "#4a3322", top: "url(#sl-wood)" });
-  for (const x of [dB.x0 + 0.04, dB.x1 - 0.1]) s += box({ x0: x, x1: x + 0.06, y0: 0, y1: 0.74, z0: dB.z0 + 0.04, z1: dB.z0 + 0.1 }, { front: "#3a2818", side: "#2e2013" });
-  // llibres apilats, quadern obert i ploma, espelma
-  [["#5a43d6", 0], ["#1f9e5c", 1], ["#8a2a4a", 2]].forEach(([c, i]) =>
-    s += box({ x0: -2.82 + i * 0.015, x1: -2.56 + i * 0.01, y0: 0.8 + i * 0.035, y1: 0.832 + i * 0.035, z0: 2.3 + i * 0.01, z1: 2.49 }, { front: c, side: c, top: i === 2 ? c : "#efe6d0" })
-    + box({ x0: -2.82 + i * 0.015 + 0.004, x1: -2.56 + i * 0.01, y0: 0.804 + i * 0.035, y1: 0.828 + i * 0.035, z0: 2.3 + i * 0.01 - 0.001, z1: 2.302 + i * 0.01 }, { front: "#efe6d0" }));
-  s += box({ x0: -2.25, x1: -1.8, y0: 0.8, y1: 0.81, z0: 2.05, z1: 2.35 }, { front: "#efe6d0", top: "#fffaf0" });
-  s += line([-2.18, 0.811, 2.25], [-1.95, 0.811, 2.22], `stroke="#8a80c8" stroke-width="2"`) + line([-2.18, 0.811, 2.17], [-1.9, 0.811, 2.14], `stroke="#8a80c8" stroke-width="2"`);
-  s += line([-1.85, 0.81, 2.1], [-1.65, 1.05, 2.25], `stroke="#efe6d0" stroke-width="4" stroke-linecap="round"`);
-  const [cx, cy] = P(-1.7, 0.8, 2.45), k = cam.scale(2.45) / 120;
-  s += `<g class="sl-candle" transform="translate(${r(cx)} ${r(cy)}) scale(${k.toFixed(3)})"><ellipse cx="0" cy="-34" rx="40" ry="44" fill="#ffd27a" opacity="0.14"/>
-    <rect x="-6" y="-24" width="12" height="24" rx="2" fill="#efe6d0"/><path d="M0 -38 C6 -30 5 -26 0 -24 C-5 -26 -6 -30 0 -38 Z" fill="#ffd27a"/></g>`;
-  add(s, { spot: "study", title: "Escriptori: apuntar el que has estudiat (pergamins d'invocació)", hit: bbox([...corners(dB), [-2.2, 1.3, 2.3]]) });
+  let g = "";
+  const gl = lectern({ x: -2.2, z: 2.3, top: 0.95 });
+  g += gl.svg;
+  const [gx, gy] = P(-2.2, 1.2, 2.3), gk = cam.scale(2.3) / 100;
+  g += `<ellipse cx="${r(gx)}" cy="${r(gy)}" rx="${r(62 * gk)}" ry="${r(34 * gk)}" fill="${V}" opacity="0.16"/>`;
+  // a la pàgina de l'esquerra, el + d'una criatura dibuixat a tinta; a la dreta, el text
+  g += openBook(gl.plane, { cover: "#3a2a7a", page: "#efe6d0", line: "#8a80c8", lines: [2, 7], ink: [
+    ["#5a43d6", 3, [[0.25, 0.78], [0.25, 0.38]]], ["#5a43d6", 3, [[0.13, 0.58], [0.37, 0.58]]],
+    ["#8a80c8", 2, [[0.1, 0.83], [0.16, 0.83]]], ["#8a80c8", 2, [[0.13, 0.8], [0.13, 0.86]]], ["#8a80c8", 2, [[0.34, 0.83], [0.4, 0.83]]], ["#8a80c8", 2, [[0.37, 0.8], [0.37, 0.86]]]] });
+  g += `<g class="sl-float" transform="translate(${r(gx)} ${r(gy - 34 * gk)}) scale(${gk.toFixed(3)})" font-family="ui-monospace, monospace" font-weight="700" font-size="13">
+    <text x="-22" y="-4" fill="${V}">+</text><text x="2" y="-12" fill="${G}">;</text><text x="20" y="-2" fill="${V}">λ</text></g>`;
+  add(g, { spot: "grimori", title: "Grimori: les teues criatures i l'equip", hit: bbox([[-2.5, 0, 2.1], [-1.9, 0, 2.5], [-2.2, 1.65, 2.3]]) });
 }
 
 // ---------------------------------------------------------------- faristol del bestiari (dreta)
@@ -205,8 +198,11 @@ const V = "#9d8bff", G = "#3fdc8a", PINK = "#ff5ab0", GOLD = "#ffc23f", CYAN = "
   s += bl.svg;
   const [bx, by] = P(3.7, 1.2, 4.6), bk = cam.scale(4.6) / 100;
   s += `<ellipse cx="${r(bx)}" cy="${r(by)}" rx="${r(66 * bk)}" ry="${r(36 * bk)}" fill="${RED}" opacity="0.14"/>`;
-  s += openBook(bl.plane, { cover: "#3a1414", page: "#c9b48e", line: "#7a2a22" });
-  s += neon(`M${r(bx - 22 * bk)} ${r(by + 10 * bk)} l${r(14 * bk)} ${r(10 * bk)} M${r(bx - 17 * bk)} ${r(by + 7 * bk)} l${r(14 * bk)} ${r(10 * bk)}`, RED, 1.4);
+  // a la pàgina dreta, la Notificació dibuixada a tinta (campana amb el «1»); a l'esquerra, les notes
+  s += openBook(bl.plane, { cover: "#3a1414", page: "#c9b48e", line: "#7a2a22", lines: [7, 1], ink: [
+    ["#5a2a1a", 2.4, [[0.64, 0.3], [0.67, 0.42], [0.67, 0.6], [0.7, 0.72], [0.75, 0.76], [0.8, 0.72], [0.83, 0.6], [0.83, 0.42], [0.86, 0.3], [0.64, 0.3]]],
+    ["#5a2a1a", 2.4, [[0.72, 0.24], [0.75, 0.21], [0.78, 0.24]]],
+    ["#a8321e", 2.4, [[0.87, 0.78], [0.9, 0.82], [0.87, 0.86], [0.84, 0.82], [0.87, 0.78]]] ] });
   add(s, { spot: "bestiary", title: "Bestiari: les distraccions que has vist", hit: bbox([[3.45, 0, 4.4], [3.95, 0, 4.8], [3.7, 1.6, 4.6]]) });
 }
 
@@ -247,8 +243,8 @@ const defs = `${cam.defs}
   <linearGradient id="sl-wood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6b4a32"/><stop offset="1" stop-color="#7a5a3a"/></linearGradient>
   <radialGradient id="sl-portal"><stop offset="0" stop-color="#ffffff" stop-opacity="0.9"/><stop offset="0.25" stop-color="#b48cff"/><stop offset="0.7" stop-color="#3a1f8a"/><stop offset="1" stop-color="#120a30"/></radialGradient>
   <radialGradient id="sl-portal-glow"><stop offset="0" stop-color="#9d8bff" stop-opacity="0.35"/><stop offset="1" stop-color="#9d8bff" stop-opacity="0"/></radialGradient>
-  <radialGradient id="sl-vignette" cx="0.5" cy="0.5" r="0.75"><stop offset="0.55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.55"/></radialGradient>`;
-add(`<rect width="1600" height="900" fill="url(#sl-vignette)" pointer-events="none"/>`);
+  <radialGradient id="sl-vignette" gradientUnits="userSpaceOnUse" cx="800" cy="450" r="1150"><stop offset="0.5" stop-color="#000" stop-opacity="0"/><stop offset="0.8" stop-color="#000" stop-opacity="0.55"/></radialGradient>`;
+add(`<rect x="-1600" y="-900" width="4800" height="2700" fill="url(#sl-vignette)" pointer-events="none"/>`); // també fora del viewBox: sense bandes
 
 const out = `// GENERAT per tools/sala-estudi.js (no l'edites a mà: canvia l'escena allà i torna a executar-lo)
 // Capes de la sala d'estudi (del fons cap al davant). Les capes amb \`spot\` són punts interactius (js/td/lobby.js).
