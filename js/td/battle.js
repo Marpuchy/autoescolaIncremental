@@ -38,13 +38,13 @@ const el = (tag, attrs = {}, parent) => {
 function tdOpenBattle(worldId = 1) {
   const world = TD_WORLDS.find(w => w.id === worldId && !w.soon);
   if (!world) return;
-  if (!td.team.length) { toast("Tria almenys una criatura per a l'equip (al grimori)", "bad"); return; }
+  if (!tdTeam(world.mode).length) { toast("Tria almenys una criatura per a l'equip (al grimori)", "bad"); return; }
   tdb = {
     world, path: tdbPath(world.path), wave: 0, waveRunning: false, pause: 0, spawnQueue: [], spawnT: 0,
     lives: TD_BATTLE.lives + 3 * td.upgrades.vida, mana: TD_BATTLE.startMana + 20 * td.upgrades.mana,
     saber: 0, kills: 0, enemies: [], towers: {}, projs: [], selected: null, selectedTower: null,
     speed: 1, over: false, time: 0, rushT: 0, uid: 0, artifactsWon: [], bossesSeen: new Set(),
-    god: false,
+    god: false, zones: [],
   };
   $("td-lobby").hidden = true;
   $("td-battle").hidden = false;
@@ -61,7 +61,7 @@ function tdCloseBattle(toLobby = true) {
   if (tdb && !tdb.over) tdbFinish(false, true);
   tdb = null;
   $("td-battle").hidden = true;
-  if (toLobby) tdOpenLobby();
+  if (toLobby) tdOpenLobby(tdRoom);
 }
 
 // ---------------------------------------------------------------- vista
@@ -75,7 +75,11 @@ function tdbBuildView() {
   // cristall
   const [cx, cy] = tdbS(...tdb.world.crystal);
   const crystal = el("g", { id: "tdb-crystal", transform: `translate(${cx} ${cy})` }, svg);
-  crystal.innerHTML = `<circle r="70" fill="#4ad8ff" opacity="0.12"/><circle r="70" class="tdb-crystal-glow"/><g class="tdb-crystal-gem">
+  const forest = tdb.world.mode === "forestal";
+  crystal.innerHTML = forest ? `<circle r="70" fill="#9ff07a" opacity="0.12"/><circle r="70" class="tdb-crystal-glow"/><g class="tdb-crystal-gem">
+    <path d="M0 -60 C30 -60 38 -20 36 6 C34 34 18 44 0 44 C-18 44 -34 34 -36 6 C-38 -20 -30 -60 0 -60 Z" fill="#1f6a3e" stroke="#9ff07a" stroke-width="5"/>
+    <ellipse cx="-10" cy="-26" rx="8" ry="14" fill="#bff7a0" opacity="0.45"/></g>
+    <text y="74" text-anchor="middle" font-size="26" font-weight="800" fill="#d8ffc0" id="tdb-lives-map"></text>` : `<circle r="70" fill="#4ad8ff" opacity="0.12"/><circle r="70" class="tdb-crystal-glow"/><g class="tdb-crystal-gem">
     <path d="M0 -62 L30 -14 L0 40 L-30 -14 Z" fill="#0b2a3a" stroke="#7fe8ff" stroke-width="5" stroke-linejoin="round"/>
     <path d="M0 -62 L0 40 M-30 -14 H30" stroke="#bff4ff" stroke-width="2" opacity="0.8"/></g>
     <text y="74" text-anchor="middle" font-size="26" font-weight="800" fill="#bff4ff" id="tdb-lives-map"></text>`;
@@ -96,6 +100,14 @@ function tdbBuildView() {
   const [stx, sty] = tdbS(...tdb.world.student);
   // torre arcana on està l'estudiant: plataforma rúnica i cos de pedra que es perd cap avall
   const perch = el("g", { class: "tdb-perch", transform: `translate(${stx} ${sty})` }, svg);
+  if (forest) { // al bosc, l'estudiant està dalt d'una soca tallada (anells de dalt i escorça)
+    perch.innerHTML = `<defs><linearGradient id="tdb-stump-fade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a2a1a"/><stop offset="0.75" stop-color="#22180e"/><stop offset="1" stop-color="#22180e" stop-opacity="0"/></linearGradient></defs>
+      <path d="M-62 58 V168 H62 V58 Z" fill="url(#tdb-stump-fade)"/>${[-40, -14, 12, 38].map(x => `<path d="M${x} 74 Q${x + 4} 110 ${x - 2} 160" stroke="#14100a" stroke-width="3" fill="none" opacity="0.7"/>`).join("")}
+      <path d="M-62 58 Q-80 150 -96 160 M62 58 Q82 150 98 162" stroke="#3a2a1a" stroke-width="12" fill="none" stroke-linecap="round" opacity="0.8"/>
+      <ellipse cy="58" rx="64" ry="17" fill="#c9a26a" stroke="#6b4a24" stroke-width="3"/>
+      ${[48, 34, 20, 8].map(r => `<ellipse cy="58" rx="${r}" ry="${r * 0.26}" fill="none" stroke="#8a6438" stroke-width="1.6"/>`).join("")}
+      ${[-1, 1].map(sx => `<circle cx="${sx * 54}" cy="54" r="5" fill="#d8ff6a" opacity="0.9"/><circle cx="${sx * 54}" cy="54" r="12" fill="#d8ff6a" opacity="0.18"/>`).join("")}`;
+  } else {
   const bricks = [0, 1, 2, 3].map(r => [0, 1, 2, 3].map(c => {
     const x = -54 + c * 27 + (r % 2 ? 13 : 0), y = 70 + r * 22;
     return `<path d="M${x} ${y} h24" stroke="#2a3150" stroke-width="2"/><path d="M${x + 25} ${y - 21} v20" stroke="#2a3150" stroke-width="2"/>`;
@@ -108,13 +120,16 @@ function tdbBuildView() {
     <ellipse cx="0" cy="58" rx="70" ry="17" fill="#232a48" stroke="#7d5cff" stroke-width="2.5"/>
     <ellipse cx="0" cy="58" rx="52" ry="11" fill="none" stroke="#b39dff" stroke-width="1.4" stroke-dasharray="4 6" opacity="0.8"/>
     ${[-1, 1].map(sx => `<circle cx="${sx * 60}" cy="54" r="5" fill="#ffc23f" opacity="0.9"/><circle cx="${sx * 60}" cy="54" r="11" fill="#ffc23f" opacity="0.18"/>`).join("")}`;
+  }
   const st = el("g", { id: "tdb-student", transform: `translate(${stx} ${sty})` }, svg);
   st.innerHTML = tdStudentSvg(td.equipped, `x="-76" y="-84" width="152" height="160"`) +
     `<title>Estudiant${td.equipped.length ? ": " + td.equipped.map(id => TD_ARTIFACTS[id].name).join(", ") : ""}</title>`;
   // tornar a pintar les criatures que ja hi havia (canvi d'orientació)
   for (const t of Object.values(tdb.towers)) tdbDrawTower(t);
+  tdbAuraMarks();
 }
 function tdbBackground(world) {
+  if (world.mode === "forestal") return tdbForestBackground(world);
   const pts = world.path.map(p => p.join(",")).join(" ");
   // fons fosc amb paper quadriculat, fórmules que suren i el camí de runes
   let grid = "";
@@ -131,6 +146,46 @@ function tdbBackground(world) {
     <polyline points="${pts}" fill="none" stroke="#141a27" stroke-width="86" stroke-linejoin="round" stroke-linecap="round"/>
     <polyline points="${pts}" fill="none" stroke="#2b3a5c" stroke-width="86" stroke-linejoin="round" stroke-linecap="round" opacity="0.35" stroke-dasharray="2 10"/>
     <polyline points="${pts}" fill="none" stroke="#4a5f8f" stroke-width="3" stroke-linejoin="round" stroke-dasharray="14 18" class="tdb-flow"/>
+    <rect x="-1600" y="-900" width="4800" height="2700" fill="url(#tdb-vig)" pointer-events="none"/>`;
+}
+
+// Bosc de nit vist des de dalt: terra de molsa i fulles, capçades fosques a les vores (continuen fora del mapa), el sender
+// de terra amb arrels que el creuen i pedretes, bolets i falgueres entre les lleixes de buits, i cucs de llum que suren.
+function tdbForestBackground(world) {
+  const pts = world.path.map(p => p.join(",")).join(" ");
+  let seed = 11;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  // fulles i molsa escampades per tot (també fora del mapa)
+  const leaves = Array.from({ length: 150 }, () => { const x = -700 + rnd() * 3000, y = -500 + rnd() * 1900, r = rnd() * 360, k = 0.6 + rnd() * 0.9;
+    return `<path d="M-8 0 Q0 -6 8 0 Q0 6 -8 0 Z" fill="${["#2a3a1a", "#3a2a14", "#24321a", "#4a3418"][Math.floor(rnd() * 4)]}" transform="translate(${x.toFixed(0)} ${y.toFixed(0)}) rotate(${r.toFixed(0)}) scale(${k.toFixed(2)})"/>`; }).join("");
+  const moss = Array.from({ length: 40 }, () => `<ellipse cx="${(-600 + rnd() * 2800).toFixed(0)}" cy="${(-400 + rnd() * 1700).toFixed(0)}" rx="${(60 + rnd() * 120).toFixed(0)}" ry="${(30 + rnd() * 60).toFixed(0)}" fill="#1c2a14" opacity="0.6"/>`).join("");
+  // capçades dels arbres de les vores, vistes des de dalt (cercles de fulles amb llum de lluna per un costat)
+  const crown = (x, y, r) => `<g transform="translate(${x} ${y})"><circle r="${r + 14}" fill="#000" opacity="0.35" transform="translate(16 20)"/>
+    ${[0, 1, 2, 3, 4, 5, 6].map(i => { const a = i / 7 * Math.PI * 2; return `<circle cx="${(Math.cos(a) * r * 0.55).toFixed(0)}" cy="${(Math.sin(a) * r * 0.55).toFixed(0)}" r="${(r * 0.55).toFixed(0)}" fill="#13241a"/>`; }).join("")}
+    <circle r="${r * 0.7}" fill="#173020"/><circle cx="${-r * 0.3}" cy="${-r * 0.3}" r="${r * 0.35}" fill="#20402a" opacity="0.8"/></g>`;
+  const crowns = [[-120, -40, 170], [260, -120, 120], [760, -150, 140], [1240, -130, 130], [1720, -40, 180], [1760, 360, 150], [-160, 420, 160], [-120, 980, 190],
+    [520, 1010, 130], [960, 1040, 150], [1760, 1000, 200], [1700, 880, 90]].map(c => crown(...c)).join("");
+  // arrels que creuen el sender
+  const roots = [[200, 120, 260, 190], [820, 120, 900, 185], [1340, 260, 1260, 330], [700, 400, 640, 470], [1100, 400, 1180, 470], [420, 680, 360, 750], [1000, 680, 1080, 745]]
+    .map(([x0, y0, x1, y1]) => `<path d="M${x0} ${y0} Q${(x0 + x1) / 2 + 30} ${(y0 + y1) / 2} ${x1} ${y1}" stroke="#3a2614" stroke-width="16" fill="none" stroke-linecap="round"/><path d="M${x0} ${y0} Q${(x0 + x1) / 2 + 30} ${(y0 + y1) / 2} ${x1} ${y1}" stroke="#5a3e22" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.7"/>`).join("");
+  const pebbles = Array.from({ length: 50 }, () => { const d = rnd() * tdbPath(world.path).total, [x, y] = tdbPath(world.path).at(d);
+    return `<ellipse cx="${(x + (rnd() - 0.5) * 60).toFixed(0)}" cy="${(y + (rnd() - 0.5) * 50).toFixed(0)}" rx="${(3 + rnd() * 5).toFixed(1)}" ry="${(2 + rnd() * 3).toFixed(1)}" fill="#5a4a38" opacity="0.8"/>`; }).join("");
+  const shroom = (x, y, k = 1) => `<g transform="translate(${x} ${y}) scale(${k})"><ellipse cy="4" rx="16" ry="5" fill="#000" opacity="0.3"/><path d="M-4 2 V-10 H4 V2 Z" fill="#e8dcc4"/><path d="M-14 -8 Q0 -26 14 -8 Z" fill="#a8321e"/><circle cx="-4" cy="-14" r="2" fill="#fff4e0"/><circle cx="5" cy="-12" r="1.6" fill="#fff4e0"/></g>`;
+  const fern = (x, y, k = 1) => `<g transform="translate(${x} ${y}) scale(${k})" stroke="#3f6a2a" stroke-width="3" fill="none" stroke-linecap="round">${[-50, -20, 10, 40, 70].map(a => `<path d="M0 0 Q${(Math.cos((a - 90) * Math.PI / 180) * 20).toFixed(0)} ${(Math.sin((a - 90) * Math.PI / 180) * 20 - 6).toFixed(0)} ${(Math.cos((a - 90) * Math.PI / 180) * 40).toFixed(0)} ${(Math.sin((a - 90) * Math.PI / 180) * 34).toFixed(0)}"/>`).join("")}</g>`;
+  const deco = [shroom(560, 300), fern(870, 310, 0.9), shroom(1220, 300, 0.8), fern(300, 300), fern(380, 590), shroom(760, 585, 0.9), fern(1060, 590, 0.8), shroom(1380, 570), fern(560, 850), shroom(940, 860, 0.8), fern(1300, 850)].join("");
+  const flies = Array.from({ length: 16 }, (_, i) => `<g class="tdb-ffly" style="animation-delay:${(-i * 1.7).toFixed(1)}s"><circle cx="${(rnd() * 1600).toFixed(0)}" cy="${(rnd() * 900).toFixed(0)}" r="9" fill="#d8ff6a" opacity="0.18"/><circle cx="0" cy="0" r="0"/></g>`)
+    .join("").replace(/<circle cx="0" cy="0" r="0"\/>/g, "");
+  return `<rect x="-1600" y="-900" width="4800" height="2700" fill="#0c140c"/>
+    <radialGradient id="tdb-vig" gradientUnits="userSpaceOnUse" cx="800" cy="450" r="1150"><stop offset="0.45" stop-color="#000" stop-opacity="0"/><stop offset="0.85" stop-color="#000" stop-opacity="0.6"/></radialGradient>
+    <radialGradient id="tdb-moon" gradientUnits="userSpaceOnUse" cx="1100" cy="250" r="900"><stop offset="0" stop-color="#9fd0ff" stop-opacity="0.08"/><stop offset="1" stop-color="#9fd0ff" stop-opacity="0"/></radialGradient>
+    ${moss}<g>${leaves}</g>
+    <polyline points="${pts}" fill="none" stroke="#1a120a" stroke-width="100" stroke-linejoin="round" stroke-linecap="round" opacity="0.6"/>
+    <polyline points="${pts}" fill="none" stroke="#3a2c1c" stroke-width="84" stroke-linejoin="round" stroke-linecap="round"/>
+    <polyline points="${pts}" fill="none" stroke="#4a3824" stroke-width="56" stroke-linejoin="round" stroke-linecap="round" opacity="0.7"/>
+    <polyline points="${pts}" fill="none" stroke="#6a5234" stroke-width="3" stroke-linejoin="round" stroke-dasharray="4 26" opacity="0.6"/>
+    ${pebbles}${roots}${deco}${crowns}
+    <rect x="-1600" y="-900" width="4800" height="2700" fill="url(#tdb-moon)" pointer-events="none"/>
+    <g class="tdb-fflies">${flies}</g>
     <rect x="-1600" y="-900" width="4800" height="2700" fill="url(#tdb-vig)" pointer-events="none"/>`;
 }
 
@@ -170,6 +225,7 @@ function tdbPlace(slot, id) {
   tdb.towers[slot] = t;
   tdbDrawTower(t);
   tdbSummonFromStudent(t);
+  tdbAuraMarks();
   return true;
 }
 const tdbUpCost = t => t.up >= 2 ? null : Math.round(TD_DEFENDERS[t.id].cost * TD_BATTLE.upgradeCost[t.up]);
@@ -181,17 +237,19 @@ function tdbUpgrade(t) {
   t.up++;
   t.stats = tdStats(t.id, t.up);
   tdbDrawTower(t);
+  tdbAuraMarks();
   tdbFx("summon", ...tdbS(...tdb.world.slots[t.slot]), "#ffe27a");
 }
 function tdbSell(t) {
   tdb.mana += Math.round(t.spent * TD_BATTLE.sellBack);
   t.el.remove();
   delete tdb.towers[t.slot];
+  tdbAuraMarks();
 }
 
 // ---------------------------------------------------------------- distraccions
 function tdbSpawn(type, dist = 0, small = false) {
-  const def = TD_ENEMIES[type];
+  const def = tdEnemy(type);
   const hp = def.hp * (1 + TD_WAVE_HP * (tdb.wave - 1));
   const e = { uid: ++tdb.uid, type, def, hp, maxHp: hp, dist, slowT: 0, slowMult: 1, stunT: 0, vuln: 0, vulnT: 0,
     dotT: 0, dot: 0, abilityT: 0, convertT: 0, size: def.size };
@@ -210,7 +268,7 @@ const tdbVisible = e => !(e.def.stealth && e.dist < e.def.stealth * tdb.path.tot
 
 function tdbDamage(e, amount, color = "#fff", big = false) {
   if (e.hp <= 0) return;
-  amount *= 1 + e.vuln;
+  amount *= (1 + e.vuln) * (1 + (e.mark || 0));
   e.hp -= amount;
   const [x, y] = tdbS(...tdbPos(e));
   tdbNumber(x, y - e.size, Math.round(amount), color, big);
@@ -270,6 +328,7 @@ function tdbKill(e, byTower) {
   tdb.mana += e.def.mana + (byTower ? TD_DEFENDERS[byTower.id].manaOnKill || 0 : 0);
   tdb.saber += e.def.saber * (1 + 0.1 * td.upgrades.saber);
   if (e.def.splitInto) for (const off of [-18, 18]) tdbSpawn(e.def.splitInto, Math.max(0, e.dist + off));
+  if (e.mark) tdbMarkJump(e);
   if (e.def.boss) tdbBossDown(e.type);
 }
 // Un cap derrotat dona el seu artefacte (o el puja de nivell si ja el tens)
@@ -294,13 +353,14 @@ function tdbTargets(t, n = 1, mode = "first") {
   if (mode === "smart") {
     const strong = inRange.filter(e => e.def.boss || e.maxHp >= 100);
     inRange.sort(strong.length ? (a, b) => b.hp - a.hp : (a, b) => b.def.speed - a.def.speed);
-  } else inRange.sort((a, b) => b.dist - a.dist); // el que està més a prop del cristall
+  } else if (mode === "strong") inRange.sort((a, b) => (!!a.mark - !!b.mark) || b.hp - a.hp); // el més fort sense anella
+  else inRange.sort((a, b) => b.dist - a.dist); // el que està més a prop del cristall
   return inRange.slice(0, n);
 }
 function tdbFire(t) {
   const d = TD_DEFENDERS[t.id], ab = t.stats.ability;
   const n = d.role === "multi" ? d.targets + (ab > 1 ? 1 : 0) : 1;
-  const targets = tdbTargets(t, n, d.role === "smart" ? "smart" : "first");
+  const targets = tdbTargets(t, n, d.role === "smart" ? "smart" : d.role === "mark" ? "strong" : "first");
   if (!targets.length) return false;
   t.shots++;
   // animació: la peça que llança (alterna esquerra / dreta si en té dues)
@@ -355,7 +415,9 @@ function tdbProjectile(t, target, dmg, opts = {}) {
 }
 function tdbHit(p, e) {
   const d = p.d, ab = p.t.stats.ability;
-  let dmg = p.dmg, color = TD_GLOW[d.subj] || "#fff", big = false;
+  let dmg = p.dmg * tdbAuraMult(p.t), color = TD_GLOW[d.subj] || "#fff", big = false;
+  if (d.role === "burn") tdbBurnZone(p.t, ...tdbPos(e), dmg);
+  if (d.role === "mark") tdbMark(e, d.mark * p.t.stats.ability);
   if (d.role === "crit" && Math.random() < d.crit) { dmg *= 2; color = "#ff8a1f"; big = true; }
   if (d.role === "scaling") dmg *= 1 + Math.min(d.maxScale, tdb.kills * d.perKill);
   if (d.role === "aoe") {
@@ -392,6 +454,57 @@ function tdbHit(p, e) {
       .forEach(([o]) => { tdbBolt(tdbS(x, y - e.size * 0.45), tdbS(...tdbPos(o)).map((v, i) => v - (i ? o.size * 0.45 : 0)), TD_GLOW.prg); tdbProjectile(p.t, o, dmg * 0.6, { from: [x, y], depth: p.depth - 1 }); });
   }
 }
+// ---- bosc
+// Carrasca: les criatures del voltant (no ella mateixa) fan més dany
+function tdbAuraMult(t) {
+  let m = 1;
+  const [x, y] = tdb.world.slots[t.slot];
+  for (const o of Object.values(tdb.towers)) {
+    const a = TD_DEFENDERS[o.id].aura;
+    if (a && o !== t && Math.hypot(tdb.world.slots[o.slot][0] - x, tdb.world.slots[o.slot][1] - y) <= a.radius) m += a.dmg * Math.min(1.5, o.stats.ability);
+  }
+  return m;
+}
+// Les criatures que reben l'aura brillen de verd (es recalcula en posar o vendre)
+function tdbAuraMarks() {
+  for (const t of Object.values(tdb.towers)) t.el?.classList.toggle("tdb-aura", tdbAuraMult(t) > 1);
+}
+// Contrafoc: una franja del camí crema durant uns segons (el que hi passa, es crema poc a poc)
+function tdbBurnZone(t, x, y, dmg) {
+  const b = TD_DEFENDERS[t.id].burn, ab = t.stats.ability, r = b.radius * Math.min(1.4, ab);
+  const z = { x, y, r, t: b.dur * ab, dps: dmg * b.dps };
+  const [sx, sy] = tdbS(x, y);
+  z.el = el("g", { class: "tdb-burn", transform: `translate(${sx} ${sy})` }, $("tdb-fx"));
+  z.el.innerHTML = `<ellipse rx="${r}" ry="${r * 0.42}" fill="#ff8a3a" opacity="0.18"/><ellipse rx="${r * 0.8}" ry="${r * 0.3}" fill="none" stroke="#ffc23f" stroke-width="2" stroke-dasharray="6 8" opacity="0.6"/>
+    ${[-0.6, -0.2, 0.25, 0.6].map((k, i) => `<g transform="translate(${(k * r).toFixed(0)} ${(i % 2 ? -4 : 6)})"><path class="tdb-burn-f" style="animation-delay:${-i * 0.17}s" d="M0 -22 C10 -8 10 4 0 8 C-10 4 -10 -8 0 -22 Z" fill="#ff8a3a" stroke="#ffc23f" stroke-width="2"/></g>`).join("")}`;
+  tdb.zones.push(z);
+}
+function tdbZones(dt) {
+  for (const z of tdb.zones) {
+    z.t -= dt;
+    for (const e of tdb.enemies) if (e.hp > 0 && !e.convertT && Math.hypot(...tdbPos(e).map((v, i) => v - [z.x, z.y][i])) <= z.r) {
+      e.hp -= z.dps * dt * (1 + e.vuln) * (1 + (e.mark || 0));
+      if (e.hp <= 0) tdbKill(e);
+    }
+    if (z.t <= 0) z.el.remove();
+  }
+  tdb.zones = tdb.zones.filter(z => z.t > 0);
+}
+// Anellador: l'anella marca la distracció (rep més dany de tots); quan mor, salta a la més pròxima
+function tdbMark(e, amount) {
+  if (!e.el) return;
+  if (e.mark >= amount) return;
+  e.mark = amount;
+  if (!e.el.querySelector(".tdb-mark")) e.el.insertAdjacentHTML("beforeend", `<g class="tdb-mark" transform="translate(0 ${-e.size * 0.2})">${anella(0, 0, 0.9)}</g>`);
+}
+function tdbMarkJump(e) {
+  const [x, y] = tdbPos(e);
+  const next = tdb.enemies.filter(o => o !== e && o.hp > 0 && !o.mark && !o.convertT)
+    .map(o => [o, Math.hypot(...tdbPos(o).map((v, i) => v - [x, y][i]))]).filter(([, d]) => d < 260).sort((a, b) => a[1] - b[1])[0];
+  if (!next) return;
+  tdbBolt(tdbS(x, y - e.size * 0.45), tdbS(...tdbPos(next[0])).map((v, i) => v - (i ? next[0].size * 0.45 : 0)), "#d8dde6");
+  tdbMark(next[0], e.mark);
+}
 function tdbSlow(e, amount, dur) { e.slowMult = Math.min(e.slowMult, 1 - amount); e.slowT = Math.max(e.slowT, dur); }
 
 function tdbSpecial(t, target) {
@@ -401,6 +514,24 @@ function tdbSpecial(t, target) {
     const [x, y] = tdbPos(target);
     tdbFx("freeze", ...tdbS(x, y), "#9fe0ff", s.radius * ab);
     for (const e of tdb.enemies) if (e.hp > 0 && Math.hypot(...tdbPos(e).map((v, i) => v - [x, y][i])) <= s.radius * ab) e.stunT = Math.max(e.stunT, s.dur * ab);
+  } else if (s.type === "root") { // la gla cau i en brollen arrels que atrapen
+    const [x, y] = tdbPos(target), r = s.radius * Math.min(1.5, ab);
+    const g = tdbFx("roots", ...tdbS(x, y), TD_GLOW.mnt, r);
+    if (g) g.innerHTML = `<ellipse rx="${r}" ry="${r * 0.4}" fill="${TD_GLOW.mnt}" opacity="0.14"/>${Array.from({ length: 7 }, (_, i) => { const a = i / 7 * Math.PI * 2, ex = Math.cos(a) * r * 0.9, ey = Math.sin(a) * r * 0.36;
+      return `<path d="M0 0 Q${(ex * 0.5 + ey * 0.4).toFixed(0)} ${(ey * 0.5 - 26).toFixed(0)} ${ex.toFixed(0)} ${ey.toFixed(0)}" stroke="#c98a4a" stroke-width="6" fill="none" stroke-linecap="round"/>`; }).join("")}`;
+    for (const e of tdb.enemies) if (e.hp > 0 && Math.hypot(...tdbPos(e).map((v, i) => v - [x, y][i])) <= r) e.stunT = Math.max(e.stunT, s.dur * ab);
+  } else if (s.type === "echo") { // fa l'especial d'una altra criatura del mapa, més fort
+    const others = Object.values(tdb.towers).filter(o => o !== t && (TD_DEFENDERS[o.id].special?.type && TD_DEFENDERS[o.id].special.type !== "echo" || ["burn", "mark", "stacks"].includes(TD_DEFENDERS[o.id].role)));
+    const o = others[Math.floor(Math.random() * others.length)];
+    const boost = s.boost * ab;
+    tdbNumber(...tdbS(tx, ty - 120), o ? `🧩 ${TD_DEFENDERS[o.id].name}` : "🧩 projecte", TD_GLOW.myth, true);
+    if (!o) { tdbDamage(target, t.stats.dmg * 3 * boost, TD_GLOW.myth, true); return; }
+    const od = TD_DEFENDERS[o.id], fake = { ...o, slot: t.slot, svg: null, stats: { ...t.stats, dmg: o.stats.dmg, ability: o.stats.ability * s.boost } };
+    tdbBolt(tdbS(...tdb.world.slots[o.slot]).map((v, i) => v - (i ? 60 : 0)), tdbS(tx, ty - 60), TD_GLOW.myth);
+    if (od.special && od.special.type !== "echo") tdbSpecial(fake, target);
+    else if (od.role === "burn") tdbBurnZone(fake, ...tdbPos(target), o.stats.dmg * s.boost);
+    else if (od.role === "mark") tdbMark(target, od.mark * s.boost);
+    else if (od.role === "stacks") tdbBlast({ ...fake, stats: { ...fake.stats, dmg: o.stats.dmg * s.boost / od.blast * 4 } });
   } else if (s.type === "align") {
     tdbFx("ring", ...tdbS(tx, ty), TD_GLOW.myth, t.stats.range);
     for (const e of tdb.enemies) if (tdbVisible(e) && Math.hypot(...tdbPos(e).map((v, i) => v - [tx, ty][i])) <= t.stats.range) {
@@ -529,6 +660,7 @@ function tdbUpdate(dt) {
     }
   }
   if (tdb.rushT > 0) tdb.rushT -= dt;
+  if (tdb.zones.length) tdbZones(dt);
   // enemics
   for (const e of tdb.enemies) {
     if (e.hp <= 0) continue;
@@ -707,7 +839,7 @@ function tdbRender() {
   tdbHud();
 }
 function tdbHud() {
-  $("tdb-world").textContent = `${tdb.world.id}. ${tdb.world.name}`;
+  $("tdb-world").textContent = `${tdWorldNum(tdb.world)}. ${tdb.world.name}`;
   $("tdb-wave").textContent = `${Math.max(1, tdb.wave)} / ${tdb.world.waves.length}`;
   $("tdb-lives").textContent = tdb.god ? "∞" : tdb.lives;
   $("tdb-lives-map") && ($("tdb-lives-map").textContent = tdb.god ? "∞" : tdb.lives);
@@ -730,7 +862,7 @@ function tdbHud() {
 // el buit mostra el seu abast; en tocar-la, es posa.
 function tdbRenderDeck() {
   $("tdb-deck").innerHTML = `<div class="tdb-pick-head"><span>Tria una criatura per al buit</span><button class="secondary small" data-pick="close" aria-label="Tancar">✕</button></div>
-    <div class="tdb-pick-cards">${td.team.map(id => {
+    <div class="tdb-pick-cards">${tdTeam(tdb.world.mode).map(id => {
       const d = TD_DEFENDERS[id];
       return `<button class="tdb-card rar-${d.rar}${tdb.pickId === id ? " sel" : ""}${tdb.mana < d.cost ? " poor" : ""}" data-card="${id}" aria-pressed="${tdb.pickId === id}">
         <span class="tdb-card-art">${tdCreatureSvg(id)}</span><span class="tdb-card-name">${d.name}</span><span class="tdb-card-cost">🔮 ${d.cost}</span></button>`;
@@ -752,7 +884,8 @@ function tdbOpenPicker(slot) {
   tdbRenderDeck();
   tdbHud();
   $("tdb-deck").hidden = false;
-  tdbSelectCard(td.team.find(id => TD_DEFENDERS[id].cost <= tdb.mana) || td.team[0]);
+  const team = tdTeam(tdb.world.mode);
+  tdbSelectCard(team.find(id => TD_DEFENDERS[id].cost <= tdb.mana) || team[0]);
 }
 // Triar una carta: es veu la fitxa, l'abast i la criatura en transparència al buit; s'invoca amb el botó
 function tdbSelectCard(id) {

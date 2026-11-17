@@ -6,8 +6,8 @@ const TD_SAVE_KEY = "estudi-save-v1";
 function tdNewState() {
   return {
     v: 1,
-    pergamins: { alg: 5, prg: 5 },                  // regal de benvinguda: 5 invocacions de cada assignatura
-    pity: { alg: { epic: 0, llegendari: 0 }, prg: { epic: 0, llegendari: 0 } },
+    pergamins: Object.fromEntries(Object.keys(TD_SUBJECTS).map(s => [s, s === "alg" || s === "prg" ? 5 : 0])), // regal de benvinguda: 5 invocacions de cada assignatura (al bosc, tdStartRoom)
+    pity: Object.fromEntries(Object.keys(TD_SUBJECTS).map(s => [s, { epic: 0, llegendari: 0 }])),
     owned: { sumador: { copies: 1, level: 1 }, puntcoma: { copies: 1, level: 1 } }, // les dues primeres criatures
     team: ["sumador", "puntcoma"],
     favs: [],                                         // criatures preferides (grimori)
@@ -22,6 +22,7 @@ function tdNewState() {
     missions: { date: "", list: [] },                 // missions diàries (pergamins extra si es fan abans de mitjanit)
     artRoom: "informatic",                            // de quina sala són ara artifacts i equipped
     artBank: {},                                      // artefactes de les altres sales (no es compartixen entre carreres/mòduls)
+    stelles: {},                                      // punts d'estrella per carrera (espores al bosc): mode → punts
     pulls: 0,
   };
 }
@@ -72,11 +73,27 @@ function tdLoad(fromRaw = null) { // fromRaw: una partida que no és la d'este d
       b.artifacts = b.artifacts && typeof b.artifacts === "object" ? b.artifacts : {};
       b.equipped = Array.isArray(b.equipped) ? b.equipped.filter(id => b.artifacts[id]) : [];
     }
-    td.team = td.team.filter(id => td.owned[id]).slice(0, 6);
+    td.team = td.team.filter(id => td.owned[id]).filter((id, i, a) => a.slice(0, i).filter(o => tdModeOf(o) === tdModeOf(id)).length < 6);
+    for (const [m, n] of Object.entries(td.stelles)) if (!TD_POINTS[m] || !(n >= 0)) delete td.stelles[m];
     td.favs = td.favs.filter(id => TD_DEFENDERS[id]);
     // un artefacte per espai
     td.equipped = td.equipped.filter((id, i, a) => td.artifacts[id] && a.findIndex(o => tdArtSlot(o) === tdArtSlot(id)) === i).slice(0, TD_ARTIFACT_SLOTS);
   } catch {}
+}
+
+// L'equip es guarda tot junt, però cada carrera porta les seues 6 criatures
+const tdTeam = mode => td.team.filter(id => tdModeOf(id) === mode);
+// Primera vegada en una sala: les dues criatures comunes de la carrera i 5 pergamins de cada camp
+function tdStartRoom(mode) {
+  const fields = tdFieldsOf(mode);
+  if (Object.keys(td.owned).some(id => fields.includes(TD_DEFENDERS[id].subj))) return false;
+  for (const f of fields) {
+    td.pergamins[f] = (td.pergamins[f] || 0) + 5;
+    const c = tdPool(f, "comu")[0];
+    if (c) tdGrant(c);
+  }
+  tdSave();
+  return true;
 }
 
 // ---------------------------------------------------------------- criatures: estrelles i estadístiques
@@ -130,7 +147,7 @@ function tdStats(id, up = 0) {
 // ---------------------------------------------------------------- invocacions (gacha)
 const tdRand = () => Math.random();
 function tdRollRarity(subj) {
-  const p = td.pity[subj];
+  const p = td.pity[subj] || (td.pity[subj] = { epic: 0, llegendari: 0 });
   p.epic++; p.llegendari++;
   let rar;
   const r = tdRand();
@@ -157,7 +174,7 @@ function tdGrant(id) {
   } else o.copies++;
   if (before === 0) td.owned[id].stars = 1;
   const after = tdStars(id);
-  if (before === 0 && td.team.length < 6) td.team.push(id);
+  if (before === 0 && tdTeam(tdModeOf(id)).length < 6) td.team.push(id);
   return { id, isNew: before === 0, ready: before > 0 && tdCanAscend(id), stars: after, saber };
 }
 function tdSummon(subj, n = 1) {
@@ -168,10 +185,27 @@ function tdSummon(subj, n = 1) {
     td.pulls++;
     const rar = tdRollRarity(subj);
     const pool = tdPool(subj, rar); // només criatures de l'assignatura triada
-    results.push(tdGrant(pool[Math.floor(tdRand() * pool.length)]));
+    if (pool.length) results.push(tdGrant(pool[Math.floor(tdRand() * pool.length)]));
+    else { // el camp no té criatura d'esta raresa: punts d'estrella (espores al bosc)
+      const mode = TD_SUBJECTS[subj].mode, pts = TD_RARITIES[rar].value;
+      td.stelles[mode] = (td.stelles[mode] || 0) + pts;
+      results.push({ points: pts, mode, rar, subj });
+    }
   }
   tdSave();
   return results;
+}
+
+// Comprar una còpia amb punts d'estrella (o espores): qualsevol criatura de la carrera menys la mítica
+const tdCopyPrice = id => TD_RARITIES[TD_DEFENDERS[id].rar].value * TD_POINT_COPY;
+const tdCanBuyCopy = id => TD_DEFENDERS[id].rar !== "mitic" && td.owned[id]?.copies < TD_STAR_COPIES[TD_STAR_COPIES.length - 1];
+function tdBuyCopy(id) {
+  const mode = tdModeOf(id), price = tdCopyPrice(id);
+  if (!tdCanBuyCopy(id) || (td.stelles[mode] || 0) < price) return null;
+  td.stelles[mode] -= price;
+  const r = tdGrant(id);
+  tdSave();
+  return r;
 }
 
 // ---------------------------------------------------------------- estudi registrat → pergamins
@@ -193,23 +227,24 @@ function tdUseRoomArtifacts(room) {
   td.artRoom = room;
   tdSave();
 }
-function tdMissions() {
+function tdMissions(mode) {
   const day = tdToday();
-  if (td.missions.date !== day || !Array.isArray(td.missions.list)) {
-    let seed = [...day].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
+  if (td.missions.date !== day || !Array.isArray(td.missions.list)) td.missions = { date: day, list: [] };
+  const fields = tdFieldsOf(mode);
+  if (!td.missions.list.some(m => fields.includes(m.f))) { // tres per carrera, iguals tot el dia
+    let seed = [...day + mode].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
     const rnd = () => (seed = (seed * 1103515245 + 12345) >>> 0) / 4294967296;
-    const acts = TD_MISSION_ACTS.slice(), list = [];
+    const acts = TD_MISSION_ACTS.slice();
     for (let i = 0; i < 3; i++) {
       const [a, need, bonus] = acts.splice(Math.floor(rnd() * acts.length), 1)[0];
-      list.push({ f: Object.keys(TD_SUBJECTS)[Math.floor(rnd() * Object.keys(TD_SUBJECTS).length)], a, need, bonus, have: 0, done: false });
+      td.missions.list.push({ f: fields[Math.floor(rnd() * fields.length)], a, need, bonus, have: 0, done: false });
     }
-    td.missions = { date: day, list };
   }
-  return td.missions.list;
+  return td.missions.list.filter(m => fields.includes(m.f));
 }
 function tdMissionProgress(subj, actId) {
   const done = [];
-  for (const m of tdMissions()) {
+  for (const m of tdMissions(TD_SUBJECTS[subj].mode)) {
     if (m.done || m.f !== subj || m.a !== actId) continue;
     m.have++;
     if (m.have >= m.need) { m.done = true; td.pergamins[subj] += m.bonus; tdLog(subj, `🏅 Missió: ${TD_ACTIVITIES.find(a => a.id === m.a).name}`, m.bonus); done.push(m); }

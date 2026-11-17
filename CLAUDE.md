@@ -61,7 +61,8 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
 - Rumbo: el juego pasa a ser de **estudio general** con varios juegos (autoescuela, grado, carrera…) unidos como
   salas dibujadas, sin menús. Se entra por la **habitación** (`js/room.js`, dibujada a partir del cuarto real del autor): la placa L lleva a la DGT,
   el ordenador a la sala de estudio de Informàtica y la mochila a la sala del bosc de Forestal (`tdRoom`; mismos puntos,
-  otra temática y distribución; sus asignaturas y criaturas están pendientes: de momento los puntos avisan). Desde la DGT se vuelve por la puerta de eixida.
+  otra temática y distribución). Cada sala solo muestra sus campos (`TD_SUBJECTS[k].mode`, `tdFields`), su equipo (`tdTeam`),
+  sus misiones y sus mundos (`TD_WORLDS[].mode`; los del bosque, id 101+). Desde la DGT se vuelve por la puerta de eixida.
 - Juego de estudio: se entra por el ordenador de la habitación. Sala arcana con puntos (altar = invocar, prestatgeria = apuntar estudio,
   grimori (libro con páginas por asignatura + pestaña de equipo), bestiari (libro), portal = mundos, cristall = millores, estudiant = artefactos, rellotge = reiniciar, porta = habitación).
   Reglas del usuario: los pergamins (tiradas) **solo** salen de estudiar (nunca del combate); en combate se gana maná
@@ -77,8 +78,14 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   Estilo de las criaturas: símbolos de energía en neón sobre fondo oscuro (referencia: «Animation vs. Math»), sin
   caras; cada una hecha con los símbolos de su asignatura y la pieza que lanza forma parte del cuerpo. Pocas y cuidadas.
   Reiniciar (rellotge) conserva criaturas, pergamins, artefactos y registro; pierde saber, niveles, millores y mundos.
-  Hoy: modo Informático con dos campos, Matemàtiques (clave `alg`) e Informàtica (clave `prg`) (5 criaturas cada uno, una por rareza; las retiradas se fusionan con `TD_MERGED`), mundo 1 (Serp). Asignaturas del usuario
-  y modo Forestal: pendientes.
+  Criaturas por campo: obligatorias solo la legendaria y la mítica; 2 comunes por carrera. Si una tirada saca una rareza
+  que el campo no tiene, da puntos de estrella (`td.stelles[mode]`; «espores» en el bosque, `TD_POINTS`) que en el grimorio
+  compran copias de cualquier criatura de la carrera menos la mítica (`tdBuyCopy`). Las retiradas se fusionan con `TD_MERGED`.
+  Hoy: Informàtica con Matemàtiques (`alg`: Sumador, Vector épico, Determinant, λ) e Informàtica (`prg`: Punt i coma, If/else,
+  Compilador, Stack). Forestal (Alba, asignaturas provisionales de 2.º de Gestió Forestal) con Gestió de monts (`mnt`: Pi,
+  Anells, Contrafoc, Carrasca) y Projecte intermodular (`pin`: Brúixola, Sàmara, Anellador, Projecte integrador). En el
+  bosque los enemigos son los mismos (mismo nombre y truco) con otro aspecto (`TD_FOREST_ENEMIES`, `TD_FOREST_ENEMY_ART`,
+  `tdEnemy`), y el mundo 1 es el mismo trazado con fondo de bosque (`tdbForestBackground`).
 - Botiga, tests, compendio e inventario viven en la DGT (`js/hub.js`): pantalla completa con el interior dibujado y
   4 puntos interactivos (caixer, instructor, llibre, espill). Ya no hay panel derecho.
 - Cada zona nueva trae un enemigo nuevo y temático (nunca una "versión más fuerte"); jefe con nombre cada 3 zonas,

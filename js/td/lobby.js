@@ -4,12 +4,13 @@
 //   portal → mons · cristall → millores · estudiant → artefactes · rellotge de sorra → tornar a començar · porta → habitació
 // Mentre s'està ací (o en combat), l'autoescola està parada.
 const tdLobbyOpen = () => !$("td-lobby").hidden;
+const tdFields = () => tdFieldsOf(tdRoom); // camps de la sala on s'està
 const tdOpen = () => tdLobbyOpen() || tdBattleOpen();
 let tdSubj = "alg";       // camp triat als panells
 let tdClass = {};         // assignatura triada dins de cada camp (prestatgeria d'estudi)
 
 // Dues sales amb els mateixos punts: Informàtica (sala arcana, tools/sala-estudi.js) i Forestal (l'interior d'un
-// arbre, tools/sala-forestal.js). De Forestal encara no hi ha assignatures ni criatures: els punts ho avisen.
+// arbre, tools/sala-forestal.js). Cada sala només mostra els seus camps (tdFields), el seu equip i els seus mons.
 let tdRoom = "informatic";
 const TD_ROOMS = {
   informatic: { art: () => TD_LOBBY_ART, title: "📚 Sala d'estudi · Informàtica", label: "Sala d'estudi d'Informàtica" },
@@ -18,8 +19,14 @@ const TD_ROOMS = {
 function tdOpenLobby(room = tdRoom) {
   if (typeof roomOpen === "function" && roomOpen()) closeRoom();
   tdRoom = TD_ROOMS[room] ? room : "informatic";
-  if (!tdViewingOf) tdUseRoomArtifacts(tdRoom);
-  cloudTdEnter(tdRoom).then(() => { if (!tdViewingOf) tdUseRoomArtifacts(tdRoom); cloudVisitBanner(); });
+  const settle = () => {
+    if (!tdFields().includes(tdSubj)) tdSubj = tdFields()[0];
+    if (tdViewingOf) return;
+    tdUseRoomArtifacts(tdRoom);
+    if (tdStartRoom(tdRoom)) toast(`🎁 Benvinguda: dues criatures i 5 pergamins de cada camp`, "good");
+  };
+  settle();
+  cloudTdEnter(tdRoom).then(() => { settle(); cloudVisitBanner(); if (tdLobbyOpen()) tdRenderLobby(); });
   $("td-lobby").hidden = false;
   $("td-lobby").classList.toggle("forest", tdRoom === "forestal");
   $("td-lobby-top").querySelector("h2").textContent = TD_ROOMS[tdRoom].title;
@@ -52,7 +59,9 @@ function tdRenderLobby() {
 }
 function tdLobbyHud() {
   $("td-saber").textContent = fmtNum(Math.floor(td.saber));
-  $("td-perg").innerHTML = Object.entries(TD_SUBJECTS).map(([s, d]) => `<span title="Pergamins de ${d.name}">📜 ${d.short} <strong>${td.pergamins[s]}</strong></span>`).join("");
+  const P = TD_POINTS[tdRoom], pts = td.stelles[tdRoom] || 0;
+  $("td-perg").innerHTML = tdFields().map(s => `<span title="Pergamins de ${TD_SUBJECTS[s].name}">📜 ${TD_SUBJECTS[s].short} <strong>${td.pergamins[s]}</strong></span>`).join("") +
+    (pts ? `<span title="${P.name}: compren còpies al grimori">${P.icon} <strong>${pts}</strong></span>` : "");
 }
 
 // ---------------------------------------------------------------- finestretes
@@ -62,7 +71,6 @@ const TD_PANELS = {
 };
 function tdSpot(name) {
   if (name === "exit") { tdCloseLobby(); openRoom(); return; }
-  if (tdRoom === "forestal") { toast("🌱 Les assignatures i les criatures de Forestal encara s'estan preparant", "info"); return; }
   if (name === "reset") { if (tdViewingOf) { toast("👀 És la partida de l'altra persona: no es pot reiniciar", "bad"); return; } tdAskRestart(); return; }
   $("td-card").dataset.panel = name;
   if (name === "grimori" || name === "bestiary") tdBook = { tab: name === "grimori" ? tdSubj : "best", page: 0 };
@@ -79,19 +87,20 @@ function tdRenderPanel() {
     worlds: tdWorldsHtml, upgrades: tdUpgradesHtml, student: tdStudentHtml })[name]();
   tdLobbyHud();
 }
-const tdSubjTabs = () => `<div class="td-tabs">${Object.entries(TD_SUBJECTS).map(([s, d]) =>
+const tdSubjTabs = () => `<div class="td-tabs">${tdFields().map(s => [s, TD_SUBJECTS[s]]).map(([s, d]) =>
   `<button class="td-tab s-${s}${tdSubj === s ? " on" : ""}" data-subj="${s}">${d.icon} ${d.short}</button>`).join("")}</div>`;
 const tdStarStr = n => `<span class="td-stars">${"★".repeat(n)}<span class="off">${"★".repeat(5 - n)}</span></span>`;
 
 // ---- altar (invocar)
 function tdGachaHtml() {
-  const s = tdSubj, p = td.pity[s], n = td.pergamins[s];
+  const s = tdSubj, p = td.pity[s] || { epic: 0, llegendari: 0 }, n = td.pergamins[s] || 0;
   const pool = Object.entries(TD_DEFENDERS).filter(([, d]) => d.subj === s && d.rar !== "mitic");
   return `${tdSubjTabs()}
     <p class="td-hint">Cada pergamí de <strong>${TD_SUBJECTS[s].name}</strong> (${TD_SUBJECTS[s].classes.join(", ")}) invoca una criatura d'aquest camp. Els pergamins només s'aconseguixen estudiant.</p>
     <div class="td-gacha-pool">${pool.map(([id, d]) => `<div class="td-mini rar-${d.rar}" title="${d.name} (${TD_RARITIES[d.rar].name})">${tdCreatureSvg(id)}</div>`).join("")}</div>
-    <div class="td-rates">${["comu", "rar", "epic", "llegendari"].map(r => `<span style="color:${TD_RARITIES[r].color}">${TD_RARITIES[r].name} ${String(TD_RARITIES[r].chance * 100).replace(".", ",")} %</span>`).join(" · ")}</div>
-    <div class="td-pity"><span>Èpic garantit en <strong>${TD_PITY.epic - p.epic}</strong></span><span>Llegendari garantit en <strong>${TD_PITY.llegendari - p.llegendari}</strong></span></div>
+    <div class="td-rates">${["comu", "rar", "epic", "llegendari"].map(r => `<span style="color:${TD_RARITIES[r].color}">${TD_RARITIES[r].name} ${String(TD_RARITIES[r].chance * 100).replace(".", ",")} %${tdPool(s, r).length ? "" : ` → ${TD_POINTS[tdRoom].icon} ${TD_RARITIES[r].value}`}</span>`).join(" · ")}</div>
+    ${["comu", "rar", "epic", "llegendari"].some(r => !tdPool(s, r).length) ? `<p class="td-hint">Si ix una raresa que este camp no té, guanyes ${TD_POINTS[tdRoom].name} ${TD_POINTS[tdRoom].icon}: al grimori es canvien per còpies de qualsevol criatura.</p>` : ""}
+    <div class="td-pity"><span>${tdPool(s, "epic").length ? "Èpic" : "Èpic (→ " + TD_POINTS[tdRoom].icon + ")"} garantit en <strong>${TD_PITY.epic - p.epic}</strong></span><span>Llegendari garantit en <strong>${TD_PITY.llegendari - p.llegendari}</strong></span></div>
     <div class="td-summon-btns">
       <button class="big td-summon" data-summon="1" ${n < 1 ? "disabled" : ""}>Invocar ×1 · 📜 1</button>
       <button class="big td-summon" data-summon="10" ${n < 10 ? "disabled" : ""}>Invocar ×10 · 📜 10</button></div>
@@ -112,7 +121,8 @@ let tdsRun = null;
 const TDS_CHARGE = { comu: 900, rar: 1000, epic: 1500, llegendari: 2400, mitic: 3600 };
 const TDS_BIG = ["llegendari", "mitic"]; // aquestes no es poden saltar: es veu tota la cerimònia
 // Símbols del cercle segons l'assignatura (repartits pel cercle, fins i rectes)
-const TDS_GLYPHS = { alg: ["+", "×", "λ", "Σ", "det", "[ ]", "Aᵀ", "v⃗", "−", "∑"], prg: [";", "{ }", "if", "for", "//", "</>", "( )", "==", "[i]", "++"] };
+const TDS_GLYPHS = { alg: ["+", "×", "λ", "Σ", "det", "[ ]", "Aᵀ", "v⃗", "−", "∑"], prg: [";", "{ }", "if", "for", "//", "</>", "( )", "==", "[i]", "++"],
+  mnt: ["ᚠ", "ᚱ", "ᛉ", "ᛃ", "ᚦ", "ᛟ", "ᚨ", "ᛒ", "ᛚ", "ᛗ"], pin: ["N", "↗", "E", "⌖", "S", "↙", "O", "⊕", "△", "◯"] };
 function tdsGlyphs(subj) {
   const list = TDS_GLYPHS[subj] || TDS_GLYPHS.alg;
   document.querySelector("#td-summon .tds-glyphs").innerHTML = list.map((t, i) => {
@@ -120,13 +130,31 @@ function tdsGlyphs(subj) {
     return `<text x="${(Math.cos(a) * 137).toFixed(1)}" y="${(Math.sin(a) * 137).toFixed(1)}" transform="rotate(${(a * 180 / Math.PI + 90).toFixed(1)} ${(Math.cos(a) * 137).toFixed(1)} ${(Math.sin(a) * 137).toFixed(1)})">${t}</text>`;
   }).join("");
 }
+// Què es mostra de cada resultat: una criatura o, si el camp no tenia aquella raresa, punts d'estrella (espores)
+function tdsInfo(r) {
+  if (!r.points) { const d = TD_DEFENDERS[r.id]; return { rar: d.rar, name: d.name, art: tdCreatureSvg(r.id), desc: d.desc, subj: d.subj }; }
+  const P = TD_POINTS[r.mode];
+  return { rar: r.rar, name: `+${r.points} ${r.points === 1 ? P.one : P.name}`, art: tdPointsSvg(r.mode), subj: r.subj,
+    desc: `${TD_SUBJECTS[r.subj].name} no té cap criatura ${TD_RARITIES[r.rar].name.toLowerCase()}. Al grimori, ${P.name} es canvien per còpies de qualsevol criatura.` };
+}
+// Dibuix dels punts: una estrella de neó (Informàtica) o una espora que brilla (bosc)
+function tdPointsSvg(mode) {
+  if (mode === "forestal") return `<svg viewBox="-60 -60 120 120" class="tdc tdc-points" aria-hidden="true">
+    <circle r="50" fill="#9ff07a" opacity="0.12"/>${Array.from({ length: 10 }, (_, i) => { const a = i * Math.PI / 5;
+      return `<path d="M0 0 Q${(Math.cos(a + 0.35) * 26).toFixed(1)} ${(Math.sin(a + 0.35) * 26).toFixed(1)} ${(Math.cos(a) * 44).toFixed(1)} ${(Math.sin(a) * 44).toFixed(1)}" stroke="#9ff07a" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.8"/>
+        <circle cx="${(Math.cos(a) * 46).toFixed(1)}" cy="${(Math.sin(a) * 46).toFixed(1)}" r="4" fill="#e8ffb0"/>`; }).join("")}
+    <circle r="15" fill="#2f7a3e" stroke="#9ff07a" stroke-width="4"/><circle r="6" fill="#e8ffb0"/></svg>`;
+  return `<svg viewBox="-60 -60 120 120" class="tdc tdc-points" aria-hidden="true"><circle r="50" fill="#ffc23f" opacity="0.12"/>
+    <path d="M0 -46 L13 -14 L46 -12 L20 9 L29 42 L0 23 L-29 42 L-20 9 L-46 -12 L-13 -14 Z" fill="#3a2a08" stroke="#ffc23f" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M0 -26 L6 -6 L26 -6 L10 6 L16 26 L0 14 L-16 26 L-10 6 L-26 -6 L-6 -6 Z" fill="#ffe27a"/></svg>`;
+}
 function tdReveal(results) {
   clearTimeout(tdsRun?.timer);
   tdsRun = { res: results, i: -1, phase: "", skipping: false };
   const box = $("td-summon");
   box.hidden = false;
   box.querySelector(".tds-summary").hidden = true;
-  box.dataset.subj = TD_DEFENDERS[results[0].id].subj;
+  box.dataset.subj = tdsInfo(results[0]).subj;
   tdsGlyphs(box.dataset.subj);
   $("tds-skip").hidden = results.length < 2;
   tdsNext();
@@ -140,19 +168,19 @@ function tdsSkip() {
   clearTimeout(tdsRun.timer);
   tdsNext();
 }
-const TD_BIG_SHOWN = r => TDS_BIG.includes(TD_DEFENDERS[r.id].rar);
+const TD_BIG_SHOWN = r => !r.points && TDS_BIG.includes(TD_DEFENDERS[r.id].rar);
 function tdsNext() {
   const run = tdsRun;
   run.i++;
   if (run.skipping) while (run.i < run.res.length && !TD_BIG_SHOWN(run.res[run.i])) run.i++;
   if (run.i >= run.res.length) { run.res.length > 1 ? tdsSummary() : tdsClose(); return; }
-  const r = run.res[run.i], d = TD_DEFENDERS[r.id], box = $("td-summon");
-  box.className = `rar-${d.rar}${d.rar === "mitic" ? " assemble" : ""}`;
+  const r = run.res[run.i], d = tdsInfo(r), box = $("td-summon");
+  box.className = `rar-${d.rar}${d.rar === "mitic" ? " assemble" : ""}${r.points ? " points" : ""}`;
   box.style.setProperty("--rc", TD_RARITIES[d.rar].color);
-  box.querySelector(".tds-creature").innerHTML = tdCreatureSvg(r.id);
+  box.querySelector(".tds-creature").innerHTML = d.art;
   box.querySelector(".tds-rar").textContent = TD_RARITIES[d.rar].name;
   box.querySelector(".tds-name").textContent = d.name;
-  box.querySelector(".tds-tag").innerHTML = r.isNew ? "NOVA!" : r.ready ? `Còpia · ja pot pujar a ★${r.stars + 1} (grimori)` : r.saber ? `Repetida al màxim: +${r.saber} ✨` : `Còpia · ${tdStarStr(r.stars)}`;
+  box.querySelector(".tds-tag").innerHTML = r.points ? `Total: ${TD_POINTS[r.mode].icon} ${td.stelles[r.mode] || 0}` : r.isNew ? "NOVA!" : r.ready ? `Còpia · ja pot pujar a ★${r.stars + 1} (grimori)` : r.saber ? `Repetida al màxim: +${r.saber} ✨` : `Còpia · ${tdStarStr(r.stars)}`;
   box.querySelector(".tds-desc").textContent = d.desc;
   box.querySelector(".tds-count").textContent = run.res.length > 1 ? `${run.i + 1} / ${run.res.length}` : "";
   void box.offsetWidth; // reinicia les animacions
@@ -172,9 +200,9 @@ function tdsSummary() {
   const box = $("td-summon");
   box.className = "summary";
   box.querySelector(".tds-cards").innerHTML = tdsRun.res.map((r, i) => {
-    const d = TD_DEFENDERS[r.id];
-    return `<div class="td-rcard rar-${d.rar}" style="animation-delay:${i * 0.06}s"><div class="td-rcard-art">${tdCreatureSvg(r.id)}</div>
-      <div class="td-rcard-name">${d.name}</div><div class="td-rcard-tag">${r.isNew ? "NOVA!" : r.ready ? `⬆ ★${r.stars + 1}` : r.saber ? `+${r.saber} ✨` : tdStarStr(r.stars)}</div></div>`;
+    const d = tdsInfo(r);
+    return `<div class="td-rcard rar-${d.rar}" style="animation-delay:${i * 0.06}s"><div class="td-rcard-art">${d.art}</div>
+      <div class="td-rcard-name">${r.points ? TD_POINTS[r.mode].name : d.name}</div><div class="td-rcard-tag">${r.points ? `+${r.points} ${TD_POINTS[r.mode].icon}` : r.isNew ? "NOVA!" : r.ready ? `⬆ ★${r.stars + 1}` : r.saber ? `+${r.saber} ✨` : tdStarStr(r.stars)}</div></div>`;
   }).join("");
   box.querySelector(".tds-summary").hidden = false;
   tdsRun.phase = "summary";
@@ -196,22 +224,22 @@ function tdsTap(ev) {
 let tdExamOpen = null;  // camp de l'examen obert (llibre d'exàmens)
 let tdExamClass = {};   // assignatura triada a l'examen, per camp
 const TD_SHELF_ROWS = 4; // lleixes de la prestatgeria: una per camp; les que sobren, buides de moment
-const TD_FIELD_HUE = { alg: 258, prg: 150 };
+const TD_FIELD_HUE = { alg: 258, prg: 150, mnt: 105, pin: 32 };
 // Color del llom: tots els llibres d'un camp són de la mateixa gamma
 const tdSpineColor = (f, i) => `hsl(${TD_FIELD_HUE[f] + ((i * 5) % 3 - 1) * 14} ${42 + (i % 3) * 8}% ${26 + ((i * 3) % 4) * 5}%)`;
 function tdMissionsHtml() {
   const now = new Date(), end = new Date(now); end.setHours(24, 0, 0, 0);
   const mins = Math.max(0, Math.round((end - now) / 60000));
   return `<div class="td-missions"><div class="td-missions-pin"></div><h4>📌 Missions d'avui</h4>
-    <ul>${tdMissions().map(m => { const a = TD_ACTIVITIES.find(x => x.id === m.a), F = TD_SUBJECTS[m.f];
+    <ul>${tdMissions(tdRoom).map(m => { const a = TD_ACTIVITIES.find(x => x.id === m.a), F = TD_SUBJECTS[m.f];
       return `<li class="${m.done ? "done" : ""}"><span>${a.icon} ${a.short} ×${m.need} <small>${F.short}</small></span>
         <span class="td-mission-bar"><i style="width:${100 * Math.min(m.have, m.need) / m.need}%"></i><b>${Math.min(m.have, m.need)}/${m.need}</b></span>
         <strong>${m.done ? "✔" : `+${m.bonus} 📜`}</strong></li>`; }).join("")}</ul>
     <p class="td-missions-time">⏳ Queden ${Math.floor(mins / 60)} h ${mins % 60} min</p></div>`;
 }
 function tdStudyHtml() {
-  const fields = Object.keys(TD_SUBJECTS);
-  const log = td.log.slice(0, 4);
+  const fields = tdFields();
+  const log = td.log.filter(l => fields.includes(l.subj)).slice(0, 4);
   const row = i => {
     const f = fields[i];
     if (!f) return `<div class="td-shelf empty"><div class="td-shelf-label">Pròximament</div><div class="td-shelf-books"></div></div>`;
@@ -262,13 +290,13 @@ let tdBook = { tab: "alg", page: 0 };
 let tdTeamFilter = "all"; // filtre de «Les teues criatures»: all · fav · alg · prg
 const TD_RAR_ORDER = ["comu", "rar", "epic", "llegendari", "mitic"];
 function tdBookList(kind, tab) {
-  if (kind === "bestiary") return Object.keys(TD_ENEMIES).filter(id => !TD_ENEMIES[id].hidden);
+  if (kind === "bestiary") return Object.keys(TD_ENEMIES).filter(id => !TD_ENEMIES[id].hidden);  // les mateixes a les dues sales (al bosc, amb una altra pell)
   return Object.keys(TD_DEFENDERS).filter(id => TD_DEFENDERS[id].subj === tab).sort((a, b) => TD_RAR_ORDER.indexOf(TD_DEFENDERS[a].rar) - TD_RAR_ORDER.indexOf(TD_DEFENDERS[b].rar));
 }
 function tdBookHtml(kind) {
-  const tabs = kind === "bestiary" ? [] : [...Object.entries(TD_SUBJECTS).map(([s, d]) => [s, `${d.icon} ${d.short}`]), ["team", "⚔️ Equip"]];
+  const tabs = kind === "bestiary" ? [] : [...tdFields().map(s => [s, `${TD_SUBJECTS[s].icon} ${TD_SUBJECTS[s].short}`]), ["team", "⚔️ Equip"]];
   const tab = kind === "bestiary" ? "best" : tdBook.tab;
-  const theme = kind === "bestiary" ? "best" : tab;
+  const theme = kind === "bestiary" ? (tdRoom === "forestal" ? "best forest" : "best") : tab;
   let left, right, nav = "";
   if (tab === "team") [left, right] = tdTeamPages();
   else {
@@ -291,7 +319,9 @@ function tdBookHtml(kind) {
 // Les que no tens ixen amb interrogants.
 const TD_FIELD_INTRO = {
   alg: "Criatures fetes de símbols matemàtics: sumes, vectors, matrius i determinants que prenen vida amb el que estudies. Colpegen fort i controlen el camí.",
-  prg: "Criatures fetes de codi: puntuació, condicions, recursions i compiladors. Ràpides, llestes i plenes de trucs.",
+  prg: "Criatures fetes de codi: puntuació, condicions i compiladors. Ràpides, llestes i plenes de trucs.",
+  mnt: "Criatures del mateix bosc: pins, anells de tronc, foc controlat i carrasques velles. Aguanten el camí i protegixen les del costat.",
+  pin: "Criatures del treball de camp: brúixoles, llavors que volen lluny, anelles de marcatge i el projecte que ho ajunta tot.",
 };
 function tdIndexPages(tab, list) {
   const f = TD_SUBJECTS[tab], have = list.filter(id => td.owned[id]).length;
@@ -323,6 +353,7 @@ function tdCreaturePages(id) {
       <div class="tdbook-rar" style="color:${r.color}">${r.name}</div><div class="tdbook-stars">${tdStarStr(st.stars)}</div>
       <div class="tdbook-prog" title="Còpies per a la següent estrela"><div style="width:${next ? Math.min(100, 100 * next.have / next.need) : 100}%"></div>
         <span>${next ? `${next.have} / ${next.need}` : "MÀX"}</span></div>
+      ${tdCanBuyCopy(id) ? `<button class="secondary small tdbook-buy" data-buy="${id}" ${(td.stelles[tdModeOf(id)] || 0) < tdCopyPrice(id) ? "disabled" : ""} title="Tens ${td.stelles[tdModeOf(id)] || 0} ${TD_POINTS[tdModeOf(id)].name}">+1 còpia · ${TD_POINTS[tdModeOf(id)].icon} ${tdCopyPrice(id)}</button>` : ""}
       ${next && next.have >= next.need ? `<button class="tdbook-ascend" data-ascend="${id}" ${td.saber < tdAscendCost(id) ? "disabled" : ""}>⭐ Pujar a ★${st.stars + 1} · ✨ ${fmtNum(tdAscendCost(id))}</button>` : ""}`,
     `<p class="tdbook-text">${d.desc}</p>
      <table class="tdbook-stats"><tr><th>Nivell</th><td>${o.level} / ${cap}${cap < TD_LEVEL_MAX ? ` <span class="muted">(més amb ★${st.stars + 1})</span>` : ""}</td></tr><tr><th>Dany</th><td>${fmtNum(st.dmg)}</td></tr>
@@ -336,31 +367,32 @@ function tdCreaturePages(id) {
 function tdBeastIndexPages(list) {
   const seen = list.filter(id => td.seen.includes(id)).length;
   const row = (id, i) => {
-    const e = TD_ENEMIES[id], o = td.seen.includes(id);
+    const e = tdEnemy(id), o = td.seen.includes(id);
     return `<li><button class="tdbook-idx${o ? "" : " unknown"}" data-goto="${i + 1}" style="--rc:${e.boss ? "#ff5a4a" : "#aab3c0"}">
       <span class="tdbook-idx-name">${o ? e.name : "???"}</span>${e.boss ? `<span class="tdbook-idx-rar">Cap</span>` : ""}
       <span class="tdbook-idx-dots"></span><span class="tdbook-idx-pg">${i + 2}</span></button></li>`;
   };
   return [`<div class="tdbook-intro"><div class="tdbook-intro-icon">🔔</div><h3 class="tdbook-name">Bestiari</h3>
-      <p class="tdbook-text">Les distraccions que intenten arribar al cristall mentre estudies: notificacions, son, procrastinació… Cada una té el seu truc.</p>
+      <p class="tdbook-text">${tdRoom === "forestal" ? "Les distraccions de sempre (notificacions, son, procrastinació…), però al bosc es disfressen de bestioles i plantes. Cada una té el seu truc." : "Les distraccions que intenten arribar al cristall mentre estudies: notificacions, son, procrastinació… Cada una té el seu truc."}</p>
       <p class="tdbook-text muted">Una pàgina s'escriu sola la primera vegada que una t'ataca. Els caps apareixen a les onades 5 i 10 i deixen artefactes.</p>
       <p class="tdbook-intro-count">N'has vist <strong>${seen}</strong> de <strong>${list.length}</strong></p></div>`,
     `<h3 class="tdbook-name">Índex</h3><ol class="tdbook-index">${list.map(row).join("")}</ol>`];
 }
 function tdBeastPages(id) {
-  const e = TD_ENEMIES[id], seen = td.seen.includes(id);
+  const e = tdEnemy(id), seen = td.seen.includes(id);
   if (!seen) return [`<div class="tdbook-art locked">${tdEnemySvg(id)}</div><h3 class="tdbook-name">???</h3>`, `<p class="tdbook-text">Encara no t'ha atacat.</p>`];
-  return [`<div class="tdbook-art">${tdEnemySvg(id)}</div><h3 class="tdbook-name">${e.name}</h3>${e.boss ? '<div class="tdbook-rar boss">CAP</div>' : ""}`,
+  return [`<div class="tdbook-art">${tdEnemySvg(id)}</div><h3 class="tdbook-name">${e.name}</h3>${e.look ? `<div class="tdbook-rar look">${e.look}</div>` : ""}${e.boss ? '<div class="tdbook-rar boss">CAP</div>' : ""}`,
     `<p class="tdbook-text tdbook-lore">${e.lore || ""}</p><p class="tdbook-text"><strong>Habilitat:</strong> ${e.desc}</p><table class="tdbook-stats"><tr><th>Vida</th><td>${e.hp} <span class="muted">(+${TD_WAVE_HP * 100} % per onada)</span></td></tr>
       <tr><th>Velocitat</th><td>${e.speed}</td></tr><tr><th>Dany al cristall</th><td>${e.lives}</td></tr><tr><th>Maná en morir</th><td>🔮 ${e.mana}</td></tr></table>`];
 }
 function tdTeamPages() {
-  const slots = Array.from({ length: 6 }, (_, i) => td.team[i]);
+  const team = tdTeam(tdRoom), slots = Array.from({ length: 6 }, (_, i) => team[i]);
   // les preferides, primer; després, per assignatura i raresa
-  const owned = Object.keys(TD_DEFENDERS).filter(id => td.owned[id])
+  const owned = Object.keys(TD_DEFENDERS).filter(id => td.owned[id] && tdModeOf(id) === tdRoom)
     .filter(id => tdTeamFilter === "all" || (tdTeamFilter === "fav" ? td.favs.includes(id) : TD_DEFENDERS[id].subj === tdTeamFilter))
     .sort((a, b) => (td.favs.includes(b) - td.favs.includes(a)) || 0);
-  const filters = [["all", "Totes"], ["fav", "★ Preferides"], ...Object.entries(TD_SUBJECTS).map(([s, d]) => [s, `${d.icon} ${d.short}`])];
+  if (!["all", "fav", ...tdFields()].includes(tdTeamFilter)) tdTeamFilter = "all";
+  const filters = [["all", "Totes"], ["fav", "★ Preferides"], ...tdFields().map(s => [s, `${TD_SUBJECTS[s].icon} ${TD_SUBJECTS[s].short}`])];
   return [`<h3 class="tdbook-name">Equip</h3><p class="tdbook-text muted">Les 6 criatures que portes al combat. Toca'n una per a traure-la.</p>
       <div class="tdbook-team">${slots.map(id => id ? `<button class="tdbook-tslot rar-${TD_DEFENDERS[id].rar}" data-team="${id}" title="Traure ${TD_DEFENDERS[id].name}">${tdCreatureSvg(id)}<span>${TD_DEFENDERS[id].name}</span><span class="tdbook-cost">🔮 ${TD_DEFENDERS[id].cost}</span></button>`
         : `<div class="tdbook-tslot empty">+</div>`).join("")}</div>`,
@@ -397,11 +429,12 @@ function tdTurnPage(dir, to = null) {
 }
 function tdToggleTeam(id) {
   if (!td.owned[id]) return;
+  const mine = tdTeam(tdModeOf(id));
   if (td.team.includes(id)) {
-    if (td.team.length <= 1) { toast("Cal almenys una criatura a l'equip", "bad"); return; }
+    if (mine.length <= 1) { toast("Cal almenys una criatura a l'equip", "bad"); return; }
     td.team = td.team.filter(t => t !== id);
   } else {
-    if (td.team.length >= 6) { toast("L'equip ja té 6 criatures: trau-ne una abans", "bad"); return; }
+    if (mine.length >= 6) { toast("L'equip ja té 6 criatures: trau-ne una abans", "bad"); return; }
     td.team.push(id);
   }
   tdSave();
@@ -413,13 +446,13 @@ const tdGrimoriHtml = () => tdBookHtml("grimori");
 // ---- portal (mons)
 function tdWorldsHtml() {
   return `<p class="td-hint">Cada món té 10 onades i dos caps, que deixen artefactes per a l'estudiant. El saber que guanyes es queda sempre, encara que perdes.</p>
-    <div class="td-worlds">${TD_WORLDS.map(w => {
+    <div class="td-worlds">${TD_WORLDS.filter(w => w.mode === tdRoom).map(w => {
       const p = td.worlds[w.id] || { best: 0, clears: 0 };
-      return `<div class="td-world${w.soon ? " locked" : ""}"><div><strong>${w.id}. ${w.name}</strong> <span class="muted">· ${w.layout}</span>
+      return `<div class="td-world${w.soon ? " locked" : ""}"><div><strong>${tdWorldNum(w)}. ${w.name}</strong> <span class="muted">· ${w.layout}</span>
         <div class="muted">${w.soon ? "Pròximament" : `Millor onada: ${p.best} / ${w.waves.length}${p.clears ? ` · superat ${p.clears}×` : ""}`}</div></div>
         ${w.soon ? "<span>🔒</span>" : `<button data-play="${w.id}">▶ Jugar</button>`}</div>`;
     }).join("")}</div>
-    <p class="td-hint">Equip: ${td.team.map(id => `<span class="td-chip rar-${TD_DEFENDERS[id].rar}">${TD_DEFENDERS[id].name}</span>`).join(" ")}</p>`;
+    <p class="td-hint">Equip: ${tdTeam(tdRoom).map(id => `<span class="td-chip rar-${TD_DEFENDERS[id].rar}">${TD_DEFENDERS[id].name}</span>`).join(" ")}</p>`;
 }
 
 // ---- cristall (millores)
@@ -558,6 +591,7 @@ function initTdLobby() {
     else if (ds.play) { tdClosePanel(); tdOpenBattle(Number(ds.play)); }
     else if (ds.up) { if (tdBuyUpgrade(ds.up)) { tdRenderPanel(); tdRenderLobby(); document.querySelector(".td-card .td-crys")?.classList.add("flash"); } }
     else if (ds.equip) tdToggleEquip(ds.equip);
+    else if (ds.buy) { const r = tdBuyCopy(ds.buy); if (r) { toast(`${TD_POINTS[tdModeOf(ds.buy)].icon} +1 còpia de ${TD_DEFENDERS[ds.buy].name}${r.saber ? ` (al màxim: +${r.saber} ✨)` : ""}`, "good"); tdRenderPanel(); } }
     else if (ds.ascend) { if (tdAscend(ds.ascend)) { toast(`⭐ ${TD_DEFENDERS[ds.ascend].name} puja a ★${tdStars(ds.ascend)}!`, "good"); tdRenderPanel(); } }
     else if (ds.eslot) { tdEquipSlot = ds.eslot; tdRenderPanel(); }
   });
@@ -653,7 +687,7 @@ function tdDemoFire(target) {
   // especials cada N atacs, com al combat
   const sp = d.special;
   if (sp && D.n % sp.every === 0) {
-    if (sp.type === "freeze") D.enemies.forEach(e => { e.stun = (sp.dur || 1.4) * D.st.ability; });
+    if (sp.type === "freeze" || sp.type === "root") D.enemies.forEach(e => { e.stun = (sp.dur || 1.4) * D.st.ability; });
     if (sp.type === "align") { // els alinea en una recta, els para i els fa vulnerables (reben més dany)
       const h = D.lane.clientHeight;
       D.enemies.forEach(e => { if (!e.dead) { e.stun = sp.dur * D.st.ability; e.vuln = sp.vulnDur * D.st.ability; e.y = h * 0.8; e.el.classList.add("vuln"); } });
@@ -663,7 +697,8 @@ function tdDemoFire(target) {
       setTimeout(() => ring.remove(), 900);
     }
     if (sp.type === "convert") { const e = D.enemies.filter(e => !e.dead).sort((a, b) => a.hp - b.hp)[0]; if (e) { e.conv = sp.dur * D.st.ability; e.el.classList.add("conv"); } }
-    tdDemoText(D.box.querySelector(".tdbook-art"), sp.type === "freeze" ? "congela!" : sp.type === "align" ? "λ · diagonalitzat" : "compilat!", TD_GLOW.gold);
+    if (sp.type === "echo") D.enemies.filter(e => !e.dead).forEach(e => tdDemoDamage(e, D.st.dmg * 1.5));
+    tdDemoText(D.box.querySelector(".tdbook-art"), { freeze: d.subj === "mnt" ? "resina!" : "congela!", align: "λ · diagonalitzat", convert: "compilat!", root: "arrels!", echo: "🧩 projecte!" }[sp.type] || "!", TD_GLOW.gold);
   }
 }
 function tdDemoLaunch(svg, part, target) {
@@ -719,7 +754,9 @@ function tdDemoHit(target, from) {
   if (d.role === "aoe") { const [tx, ty] = tdDemoPoint(target.el); hits = D.enemies.filter(e => !e.dead && Math.hypot(...tdDemoPoint(e.el).map((v, i) => v - [tx, ty][i])) <= 46); }
   if (d.role === "execute" && target.hp - dmg <= target.max * (d.execute || 0.15)) { dmg = target.hp; tdDemoText(target.el, "det = 0", TD_GLOW.gold); }
   if (d.role === "stacks" && ++D.stacks >= (d.stacks || 10)) { D.stacks = 0; hits = D.enemies.filter(e => !e.dead); dmg *= d.blast || 12; tdDemoText(D.box.querySelector(".tdbook-art"), "overflow!", "#ff8a1f"); }
-  for (const e of hits) tdDemoDamage(e, dmg);
+  if (d.role === "burn") { hits = D.enemies.filter(e => !e.dead).slice(0, 3); tdDemoText(target.el, "🔥", "#ff8a3a"); }
+  if (d.role === "mark" && !target.vuln) { target.vuln = 99; target.el.classList.add("vuln"); tdDemoText(target.el, "anellat!", "#d8dde6"); }
+  for (const e of hits) tdDemoDamage(e, dmg * (target.vuln === 99 && e === target ? 1 + d.mark : 1));
   if (d.role === "split" && !target.child) { // es dividix en dos cap als enemics de darrere
     D.enemies.filter(e => !e.dead && e !== target).slice(0, 2).forEach((e, i) => setTimeout(() => tdDemo === D && !e.dead && tdDemoDamage(e, dmg * 0.6), 180 + i * 60));
   }

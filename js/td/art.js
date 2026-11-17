@@ -5,7 +5,7 @@
 // com a projectil i es tornen a formar (td.css). Totes: viewBox 0 0 120 120, base a y ≈ 108.
 // Projectils (`proj`): dibuix menut centrat en 0,0 (≈ 20×20).
 
-const TD_GLOW = { alg: "#9d8bff", prg: "#3fdc8a", gold: "#ffc23f", myth: "#ff5ab0", bad: "#ff5a4a" };
+const TD_GLOW = { alg: "#9d8bff", prg: "#3fdc8a", mnt: "#8fd45a", pin: "#e8a64a", gold: "#ffc23f", myth: "#ff5ab0", bad: "#ff5a4a" };
 
 // Traç de neó: halo ample i transparent + tub de color + nucli blanc
 function tube(d, c, w = 7, extra = "") {
@@ -29,6 +29,26 @@ const sparks = c => `<g class="sparks">${[[30, 60], [92, 50], [84, 92], [38, 92]
   `<circle cx="${x}" cy="${y}" r="1.6" fill="${c}" style="animation-delay:${i * 0.4}s"/>`).join("")}</g>`;
 
 const GA = TD_GLOW.alg, GP = TD_GLOW.prg;
+const GM = TD_GLOW.mnt, GN = TD_GLOW.pin, GB = "#c98a4a"; // fulla, ambre i fusta
+// Peces del bosc (centrades en x, y): pinya, flama, gla, sàmara, anella de marcatge i fulla
+const pinya = (x, y) => `<g><ellipse cx="${x}" cy="${y}" rx="11" ry="13" fill="${GB}" opacity="0.2"/><ellipse cx="${x}" cy="${y}" rx="5.6" ry="8" fill="#5a3412" stroke="${GB}" stroke-width="2.2"/>
+  <path d="M${x - 5} ${y - 3} L${x} ${y + 1} L${x + 5} ${y - 3} M${x - 5} ${y + 2} L${x} ${y + 6} L${x + 5} ${y + 2}" stroke="#ffd9a0" stroke-width="1.3" fill="none"/>${tube(`M${x} ${y - 8} V${y - 12}`, GB, 2)}</g>`;
+const flama = (x, y, k = 1) => `<g transform="translate(${x} ${y}) scale(${k})"><path d="M0 -14 C9 -4 10 6 0 12 C-10 6 -9 -4 0 -14 Z" fill="#ff8a3a" opacity="0.3" transform="scale(1.6)"/>
+  <path d="M0 -14 C9 -4 10 6 0 12 C-10 6 -9 -4 0 -14 Z" fill="#ff8a3a" stroke="#ffc23f" stroke-width="2"/><path d="M0 -4 C4 1 4 6 0 9 C-4 6 -4 1 0 -4 Z" fill="#fff6c8"/></g>`;
+const gla = (x, y) => `<g><circle cx="${x}" cy="${y + 2}" r="12" fill="${GM}" opacity="0.18"/><path d="M${x - 6} ${y} Q${x - 6} ${y + 12} ${x} ${y + 13} Q${x + 6} ${y + 12} ${x + 6} ${y} Z" fill="#7a5a1a" stroke="#e8c070" stroke-width="2"/>
+  <path d="M${x - 8} ${y} Q${x} ${y - 7} ${x + 8} ${y} Z" fill="#4a3a1a" stroke="${GB}" stroke-width="2" stroke-linejoin="round"/>${tube(`M${x} ${y - 4} V${y - 8}`, GB, 1.6)}</g>`;
+// Sàmara d'auró: la llavor (nou) i l'ala ampla, amb els nervis que ixen de la nou i s'obrin cap a la vora
+const samara = (x, y, dir = 1, k = 1, rot = 0) => `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${dir * k} ${k})">
+  <path d="M0 0 C2 -16 10 -34 24 -44 C34 -40 36 -30 30 -20 C24 -10 12 -4 0 0 Z" fill="${GN}" opacity="0.24"/>
+  ${tube("M0 0 C2 -16 10 -34 24 -44 C34 -40 36 -30 30 -20 C24 -10 12 -4 0 0", GN, 2.6)}
+  ${tube("M3 -3 Q12 -20 26 -38 M5 -6 Q16 -16 30 -24 M4 -4 Q14 -26 20 -40", GN, 1.1, 'opacity="0.6"')}
+  <ellipse cx="0" cy="0" rx="6" ry="7.5" fill="#6a4a1a" stroke="#ffd9a0" stroke-width="2" transform="rotate(-20)"/></g>`;
+// Anella de marcatge (de les que es posen a la pota dels ocells): un cilindre de metall curt amb la plaqueta del número
+const anella = (x, y, k = 1) => `<g transform="translate(${x} ${y}) scale(${k})"><ellipse rx="15" ry="11" fill="${TD_GLOW.gold}" opacity="0.14"/>
+  <path d="M-11 -5 V5 A11 4.5 0 0 0 11 5 V-5" fill="#9aa3b0" stroke="#eef2f7" stroke-width="2"/>
+  <ellipse cy="-5" rx="11" ry="4.5" fill="#2a2f38" stroke="#eef2f7" stroke-width="2"/>
+  <path d="M-6 2.5 H-1 M2 3 H7 M-4 6 H4" stroke="#3a4250" stroke-width="1.4" stroke-linecap="round"/></g>`;
+const fulla = (x, y, k = 1) => `<g transform="translate(${x} ${y}) scale(${k})">${tube("M-10 0 Q0 -10 10 0 Q0 10 -10 0 M-10 0 H8", GM, 2.6)}</g>`;
 
 const TD_ART = {
   // ---------------------------------------------------------------- ÀLGEBRA LINEAL (violeta)
@@ -48,13 +68,6 @@ const TD_ART = {
     proj: tube("M-15 0 H12 M4 -7 L13 0 L4 7", GA, 4.6), throw: { l: [58, 32] },
   },
   // Transposada: una T que gira 90° (es transposa) en disparar; llança un raig que rebota
-  // Matriu: dos claudàtors i la matriu identitat dins, que s'il·lumina; congela per zones
-  matriu: {
-    svg: `${runeBase(GA)}<g class="b">${tube("M42 30 H28 V102 H42 M78 30 H92 V102 H78", GA, 7)}
-      <g class="cells">${[[0, 0, "1"], [1, 0, "0"], [2, 0, "0"], [0, 1, "0"], [1, 1, "1"], [2, 1, "0"], [0, 2, "0"], [1, 2, "0"], [2, 2, "1"]]
-        .map(([c, r, t]) => t === "1" ? glyphText(44 + c * 16, 51 + r * 22, 17, t, "#9fe0ff") : `<text x="${44 + c * 16}" y="${51 + r * 22}" font-size="15" font-weight="700" text-anchor="middle" fill="${GA}" opacity="0.55" font-family="ui-monospace, Consolas, monospace">0</text>`).join("")}</g></g>${sparks("#9fe0ff")}`,
-    proj: glyphText(0, 6, 16, "1", "#9fe0ff"), throw: { c: [60, 66] },
-  },
   // Determinant |A|: la A entre les dues barres d'or (que llança com a colps), amb una aurèola
   determinant: {
     svg: `${runeBase(TD_GLOW.gold)}<g class="b">${tube("M44 102 L60 40 L76 102 M50 82 H70", GA, 8)}
@@ -87,14 +100,6 @@ const TD_ART = {
       <g class="ar">${tube("M92 62 L108 46 M108 46 H98 M108 46 V56", "#ff8a8a", 4)}</g>${sparks(GP)}`,
     proj: tube("M-8 8 L8 -8 M8 -8 H0 M8 -8 V0", "#7fd49c", 4), projR: tube("M-8 8 L8 -8 M8 -8 H0 M8 -8 V0", "#ff8a8a", 4), throw: { l: [18, 52], r: [102, 52] },
   },
-  // Recursió: cercles dins de cercles que s'encenen un darrere l'altre; el projectil es dividix
-  recursio: {
-    svg: `${runeBase(GP)}<g class="b">
-      <g class="nest n1">${tube("M60 34 A34 34 0 1 1 59.9 34", GP, 6)}</g>
-      <g class="nest n2">${tube("M64 50 A20 20 0 1 1 63.9 50", GP, 5)}</g>
-      </g><g class="al"><g class="nest n3">${tube("M66 62 A9 9 0 1 1 65.9 62", GP, 4)}${core(66, 71, GP, 2.6)}</g></g>${sparks(GP)}`,
-    proj: `${tube("M0 -9 A9 9 0 1 1 -0.1 -9", GP, 4)}<circle r="2.6" fill="#fff"/>`, throw: { l: [66, 71] },
-  },
   // Compilador: </> gegant amb un engranatge d'energia damunt; la barra és el seu bastó
   compilador: {
     svg: `${runeBase(TD_GLOW.gold)}<g class="al">${tube("M44 48 L22 72 L44 96 M76 48 L98 72 L76 96", GP, 8)}</g><g class="b">
@@ -109,6 +114,72 @@ const TD_ART = {
       <g class="flame">${[[52, 36], [60, 28], [68, 34], [56, 22], [65, 18]].map(([x, y], i) =>
         `<circle cx="${x}" cy="${y}" r="${3.4 - i * 0.4}" fill="#ffe27a" stroke="#ff8a1f" stroke-width="2" style="animation-delay:${i * 0.12}s"/>`).join("")}</g></g>`,
     proj: `<circle r="9" fill="#ff8a1f" opacity="0.3"/><circle r="5" fill="#ffe27a" stroke="#ff8a1f" stroke-width="2"/>`, throw: { c: [60, 28] },
+  },
+
+  // ================================================================ FORESTAL: bioluminescència (verd fulla i ambre)
+  // Mateix acabat de neó, però fet de coses del bosc. Les peces que llancen (al / ar) es tornen a formar al cos.
+  // Pi: la silueta del pi a capes amb el tronc; les dues pinyes que li pengen són les que llança
+  pi: {
+    svg: `${runeBase(GM)}<g class="b"><g class="sway">${tube("M60 16 L76 38 H67 L84 60 H74 L92 84 H28 L46 60 H36 L53 38 H44 Z", GM, 6)}
+      ${tube("M52 50 L60 44 L68 50 M46 72 L60 64 L74 72", GM, 2.4, 'opacity="0.7"')}</g>${tube("M60 84 V104", GB, 7)}${core(60, 76, GM, 3.4)}</g>
+      <g class="al">${pinya(36, 68)}</g><g class="ar">${pinya(84, 68)}</g>${sparks(GM)}`,
+    proj: pinya(0, 0), throw: { l: [36, 68], r: [84, 68] },
+  },
+  // Anells del tronc: la secció d'un tronc dreta, amb l'escorça i els anells que s'encenen; l'anell del mig ix volant
+  anells: {
+    svg: `${runeBase(GM)}<g class="b">${tube("M60 26 C84 26 98 42 98 64 C98 88 82 102 60 102 C36 102 22 86 22 64 C22 42 38 26 60 26 Z", GB, 8)}
+      <g class="rings">${tube("M60 37 A27 27 0 1 1 59.9 37", GM, 3)}${tube("M60 55 A9 9 0 1 1 59.9 55", GM, 2.6)}</g>
+      ${tube("M66 40 L74 30", GB, 2.6)}${core(60, 64, GM, 3.4)}</g>
+      <g class="al">${tube("M60 46 A18 18 0 1 1 59.9 46", "#e8ffb0", 3.4)}</g>${sparks(GM)}`,
+    proj: tube("M0 -12 A12 12 0 1 1 -0.1 -12", "#e8ffb0", 3.6), throw: { c: [60, 64] },
+  },
+  // Contrafoc: el bidó de goteig dels incendis controlats (dipòsit, nansa i bec corbat); la flama del bec és el que tira
+  contrafoc: {
+    svg: `${runeBase(TD_GLOW.gold)}<g class="b">${tube("M40 52 H74 V100 H40 Z", "#ff8a3a", 7)}${tube("M44 52 V40 Q57 30 70 40 V52", "#ff8a3a", 4)}
+      ${tube("M74 60 Q92 58 94 38", "#ffc23f", 4.4)}${tube("M46 66 H68 M46 80 H68", "#ff8a3a", 2, 'opacity="0.6"')}${core(57, 88, "#ffc23f", 3.4)}</g>
+      <g class="al flicker">${flama(94, 28, 1.1)}</g>${sparks("#ff8a3a")}`,
+    proj: flama(0, 0, 0.9), throw: { l: [94, 28] },
+  },
+  // Carrasca mil·lenària: tronc retorçut, capçada de fulles lobulades i arrels; la gla que penja és la que deixa caure
+  carrasca: {
+    svg: `${runeBase(TD_GLOW.myth)}<g class="b">${tube("M53 104 Q57 88 50 72 M67 104 Q63 88 72 70 M60 96 V74 M53 104 Q42 104 34 109 M67 104 Q78 104 86 109", GB, 6)}
+      <g class="sway">${tube("M30 56 Q20 42 34 32 Q34 16 52 18 Q60 8 70 18 Q88 16 88 32 Q102 42 92 56 Q98 70 82 70 Q72 78 60 70 Q48 78 38 70 Q22 70 30 56 Z", GM, 6)}
+      ${[[44, 42, -30], [62, 32, 10], [78, 46, 40], [54, 56, -10], [70, 58, 20]].map(([x, y, r]) => tube(`M${x - 6} ${y} Q${x} ${y - 6} ${x + 6} ${y} Q${x} ${y + 6} ${x - 6} ${y}`, GM, 2, `transform="rotate(${r} ${x} ${y})" opacity="0.8"`)).join("")}</g>
+      ${core(60, 44, TD_GLOW.myth, 4)}</g>
+      <g class="al">${gla(42, 80)}</g>${sparks(TD_GLOW.myth)}`,
+    proj: gla(0, 0), throw: { l: [42, 80] },
+  },
+  // Brúixola: la caixa redona amb les marques; la punta roja de l'agulla és el que dispara, i torna a créixer
+  bruixola: {
+    svg: `${runeBase(GN)}<g class="b"><g class="hop">${tube("M60 34 A30 30 0 1 1 59.9 34", GN, 6)}
+      ${tube("M60 40 V46 M60 82 V88 M36 64 H42 M78 64 H84", GN, 2.4)}${tube("M60 26 V34", GN, 4)}
+      <g class="needle"><path d="M60 64 L67 68 L60 86 L53 68 Z" fill="#e9eef5" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/>${core(60, 66, GN, 3)}</g></g></g>
+      <g class="al"><g class="hop"><path d="M60 42 L67 62 H53 Z" fill="#ff5a4a" stroke="#ffd0c4" stroke-width="2" stroke-linejoin="round"/></g></g>${sparks(GN)}`,
+    proj: `<path d="M0 -10 L7 8 H-7 Z" fill="#ff5a4a" stroke="#ffd0c4" stroke-width="2" stroke-linejoin="round" transform="rotate(90)"/>`, throw: { l: [60, 54] },
+  },
+  // Sàmara: dues llavors alades d'auró unides pel peduncle; la de l'esquerra vola girant fins a l'altra punta del mapa
+  samara: {
+    svg: `${runeBase(GN)}<g class="b">${tube("M60 82 Q62 94 60 104", GB, 3)}<g class="flutter">${samara(64, 80, 1, 1.05, 4)}</g>${core(60, 82, GN, 3)}</g>
+      <g class="al"><g class="flutter">${samara(56, 80, -1, 1.05, -4)}</g></g>${sparks(GN)}`,
+    proj: samara(0, 0, -1, 0.75), throw: { l: [40, 58] },
+  },
+  // Anellador: una ploma gran amb l'anella al cànem; les dues anelles amb plaqueta dels costats són les que llança
+  anellador: {
+    svg: `${runeBase(TD_GLOW.gold)}<g class="b">${tube("M60 104 V26", "#fff3d8", 3)}
+      ${tube("M60 26 Q40 44 44 84 L60 92 Q78 72 74 44 Q70 32 60 26 Z", GN, 5)}
+      ${[40, 52, 64, 76].map(y => tube(`M60 ${y} L${48 + (y - 40) * 0.05} ${y + 8} M60 ${y} L${71 - (y - 40) * 0.05} ${y + 6}`, GN, 1.6, 'opacity="0.75"')).join("")}
+      ${tube("M50 98 Q60 92 70 98 Q60 104 50 98", TD_GLOW.gold, 3)}${core(60, 58, TD_GLOW.gold, 3.4)}</g>
+      <g class="al">${anella(30, 52, 0.8)}</g><g class="ar">${anella(90, 52, 0.8)}</g>${sparks(TD_GLOW.gold)}`,
+    proj: anella(0, 0, 0.8), throw: { l: [30, 52], r: [90, 52] },
+  },
+  // Projecte integrador: el quadern de camp obert (en V) amb el pla dibuixat; al voltant orbiten les peces de tots
+  // els mòduls (fulla, anella i flama), i és això el que llança
+  projecte: {
+    svg: `${runeBase(TD_GLOW.myth)}<g class="b">${tube("M60 58 L26 50 L26 92 L60 102 L94 92 L94 50 Z M60 58 V102", "#fff3d8", 4)}
+      ${tube("M34 62 L42 56 L50 64 M34 76 Q42 70 52 78", GM, 2.2)}${tube("M77 62 L80 72 L90 75 L80 78 L77 88 L74 78 L64 75 L74 72 Z", GN, 2)}
+      ${core(60, 80, TD_GLOW.myth, 3.6)}</g>
+      <g class="al"><g class="orbit">${fulla(60, 22)}${anella(92, 42, 0.7)}${flama(28, 40, 0.6)}</g></g>${sparks(TD_GLOW.myth)}`,
+    proj: `${fulla(-6, -4, 0.7)}${anella(8, 6, 0.55)}`, throw: { c: [60, 36] },
   },
 };
 
@@ -141,6 +212,55 @@ const TD_ENEMY_ART = {
     ${tube("M60 10 C34 12 16 34 18 58 C20 82 44 96 68 90 C48 84 34 68 36 48 C38 30 50 16 60 10 Z", "#7fb8ff", 4.4)}
     ${tube("M54 34 H88 V74 H54 Z M54 44 H88", TD_GLOW.bad, 3.4)}
     ${glyphText(71, 66, 16, "DG", "#7fb8ff", "system-ui")}`,
+};
+
+// ---------------------------------------------------------------- DISTRACCIONS DEL BOSC: les mateixes, disfressades
+// Mateix truc i mateix nom; al bosc pareixen bestioles i plantes (TD_FOREST_ENEMIES a data.js). viewBox 0 0 100 100, base a y ≈ 96.
+// De perfil miren a l'esquerra (cap a on van).
+const TD_FOREST_ENEMY_ART = {
+  // Cuc de llum: l'abdomen s'encén i s'apaga com la llumeta del mòbil; ales de baix, antenes
+  notificacio: `<ellipse cx="50" cy="96" rx="16" ry="3.5" fill="#d8ff6a" opacity="0.25"/>
+    <g class="badge"><ellipse cx="62" cy="62" rx="20" ry="16" fill="#d8ff6a" opacity="0.28"/><ellipse cx="62" cy="62" rx="12" ry="9" fill="#efffb0" stroke="#d8ff6a" stroke-width="3"/></g>
+    <path d="M36 50 Q50 30 66 44" fill="#3a3a22" opacity="0.6"/>${tube("M40 54 Q54 26 70 46", "#c8d6a0", 2.4)}
+    <ellipse cx="40" cy="58" rx="12" ry="9" fill="#2a2a1a" stroke="#ffb347" stroke-width="3"/><circle cx="30" cy="56" r="6" fill="#2a2a1a" stroke="#ffb347" stroke-width="2.6"/>
+    ${tube("M27 51 Q20 40 14 38 M30 50 Q28 38 22 32", "#ffb347", 1.6)}${tube("M36 66 L32 80 M44 66 L44 80 M52 66 L56 80", "#ffb347", 1.8)}`,
+  // Caragol: closca d'espiral enorme i el cos que s'allarga, amb les dues banyes; la baba darrere
+  procrastinacio: `<ellipse cx="50" cy="96" rx="40" ry="4" fill="#9b6cd6" opacity="0.25"/>${tube("M70 93 H94", "#c7a4ff", 2, 'opacity="0.5"')}
+    <path d="M8 92 Q8 80 22 80 H74 Q86 80 88 92 Z" fill="#3a2f2a" stroke="#d6b48a" stroke-width="3.4"/>
+    ${tube("M18 82 Q14 68 10 58 M24 81 Q24 66 22 54", "#d6b48a", 2.4)}<circle cx="10" cy="57" r="2.6" fill="#fff"/><circle cx="22" cy="53" r="2.6" fill="#fff"/>
+    <path d="M60 30 C82 30 92 48 88 64 C84 80 64 86 50 82 C32 78 28 56 40 46 C50 38 66 42 68 54 C70 66 56 70 50 62" fill="#2a1f3d" stroke="#c7a4ff" stroke-width="4.4" stroke-linecap="round"/>
+    ${tube("M60 30 C82 30 92 48 88 64 C84 80 64 86 50 82 C32 78 28 56 40 46 C50 38 66 42 68 54 C70 66 56 70 50 62", "#c7a4ff", 2, 'opacity="0.6"')}`,
+  // Rosella: quatre pètals rojos, el centre fosc amb els estams, la tija peluda; el pol·len que llança són els Z
+  son: `<ellipse cx="50" cy="96" rx="20" ry="3.5" fill="#ff5a4a" opacity="0.2"/>${tube("M50 94 Q46 72 52 50", "#7fbf5a", 3)}
+    ${tube("M48 80 Q36 74 30 78 Q38 84 48 82", "#7fbf5a", 2.4)}
+    <g class="zz">${[[-34, 0], [34, 0], [0, -30], [0, 30]].map(([dx, dy], i) => `<ellipse cx="${52 + dx * 0.55}" cy="${36 + dy * 0.55}" rx="17" ry="14" fill="#e8322a" stroke="#ff8a7a" stroke-width="2" transform="rotate(${i * 45} ${52 + dx * 0.55} ${36 + dy * 0.55})"/>`).join("")}
+    <circle cx="52" cy="36" r="9" fill="#1a1a2a" stroke="#7fb8ff" stroke-width="2"/>${[0, 1, 2, 3, 4, 5].map(i => `<circle cx="${(52 + Math.cos(i) * 12).toFixed(1)}" cy="${(36 + Math.sin(i) * 12).toFixed(1)}" r="1.8" fill="#1a1a2a"/>`).join("")}</g>
+    ${glyphText(84, 20, 14, "z", "#7fb8ff")}`,
+  // Brot de falguera: l'espiral que es desenrotlla (com el feed infinit), amb les fulletes als costats
+  scroll: `<ellipse cx="50" cy="96" rx="18" ry="3.5" fill="#7fbf5a" opacity="0.25"/>
+    <g class="feed-spin">${tube("M50 94 C50 70 70 60 70 40 C70 24 56 16 44 22 C34 28 36 42 46 44 C54 46 56 36 50 34", "#9fdc5a", 5)}</g>
+    ${[[52, 78, -1], [54, 66, 1], [62, 56, -1]].map(([x, y, d]) => tube(`M${x} ${y} Q${x + d * 14} ${y - 6} ${x + d * 20} ${y + 2}`, "#9fdc5a", 2.4)).join("")}
+    ${[[40, 82], [66, 70], [44, 60]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2" fill="#ff8a6a"/>`).join("")}`,
+  // Camaleó: la cua en espiral, la cresta i l'ull que gira; la llengua fora (de riure)
+  meme: `<ellipse cx="50" cy="96" rx="26" ry="3.5" fill="#ffd23f" opacity="0.2"/><g transform="translate(4 18)">${tube("M14 70 H88", "#8a6a3a", 4)}
+    <path d="M24 66 C24 48 40 40 56 42 C70 44 78 52 78 64 Z" fill="#4a7a2a" stroke="#ffd23f" stroke-width="3.4" stroke-linejoin="round"/>
+    ${tube("M78 62 C90 62 94 50 86 46 C80 44 78 52 84 54", "#ffd23f", 3.4)}${tube("M30 50 L36 40 L42 46 L48 38 L54 44", "#ffd23f", 2.4)}
+    <path d="M24 66 C14 66 8 58 12 50 C16 44 24 44 28 50 Z" fill="#4a7a2a" stroke="#ffd23f" stroke-width="3"/>
+    <circle cx="20" cy="52" r="5" fill="#fff" stroke="#ffd23f" stroke-width="2"/><circle class="eye-roll" cx="19" cy="51" r="2.2" fill="#1a1a1a"/>
+    ${tube("M10 60 Q2 62 -2 58", "#ff7a9a", 2.2)}${tube("M34 66 L30 74 M52 66 L56 74 M66 64 L70 72", "#ffd23f", 2.2)}</g>`,
+  // Corro de bolets: tres bolets en rogle (el del mig, gros) i el micel·li brillant per davall
+  series: `<ellipse cx="50" cy="96" rx="40" ry="5" fill="${TD_GLOW.bad}" opacity="0.25"/>
+    ${tube("M8 94 Q30 88 50 94 Q70 100 92 92 M22 92 Q30 98 40 94 M60 96 Q70 90 80 96", "#ffb3a0", 1.4, 'class="myc" opacity="0.7"')}
+    ${[[20, 94, 0.7], [80, 94, 0.75], [50, 96, 1.15]].map(([x, y, k]) => `<g transform="translate(${x} ${y}) scale(${k})">
+      <path d="M-7 0 Q-8 -18 -5 -26 H5 Q8 -18 7 0 Z" fill="#f2e2c8" stroke="#ffb3a0" stroke-width="2.4"/>
+      <path d="M-24 -24 Q-22 -46 0 -48 Q22 -46 24 -24 Q0 -18 -24 -24 Z" fill="#c8321e" stroke="${TD_GLOW.bad}" stroke-width="3"/>
+      ${[[-12, -36], [4, -42], [12, -30], [-2, -30]].map(([a, b]) => `<circle cx="${a}" cy="${b}" r="3" fill="#fff4e0"/>`).join("")}</g>`).join("")}`,
+  // Llop de la lluna: assegut de perfil udolant, amb el musell amunt; darrere, la lluna creixent
+  diumenge: `<ellipse cx="50" cy="96" rx="34" ry="4.5" fill="#4a7fc8" opacity="0.3"/>
+    ${tube("M84 6 C70 8 62 20 64 32 C66 44 78 50 90 46 C80 44 72 36 74 26 C75 16 80 10 84 6 Z", "#ffe8a0", 2.8)}
+    <path d="M30 94 C26 76 30 60 36 50 L30 34 L22 22 L30 24 L34 16 L40 26 C44 30 48 34 50 40 C58 48 72 56 74 74 C76 86 70 94 60 94 Z" fill="#2a3450" stroke="#7fb8ff" stroke-width="3.4" stroke-linejoin="round"/>
+    ${tube("M60 94 C74 92 86 90 90 80", "#7fb8ff", 4)}${tube("M38 64 V94 M50 70 V94", "#7fb8ff", 1.6, 'opacity="0.6"')}
+    <circle cx="35" cy="30" r="2.2" fill="#ffe8a0"/>${tube("M20 18 Q14 10 16 4 M14 22 Q6 18 4 12", "#7fb8ff", 1.6, 'class="howl"')}`,
 };
 
 // ---------------------------------------------------------------- ESTUDIANT: la granoteta (colors de l'autoescola) amb barret de mag
@@ -192,5 +312,6 @@ function tdCreatureSvg(id, extraClass = "") {
   return `<svg viewBox="-6 -10 132 132" class="tdc tdc-${id} ${extraClass}" aria-hidden="true" overflow="visible">${TD_ART[id].svg}</svg>`;
 }
 function tdEnemySvg(id) {
-  return `<svg viewBox="0 0 100 100" class="tde tde-${id}" aria-hidden="true" overflow="visible">${TD_ENEMY_ART[id]}</svg>`;
+  const forest = typeof tdRoom !== "undefined" && tdRoom === "forestal" && typeof TD_FOREST_ENEMY_ART !== "undefined" && TD_FOREST_ENEMY_ART[id];
+  return `<svg viewBox="0 0 100 100" class="tde tde-${id}${forest ? " forest" : ""}" aria-hidden="true" overflow="visible">${forest || TD_ENEMY_ART[id]}</svg>`;
 }

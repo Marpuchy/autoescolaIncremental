@@ -9,7 +9,23 @@ const TD_SUBJECTS = {
          classes: ["Àlgebra Lineal", "Càlcul", "Matemàtica Discreta", "Estadística"] },
   prg: { name: "Informàtica", short: "Informàtica", icon: "⌨️", mode: "informatic",
          classes: ["Programació I", "Programació II", "Eines de Programació", "Fonaments de Computadors", "Electrònica", "Dret de les TIC"] },
+  // Forestal (2n del cicle superior de Gestió Forestal i del Medi Natural). Llista provisional: falta que Alba la confirme.
+  mnt: { name: "Gestió de monts", short: "Monts", icon: "🌲", mode: "forestal",
+         classes: ["Gestió de monts", "Defensa contra incendis forestals", "Gestió de la conservació del medi natural"] },
+  pin: { name: "Projecte intermodular", short: "Projecte", icon: "🧭", mode: "forestal",
+         classes: ["Projecte intermodular", "Gestió cinegètica", "Gestió de la pesca continental", "Itinerari personal per a l'ocupabilitat II"] },
 };
+const tdFieldsOf = mode => Object.keys(TD_SUBJECTS).filter(s => TD_SUBJECTS[s].mode === mode);
+const tdModeOf = id => TD_SUBJECTS[TD_DEFENDERS[id].subj].mode;
+
+// Si a un camp li falta la raresa que ix a la tirada (no tots tenen les cinc), es donen punts d'estrella
+// (espores al bosc): tants com el valor de la raresa. Amb punts es compren còpies de qualsevol criatura de la carrera
+// (menys la mítica): valor de la raresa × TD_POINT_COPY.
+const TD_POINTS = {
+  informatic: { name: "punts d'estrella", one: "punt d'estrella", icon: "⭐" },
+  forestal:   { name: "espores", one: "espora", icon: "🍄" },
+};
+const TD_POINT_COPY = 5;
 
 // Raresa: probabilitat de la invocació (el mític no ix mai: només amb un 8 o més a l'examen final)
 const TD_RARITIES = {
@@ -28,16 +44,13 @@ const TD_STAR_COPIES = [1, 2, 4, 7, 11];
 // Criatures. dmg: dany per atac · rate: atacs per segon · range: abast · cost: maná per a posar-la
 // role: què fa a més del dany (vegeu js/td/battle.js). Tots els defensors fan dany.
 // Criatures retirades (menys varietat, més qualitat): les còpies que en tenies passen a la de la mateixa raresa
-const TD_MERGED = { escalar: "sumador", transposada: "vector", comentari: "puntcoma", bucle: "ifelse" };
+const TD_MERGED = { escalar: "sumador", transposada: "vector", comentari: "puntcoma", bucle: "ifelse", matriu: "vector", recursio: "ifelse" };
 const TD_DEFENDERS = {
   // ---- Matemàtiques
   sumador:     { subj: "alg", rar: "comu", name: "Sumador", dmg: 6, rate: 1.6, range: 230, cost: 30, role: "single", alt: true,
                  desc: "Llança alternativament els dos + menuts que té de braços." },
-  vector:      { subj: "alg", rar: "rar", name: "Vector", dmg: 19, rate: 0.45, range: 430, cost: 55, role: "pierce", aim: true,
+  vector:      { subj: "alg", rar: "epic", name: "Vector", dmg: 30, rate: 0.5, range: 430, cost: 80, role: "pierce", aim: true,
                  desc: "La llança travessa tots els enemics que troba en línia recta." },
-  matriu:      { subj: "alg", rar: "epic", name: "Matriu", dmg: 9, rate: 0.9, range: 240, cost: 85, role: "aoe", aoe: 70,
-                 special: { every: 5, type: "freeze", radius: 120, dur: 1.4 },
-                 desc: "Dany en zona. Cada 5 atacs, la seua quadrícula congela la zona 1,4 s." },
   determinant: { subj: "alg", rar: "llegendari", name: "Determinant |A|", dmg: 40, rate: 0.5, range: 300, cost: 120, role: "execute", execute: 0.15, alt: true,
                  desc: "Colps molt forts, un braç cada vegada. Si a l'enemic li queda menys d'un 15 % de vida, det = 0: l'elimina." },
   lambda:      { subj: "alg", rar: "mitic", name: "Diagonalitzador λ", dmg: 30, rate: 1.0, range: 340, cost: 150, role: "single",
@@ -48,13 +61,32 @@ const TD_DEFENDERS = {
                  desc: "Barat i rapidíssim: escup punts sense parar." },
   ifelse:      { subj: "prg", rar: "rar", name: "If / else", dmg: 11, rate: 1.0, range: 260, cost: 55, role: "smart", alt: true,
                  desc: "Si n'hi ha un de fort, li dispara a ell; si no, al més ràpid." },
-  recursio:    { subj: "prg", rar: "epic", name: "Recursió", dmg: 12, rate: 0.7, range: 260, cost: 85, role: "split", splits: 2, depth: 2,
-                 desc: "El projectil es dividix en dos en impactar, i així fins a dues vegades." },
   compilador:  { subj: "prg", rar: "llegendari", name: "Compilador", dmg: 28, rate: 0.6, range: 280, cost: 120, role: "aoe", aoe: 80,
                  special: { every: 6, type: "convert", dur: 4 },
                  desc: "Dany en zona. Cada 6 atacs compila l'enemic més feble i el torna aliat 4 s." },
   stack:       { subj: "prg", rar: "mitic", name: "Stack Overflow", dmg: 20, rate: 1.2, range: 300, cost: 150, role: "stacks", stacks: 10, blast: 12,
                  desc: "Cada atac apila. Amb 10 piles, el desbordament explota per tot el mapa (12 × el dany)." },
+  // ---- Gestió de monts (Forestal)
+  pi:          { subj: "mnt", rar: "comu", name: "Pi", dmg: 6, rate: 1.5, range: 230, cost: 30, role: "single", alt: true,
+                 desc: "Llança les pinyes que li pengen de les branques." },
+  anells:      { subj: "mnt", rar: "rar", name: "Anells del tronc", dmg: 8, rate: 0.85, range: 230, cost: 60, role: "aoe", aoe: 70,
+                 special: { every: 5, type: "freeze", radius: 120, dur: 1.2 },
+                 desc: "Els anells s'eixamplen i fan dany en zona. Cada 5 atacs, la resina deixa enganxada la zona 1,2 s." },
+  contrafoc:   { subj: "mnt", rar: "llegendari", name: "Contrafoc", dmg: 16, rate: 0.55, range: 300, cost: 120, role: "burn", burn: { radius: 95, dur: 4, dps: 1.6 },
+                 desc: "Encén una franja del camí durant 4 s: tot el que hi passa es crema poc a poc." },
+  carrasca:    { subj: "mnt", rar: "mitic", name: "Carrasca mil·lenària", dmg: 26, rate: 0.9, range: 320, cost: 150, role: "single",
+                 aura: { radius: 340, dmg: 0.3 }, special: { every: 6, type: "root", radius: 150, dur: 1.5 },
+                 desc: "Les criatures que té a prop fan un 30 % més de dany. Cada 6 atacs deixa caure una gla: brollen arrels que atrapen els enemics 1,5 s." },
+  // ---- Projecte intermodular (Forestal)
+  bruixola:    { subj: "pin", rar: "comu", name: "Brúixola", dmg: 4, rate: 2.4, range: 200, cost: 25, role: "single",
+                 desc: "Barata i rapidíssima: dispara la punta de l'agulla, que torna a créixer." },
+  samara:      { subj: "pin", rar: "epic", name: "Sàmara", dmg: 24, rate: 0.45, range: 1900, cost: 85, role: "single",
+                 desc: "La llavor alada vola per tot el mapa i cau girant damunt de la distracció més avançada." },
+  anellador:   { subj: "pin", rar: "llegendari", name: "Anellador", dmg: 30, rate: 0.6, range: 300, cost: 120, role: "mark", mark: 0.4, alt: true,
+                 desc: "Posa una anella a la distracció més forta: totes les criatures li fan un 40 % més de dany. Si mor, l'anella salta a la més pròxima." },
+  projecte:    { subj: "pin", rar: "mitic", name: "Projecte integrador", dmg: 22, rate: 1.0, range: 320, cost: 150, role: "single",
+                 special: { every: 6, type: "echo", boost: 1.5 },
+                 desc: "Com el projecte, que ajunta tots els mòduls: cada 6 atacs fa l'habilitat especial d'una altra criatura del mapa, un 50 % més forta." },
 };
 
 // Distraccions (enemics). lore: la descripció del bestiari (amb gràcia, com al compendi de l'autoescola); desc: què fa.
@@ -142,9 +174,30 @@ const TD_BATTLE = {
 };
 
 // Mons. path: punts del camí (del començament al cristall). slots: buits on es posen les criatures.
+// Al bosc, les mateixes distraccions (mateix nom, mateix truc) es disfressen de coses del bosc: look (què pareixen),
+// lore propi. Els dibuixos, a TD_FOREST_ENEMY_ART (js/td/art.js).
+const TD_FOREST_ENEMIES = {
+  notificacio:    { look: "Cuc de llum",
+                    lore: "Parpelleja com la llumeta del mòbil: una vegada, dues, i ja l'estàs mirant. Al bosc no venen soles, venen a eixams, i a la nit el sender pareix un grup de WhatsApp." },
+  procrastinacio: { look: "Caragol",
+                    lore: "Porta la casa a coll i no té cap pressa: tot ho deixa per a demà, i si el toques es tanca dins la closca. Lent però duríssim; la baba que deixa és la llista de coses pendents." },
+  son:            { look: "Rosella",
+                    lore: "Una flor roja preciosa que fa badallar només de mirar-la. Quan se sacseja, el pol·len adorm la criatura més pròxima: «cinc minutets i continue»." },
+  scroll:         { look: "Brot de falguera",
+                    lore: "Una espiral que es desenrotlla i mai s'acaba: quan creus que ja està, en trau una altra. Si la talles, en naixen dos brots menuts que continuen baixant pel sender." },
+  scrollet:       { look: "Brot menut" },
+  meme:           { look: "Camaleó",
+                    lore: "Es posa del color de les branques i no el veus fins que és massa tard. Quan l'enxampes, ja t'ha robat mitja vesprada rient-te'n amb la llengua fora." },
+  series:         { look: "Corro de bolets",
+                    lore: "Un bolet darrere l'altre, en rogle, com els capítols d'una temporada. Per davall de terra, el micel·li alimenta les distraccions que té a prop: sempre en naix un més." },
+  diumenge:       { look: "Llop de la lluna",
+                    lore: "Ix quan es fa fosc el diumenge i udola a la lluna: els deures que no has fet, l'examen de dilluns… Quan udola, tot el bosc arranca a córrer." },
+};
+const tdEnemy = id => (typeof tdRoom !== "undefined" && tdRoom === "forestal" && TD_FOREST_ENEMIES[id]) ? { ...TD_ENEMIES[id], ...TD_FOREST_ENEMIES[id] } : TD_ENEMIES[id];
+
 const TD_WORLDS = [
   {
-    id: 1, name: "Biblioteca Arcana", layout: "Serp",
+    id: 1, mode: "informatic", name: "Biblioteca Arcana", layout: "Serp",
     path: [[-60, 150], [1300, 150], [1300, 430], [300, 430], [300, 710], [1460, 710]],
     slots: [[420, 290], [720, 290], [1020, 290], [1450, 290], [160, 570], [600, 570], [900, 570], [1200, 570], [760, 840], [1120, 840]],
     crystal: [1500, 700], student: [110, 790],
@@ -162,8 +215,18 @@ const TD_WORLDS = [
       [["notificacio", 12, 0.5], ["diumenge", 1, 1], ["son", 5, 1.4], ["procrastinacio", 5, 1.5]],
     ],
   },
-  { id: 2, name: "Laboratori de Circuits", layout: "Bifurcació", soon: true },
-  { id: 3, name: "Torre del Compilador", layout: "Espiral", soon: true },
-  { id: 4, name: "El Núvol", layout: "Doble entrada", soon: true },
-  { id: 5, name: "Servidor Abissal", layout: "Doble entrada", soon: true },
+  { id: 2, mode: "informatic", name: "Laboratori de Circuits", layout: "Bifurcació", soon: true },
+  { id: 3, mode: "informatic", name: "Torre del Compilador", layout: "Espiral", soon: true },
+  { id: 4, mode: "informatic", name: "El Núvol", layout: "Doble entrada", soon: true },
+  { id: 5, mode: "informatic", name: "Servidor Abissal", layout: "Doble entrada", soon: true },
 ];
+// Mons del bosc: el primer té el mateix traçat i les mateixes onades que la Biblioteca, però és un sender entre arrels
+// (fons a tdbBackground). Les distraccions són les mateixes, dibuixades com a coses del bosc (TD_FOREST_ENEMIES).
+TD_WORLDS.push(
+  { ...TD_WORLDS[0], id: 101, mode: "forestal", name: "Sendera de les Arrels" },
+  { id: 102, mode: "forestal", name: "La Pineda", layout: "Bifurcació", soon: true },
+  { id: 103, mode: "forestal", name: "El Barranc", layout: "Espiral", soon: true },
+  { id: 104, mode: "forestal", name: "La Muntanya Cremada", layout: "Doble entrada", soon: true },
+  { id: 105, mode: "forestal", name: "El Cor del Bosc", layout: "Doble entrada", soon: true },
+);
+const tdWorldNum = w => TD_WORLDS.filter(o => o.mode === w.mode).indexOf(w) + 1;
