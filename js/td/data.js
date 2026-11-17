@@ -31,7 +31,7 @@ const TD_DEFENDERS = {
   // ---- Matemàtiques
   sumador:     { subj: "alg", rar: "comu", name: "Sumador", dmg: 6, rate: 1.6, range: 230, cost: 30, role: "single", alt: true,
                  desc: "Llança alternativament els dos + menuts que té de braços." },
-  vector:      { subj: "alg", rar: "rar", name: "Vector", dmg: 12, rate: 0.7, range: 330, cost: 55, role: "pierce",
+  vector:      { subj: "alg", rar: "rar", name: "Vector", dmg: 19, rate: 0.45, range: 430, cost: 55, role: "pierce", aim: true,
                  desc: "La llança travessa tots els enemics que troba en línia recta." },
   matriu:      { subj: "alg", rar: "epic", name: "Matriu", dmg: 9, rate: 0.9, range: 240, cost: 85, role: "aoe", aoe: 70,
                  special: { every: 5, type: "freeze", radius: 120, dur: 1.4 },
@@ -102,7 +102,9 @@ const TD_UPGRADES = {
 };
 
 // Pujar de nivell una criatura (saber). Nivell màxim 30.
-const TD_LEVEL_MAX = 30;
+const TD_LEVEL_MAX = 25;              // amb ★5
+const TD_LEVEL_PER_STAR = 5;          // nivell màxim = 5 × estreles (★1 → 5, ★2 → 10…)
+const TD_ABILITY_LEVELS = [10, 20];   // nivells que també milloren l'habilitat especial (a més de ★3 i ★5)
 const tdLevelCost = (rar, lvl) => Math.round(15 * TD_RARITIES[rar].value ** 0.5 * 1.28 ** (lvl - 1));
 
 // Què has estudiat → pergamins d'invocació (del camp de l'assignatura). Límit diari per camp (sense comptar els exàmens).

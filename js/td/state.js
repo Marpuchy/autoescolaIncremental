@@ -81,6 +81,8 @@ const tdArtBonus = stat => td.equipped.reduce((sum, id) => sum + (TD_ARTIFACTS[i
 const tdHasArtifact = id => td.equipped.includes(id);
 
 // Estadístiques d'una criatura fora del combat (nivell, estrelles i artefactes). up: nivell de millora dins del combat (0-2).
+const tdLevelCap = id => Math.min(TD_LEVEL_MAX, TD_LEVEL_PER_STAR * Math.max(1, tdStars(id)));
+const tdAbility = (stars, level) => 1 + 0.3 * (stars >= 3) + 0.3 * (stars >= 5) + 0.15 * TD_ABILITY_LEVELS.filter(l => level >= l).length;
 function tdStats(id, up = 0) {
   const d = TD_DEFENDERS[id], o = td.owned[id] || { level: 1 };
   const stars = Math.max(1, tdStars(id));
@@ -89,7 +91,7 @@ function tdStats(id, up = 0) {
     dmg: d.dmg * dmgMult,
     rate: d.rate * (1 + 0.1 * (stars - 1)) * (1 + tdArtBonus("rate")),
     range: d.range * (1 + tdArtBonus("range")),
-    ability: stars >= 5 ? 1.6 : stars >= 3 ? 1.3 : 1, // ★3 i ★5 milloren l'habilitat (durades, zones, objectius)
+    ability: tdAbility(stars, o.level), // ★3, ★5 i els nivells 10 i 20 milloren l'habilitat (durades, zones, objectius)
     stars, level: o.level,
   };
 }
@@ -180,7 +182,7 @@ function tdLog(subj, what, rolls, mythic = false) {
 // ---------------------------------------------------------------- saber: nivells i millores
 function tdLevelUp(id) {
   const o = td.owned[id];
-  if (!o || o.level >= TD_LEVEL_MAX) return false;
+  if (!o || o.level >= tdLevelCap(id)) return false;
   const cost = tdLevelCost(TD_DEFENDERS[id].rar, o.level);
   if (td.saber < cost) return false;
   td.saber -= cost;

@@ -131,6 +131,15 @@ function tdbDrawTower(t) {
 }
 // Punt del mapa d'on ix la peça que llança la criatura (l / r / c), a partir del dibuix (viewBox -6 -10 132 132 en 124 px)
 function tdbThrowFrom(t, side) {
+  const part = side !== "c" && t.svg?.querySelector(side === "r" ? ".ar" : ".al");
+  const r = part?.getBoundingClientRect();
+  if (r && r.width > 1) {
+    const ctm = $("tdb-svg").getScreenCTM();
+    if (ctm) {
+      const p = new DOMPoint(r.x + r.width / 2, r.y + r.height / 2).matrixTransform(ctm.inverse());
+      return tdbM(p.x, p.y);
+    }
+  }
   const th = TD_ART[t.id].throw || {};
   const [ax, ay] = th[side] || th.l || th.c || [60, 60];
   const [sx, sy] = tdbS(...tdb.world.slots[t.slot]);
@@ -291,10 +300,25 @@ function tdbFire(t) {
     if (t.stacks >= d.stacks) { t.stacks = 0; tdbBlast(t); }
   }
   const part = (TD_ART[t.id].throw || {}).c ? "c" : t.side ? "r" : "l";
+  if (d.aim) { // apunta (la V gira) i la fletxa ix de dins quan ja està encarada
+    tdbAim(t, targets[0]);
+    t.pending = { target: targets[0], wait: 0.2, part };
+    return true;
+  }
   const shoot = target => tdbProjectile(t, target, t.stats.dmg, { part, depth: d.depth || 0, bounces: d.role === "bounce" ? d.bounces + (ab > 1 ? 1 : 0) : 0 });
   if (d.role === "burst") { t.burst = d.burst - 1; t.burstT = 0.12; t.burstTarget = targets[0]; shoot(targets[0]); }
   else targets.forEach(shoot);
   return true;
+}
+function tdbAim(t, target) {
+  const aim = t.svg?.querySelector(".aim");
+  if (!aim) return;
+  const [sx, sy] = tdbS(...tdb.world.slots[t.slot]), [ex, ey] = tdbS(...tdbPos(target));
+  let a = Math.atan2(ey - (sy - 30), ex - sx) * 180 / Math.PI + 90; // la fletxa mira cap amunt
+  const prev = t.aimA ?? 0;
+  a = prev + ((a - prev + 540) % 360 - 180); // el camí curt
+  t.aimA = a;
+  aim.style.transform = `rotate(${a}deg)`;
 }
 function tdbProjectile(t, target, dmg, opts = {}) {
   const d = TD_DEFENDERS[t.id];
@@ -500,6 +524,15 @@ function tdbUpdate(dt) {
         const target = t.burstTarget?.hp > 0 ? t.burstTarget : tdbTargets(t)[0];
         if (target) tdbProjectile(t, target, t.stats.dmg, { part: "l" });
         t.burst--; t.burstT = 0.12;
+      }
+    }
+    if (t.pending) {
+      t.pending.wait -= dt;
+      if (t.pending.wait <= 0) {
+        const { target, part } = t.pending;
+        t.pending = null;
+        const tg = target.hp > 0 ? target : tdbTargets(t)[0];
+        if (tg) tdbProjectile(t, tg, t.stats.dmg, { part });
       }
     }
     t.cd -= dt;
@@ -744,11 +777,6 @@ function initTdBattle() {
     tdbCloseBottom();
     tdbPlace(slot, id);
   });
-  for (const type of ["pointerover", "focusin"]) $("tdb-deck").addEventListener(type, ev => {
-    const c = ev.target.closest("[data-card]");
-    if (c) tdbPreview(c.dataset.card);
-  });
-  $("tdb-deck").addEventListener("pointerleave", () => { if (tdb?.pickId) tdbPreview(tdb.pickId); });
   $("tdb-panel").addEventListener("click", ev => {
     const b = ev.target.closest("[data-tp]");
     if (!b || !tdb.selectedTower) return;

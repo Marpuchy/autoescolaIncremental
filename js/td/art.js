@@ -41,9 +41,10 @@ const TD_ART = {
   // Escalar ×2: una × que gira sense parar (més ràpid quan dispara); llança el 2 de l'exponent
   // Vector: la lletra v amb la fletxa damunt; la fletxa és la llança que travessa
   vector: {
-    svg: `${runeBase(GA)}<g class="b">${tube("M38 56 L60 100 L82 56", GA, 9)}${core(60, 100, GA, 3.6)}</g>
-      <g class="al">${tube("M30 36 H86 M76 26 L88 36 L76 46", GA, 5.5)}</g>${sparks(GA)}`,
-    proj: tube("M-14 0 H12 M4 -7 L13 0 L4 7", GA, 4.2), throw: { l: [58, 36] },
+    // la V gira per a apuntar (.aim) i la fletxa ix de dins de la V
+    svg: `${runeBase(GA)}<g class="aim"><g class="al">${tube("M60 92 V44 M51 54 L60 42 L69 54", GA, 5)}</g>
+      <g class="b">${tube("M36 44 L60 98 L84 44", GA, 9)}${core(60, 98, GA, 3.6)}</g></g>${sparks(GA)}`,
+    proj: tube("M-22 0 H18 M8 -9 L20 0 L8 9", GA, 5), throw: { l: [60, 66] },
   },
   // Transposada: una T que gira 90° (es transposa) en disparar; llança un raig que rebota
   // Matriu: dos claudàtors i la matriu identitat dins, que s'il·lumina; congela per zones

@@ -258,18 +258,24 @@ function tdCreaturePages(id) {
   const d = TD_DEFENDERS[id], o = td.owned[id], r = TD_RARITIES[d.rar];
   if (!o) return [`<div class="tdbook-art locked" style="--rc:${r.color}"><span class="tdbook-q">?</span></div><h3 class="tdbook-name">???</h3><div class="tdbook-rar" style="color:${r.color}">${r.name}</div>`,
     `<p class="tdbook-text">Encara no has invocat aquesta criatura.</p><p class="tdbook-text muted">${d.rar === "mitic" ? `Només es pot aconseguir traent un ${TD_MYTHIC_GRADE} o més a l'examen final d'una assignatura de ${TD_SUBJECTS[d.subj].name} (${TD_SUBJECTS[d.subj].classes.join(", ")}).` : `Pot eixir a l'altar, amb pergamins de ${TD_SUBJECTS[d.subj].name}.`}</p>`];
-  const st = tdStats(id), next = tdNextStar(id);
-  const cost = o.level < TD_LEVEL_MAX ? tdLevelCost(d.rar, o.level) : null;
-  return [`<div class="tdbook-demo" data-demo="${id}"><div class="tdbook-art rar-${d.rar}">${tdCreatureSvg(id)}</div>
-      <div class="tdbook-dummy" title="Ninot d'entrenament">${tdEnemySvg("notificacio")}</div></div><h3 class="tdbook-name">${d.name}</h3>
-      <div class="tdbook-rar" style="color:${r.color}">${r.name}</div><div class="tdbook-stars">${tdStarStr(st.stars)}</div>`,
+  const st = tdStats(id), next = tdNextStar(id), cap = tdLevelCap(id);
+  const cost = o.level < cap ? tdLevelCost(d.rar, o.level) : null;
+  // millores de l'habilitat: per estreles i per nivell
+  const steps = [...TD_ABILITY_LEVELS.map(l => [`Nv. ${l}`, o.level >= l]), ["★3", st.stars >= 3], ["★5", st.stars >= 5]];
+  const lvlBtn = cost != null ? `<button data-lvl="${id}" ${td.saber < cost ? "disabled" : ""}>⬆ Nv. ${o.level + 1} · ✨ ${fmtNum(cost)}</button>`
+    : `<button disabled>${o.level >= TD_LEVEL_MAX ? "Nivell màxim" : `Cal ★${st.stars + 1}`}</button>`;
+  return [`<div class="tdbook-demo" data-demo="${id}"><div class="tdbook-art rar-${d.rar}">${tdCreatureSvg(id)}</div><div class="tdbook-lane"></div></div>
+      <h3 class="tdbook-name">${d.name}</h3>
+      <div class="tdbook-rar" style="color:${r.color}">${r.name}</div><div class="tdbook-stars">${tdStarStr(st.stars)}</div>
+      <div class="tdbook-prog" title="Còpies per a la següent estrela"><div style="width:${next ? Math.min(100, 100 * next.have / next.need) : 100}%"></div>
+        <span>${next ? `${next.have} / ${next.need}` : "MÀX"}</span></div>`,
     `<p class="tdbook-text">${d.desc}</p>
-     <table class="tdbook-stats"><tr><th>Nivell</th><td>${o.level} / ${TD_LEVEL_MAX}</td></tr><tr><th>Dany</th><td>${fmtNum(st.dmg)}</td></tr>
+     <table class="tdbook-stats"><tr><th>Nivell</th><td>${o.level} / ${cap}${cap < TD_LEVEL_MAX ? ` <span class="muted">(més amb ★${st.stars + 1})</span>` : ""}</td></tr><tr><th>Dany</th><td>${fmtNum(st.dmg)}</td></tr>
        <tr><th>Velocitat</th><td>${st.rate.toFixed(2)} / s</td></tr><tr><th>Abast</th><td>${Math.round(st.range)}</td></tr><tr><th>Cost</th><td>🔮 ${d.cost}</td></tr>
-       <tr><th>Còpies</th><td>${next ? `${next.have} / ${next.need} per a la ★${st.stars + 1}` : "estreles al màxim"}</td></tr></table>
-     <div class="tdbook-btns">${cost != null ? `<button data-lvl="${id}" ${td.saber < cost ? "disabled" : ""}>⬆ Nivell ${o.level + 1} · ✨ ${fmtNum(cost)}</button>` : `<button disabled>Nivell màxim</button>`}
-       <button class="secondary" data-team="${id}">${td.team.includes(id) ? "➖ Traure de l'equip" : "➕ Posar a l'equip"}</button>
-       <button class="secondary tdbook-fav${td.favs.includes(id) ? " on" : ""}" data-fav="${id}" aria-pressed="${td.favs.includes(id)}" title="Preferida: ix primer a la llista de l'equip">${td.favs.includes(id) ? "★ Preferida" : "☆ Preferida"}</button></div>`];
+       <tr><th>Habilitat</th><td>×${st.ability.toFixed(2).replace(".", ",")} <span class="tdbook-steps">${steps.map(([t, on]) => `<span class="${on ? "on" : ""}">${t}</span>`).join("")}</span></td></tr></table>
+     <div class="tdbook-btns">${lvlBtn}
+       <button class="secondary" data-team="${id}" title="${td.team.includes(id) ? "Traure de l'equip" : "Posar a l'equip"}">${td.team.includes(id) ? "➖" : "➕"}<span class="lbl"> Equip</span></button>
+       <button class="secondary tdbook-fav${td.favs.includes(id) ? " on" : ""}" data-fav="${id}" aria-pressed="${td.favs.includes(id)}" title="Preferida: ix primer a la llista de l'equip">${td.favs.includes(id) ? "★" : "☆"}<span class="lbl"> Preferida</span></button></div>`];
 }
 function tdBeastPages(id) {
   const e = TD_ENEMIES[id], seen = td.seen.includes(id);
@@ -414,7 +420,12 @@ function initTdLobby() {
     else if (ds.summon) tdDoSummon(Number(ds.summon));
     else if (ds.act) tdDoStudy(ds.act);
     else if (ds.exam) tdDoExam(ds.exam);
-    else if (ds.lvl) { if (tdLevelUp(ds.lvl)) tdRenderPanel(); }
+    else if (ds.lvl) {
+      if (tdLevelUp(ds.lvl)) {
+        if (TD_ABILITY_LEVELS.includes(td.owned[ds.lvl].level)) toast(`✨ ${TD_DEFENDERS[ds.lvl].name}: l'habilitat especial millora!`, "good");
+        tdRenderPanel();
+      }
+    }
     else if (ds.team) tdToggleTeam(ds.team);
     else if (ds.play) { tdClosePanel(); tdOpenBattle(Number(ds.play)); }
     else if (ds.up) { if (tdBuyUpgrade(ds.up)) tdRenderPanel(); }
@@ -433,58 +444,160 @@ function initTdLobby() {
   });
 }
 
-// ---- demostració d'atac a la pàgina de cada criatura del grimori: llança la seua peça contra un ninot
-// (la peça desapareix del cos mentre vola i es torna a formar, com al combat)
-const tdDemo = { id: null, next: 0, side: 0 };
-setInterval(() => {
+// ---- demostració al grimori: enemics del món 1 caminen pel carril cap a la criatura, que els ataca com al combat.
+// Quants i com es col·loquen depén de la criatura (en filera per a les que travessen, en grup per a les de zona…).
+const TD_DEMO_SETUP = {
+  pierce: { n: 4, gap: 30 }, aoe: { n: 4, gap: 22, spread: 14 }, split: { n: 3, gap: 55 }, smart: { n: 3, gap: 60, mix: true },
+  execute: { n: 2, gap: 90 }, stacks: { n: 4, gap: 45 }, default: { n: 2, gap: 80 },
+};
+let tdDemo = null;
+function tdDemoStart(box) {
+  const id = box.dataset.demo, d = TD_DEFENDERS[id], lane = box.querySelector(".tdbook-lane");
+  const set = TD_DEMO_SETUP[d.role] || TD_DEMO_SETUP.default;
+  tdDemo = { box, id, d, lane, set, st: tdStats(id), enemies: [], shots: [], cd: 0.6, side: 0, n: 0, aimA: 0, last: performance.now(), stacks: 0 };
+  for (let i = 0; i < set.n; i++) tdDemoSpawn(i);
+}
+function tdDemoSpawn(i, fromEdge = false) {
+  const D = tdDemo, w = D.lane.clientWidth, h = D.lane.clientHeight;
+  const type = D.set.mix && i === 0 ? "procrastinacio" : "notificacio", def = TD_ENEMIES[type];
+  const size = Math.min(56, h * 0.62) * (def.size / 70);
+  const e = { type, def, hp: def.hp, max: def.hp, size, x: fromEdge ? w + 20 : w * 0.55 + i * D.set.gap,
+    y: h * 0.8 + (D.set.spread ? ((i % 2) * 2 - 1) * D.set.spread : 0), stun: 0, conv: 0, dead: false };
+  e.el = document.createElement("div");
+  e.el.className = "tdbook-foe";
+  e.el.style.width = e.el.style.height = `${size}px`;
+  e.el.innerHTML = `${tdEnemySvg(type)}<i class="tdbook-foe-hp"><b></b></i>`;
+  D.lane.appendChild(e.el);
+  D.enemies.push(e);
+}
+function tdDemoTick(now) {
   const box = document.querySelector("#td-dialog:not([hidden]) .tdbook-spread:not([data-turning]) .tdbook-demo");
-  if (!box) { tdDemo.id = null; return; }
-  const id = box.dataset.demo, now = performance.now();
-  if (tdDemo.id !== id) { tdDemo.id = id; tdDemo.next = now + 500; tdDemo.side = 0; return; }
-  if (now < tdDemo.next) return;
-  const d = TD_DEFENDERS[id], st = tdStats(id);
-  tdDemo.next = now + Math.min(1800, Math.max(700, 1000 / st.rate));
-  tdDemoShot(box, id, d, st);
-}, 100);
-function tdDemoShot(box, id, d, st) {
-  const svg = box.querySelector(".tdc"), dummy = box.querySelector(".tdbook-dummy");
-  if (!svg || !dummy) return;
-  const art = TD_ART[id], th = art.throw || {};
-  tdDemo.side = d.alt ? 1 - tdDemo.side : 0;
-  const part = th.c ? "c" : tdDemo.side ? "r" : "l";
-  const [ax, ay] = th[part] || th.l || [60, 60];
-  const b = box.getBoundingClientRect(), s = svg.getBoundingClientRect(), t = dummy.getBoundingClientRect();
-  const x0 = s.left - b.left + (ax + 6) / 132 * s.width, y0 = s.top - b.top + (ay + 10) / 132 * s.height;
-  const x1 = t.left - b.left + t.width * 0.5, y1 = t.top - b.top + t.height * 0.45;
+  if (!box) { tdDemo = null; return; }
+  if (!tdDemo || tdDemo.box !== box) tdDemoStart(box);
+  const D = tdDemo, dt = Math.min(0.05, (now - D.last) / 1000);
+  D.last = now;
+  const w = D.lane.clientWidth, k = w / 520; // escala: el carril fa de tram de camí
+  for (const e of D.enemies) {
+    if (e.dead) continue;
+    if (e.stun > 0) e.stun -= dt;
+    else e.x += (e.conv > 0 ? 1 : -1) * e.def.speed * k * dt;
+    if (e.conv > 0 && (e.conv -= dt) <= 0) e.el.classList.remove("conv");
+    if (e.x < -e.size) { e.x = w + 20; e.hp = e.max; } // arriba al final del tram: torna a eixir
+    e.el.classList.toggle("stun", e.stun > 0);
+    e.el.style.transform = `translate(${e.x - e.size / 2}px, ${e.y - e.size}px)`;
+    e.el.querySelector("b").style.width = `${100 * Math.max(0, e.hp) / e.max}%`;
+  }
+  D.enemies = D.enemies.filter(e => !e.gone);
+  // atacar quan algun enemic és dins del carril
+  D.cd -= dt;
+  const alive = D.enemies.filter(e => !e.dead && e.x < w - 6 && e.conv <= 0).sort((a, b) => a.x - b.x);
+  if (D.cd <= 0 && alive.length) {
+    D.cd = 1 / D.st.rate;
+    let target = alive[0];
+    if (D.d.role === "smart") target = alive.reduce((a, b) => b.hp > a.hp ? b : a);
+    tdDemoFire(target);
+  }
+  requestAnimationFrame(tdDemoTick);
+}
+function tdDemoPoint(el) { // centre d'un element respecte a la caixa de la demostració
+  const b = tdDemo.box.getBoundingClientRect(), r = el.getBoundingClientRect();
+  return [r.left - b.left + r.width / 2, r.top - b.top + r.height / 2];
+}
+function tdDemoFire(target) {
+  const D = tdDemo, { d, id } = D, svg = D.box.querySelector(".tdc"), art = TD_ART[id], th = art.throw || {};
+  D.n++;
+  D.side = d.alt ? 1 - D.side : 0;
+  const part = th.c ? "c" : D.side ? "r" : "l";
+  const tp = () => { const [x, y] = tdDemoPoint(target.el); return [x, y - target.size * 0.05]; };
+  if (d.aim) { // el vector gira cap a l'enemic i després la fletxa ix de la V
+    const [x0, y0] = tdDemoPoint(svg), [x1, y1] = tp();
+    let a = Math.atan2(y1 - y0, x1 - x0) * 180 / Math.PI + 90;
+    a = D.aimA + ((a - D.aimA + 540) % 360 - 180);
+    D.aimA = a;
+    svg.querySelector(".aim").style.transform = `rotate(${a}deg)`;
+  }
   svg.classList.remove("fire"); void svg.getBoundingClientRect(); svg.classList.add("fire");
-  if (part !== "c") svg.classList.add(`thrown-${part}`);
+  setTimeout(() => tdDemo === D && tdDemoLaunch(svg, part, target), d.aim ? 200 : 0);
+  // especials cada N atacs, com al combat
+  const sp = d.special;
+  if (sp && D.n % sp.every === 0) {
+    if (sp.type === "freeze" || sp.type === "align") D.enemies.forEach(e => { e.stun = (sp.dur || 1.4) * D.st.ability; });
+    if (sp.type === "convert") { const e = D.enemies.filter(e => !e.dead).sort((a, b) => a.hp - b.hp)[0]; if (e) { e.conv = sp.dur * D.st.ability; e.el.classList.add("conv"); } }
+    tdDemoText(D.box.querySelector(".tdbook-art"), sp.type === "freeze" ? "congela!" : sp.type === "align" ? "λ · diagonalitzat" : "compilat!", TD_GLOW.gold);
+  }
+}
+function tdDemoLaunch(svg, part, target) {
+  const D = tdDemo, { d, id } = D, art = TD_ART[id];
+  // ix d'on està la peça ara mateix (gira, salta, orbita…)
+  const pe = part !== "c" && svg.querySelector(part === "r" ? ".ar" : ".al");
+  let from;
+  if (pe) from = tdDemoPoint(pe);
+  else {
+    const [ax, ay] = (art.throw || {}).c || [60, 60], b = D.box.getBoundingClientRect(), s = svg.getBoundingClientRect();
+    from = [s.left - b.left + (ax + 6) / 132 * s.width, s.top - b.top + (ay + 10) / 132 * s.height];
+  }
+  if (pe) svg.classList.add(`thrown-${part}`);
+  const [tx, ty] = tdDemoPoint(target.el);
+  let to = [tx, ty], hitList = [target];
+  if (d.role === "pierce") { // continua recte fins a la vora i travessa tota la filera
+    const dx = tx - from[0], dy = ty - from[1], L = Math.hypot(dx, dy) || 1, far = D.box.clientWidth * 1.2;
+    to = [from[0] + dx / L * far, from[1] + dy / L * far];
+    hitList = D.enemies.filter(e => !e.dead && tdDemoNearLine(from, to, tdDemoPoint(e.el), 22));
+  }
+  const k = svg.getBoundingClientRect().width / 132 * (art.projScale || 1.25);
   const p = document.createElement("div");
   p.className = "tdbook-shot";
-  const k = s.width / 132 * (art.projScale || 1.25); // la peça, a la mateixa escala que el dibuix
   p.innerHTML = `<svg viewBox="-40 -40 80 80" width="${80 * k}" height="${80 * k}" overflow="visible"><g>${part === "r" && art.projR ? art.projR : art.proj}</g></svg>`;
-  box.appendChild(p);
-  const ang = Math.atan2(y1 - y0, x1 - x0) * 180 / Math.PI, spin = TD_ART[id].projScale ? 0 : ang;
-  const dur = 380 + Math.hypot(x1 - x0, y1 - y0) * 0.6;
+  D.box.appendChild(p);
+  const rot = ["vector", "ifelse", "determinant", "compilador"].includes(id) ? Math.atan2(to[1] - from[1], to[0] - from[0]) * 180 / Math.PI : 0;
+  const dist = Math.hypot(to[0] - from[0], to[1] - from[1]), dur = dist / 0.55;
   const fly = p.animate([
-    { transform: `translate(${x0}px, ${y0}px) translate(-50%, -50%) rotate(${spin}deg)` },
-    { transform: `translate(${(x0 + x1) / 2}px, ${Math.min(y0, y1) - 30}px) translate(-50%, -50%) rotate(${spin}deg)`, offset: 0.5 },
-    { transform: `translate(${x1}px, ${y1}px) translate(-50%, -50%) rotate(${spin}deg)` },
-  ], { duration: dur, easing: "ease-in" });
-  const regrow = () => {
-    if (part === "c") return;
-    svg.classList.remove(`thrown-${part}`, `regrow-${part}`); void svg.getBoundingClientRect(); svg.classList.add(`regrow-${part}`);
-  };
-  fly.onfinish = () => {
-    p.remove();
-    regrow();
-    dummy.classList.remove("hit"); void dummy.offsetWidth; dummy.classList.add("hit");
-    const n = document.createElement("span");
-    n.className = "tdbook-dmg";
-    n.style.left = `${x1}px`; n.style.top = `${y1 - 20}px`;
-    n.style.color = TD_GLOW[d.subj] || "#fff";
-    n.textContent = fmtNum(st.dmg);
-    box.appendChild(n);
-    setTimeout(() => n.remove(), 800);
-  };
+    { transform: `translate(${from[0]}px, ${from[1]}px) translate(-50%, -50%) rotate(${rot}deg)` },
+    { transform: `translate(${to[0]}px, ${to[1]}px) translate(-50%, -50%) rotate(${rot}deg)` },
+  ], { duration: dur, easing: "linear" });
+  // cada enemic rep el colp quan el projectil hi arriba
+  for (const e of hitList) {
+    const [ex, ey] = tdDemoPoint(e.el);
+    setTimeout(() => tdDemo === D && tdDemoHit(e, from), Math.hypot(ex - from[0], ey - from[1]) / 0.55);
+  }
+  const regrow = () => { if (pe) { svg.classList.remove(`thrown-${part}`, `regrow-${part}`); void svg.getBoundingClientRect(); svg.classList.add(`regrow-${part}`); } };
+  fly.onfinish = () => { p.remove(); regrow(); };
   fly.oncancel = regrow;
 }
+function tdDemoNearLine([ax, ay], [bx, by], [px, py], r) {
+  const dx = bx - ax, dy = by - ay, t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy)));
+  return Math.hypot(ax + dx * t - px, ay + dy * t - py) <= r;
+}
+function tdDemoHit(target, from) {
+  const D = tdDemo, { d } = D;
+  if (target.dead) return;
+  let hits = [target], dmg = D.st.dmg;
+  if (d.role === "aoe") { const [tx, ty] = tdDemoPoint(target.el); hits = D.enemies.filter(e => !e.dead && Math.hypot(...tdDemoPoint(e.el).map((v, i) => v - [tx, ty][i])) <= 46); }
+  if (d.role === "execute" && target.hp - dmg <= target.max * (d.execute || 0.15)) { dmg = target.hp; tdDemoText(target.el, "det = 0", TD_GLOW.gold); }
+  if (d.role === "stacks" && ++D.stacks >= (d.stacks || 10)) { D.stacks = 0; hits = D.enemies.filter(e => !e.dead); dmg *= d.blast || 12; tdDemoText(D.box.querySelector(".tdbook-art"), "overflow!", "#ff8a1f"); }
+  for (const e of hits) tdDemoDamage(e, dmg);
+  if (d.role === "split" && !target.child) { // es dividix en dos cap als enemics de darrere
+    D.enemies.filter(e => !e.dead && e !== target).slice(0, 2).forEach((e, i) => setTimeout(() => tdDemo === D && !e.dead && tdDemoDamage(e, dmg * 0.6), 180 + i * 60));
+  }
+}
+function tdDemoDamage(e, dmg) {
+  if (e.dead) return;
+  e.hp -= dmg;
+  e.el.classList.remove("hit"); void e.el.offsetWidth; e.el.classList.add("hit");
+  tdDemoText(e.el, fmtNum(dmg), TD_GLOW[tdDemo.d.subj] || "#fff");
+  if (e.hp <= 0) { // es dissol i n'ix un altre per la dreta
+    e.dead = true;
+    e.el.classList.add("dying");
+    setTimeout(() => { e.el.remove(); e.gone = true; if (tdDemo) tdDemoSpawn(0, true); }, 500);
+  }
+}
+function tdDemoText(el, text, color) {
+  if (!tdDemo) return;
+  const [x, y] = tdDemoPoint(el), n = document.createElement("span");
+  n.className = "tdbook-dmg";
+  n.style.left = `${x}px`; n.style.top = `${y - 26}px`; n.style.color = color;
+  n.textContent = text;
+  tdDemo.box.appendChild(n);
+  setTimeout(() => n.remove(), 800);
+}
+setInterval(() => { if (!tdDemo && document.querySelector("#td-dialog:not([hidden]) .tdbook-demo")) requestAnimationFrame(tdDemoTick); }, 250);
