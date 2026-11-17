@@ -213,17 +213,19 @@ let plate;
 // ---------------------------------------------------------------- la Guppy, la gata, dormint feta un rogle damunt del llit
 {
   // atigrada gris i bruna amb el pit, la panxa i les potes blanques, el nas rosa i la cua amb anells
-  // menudeta (encara és una gateta): uns 25 cm feta un rogle. Atigrada gris i bruna, ratlles fosques al llom i la
-  // «M» al front, la ratlla blanca entre els ulls, el morro, el pit, la panxa i les potes blancs; nas i orelles roses
+  // menudeta (encara és una gateta): uns 25 cm feta un rogle. Atigrada gris i bruna, ratlles fosques al llom (l'última,
+  // abans de la cua, és blanca) i la
+  // «M» al front, la ratlla blanca entre els ulls, el morro, el pit, la panxa i les potes blancs; nas i orelles roses; la punta de la cua, blanca
   const GUPPY = `<g transform="scale(0.55)">
     <ellipse cx="2" cy="1" rx="23" ry="5.5" fill="#000" opacity="0.18"/>
     <ellipse cx="4" cy="-8" rx="20" ry="10.5" fill="#8f8676"/>
     <ellipse cx="6" cy="-12" rx="15" ry="5.5" fill="#6e665a" opacity="0.6"/>
-    <path d="M-6 -17 Q-3 -10 -7 -2 M0 -18.5 Q3 -10 -0.5 -1 M6 -18.6 Q9 -10 5.5 -1 M12 -18 Q15 -10 12 -2 M18 -15.5 Q21 -9 18 -3 M23 -11 Q24.5 -8 22.5 -5" stroke="#2e2a26" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    <path d="M-6 -17 Q-3 -10 -7 -2 M0 -18.5 Q3 -10 -0.5 -1 M6 -18.6 Q9 -10 5.5 -1 M12 -18 Q15 -10 12 -2 M18 -15.5 Q21 -9 18 -3" stroke="#2e2a26" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    <path d="M23 -11 Q24.5 -8 22.5 -5" stroke="#f8f6f2" stroke-width="2.4" fill="none" stroke-linecap="round"/>
     <ellipse cx="10" cy="-3" rx="12" ry="5" fill="#f8f6f2"/>
-    <path d="M24 -6 Q27 2 12 3.2 Q-6 4.2 -14 0.5" stroke="#857c6e" stroke-width="5" fill="none" stroke-linecap="round"/>
-    <path d="M22 -2 l-1.4 4.4 M16 0.4 l-0.8 4.4 M10 1.2 l-0.4 4.4 M4 1.4 l-0.2 4.4 M-2 1.4 l0.2 4.2 M-8 1 l0.4 4" stroke="#2a2622" stroke-width="2.1"/>
-    <path d="M-14 0.5 Q-17 0.3 -18 -1.5" stroke="#2a2622" stroke-width="4.6" fill="none" stroke-linecap="round"/>
+    <path d="M24 -6 Q27 2 12 3.4 Q2 4.4 -3 4" stroke="#857c6e" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M22 -2 l-1.4 4.4 M16 0.4 l-0.8 4.4 M10 1.2 l-0.4 4.4 M4 1.4 l-0.2 4.4 M-1 1.6 l0.2 4.2" stroke="#2a2622" stroke-width="2.1"/>
+
     <ellipse cx="-10" cy="-1.6" rx="7" ry="3.4" fill="#f8f6f2"/>
     <ellipse cx="-6" cy="0.8" rx="3" ry="1.8" fill="#fbfaf8"/><ellipse cx="-1.4" cy="1.2" rx="3" ry="1.8" fill="#fbfaf8"/>
     <path d="M-7.5 1.2 h-1 M-3 1.6 h-1" stroke="#e8c8c8" stroke-width="0.6"/>
@@ -236,6 +238,7 @@ let plate;
     <path d="M-17.8 -9.2 q1.7 1.4 3.4 0 M-11.6 -9.2 q1.7 1.4 3.4 0" stroke="#2a2622" stroke-width="1" fill="none" stroke-linecap="round"/>
     <path d="M-13.9 -6.4 L-12.1 -6.4 L-13 -5.3 Z" fill="#f2a0aa"/>
     <path d="M-13 -5.3 v0.9 M-13 -4.4 q-0.8 0.6 -1.5 0.2 M-13 -4.4 q0.8 0.6 1.5 0.2" stroke="#b07a7a" stroke-width="0.4" fill="none"/>
+    <circle cx="-4.2" cy="4" r="2.5" fill="#f8f6f2"/>
     <path d="M-16.5 -5.4 l-6 -1 M-16.5 -4.5 l-6 0.4 M-16.5 -3.6 l-5.4 1.6 M-9.5 -5.4 l6 -1 M-9.5 -4.5 l6 0.4 M-9.5 -3.6 l5.4 1.6" stroke="#ffffff" stroke-width="0.35" opacity="0.9"/>
   </g>`;
   add(figure(GUPPY, -0.75, 0.56, 0.95));
