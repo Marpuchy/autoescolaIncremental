@@ -66,7 +66,7 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
 - Juego de estudio: se entra por el ordenador de la habitación. Sala arcana con puntos (altar = invocar, prestatgeria = apuntar estudio,
   grimori (libro con páginas por asignatura + pestaña de equipo), bestiari (libro), portal = mundos, cristall = millores, estudiant = artefactos, rellotge = reiniciar, porta = habitación).
   Reglas del usuario: los pergamins (tiradas) **solo** salen de estudiar (nunca del combate); en combate se gana maná
-  y saber (para subir niveles); el mítico solo con un 8+ en el final; los jefes dan artefactos al estudiante (3 espacios por parte del cuerpo, `TD_EQUIP_SLOTS`: cap, mà, esquena; uno por espacio). Los artefactos NO se comparten entre carreras/módulos: cada sala tiene los suyos (`tdUseRoomArtifacts`, `artRoom`/`artBank`). Cada mundo da su propio artefacto, uno por mundo (`TD_ARTIFACTS[].world`; la Biblioteca conserva los dos de antes). En el bosque la granoteta va de druida (`TD_DRUID_*`).
+  y saber (para subir niveles); el mítico solo con un 8+ en el final; los jefes dan artefactos al estudiante (3 espacios como en la autoescola sin mascota, `TD_EQUIP_SLOTS`: cap, mà, pell; uno por espacio). Los artefactos NO se comparten entre carreras/módulos: cada sala tiene los suyos (`tdUseRoomArtifacts`, `artRoom`/`artBank`). Cada mundo da su propio artefacto, uno por mundo (`TD_ARTIFACTS[].world`; la Biblioteca conserva los dos de antes). En el bosque la granoteta va de druida (`TD_DRUID_*`).
   Probabilidades 66 / 27 / 6 / 1 con garantía (épico 30, legendario 90); cada invocación solo da criaturas
   del campo elegido. Las asignaturas se agrupan en **campos** (`TD_SUBJECTS[k].classes`): pergamins, garantía y
   criaturas son por campo; se apunta el estudio en la prestatgeria (una lleixa por campo, 4 en total, libros de actividad de la gama del campo, también «Anar a classe» y «Fer un projecte», y al final el libro de exámenes, que se abre para elegir asignatura y nota). Cartel de missions diàries (3 al día, pergamins extra fuera del límite, `TD_MISSION_ACTS`). El cristal de la sala es el de la ventana de millores (`%CRYSTAL%`). Nivel máximo = 5 × estrellas; niveles 10 y 20 mejoran la habilidad. Maná del combate: solo el inicial y el que dan los enemigos al morir (nada por tiempo). Copias → estrellas (1/2/4/7/11), pero subir de estrella se paga con saber (`TD_STAR_COST`, botón en el grimorio; `o.stars` guarda las pagadas).
@@ -81,10 +81,10 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   reacciona para dispararla (gira, apunta, se recarga, alterna piezas). Ejemplo: la Brúixola gira la aguja para que la
   mitad que toca (roja o blanca, iguales) apunte al enemigo, la dispara y vuelve a crecer (`aim`, `aimHold`, `alt`, `projR`). La pieza lanzada vuelve a crecer
   despacio y acaba justo cuando sale el tiro siguiente; no se dispara una pieza a medio crecer (`regrow`, `tdbPartOut`).
-  **Aparador del grimorio** (siempre, para cada criatura nueva o cambiada): la demostración del libro usa la composición
-  que mejor enseña su habilidad y sus mejoras (`TD_DEMO_SETUP`: por id, por habilidad o por rol; enemigos en fila, en
-  grupo, uno fuerte, otras criaturas como amigas en el carril —`allies`— o en otro sitio…) y dibuja los mismos efectos que
-  el combate (anillos, línea de fuego, raíces, anilla).
+  **Aparador del grimorio** (siempre, para cada criatura nueva o cambiada): la demostración del libro ES el combate real
+  (`tddemo.html?d=<id>` en un iframe, `js/td/demo.js`: mismo código, mismas animaciones, no guarda nada). Solo cambian
+  las condiciones, favorables para lucir el arma: escenario por criatura o rol en `TD_DEMO_SCENES` (camino, vista
+  acercada, dónde va, amigas al lado —`allies`—, qué distracciones pasan y agrupadas cómo).
   Invocación: pantalla propia; «Saltar» se para en legendarias y míticas; la mítica se monta pieza a pieza.
   Estilo de las criaturas: símbolos de energía en neón sobre fondo oscuro (referencia: «Animation vs. Math»), sin
   caras; cada una hecha con los símbolos de su asignatura y la pieza que lanza forma parte del cuerpo. Pocas y cuidadas.

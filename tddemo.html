@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demostració</title>
+  <!-- La demostració del grimori (js/td/demo.js): el combat de veritat dins d'un iframe, sense guardar res -->
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="td.css">
+  <style>
+    html, body { margin: 0; background: #07090f; overflow: hidden; }
+    #td-battle { animation: none; }
+    .tdb-top, .tdb-bottom, #tdb-end, .tdb-banner { display: none !important; }
+    .tdb-map { flex: 1; }
+    #tdb-svg { pointer-events: none; }
+  </style>
+</head>
+<body>
+  <div id="td-lobby" hidden></div>
+  <div id="td-battle" class="td-screen">
+    <div class="tdb-top" id="tdb-top">
+      <span id="tdb-world"></span><strong id="tdb-wave"></strong><strong id="tdb-lives"></strong><strong id="tdb-mana"></strong><strong id="tdb-saber"></strong>
+      <button id="tdb-next"></button><button id="tdb-speed"></button><button id="tdb-exit"></button>
+    </div>
+    <div class="tdb-map" id="tdb-map"><svg id="tdb-svg" preserveAspectRatio="xMidYMid slice" aria-label="Demostració"></svg><div class="tdb-banner" id="tdb-banner"></div></div>
+    <div class="tdb-bottom"><div class="tdb-deck" id="tdb-deck"></div><div class="tdb-panel" id="tdb-panel" hidden></div></div>
+    <div id="tdb-end" hidden><h2 id="tdb-end-title"></h2><div id="tdb-end-body"></div></div>
+  </div>
+  <script src="js/config.js"></script>
+  <script src="js/util.js"></script>
+  <script src="js/td/data.js"></script>
+  <script src="js/td/art.js"></script>
+  <script src="js/td/state.js"></script>
+  <script src="js/td/battle.js"></script>
+  <script src="js/td/demo.js"></script>
+</body>
+</html>

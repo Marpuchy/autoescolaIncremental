@@ -32,8 +32,8 @@ Reúne lo que el usuario ha ido pidiendo criatura a criatura. Seguir el orden y 
 - **Lo que lanza es una pieza real de su cuerpo** (`.al`, `.ar`), con el mismo tamaño, forma, color y orientación que
   el proyectil (`proj`, y `projR` si la derecha es distinta). Si tiene dos piezas iguales (la aguja roja y la blanca),
   las dos se lanzan.
-- Proyectiles con dirección (flechas, agujas): añadir el id a la lista de los que giran (`turn` en `tdbRender` y
-  `rot` en `tdDemoLaunch`) y dibujarlos apuntando a la derecha y centrados en (0, 0).
+- Proyectiles con dirección (flechas, agujas): añadir el id a la lista de los que giran (`turn` en
+  `tdbRender`) y dibujarlos apuntando a la derecha y centrados en (0, 0).
 - Movimiento realista del proyectil. Ejemplo: la sàmara gira en horizontal (`scaleX` de 1 a −1, como un helicóptero
   visto de lado), no como una rueda.
 - Círculos que deben ser círculos (anillos, ondas): nunca elipses.
@@ -52,13 +52,14 @@ Reúne lo que el usuario ha ido pidiendo criatura a criatura. Seguir el orden y 
   mientras dura), no textos repetidos de «+30 %».
 - Si es constante (no dispara), que se vea algo que lo mantiene (el bidón vuelve a echar fuego de vez en cuando).
 
-## 5. Demostración del grimorio (`js/td/lobby.js`, `TD_DEMO_SETUP`, `tdDemo*`)
-- La composición que mejor enseña la habilidad y sus mejoras: entrada por id (o por rol o habilidad) con `n`, `gap`,
-  `spread`, `mix` (uno fuerte delante) y `allies` (otras criaturas en el carril; `shoot` si atacan; `bonus: "aura"`).
-  Se pueden añadir otras criaturas o cambiarlas de sitio si así se entiende mejor.
-- Los mismos efectos que en combate, dibujados igual: anillos redondos recortados a la caja, línea de fuego en el
-  suelo y debajo de los enemigos, raíces, anilla en la pata, resina.
-- El mismo ritmo de tiro y crecimiento que en combate (`D.parts`, `projSpeed`, `--regrow`).
+## 5. Demostración del grimorio (`tddemo.html`, `js/td/demo.js`, `TD_DEMO_SCENES`)
+- **Es el combate real** dentro de un iframe: el mismo código y las mismas animaciones (raíces, fuego, anillos, anilla,
+  crecimiento de las piezas…). Nunca hacer una animación aparte para el libro: si algo se ve distinto, es un error.
+- Solo cambian las condiciones, favorables para lucir el arma: un escenario por criatura (o por rol) en
+  `TD_DEMO_SCENES` con `path` (recto o en U, entre dos tramos), `view` (vista acercada a la acción), `slots` (la primera
+  es la criatura), `allies` (otras criaturas al lado, p. ej. un Pi dentro del aura de la Carrasca), `spawn` (qué
+  distracciones salen juntas y cada cuánto) y `gap`.
+- No guarda nada (`tdSave` vacío, partida en memoria) y no carga la autoescola ni la nube.
 
 ## 6. Balance: `python tools/td-bot.py <id> [--mon]`
 - Prueba de daño: DPS y DPS por 100 de maná de la criatura sola, comparado con la media de su rareza. Las de zona salen
@@ -69,8 +70,8 @@ Reúne lo que el usuario ha ido pidiendo criatura a criatura. Seguir el orden y 
 ## 7. Integración
 - Estilos y animaciones en `td.css`. Si la pieza tiene un centro de giro propio, usar `transform-box: view-box` y su
   `transform-origin`.
-- Habilidades nuevas: en combate (`tdbFire` / `tdbHit` / `tdbSpecial`), en la demostración (`tdDemoFire` /
-  `tdDemoHit` / `tdDemoSpecial`) y, si el Projecte integrador puede copiarla, en `echo` (combate y demostración).
+- Habilidades nuevas: en combate (`tdbFire` / `tdbHit` / `tdbSpecial`; la demostración las hereda sola) y, si el
+  Projecte integrador puede copiarla, en `echo`.
 - Actualizar CLAUDE.md (la lista de criaturas de su carrera) si cambia el reparto.
 
 ## 8. Comprobar (antes de enseñarla)
@@ -78,8 +79,8 @@ Reúne lo que el usuario ha ido pidiendo criatura a criatura. Seguir el orden y 
 2. Galería de la criatura en grande (300 px) con todas las de su campo: mirar proporciones y piezas.
 3. **Combate fotograma a fotograma** (Playwright: pausar con `tdb.paused = true`, avanzar con `tdbUpdate(0.05)`,
    capturar de 8 a 12 fotogramas): girar, apuntar, salir, volar, impactar, volver a crecer al ritmo del siguiente tiro.
-4. Demostración del grimorio a los 2 s y a los 2,5 s: se ve la habilidad, los efectos están en su sitio y no hay
-   elipses ni efectos tapando a los enemigos.
+4. Demostración del grimorio (`tddemo.html?d=<id>` a 340×110 y dentro del libro): se ve la habilidad desde el
+   principio y la vista está centrada en la acción.
 5. 1440 / 820 / 390 px sin errores de consola ni scroll horizontal.
 6. Pasar el bot (punto 6).
 

@@ -131,16 +131,16 @@ const TD_ARTIFACTS = {
   cafe:       { name: "Cafè arcà", icon: "☕", slot: "ma", boss: "diumenge", world: 1, stat: "rate", value: 0.15,
                 desc: lvl => `+${Math.round(0.15 * tdArtMult(lvl) * 100)} % de velocitat d'atac.` },
   // Bosc. Sendera de les Arrels: la pell del Llop de la lluna, sobre les espatles; espanta les distraccions
-  capallop:   { name: "Capa de llop", icon: "🐺", slot: "esquena", boss: "diumenge", world: 101, stat: "slowAll", value: 0.06,
+  capallop:   { name: "Capa de llop", icon: "🐺", slot: "pell", boss: "diumenge", world: 101, stat: "slowAll", value: 0.06,
                 desc: lvl => `Les distraccions s'espanten: van un ${Math.round(0.06 * tdArtMult(lvl) * 100)} % més lentes.` },
 };
 const tdArtMult = lvl => 1 + 0.25 * (lvl - 1);
 const TD_ARTIFACT_SLOTS = 3;
-// Espais de l'estudiant (com a l'autoescola): cada artefacte va en el seu; un per espai.
+// Espais de l'estudiant (com a l'autoescola, sense la mascota): cada artefacte va en el seu; un per espai.
 const TD_EQUIP_SLOTS = [
   { id: "cap",     icon: "🎩", name: "Cap" },
   { id: "ma",      icon: "✋", name: "Mà" },
-  { id: "esquena", icon: "🎒", name: "Esquena" },
+  { id: "pell",    icon: "🎨", name: "Pell" },     // com a l'autoescola (cap, mà i pell), sense mascota
 ];
 const tdArtSlot = id => TD_ARTIFACTS[id]?.slot;
 
