@@ -1,6 +1,6 @@
-// ===== NÚVOL (partides de Marc i de la seua parella a Supabase) =====
+// ===== NÚVOL (partides de Marc i d'Alba a Supabase) =====
 // Cadascú tria qui és (es recorda en este dispositiu; es canvia als ajustos de la vitrina de l'habitació).
-//   · Marc: juga a Informàtica (partida «estudi»); l'autoescola i Forestal de la parella només les pot mirar.
+//   · Marc: juga a Informàtica (partida «estudi»); l'autoescola i Forestal d'Alba només les pot mirar.
 //   · La parella: juga a Forestal (partida «estudi») i a l'autoescola; la sala d'Informàtica de Marc, només mirar-la.
 // Només la web publicada (CLOUD_PROD_HOST) guarda al núvol. Qualsevol altra (local, file://, proves) és experimental:
 // comença amb una còpia de la partida real però no la toca mai.
@@ -10,7 +10,7 @@ const CLOUD_KEY = "sb_publishable_ivwJNv4MQdPuOVX4CFfG7Q_3dYk58YG"; // clau púb
 const CLOUD_PROD_HOST = "marpuchy.github.io";
 const PLAYERS = {
   marc:    { name: "Marc",    icon: "💻", games: ["estudi"] },
-  parella: { name: "Parella", icon: "🌳", games: ["autoescola", "estudi"] },
+  parella: { name: "Alba", icon: "🌳", games: ["autoescola", "estudi"] },
 };
 const ROOM_OWNER = { informatic: "marc", forestal: "parella", autoescola: "parella" };
 const CLOUD_WHO_KEY = "estudi-qui";

@@ -47,7 +47,7 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   Única excepción (pedida por el usuario): el vídeo de YouTube de la tele de la DGT, que solo se carga al tocar el
   logo un rincón (`DVD_VIDEO` en `js/hub.js`). Desde `file://` sale en negro; publicado funciona.
   Segunda excepción (pedida por el usuario): **las partidas en la nube** (`js/cloud.js`, Supabase, con `fetch` y sin
-  librerías). Solo juegan Marc y su pareja: cada uno elige quién es (se recuerda en el dispositivo; se cambia en los
+  librerías). Solo juegan Marc y su pareja, Alba (id `parella`): cada uno elige quién es (se recuerda en el dispositivo; se cambia en los
   ajustes de la vitrina). Marc juega a Informàtica; la pareja, a Forestal y a la autoescola; lo del otro solo se mira
   (modo visita, sin guardar). La base de datos lo impone (`save_game` comprueba quién puede escribir qué; la tabla
   solo se lee) y guarda un historial (`saves_history`). Solo la web publicada (`CLOUD_PROD_HOST`) escribe en la nube;
