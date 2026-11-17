@@ -20,8 +20,8 @@ function closeHub() {
 }
 
 function openHubPanel(name) {
-  if (name === "reset") { reset(); return; } // la destructora de paper (demana confirmació)
-  if (name === "exit") { openRoom(); return; }   // la porta d'eixida: a l'habitació
+  if (name === "reset") { if (cloudViewing("autoescola")) { toast("👀 És la partida de l'altra persona: no es pot reiniciar", "bad"); return; } reset(); return; } // la destructora de paper (demana confirmació)
+  if (name === "exit") { if (cloudViewing("autoescola")) { cloudEndVisit(); return; } openRoom(); return; } // la porta: a l'habitació (i s'acaba la visita)
   if (name === "road") { closeHub(); return; }   // la finestra: tornar a la carretera
   if (name === "inventory") {
     if (!inventoryUnlocked()) { toast("🔒 L'espill es desbloqueja quan derrotes Pixel", "bad"); return; }

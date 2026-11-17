@@ -79,4 +79,6 @@ renderShop();
 if (state.examPending && CONFIG.debug.autoPassExams) skipExam();
 if (state.examPending) showExamIntro(); // l'examen pendent no es pot evitar recarregant
 else { openRoom(); toast("🏠 Benvingut a casa!"); } // s'entra per l'habitació
+initCloud(); // qui eres, guardar i baixar del núvol, mode visita (js/cloud.js)
+if (sessionStorage.getItem("estudi-visita-obrir") === "dgt") { sessionStorage.removeItem("estudi-visita-obrir"); if (!state.examPending) { closeRoom(); openHub(); } }
 requestAnimationFrame(loop);

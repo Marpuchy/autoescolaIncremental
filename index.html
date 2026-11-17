@@ -126,6 +126,7 @@
       <button data-room="dgt"><span class="lplate">L</span><span>Autoescola</span></button>
       <button data-room="study">💻<span>Informàtica</span></button>
       <button data-room="forestal">🎒<span>Forestal</span></button>
+      <button data-room="settings">⚙️<span>Ajustos</span></button>
     </nav>
   </div>
 
@@ -291,6 +292,13 @@
   </div>
 
   <!-- L'ordre importa: primer config i dades, després lògica i interfície; main.js arranca el joc -->
+  <!-- NÚVOL (js/cloud.js): triar qui eres, ajustos (vitrina de l'habitació) i avís de mode visita -->
+  <div id="who-dialog" class="who-dialog" hidden></div>
+  <div id="settings-dialog" class="who-dialog" hidden>
+    <div class="who-card"><button class="who-x" id="settings-close" aria-label="Tancar">×</button><h2>⚙️ Ajustos</h2><div id="settings-body"></div></div>
+  </div>
+  <div id="visit-banner" class="visit-banner" hidden><span id="visit-banner-text"></span><button id="visit-end" class="secondary">Tornar a la meua</button></div>
+
   <script src="js/config.js"></script>
   <script src="js/util.js"></script>
   <script src="js/data/enemy-art.js"></script>
@@ -328,6 +336,7 @@
   <script src="js/td/battle.js"></script>
   <script src="js/td/lobby.js"></script>
   <script src="js/td/dev.js"></script>
+  <script src="js/cloud.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

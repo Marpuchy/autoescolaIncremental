@@ -66,7 +66,9 @@ let savingSuspended = false;
 function save() {
   if (savingSuspended) return;
   const saveVersion = Math.max(SAVE_VERSION, loadedSaveVersion);
-  try { localStorage.setItem(SAVE_KEY, JSON.stringify({ ...state, saveVersion })); } catch {}
+  const json = JSON.stringify({ ...state, saveVersion });
+  try { localStorage.setItem(SAVE_KEY, json); } catch {}
+  if (typeof cloudSaved === "function") cloudSaved("autoescola", json); // i al núvol (js/cloud.js)
 }
 
 // Guarda una còpia del text original abans de tocar res, per si alguna cosa isquera malament
@@ -76,7 +78,10 @@ function backupRawSave(raw, reason) {
 
 function load() {
   let raw = null;
-  try { raw = localStorage.getItem(SAVE_KEY); } catch { return null; }
+  // mode visita: la partida de l'altra persona (del núvol), sense guardar res
+  const visit = typeof cloudViewRaw === "function" ? cloudViewRaw("autoescola") : null;
+  if (visit) savingSuspended = true;
+  try { raw = visit || localStorage.getItem(SAVE_KEY); } catch { return null; }
   if (!raw) return null;
 
   try {

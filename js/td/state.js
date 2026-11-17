@@ -31,11 +31,13 @@ let tdSavingSuspended = false;
 
 function tdSave() {
   if (tdSavingSuspended) return;
-  try { localStorage.setItem(TD_SAVE_KEY, JSON.stringify(td)); } catch {}
+  const json = JSON.stringify(td);
+  try { localStorage.setItem(TD_SAVE_KEY, json); } catch {}
+  if (typeof cloudSaved === "function") cloudSaved("estudi", json); // i al núvol (js/cloud.js)
 }
-function tdLoad() {
-  let raw = null;
-  try { raw = localStorage.getItem(TD_SAVE_KEY); } catch {}
+function tdLoad(fromRaw = null) { // fromRaw: una partida que no és la d'este dispositiu (mode visita)
+  let raw = fromRaw;
+  if (raw == null) try { raw = localStorage.getItem(TD_SAVE_KEY); } catch {}
   if (!raw) return;
   try {
     const data = JSON.parse(raw);

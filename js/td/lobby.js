@@ -18,7 +18,8 @@ const TD_ROOMS = {
 function tdOpenLobby(room = tdRoom) {
   if (typeof roomOpen === "function" && roomOpen()) closeRoom();
   tdRoom = TD_ROOMS[room] ? room : "informatic";
-  tdUseRoomArtifacts(tdRoom);
+  if (!tdViewingOf) tdUseRoomArtifacts(tdRoom);
+  cloudTdEnter(tdRoom).then(() => { if (!tdViewingOf) tdUseRoomArtifacts(tdRoom); cloudVisitBanner(); });
   $("td-lobby").hidden = false;
   $("td-lobby").classList.toggle("forest", tdRoom === "forestal");
   $("td-lobby-top").querySelector("h2").textContent = TD_ROOMS[tdRoom].title;
@@ -27,6 +28,7 @@ function tdOpenLobby(room = tdRoom) {
 }
 function tdCloseLobby() {
   tdClosePanel();
+  cloudTdLeave(); cloudVisitBanner(); // en eixir de la sala, s'acaba la visita
   $("td-lobby").hidden = true;
   document.body.classList.remove("td-open");
 }
@@ -61,7 +63,7 @@ const TD_PANELS = {
 function tdSpot(name) {
   if (name === "exit") { tdCloseLobby(); openRoom(); return; }
   if (tdRoom === "forestal") { toast("🌱 Les assignatures i les criatures de Forestal encara s'estan preparant", "info"); return; }
-  if (name === "reset") { tdAskRestart(); return; }
+  if (name === "reset") { if (tdViewingOf) { toast("👀 És la partida de l'altra persona: no es pot reiniciar", "bad"); return; } tdAskRestart(); return; }
   $("td-card").dataset.panel = name;
   if (name === "grimori" || name === "bestiary") tdBook = { tab: name === "grimori" ? tdSubj : "best", page: 0 };
   $("td-card-title").textContent = TD_PANELS[name];

@@ -16,8 +16,17 @@ function closeRoom() {
   document.body.classList.remove("room-open");
 }
 
+function openSettings() {
+  $("settings-dialog").hidden = false;
+  $("settings-body").innerHTML = cloudSettingsHtml();
+}
 function goRoomSpot(name) {
-  if (name === "dgt") { closeRoom(); openHub(); return; }
+  if (name === "dgt") {
+    // l'autoescola és de la parella: qui no hi pot jugar, la mira (js/cloud.js)
+    if (cloudWho() && !cloudCanWrite("autoescola") && !cloudViewing("autoescola")) { cloudVisitAutoescola(); return; }
+    closeRoom(); openHub(); return;
+  }
+  if (name === "settings") { openSettings(); return; }                // la vitrina: ajustos
   if (name === "study") { closeRoom(); tdOpenLobby("informatic"); }     // l'ordinador: sala d'estudi d'Informàtica
   if (name === "forestal") { closeRoom(); tdOpenLobby("forestal"); }  // la motxilla: sala del bosc de Forestal
 }

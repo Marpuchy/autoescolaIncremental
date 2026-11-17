@@ -176,6 +176,8 @@ let plate;
   // vidres (porta i costat) amb un reflex
   s += quad(face(v, "left"), 0, 0, 1, 1, `fill="#cfe0e8" opacity="0.16"`) + quad(face(v, "left"), 0.12, 0.04, 0.24, 0.96, `fill="#fff" opacity="0.14"`);
   s += quad(face(v, "front"), 0, 0, 1, 1, `fill="#cfe0e8" opacity="0.1"`);
+  add(s, { spot: "settings", title: "Vitrina: ajustos (qui eres, guardar al núvol)", hit: bbox([[v.x0, 0, v.z0], [v.x0, v.y1, v.z1], [v.x1, v.y1, v.z0]]) });
+  s = "";
   add(s);
 }
 
