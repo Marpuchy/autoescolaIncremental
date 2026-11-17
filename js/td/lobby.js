@@ -69,12 +69,14 @@ const TD_PANELS = {
   gacha: "🔮 Altar d'invocació", study: "📚 Prestatgeria d'estudi", grimori: "📖 Grimori", bestiary: "👾 Bestiari",
   worlds: "🌀 Portal dels mons", upgrades: "💎 Cristall", student: "🐸 Estudiant",
 };
+// al bosc, alguns punts tenen un altre nom
+const TD_PANELS_FOREST = { upgrades: "🟢 Jade", gacha: "🌱 Altar d'invocació", worlds: "🌳 Portal dels mons" };
 function tdSpot(name) {
   if (name === "exit") { tdCloseLobby(); openRoom(); return; }
   if (name === "reset") { if (tdViewingOf) { toast("👀 És la partida de l'altra persona: no es pot reiniciar", "bad"); return; } tdAskRestart(); return; }
   $("td-card").dataset.panel = name;
   if (name === "grimori" || name === "bestiary") tdBook = { tab: name === "grimori" ? tdSubj : "best", page: 0 };
-  $("td-card-title").textContent = TD_PANELS[name];
+  $("td-card-title").textContent = (tdRoom === "forestal" && TD_PANELS_FOREST[name]) || TD_PANELS[name];
   $("td-dialog").hidden = false;
   tdRenderPanel();
   $("td-card-close").focus();
@@ -499,13 +501,14 @@ function tdUpgradesHtml() {
   const total = ids.reduce((s, id) => s + td.upgrades[id], 0), max = ids.reduce((s, id) => s + TD_UPGRADES[id].max, 0);
   const node = (id, i) => {
     const u = TD_UPGRADES[id], lvl = td.upgrades[id], full = lvl >= u.max, cost = tdUpgradeCost(id);
-    return `<div class="td-cnode td-cnode-${i}"><div class="td-cnode-head"><span class="td-up-icon">${u.icon}</span><strong>${u.name}</strong></div>
+    const jade = t => tdRoom === "forestal" ? t.replace(/Cristall/g, "Jade").replace(/cristall/g, "jade") : t; // al bosc, el cristall és el jade
+    return `<div class="td-cnode td-cnode-${i}"><div class="td-cnode-head"><span class="td-up-icon">${tdRoom === "forestal" && u.icon === "💎" ? "🟢" : u.icon}</span><strong>${jade(u.name)}</strong></div>
       <div class="td-cnode-bar"><div style="width:${100 * lvl / u.max}%"></div><span>${lvl} / ${u.max}</span></div>
-      <div class="muted">${u.desc}${lvl ? ` · ara ${u.per(lvl)}` : ""}</div>
+      <div class="muted">${jade(u.desc)}${lvl ? ` · ara ${jade(u.per(lvl))}` : ""}</div>
       <button data-up="${id}" ${full || td.saber < cost ? "disabled" : ""}>${full ? "Màxim" : `✨ ${fmtNum(cost)}`}</button></div>`;
   };
-  return `<p class="td-hint">Millores permanents amb el saber dels mons: cada una encén el cristall. Tens ✨ <strong>${fmtNum(Math.floor(td.saber))}</strong>.</p>
-    <div class="td-crystal-menu">${node(ids[0], 0)}<div class="td-crystal-core">${tdCrystalSvg(total / max)}<div class="td-crystal-pct">${Math.round(100 * total / max)} %</div></div>${ids.slice(1).map((id, i) => node(id, i + 1)).join("")}</div>`;
+  return `<p class="td-hint">Millores permanents amb el saber dels mons: cada una encén ${tdRoom === "forestal" ? "el jade" : "el cristall"}. Tens ✨ <strong>${fmtNum(Math.floor(td.saber))}</strong>.</p>
+    <div class="td-crystal-menu">${node(ids[0], 0)}<div class="td-crystal-core">${(tdRoom === "forestal" ? tdJadeSvg : tdCrystalSvg)(total / max)}<div class="td-crystal-pct">${Math.round(100 * total / max)} %</div></div>${ids.slice(1).map((id, i) => node(id, i + 1)).join("")}</div>`;
 }
 
 // ---- estudiant (artefactes)
@@ -611,27 +614,32 @@ function initTdLobby() {
 // ---- demostració al grimori: enemics del món 1 caminen pel carril cap a la criatura, que els ataca com al combat.
 // Quants i com es col·loquen depén de la criatura (en filera per a les que travessen, en grup per a les de zona…):
 // la composició ha de deixar veure la seua habilitat i les millores (n'hi ha per criatura, per habilitat i per rol).
-// ally: una criatura amiga al carril (per a les que milloren les altres, com la Carrasca).
+// allies: altres criatures del bosc al carril, on millor s'entenga la criatura (shoot: també ataquen). Per exemple,
+// un Pi dins de l'aura de la Carrasca, un Pi que pega més a l'anellada o les criatures que el Projecte copia.
 const TD_DEMO_SETUP = {
   pierce: { n: 4, gap: 30 }, aoe: { n: 4, gap: 22, spread: 14 }, split: { n: 3, gap: 55 }, smart: { n: 3, gap: 60, mix: true },
   execute: { n: 2, gap: 90 }, stacks: { n: 3, gap: 120 }, align: { n: 4, gap: 50, spread: 16 }, default: { n: 2, gap: 80 },
-  pulse: { n: 4, gap: 34, spread: 12 }, burn: { n: 4, gap: 22, spread: 10 }, mark: { n: 3, gap: 55, mix: true },
-  carrasca: { n: 3, gap: 26, spread: 12, ally: "pi" }, projecte: { n: 4, gap: 28, spread: 12 },
+  pulse: { n: 4, gap: 34, spread: 12 }, line: { n: 3, gap: 70 }, mark: { n: 3, gap: 55, mix: true },
+  carrasca: { n: 3, gap: 26, spread: 12, allies: [{ id: "pi", shoot: true, bonus: "aura" }] },
+  anellador: { n: 3, gap: 55, mix: true, allies: [{ id: "pi", shoot: true }] },
+  projecte: { n: 4, gap: 28, spread: 12, allies: [{ id: "carrasca" }, { id: "contrafoc" }, { id: "anells" }] },
 };
 let tdDemo = null;
 function tdDemoStart(box) {
   const id = box.dataset.demo, d = TD_DEFENDERS[id], lane = box.querySelector(".tdbook-lane");
   const set = TD_DEMO_SETUP[id] || TD_DEMO_SETUP[d.special?.type === "align" ? "align" : d.role] || TD_DEMO_SETUP.default;
   tdDemo = { box, id, d, lane, set, st: tdStats(id), enemies: [], shots: [], burns: [], cd: 0.6, side: 0, n: d.special ? d.special.every - 2 : 0, aimA: 0, last: performance.now(), stacks: 0 };
-  lane.querySelectorAll(".tdbook-ally, .tdbook-burn").forEach(n => n.remove());
-  if (set.ally) { // criatura amiga dins de l'aura: brilla i fa més mal
+  lane.querySelectorAll(".tdbook-ally, .tdbook-burn").forEach(n => n.remove()); // d'una pàgina anterior
+  tdDemo.allies = (set.allies || []).map((o, i) => { // criatures amigues, en fila al principi del carril
     const a = document.createElement("div");
-    a.className = "tdbook-ally";
-    a.innerHTML = tdCreatureSvg(set.ally);
+    a.className = `tdbook-ally${o.bonus === "aura" ? " aura" : ""}`;
+    a.style.left = `${3 + i * 17}%`;
+    a.innerHTML = tdCreatureSvg(o.id);
     lane.appendChild(a);
-    tdDemo.ally = { el: a, id: set.ally, st: tdStats(set.ally), cd: 0.4 };
-  }
+    return { ...o, el: a, st: tdStats(o.id), cd: 0.4 + i * 0.2 };
+  });
   for (let i = 0; i < set.n; i++) tdDemoSpawn(i);
+  if (d.role === "line") tdDemoBurn({ x: lane.clientWidth * 0.42 }, tdDemo.st.dmg * d.line.dps, Infinity);
 }
 function tdDemoSpawn(i, fromEdge = false) {
   const D = tdDemo, w = D.lane.clientWidth, h = D.lane.clientHeight;
@@ -671,18 +679,18 @@ function tdDemoTick(now) {
     b.t -= dt; b.tick -= dt;
     const inside = D.enemies.filter(e => !e.dead && Math.abs(e.x - b.x) <= b.w / 2);
     if (b.tick <= 0) { b.tick = 0.5; inside.forEach(e => tdDemoDamage(e, b.dps * 0.5, "#ff8a3a")); }
-    if (b.t <= 0) b.el.remove();
+    if (b.t <= 0) b.el?.remove();
   }
   D.burns = D.burns.filter(b => b.t > 0);
-  if (D.ally && (D.ally.cd -= dt) <= 0) { // l'amic dins de l'aura de la Carrasca
-    const tg = D.enemies.filter(e => !e.dead && e.x < w - 6).sort((a, b) => a.x - b.x)[0];
-    if (tg) {
-      D.ally.cd = 1 / D.ally.st.rate;
-      const sv = D.ally.el.querySelector(".tdc");
-      sv.classList.remove("fire"); void sv.getBoundingClientRect(); sv.classList.add("fire");
-      tdDemoDamage(tg, D.ally.st.dmg * (1 + D.d.aura.dmg), TD_GLOW.mnt);
-      tdDemoText(D.ally.el, "+30 %", TD_GLOW.mnt);
-    } else D.ally.cd = 0.2;
+  for (const A of D.allies) { // els amics que ataquen (dins de l'aura, o pegant a l'anellada)
+    if (!A.shoot || (A.cd -= dt) > 0) continue;
+    const tg = D.enemies.filter(e => !e.dead && e.x < w - 6).sort((a, b) => (b.mark || 0) - (a.mark || 0) || a.x - b.x)[0];
+    if (!tg) { A.cd = 0.2; continue; }
+    A.cd = 1 / A.st.rate;
+    const sv = A.el.querySelector(".tdc");
+    sv.classList.remove("fire"); void sv.getBoundingClientRect(); sv.classList.add("fire");
+    tdDemoDamage(tg, A.st.dmg * (A.bonus === "aura" ? 1 + D.d.aura.dmg : 1), TD_GLOW.mnt);
+    if (A.bonus === "aura") tdDemoText(A.el, "+30 %", TD_GLOW.mnt);
   }
   // atacar quan algun enemic és dins del carril
   D.cd -= dt;
@@ -715,6 +723,7 @@ function tdDemoFire(target) {
     svg.classList.add("load"); // la fletxa es posa dins de la V
   }
   svg.classList.remove("fire"); void svg.getBoundingClientRect(); svg.classList.add("fire");
+  if (d.role === "line") return; // no dispara: només torna a abocar foc a la línia
   if (d.role === "pulse") { // l'anell ix del centre de la criatura i s'eixampla fins a la punta del carril
     const [cx, cy] = tdDemoPoint(svg), R = D.box.clientWidth - cx, ry = D.box.clientHeight * 0.42, dur = 700;
     const ring = document.createElement("i");
@@ -742,10 +751,12 @@ function tdDemoSpecial(target) {
       if (sp.type === "root" || d.subj === "mnt") tdbTrap(e, sp.type === "root" ? "root" : "resin");
     });
     if (sp.type === "echo") { // fa l'habilitat d'una altra criatura del bosc, més forta (n'escull una cada vegada)
-      const [name, act] = [["Carrasca", "root"], ["Anells", "resin"], ["Contrafoc", "burn"], ["Anellador", "mark"]][Math.floor(Math.random() * 4)];
-      tdDemoText(D.box.querySelector(".tdbook-art"), `🧩 ${name}`, TD_GLOW.myth);
+      const acts = { carrasca: "root", anells: "resin", contrafoc: "burn", anellador: "mark" };
+      const A = D.allies[Math.floor(Math.random() * D.allies.length)], act = acts[A?.id] || "root";
+      tdDemoText(D.box.querySelector(".tdbook-art"), `🧩 ${TD_DEFENDERS[A?.id || "carrasca"].name}`, TD_GLOW.myth);
+      if (A) { A.el.classList.remove("copied"); void A.el.offsetWidth; A.el.classList.add("copied"); } // la que copia s'encén
       if (act === "root" || act === "resin") D.enemies.filter(e => !e.dead).forEach(e => { e.stun = 1.5 * sp.boost; tdbTrap(e, act); });
-      if (act === "burn") tdDemoBurn(target, D.st.dmg * TD_DEFENDERS.contrafoc.burn.dps * sp.boost, 4 * sp.boost);
+      if (act === "burn") tdDemoBurn(target, D.st.dmg * TD_DEFENDERS.contrafoc.line.dps * sp.boost, 4 * sp.boost);
       if (act === "mark") tdbMark(target, TD_DEFENDERS.anellador.mark * sp.boost);
     }
     if (sp.type === "align") { // els alinea en una recta, els para i els fa vulnerables (reben més dany)
@@ -813,7 +824,6 @@ function tdDemoHit(target, from) {
   if (d.role === "aoe") { const [tx, ty] = tdDemoPoint(target.el); hits = D.enemies.filter(e => !e.dead && Math.hypot(...tdDemoPoint(e.el).map((v, i) => v - [tx, ty][i])) <= 46); }
   if (d.role === "execute" && target.hp - dmg <= target.max * (d.execute || 0.15)) { dmg = target.hp; tdDemoText(target.el, "det = 0", TD_GLOW.gold); }
   if (d.role === "stacks" && ++D.stacks >= (d.stacks || 10)) { D.stacks = 0; hits = D.enemies.filter(e => !e.dead); dmg *= d.blast || 12; tdDemoText(D.box.querySelector(".tdbook-art"), "overflow!", "#ff8a1f"); }
-  if (d.role === "burn") tdDemoBurn(target, dmg * d.burn.dps, d.burn.dur * D.st.ability);
   if (d.role === "mark" && !target.mark) { tdbMark(target, d.mark * D.st.ability); tdDemoText(target.el, "anellat!", "#d8dde6"); }
   for (const e of hits) tdDemoDamage(e, dmg);
   if (d.role === "split" && !target.child) { // es dividix en dos cap als enemics de darrere
@@ -822,7 +832,7 @@ function tdDemoHit(target, from) {
 }
 // Franja de foc al carril (Contrafoc, o el Projecte quan la copia)
 function tdDemoBurn(target, dps, dur) {
-  const D = tdDemo, k = D.lane.clientWidth / 520, w = 110 * k;
+  const D = tdDemo, k = D.lane.clientWidth / 520, w = (dur === Infinity ? 46 : 110) * k; // la línia del Contrafoc és estreta
   const b = { x: target.x, w, t: dur, tick: 0.25, dps, el: document.createElement("div") };
   b.el.className = "tdbook-burn";
   Object.assign(b.el.style, { left: `${b.x - w / 2}px`, width: `${w}px` });

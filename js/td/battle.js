@@ -44,7 +44,7 @@ function tdOpenBattle(worldId = 1) {
     lives: TD_BATTLE.lives + 3 * td.upgrades.vida, mana: TD_BATTLE.startMana + 20 * td.upgrades.mana,
     saber: 0, kills: 0, enemies: [], towers: {}, projs: [], selected: null, selectedTower: null,
     speed: 1, over: false, time: 0, rushT: 0, uid: 0, artifactsWon: [], bossesSeen: new Set(),
-    god: false, zones: [], pulses: [],
+    god: false, lines: [], pulses: [],
   };
   $("td-lobby").hidden = true;
   $("td-battle").hidden = false;
@@ -92,6 +92,8 @@ function tdbBuildView() {
       <circle r="70" fill="transparent" class="tdb-slot-hit"/>`;
   });
   el("g", { id: "tdb-range" }, svg);
+  const lines = el("g", { id: "tdb-lines" }, svg); // línies de foc del Contrafoc (davall de tot)
+  for (const l of tdb.lines) { l.el = null; tdbDrawLine(l, lines); }
   el("g", { id: "tdb-towers" }, svg);
   el("g", { id: "tdb-enemies" }, svg);
   el("g", { id: "tdb-proj" }, svg);
@@ -226,6 +228,7 @@ function tdbPlace(slot, id) {
   tdbDrawTower(t);
   tdbSummonFromStudent(t);
   tdbAuraMarks();
+  if (TD_DEFENDERS[id].role === "line") tdbPlaceLine(t);
   return true;
 }
 const tdbUpCost = t => t.up >= 2 ? null : Math.round(TD_DEFENDERS[t.id].cost * TD_BATTLE.upgradeCost[t.up]);
@@ -244,6 +247,7 @@ function tdbSell(t) {
   tdb.mana += Math.round(t.spent * TD_BATTLE.sellBack);
   t.el.remove();
   delete tdb.towers[t.slot];
+  if (t.line) { t.line.el?.remove(); tdb.lines = tdb.lines.filter(l => l !== t.line); }
   tdbAuraMarks();
 }
 
@@ -376,6 +380,7 @@ function tdbFire(t) {
   }
   const part = (TD_ART[t.id].throw || {}).c ? "c" : t.side ? "r" : "l";
   if (d.role === "pulse") { tdbPulse(t); return true; }
+  if (d.role === "line") return true; // ja crema sempre; el tir només fa l'animació d'abocar
   if (d.aim) { // la fletxa es posa dins de la V (o l'agulla gira), s'encara a l'objectiu i dispara
     tdbAim(t, targets[0], part === "r");
     t.svg.classList.add("load");
@@ -417,7 +422,6 @@ function tdbProjectile(t, target, dmg, opts = {}) {
 function tdbHit(p, e) {
   const d = p.d, ab = p.t.stats.ability;
   let dmg = p.dmg * tdbAuraMult(p.t), color = TD_GLOW[d.subj] || "#fff", big = false;
-  if (d.role === "burn") tdbBurnZone(p.t, ...tdbPos(e), dmg);
   if (d.role === "mark") tdbMark(e, d.mark * p.t.stats.ability);
   if (d.role === "crit" && Math.random() < d.crit) { dmg *= 2; color = "#ff8a1f"; big = true; }
   if (d.role === "scaling") dmg *= 1 + Math.min(d.maxScale, tdb.kills * d.perKill);
@@ -515,26 +519,48 @@ function tdbAuraMult(t) {
 function tdbAuraMarks() {
   for (const t of Object.values(tdb.towers)) t.el?.classList.toggle("tdb-aura", tdbAuraMult(t) > 1);
 }
-// Contrafoc: una franja del camí crema durant uns segons (el que hi passa, es crema poc a poc)
-function tdbBurnZone(t, x, y, dmg) {
-  const b = TD_DEFENDERS[t.id].burn, ab = t.stats.ability, r = b.radius * Math.min(1.4, ab);
-  const z = { x, y, r, t: b.dur * ab, dps: dmg * b.dps };
-  const [sx, sy] = tdbS(x, y);
-  z.el = el("g", { class: "tdb-burn", transform: `translate(${sx} ${sy})` }, $("tdb-fx"));
-  z.el.innerHTML = `<ellipse rx="${r}" ry="${r * 0.42}" fill="#ff8a3a" opacity="0.18"/><ellipse rx="${r * 0.8}" ry="${r * 0.3}" fill="none" stroke="#ffc23f" stroke-width="2" stroke-dasharray="6 8" opacity="0.6"/>
-    ${[-0.6, -0.2, 0.25, 0.6].map((k, i) => `<g transform="translate(${(k * r).toFixed(0)} ${(i % 2 ? -4 : 6)})"><path class="tdb-burn-f" style="animation-delay:${-i * 0.17}s" d="M0 -22 C10 -8 10 4 0 8 C-10 4 -10 -8 0 -22 Z" fill="#ff8a3a" stroke="#ffc23f" stroke-width="2"/></g>`).join("")}`;
-  tdb.zones.push(z);
+// Contrafoc: no dispara. Aboca foc al tram del camí més pròxim i hi deixa una línia recta de foc que travessa el
+// camí (perpendicular) i crema sempre: tot el que la creua es crema mentre hi és. El Projecte en pot fer una de temporal.
+function tdbLineAt(t, dist, dps, dur = Infinity) {
+  const L = TD_DEFENDERS.contrafoc.line, P = tdb.path;
+  const [x, y] = P.at(dist), [x2, y2] = P.at(dist + 2);
+  const l = { t, dist, x, y, ang: Math.atan2(y2 - y, x2 - x), half: L.width / 2 * Math.min(1.4, t.stats.ability), len: L.len, dps, dur };
+  tdbDrawLine(l, $("tdb-lines"));
+  tdb.lines.push(l);
+  return l;
 }
-function tdbZones(dt) {
-  for (const z of tdb.zones) {
-    z.t -= dt;
-    for (const e of tdb.enemies) if (e.hp > 0 && !e.convertT && Math.hypot(...tdbPos(e).map((v, i) => v - [z.x, z.y][i])) <= z.r) {
-      e.hp -= z.dps * dt * (1 + e.vuln) * (1 + (e.mark || 0));
+function tdbDrawLine(l, layer) {
+  const [sx, sy] = tdbS(l.x, l.y), a = l.ang * 180 / Math.PI + (tdb.portrait ? 90 : 0) + 90; // perpendicular al camí
+  const n = 7, flames = Array.from({ length: n }, (_, i) => { const u = (i / (n - 1) - 0.5) * l.len;
+    return `<g transform="translate(${u.toFixed(0)} 0) rotate(${(-a).toFixed(0)})"><path class="tdb-burn-f" style="animation-delay:${(-i * 0.13).toFixed(2)}s" d="M0 -26 C11 -10 11 4 0 9 C-11 4 -11 -10 0 -26 Z" fill="#ff8a3a" stroke="#ffc23f" stroke-width="2"/><path d="M0 -10 C4 -5 4 0 0 4 C-4 0 -4 -5 0 -10 Z" fill="#fff3c0"/></g>`; }).join("");
+  l.el = el("g", { class: "tdb-fireline", transform: `translate(${sx} ${sy}) rotate(${a.toFixed(1)})` }, layer);
+  l.el.innerHTML = `<rect x="${-l.len / 2 - 10}" y="${-l.half}" width="${l.len + 20}" height="${l.half * 2}" rx="${l.half}" fill="#ff6a1a" opacity="0.16"/>
+    <path d="M${-l.len / 2} 0 H${l.len / 2}" stroke="#2a1206" stroke-width="16" stroke-linecap="round" opacity="0.75"/>
+    <path d="M${-l.len / 2} 0 H${l.len / 2}" stroke="#ff8a3a" stroke-width="5" stroke-linecap="round" class="tdb-embers"/>${flames}`;
+}
+// En posar-lo: busca el punt del camí més pròxim dins de l'abast i hi encén la línia
+function tdbPlaceLine(t) {
+  const [x, y] = tdb.world.slots[t.slot], P = tdb.path;
+  let best = null;
+  for (let d = 0; d <= P.total; d += 8) {
+    const [px, py] = P.at(d), r = Math.hypot(px - x, py - y);
+    if (r <= t.stats.range && (!best || r < best.r)) best = { d, r };
+  }
+  if (best) t.line = tdbLineAt(t, best.d, t.stats.dmg * TD_DEFENDERS.contrafoc.line.dps);
+}
+function tdbLines(dt) {
+  for (const l of tdb.lines) {
+    if (l.dur !== Infinity) l.dur -= dt;
+    if (l.t.line === l) l.dps = l.t.stats.dmg * TD_DEFENDERS.contrafoc.line.dps * tdbAuraMult(l.t); // puja amb les millores
+    for (const e of tdb.enemies) if (e.hp > 0 && !e.convertT && Math.abs(e.dist - l.dist) <= l.half) {
+      e.hp -= l.dps * dt * (1 + e.vuln) * (1 + (e.mark || 0));
+      e.burnFx = (e.burnFx || 0) - dt;
+      if (e.burnFx <= 0) { e.burnFx = 0.4; e.el.classList.remove("burning"); void e.el.getBoundingClientRect(); e.el.classList.add("burning"); }
       if (e.hp <= 0) tdbKill(e);
     }
-    if (z.t <= 0) z.el.remove();
+    if (l.dur <= 0 || !tdb.towers[l.t.slot] && l.t.line === l) l.el?.remove();
   }
-  tdb.zones = tdb.zones.filter(z => z.t > 0);
+  tdb.lines = tdb.lines.filter(l => l.dur > 0 && (l.t.line !== l || tdb.towers[l.t.slot] === l.t));
 }
 // Anellador: l'anella marca la distracció (rep més dany de tots); quan mor, salta a la més pròxima
 function tdbMark(e, amount) {
@@ -577,7 +603,7 @@ function tdbSpecial(t, target) {
       return `<path d="M0 0 Q${(ex * 0.5 + ey * 0.4).toFixed(0)} ${(ey * 0.5 - 26).toFixed(0)} ${ex.toFixed(0)} ${ey.toFixed(0)}" stroke="#c98a4a" stroke-width="6" fill="none" stroke-linecap="round"/>`; }).join("")}`;
     for (const e of tdb.enemies) if (e.hp > 0 && Math.hypot(...tdbPos(e).map((v, i) => v - [x, y][i])) <= r) { e.stunT = Math.max(e.stunT, s.dur * ab); tdbTrap(e, "root"); }
   } else if (s.type === "echo") { // fa l'especial d'una altra criatura del mapa, més fort
-    const others = Object.values(tdb.towers).filter(o => o !== t && (TD_DEFENDERS[o.id].special?.type && TD_DEFENDERS[o.id].special.type !== "echo" || ["burn", "mark", "stacks"].includes(TD_DEFENDERS[o.id].role)));
+    const others = Object.values(tdb.towers).filter(o => o !== t && (TD_DEFENDERS[o.id].special?.type && TD_DEFENDERS[o.id].special.type !== "echo" || ["line", "mark", "stacks"].includes(TD_DEFENDERS[o.id].role)));
     const o = others[Math.floor(Math.random() * others.length)];
     const boost = s.boost * ab;
     tdbNumber(...tdbS(tx, ty - 120), o ? `🧩 ${TD_DEFENDERS[o.id].name}` : "🧩 projecte", TD_GLOW.myth, true);
@@ -585,7 +611,7 @@ function tdbSpecial(t, target) {
     const od = TD_DEFENDERS[o.id], fake = { ...o, slot: t.slot, svg: null, stats: { ...t.stats, dmg: o.stats.dmg, ability: o.stats.ability * s.boost } };
     tdbBolt(tdbS(...tdb.world.slots[o.slot]).map((v, i) => v - (i ? 60 : 0)), tdbS(tx, ty - 60), TD_GLOW.myth);
     if (od.special && od.special.type !== "echo") tdbSpecial(fake, target);
-    else if (od.role === "burn") tdbBurnZone(fake, ...tdbPos(target), o.stats.dmg * s.boost);
+    else if (od.role === "line") tdbLineAt(fake, target.dist + 40, o.stats.dmg * TD_DEFENDERS.contrafoc.line.dps * s.boost, 4 * s.boost); // una línia de foc de 4 s davant de l'objectiu
     else if (od.role === "mark") tdbMark(target, od.mark * s.boost);
     else if (od.role === "stacks") tdbBlast({ ...fake, stats: { ...fake.stats, dmg: o.stats.dmg * s.boost / od.blast * 4 } });
   } else if (s.type === "align") {
@@ -716,7 +742,7 @@ function tdbUpdate(dt) {
     }
   }
   if (tdb.rushT > 0) tdb.rushT -= dt;
-  if (tdb.zones.length) tdbZones(dt);
+  if (tdb.lines.length) tdbLines(dt);
   if (tdb.pulses.length) tdbPulses(dt);
   // enemics
   for (const e of tdb.enemies) {
@@ -780,8 +806,9 @@ function tdbUpdate(dt) {
     else if (t.cd < 0) t.cd = 0;
   }
   // projectils
-  const speed = TD_BATTLE.projSpeed;
+  const speed0 = TD_BATTLE.projSpeed;
   for (const p of tdb.projs) {
+    const speed = speed0 * (p.d.projSpeed || 1); // la sàmara baixa a poc a poc, girant
     if (p.dir) { // llança que travessa
       p.x += p.dir[0] * speed * dt; p.y += p.dir[1] * speed * dt; p.traveled += speed * dt;
       for (const e of tdb.enemies) if (tdbVisible(e) && !p.hit.has(e.uid) && Math.hypot(...tdbPos(e).map((v, i) => v - [p.x, p.y][i])) < 40) { p.hit.add(e.uid); tdbHit(p, e); }
