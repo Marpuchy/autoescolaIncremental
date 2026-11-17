@@ -282,6 +282,20 @@ const TD_STUDENT_HAT = `<g class="hat"><path d="M30 46 L66 2 Q70 -2 74 2 L110 46
   <path d="M16 46 Q70 58 124 46 Q70 38 16 46 Z" fill="#2b3a7a" stroke="#1a1a4e" stroke-width="2"/>
   <path d="M34 42 Q70 50 106 42" stroke="#9d8bff" stroke-width="2.5" fill="none"/>
   <g fill="#ffe27a"><path d="M68 16 l2.4 5 5.4 0.8 -4 3.8 1 5.4 -4.8 -2.6 -4.8 2.6 1 -5.4 -4 -3.8 5.4 -0.8 z"/><circle cx="54" cy="34" r="2"/><circle cx="86" cy="28" r="1.7"/></g></g>`;
+// Al bosc, la granoteta és druida: caputxa de molsa i capa de fulles darrere, corona de branquetes amb fulles i una
+// floreta (en lloc del barret de mag) i el llibre d'herbes (pell verda amb una fulla) en lloc del grimori.
+const TD_DRUID_BACK = `<path d="M8 146 C2 118 8 92 22 80 C30 54 46 30 70 26 C94 30 110 54 118 80 C132 92 138 118 132 146 Z" fill="#2f4a26" stroke="#1c2e16" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M70 26 C58 18 52 8 56 0 C62 10 66 16 70 26" fill="#2f4a26" stroke="#1c2e16" stroke-width="2"/>
+  ${[[18, 132, -30], [26, 112, -20], [114, 112, 20], [122, 132, 30], [14, 100, -40], [126, 100, 40]].map(([x, y, r]) =>
+    `<path d="M${x - 9} ${y} Q${x} ${y - 7} ${x + 9} ${y} Q${x} ${y + 7} ${x - 9} ${y} Z" fill="#4f7a34" stroke="#2a4a1c" stroke-width="1.2" transform="rotate(${r} ${x} ${y})"/>`).join("")}`;
+const TD_DRUID_HAT = `<g class="hat">
+  <path d="M42 46 Q34 30 26 26 M34 36 Q26 34 22 38 M98 46 Q106 30 114 26 M106 36 Q114 34 118 38" stroke="#7a5230" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <path d="M24 48 Q70 34 116 48" stroke="#6b4a2a" stroke-width="5" fill="none" stroke-linecap="round"/>
+  ${[[30, 46, -30], [42, 42, -15], [56, 39, -5], [84, 39, 5], [98, 42, 15], [110, 46, 30]].map(([x, y, r]) =>
+    `<path d="M${x - 8} ${y} Q${x} ${y - 7} ${x + 8} ${y} Q${x} ${y + 6} ${x - 8} ${y} Z" fill="#6fbf4a" stroke="#2f6a22" stroke-width="1.2" transform="rotate(${r} ${x} ${y})"/>`).join("")}
+  <g transform="translate(70 37)">${[0, 72, 144, 216, 288].map(a => `<ellipse rx="3.4" ry="5.5" cy="-5" fill="#f7f0ff" transform="rotate(${a})"/>`).join("")}<circle r="3" fill="#ffd23f"/></g></g>`;
+const tdDruidBook = front => front.replace(/#5e1f38/g, "#2f5a2a").replace(/#7a2a4a/g, "#3f7034").replace(/#3a1426/g, "#1c3416")
+  .replace(/<path d="M93\.3 127\.8[^>]*\/>/, `<path d="M78 136 Q86 120 96 126 Q92 140 78 136 Z M78 136 L94 127" fill="#9fdc6a" stroke="#e8ffb0" stroke-width="1.4"/>`);
 // El llibre el llig la granoteta: des de davant se'n veu la coberta, oberta en V i en perspectiva (el llom, al centre,
 // és el que està més a prop; les vores de fora se'n van cap enrere i es veuen més curtes). Per dalt sobreïxen les fulles.
 const TD_STUDENT_FRONT = `<g class="td-book">
@@ -307,8 +321,10 @@ const TD_ARTIFACT_WEAR = {
 // Estudiant amb els artefactes posats. attrs: atributs extra de l'<svg> (posició i mida dins d'un altre SVG)
 function tdStudentSvg(equipped = [], attrs = "") {
   const w = equipped.map(id => TD_ARTIFACT_WEAR[id]).filter(Boolean);
-  return `<svg viewBox="-4 -6 152 160" class="td-student-svg" aria-label="Estudiant" overflow="visible" ${attrs}>${TD_STUDENT_BACK}
-    ${w.map(x => x.back || "").join("")}${TD_STUDENT_HAT}${w.flatMap(x => x.hides || []).reduce((f, cls) => f.replace(new RegExp(`<ellipse class="${cls}"[^>]*/>`), ""), TD_STUDENT_FRONT)}${w.map(x => x.front || "").join("")}</svg>`;
+  const druid = typeof tdRoom !== "undefined" && tdRoom === "forestal"; // al bosc, druida
+  const front = druid ? tdDruidBook(TD_STUDENT_FRONT) : TD_STUDENT_FRONT;
+  return `<svg viewBox="-4 -6 152 160" class="td-student-svg${druid ? " druid" : ""}" aria-label="Estudiant" overflow="visible" ${attrs}>${druid ? TD_DRUID_BACK : ""}${TD_STUDENT_BACK}
+    ${w.map(x => x.back || "").join("")}${druid ? TD_DRUID_HAT : TD_STUDENT_HAT}${w.flatMap(x => x.hides || []).reduce((f, cls) => f.replace(new RegExp(`<ellipse class="${cls}"[^>]*/>`), ""), front)}${w.map(x => x.front || "").join("")}</svg>`;
 }
 const TD_STUDENT_SVG = tdStudentSvg();
 
