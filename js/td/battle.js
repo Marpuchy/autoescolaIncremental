@@ -128,7 +128,7 @@ function tdbBuildView() {
     `<title>Estudiant${td.equipped.length ? ": " + td.equipped.map(id => TD_ARTIFACTS[id].name).join(", ") : ""}</title>`;
   // tornar a pintar les criatures que ja hi havia (canvi d'orientació)
   for (const t of Object.values(tdb.towers)) tdbDrawTower(t);
-  tdbAuraMarks();
+  tdbAuraMarks(true); // en tornar a pintar el mapa (girar la pantalla), les arrels ja estan crescudes
 }
 function tdbBackground(world) {
   if (world.mode === "forestal") return tdbForestBackground(world);
@@ -526,7 +526,7 @@ function tdbAuraMult(t) {
 // Les criatures que reben l'aura brillen de verd (es recalcula en posar o vendre)
 // Les arrels de la Carrasca ixen de terra fins a les criatures del voltant i s'hi lliguen; mentre hi estan, aquelles
 // tenen una aura verda (i fan més dany). Es tornen a dibuixar en posar, millorar o vendre.
-function tdbAuraMarks() {
+function tdbAuraMarks(instant = false) {
   const layer = $("tdb-lines"), keep = new Set(); // les arrels que ja hi són no es tornen a fer créixer
   for (const t of Object.values(tdb.towers)) {
     const on = tdbAuraMult(t) > 1;
@@ -545,7 +545,7 @@ function tdbAuraMarks() {
       keep.add(key);
       if (layer.querySelector(`[data-roots="${key}"]`)) continue;
       const [ox, oy] = tdbS(...tdb.world.slots[o.slot]), y0 = cy + 34, y1 = oy + 34, mx = (cx + ox) / 2, my = (y0 + y1) / 2;
-      const g = el("g", { class: "tdb-auraroots", "data-roots": key }, layer);
+      const g = el("g", { class: `tdb-auraroots${instant ? " grown" : ""}`, "data-roots": key }, layer);
       g.innerHTML = [-1, 1].map(s => `<path d="M${cx} ${y0} Q${mx + s * 18} ${my + s * 26} ${ox} ${y1} q${s * 14} -6 ${s * 6} -18 q${-s * 10} -8 ${-s * 18} 2" pathLength="100" class="tdb-auraroot"/>`).join("");
     }
   }
