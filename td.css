@@ -796,8 +796,13 @@
 .tdbook-pulse { position: absolute; border-radius: 50%; border: 3px solid #e8ffb0; box-shadow: 0 0 12px #8fd45a, inset 0 0 12px rgba(143, 212, 90, 0.5);
   pointer-events: none; z-index: 2; animation: tdbook-pulse linear forwards; }
 @keyframes tdbook-pulse { from { transform: scale(0.06); opacity: 1; } 80% { opacity: 0.8; } to { transform: scale(1); opacity: 0; } }
-.tdbook-burn { position: absolute; bottom: 0; height: 62%; pointer-events: none; background: radial-gradient(ellipse at 45% 80%, rgba(255, 138, 58, 0.3), transparent 65%); }
-.tdbook-burn svg { width: 100%; height: 100%; overflow: visible; display: block; }
+.tdbook-burn { position: absolute; top: 0; bottom: 0; width: 30px; pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(255, 106, 26, 0.22) 30%, rgba(255, 106, 26, 0.22) 70%, transparent); }
+.tdbook-burn-line { position: absolute; left: 50%; top: 2px; bottom: 2px; width: 5px; margin-left: -2.5px; border-radius: 3px;
+  background: repeating-linear-gradient(#ff8a3a 0 6px, #2a1206 6px 12px); box-shadow: 0 0 6px #ff8a3a; animation: tdbook-embers 0.6s linear infinite; }
+@keyframes tdbook-embers { to { background-position: 0 12px; } }
+.tdbook-burn-flame { position: absolute; left: 50%; width: 18px; height: 26px; margin-left: -9px; overflow: visible;
+  transform-origin: 50% 100%; animation: td-flicker 0.4s ease-in-out infinite alternate; }
 .tdbook-ally { position: absolute; left: 4%; bottom: 2%; width: 30%; max-width: 62px; aspect-ratio: 1; opacity: 0.92; }
 .tdbook-ally.aura .tdc { filter: drop-shadow(0 0 8px rgba(143, 212, 90, 0.85)); }
 .tdbook-ally.copied .tdc { animation: tdbook-copied 0.8s ease-out; }

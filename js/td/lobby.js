@@ -857,19 +857,14 @@ function tdDemoHit(target, from) {
     D.enemies.filter(e => !e.dead && e !== target).slice(0, 2).forEach((e, i) => setTimeout(() => tdDemo === D && !e.dead && tdDemoDamage(e, dmg * 0.6), 180 + i * 60));
   }
 }
-// Línia de foc al carril (Contrafoc, o el Projecte quan la copia): al terra, davall de les distraccions. El carril es
-// veu de costat, així que la línia que travessa el camí va cap al fons: un tram en diagonal amb flames, més menudes
-// les del fons.
+// Línia de foc al carril (Contrafoc, o el Projecte quan la copia): com al combat, el carril fa de camí vist des de dalt
+// i la línia el travessa de dalt a baix, amb les flames dretes al llarg. Va davall de les distraccions.
 function tdDemoBurn(target, dps, dur) {
-  const D = tdDemo, k = D.lane.clientWidth / 520, w = 130 * k;
-  const b = { x: target.x, w, t: dur, tick: 0.25, dps, el: document.createElement("div") };
+  const D = tdDemo, w = 30;
+  const b = { x: target.x, w: 34, t: dur, tick: 0.25, dps, el: document.createElement("div") };
   b.el.className = "tdbook-burn";
-  Object.assign(b.el.style, { left: `${b.x - w / 2}px`, width: `${w}px` });
-  const pts = [[38, 30, 0.55], [33, 44, 0.7], [28, 58, 0.85], [23, 72, 1]];
-  b.el.innerHTML = `<svg viewBox="0 0 60 80" preserveAspectRatio="xMidYMax meet">
-    <path d="M40 26 L20 78" stroke="#2a1206" stroke-width="12" stroke-linecap="round" opacity="0.7"/>
-    <path d="M40 26 L20 78" stroke="#ff8a3a" stroke-width="4" stroke-linecap="round" class="tdb-embers"/>
-    ${pts.map(([x, y, s], i) => `<g transform="translate(${x} ${y}) scale(${s})"><path class="tdb-burn-f" style="animation-delay:${-i * 0.15}s" d="M0 -22 C10 -8 10 4 0 8 C-10 4 -10 -8 0 -22 Z" fill="#ff8a3a" stroke="#ffc23f" stroke-width="2"/><path d="M0 -8 C4 -4 4 0 0 4 C-4 0 -4 -4 0 -8 Z" fill="#fff3c0"/></g>`).join("")}</svg>`;
+  b.el.style.left = `${b.x - w / 2}px`;
+  b.el.innerHTML = `<i class="tdbook-burn-line"></i>${[0, 1, 2, 3].map(i => `<svg class="tdbook-burn-flame" style="top:${4 + i * 23}%;animation-delay:${-i * 0.15}s" viewBox="-12 -24 24 34"><path d="M0 -22 C10 -8 10 4 0 8 C-10 4 -10 -8 0 -22 Z" fill="#ff8a3a" stroke="#ffc23f" stroke-width="2"/><path d="M0 -8 C4 -4 4 0 0 4 C-4 0 -4 -4 0 -8 Z" fill="#fff3c0"/></svg>`).join("")}`;
   D.lane.prepend(b.el); // davall de les distraccions
   D.burns.push(b);
 }
