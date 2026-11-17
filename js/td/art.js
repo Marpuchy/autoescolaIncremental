@@ -35,6 +35,11 @@ const GQ = TD_GLOW.maq; // blau elèctric
 const bolaTesla = (x, y) => `<g transform="translate(${x} ${y})"><circle r="13" fill="${GQ}" opacity="0.2"/><circle r="6.5" fill="#e8fbff" stroke="${GQ}" stroke-width="2.4"/>
   ${tube("M7 -2 L11 -6 L10 -1 L15 -4 M-7 2 L-11 5 L-10 0 L-15 3", "#e8fbff", 1.4)}</g>`;
 const electro = (x, y) => `<g transform="translate(${x} ${y})"><circle r="10" fill="${GQ}" opacity="0.22"/><circle r="5" fill="#e8fbff" stroke="${GQ}" stroke-width="2"/>${tube("M-2.4 0 H2.4", GQ, 1.8)}</g>`;
+// Ona quadrada del rellotge de CPU (a la cara del cristall)
+const ONA_CPU = tube("M40 66 H46 V52 H54 V66 H62 V52 H70 V66 H76", "#e8fbff", 2.6);
+// Resistència: el cos (puntes bombades i cintura més estreta) i una banda de color (x al centre, des de y, alta h)
+const RES_BODY = "M34 44 C22 44 22 68 34 68 C40 68 42 65 48 65 H72 C78 65 80 68 86 68 C98 68 98 44 86 44 C80 44 78 47 72 47 H48 C42 47 40 44 34 44 Z";
+const banda = (x, y, h, c, edge = "#fff") => `<rect x="${x - 3.2}" y="${y}" width="6.4" height="${h}" rx="2" fill="${c}" stroke="${edge}" stroke-width="1" stroke-opacity="0.7"/>`;
 // Peces del bosc (centrades en x, y): pinya, flama, gla, sàmara, anella de marcatge i fulla
 const pinya = (x, y) => `<g><ellipse cx="${x}" cy="${y}" rx="11" ry="13" fill="${GB}" opacity="0.2"/><ellipse cx="${x}" cy="${y}" rx="5.6" ry="8" fill="#5a3412" stroke="${GB}" stroke-width="2.2"/>
   <path d="M${x - 5} ${y - 3} L${x} ${y + 1} L${x + 5} ${y - 3} M${x - 5} ${y + 2} L${x} ${y + 6} L${x + 5} ${y + 2}" stroke="#ffd9a0" stroke-width="1.3" fill="none"/>${tube(`M${x} ${y - 8} V${y - 12}`, GB, 2)}</g>`;
@@ -133,6 +138,24 @@ const TD_ART = {
       ${core(60, 76, GQ, 3.2)}</g>
       <g class="al">${bolaTesla(60, 22)}</g>${sparks(GQ)}`,
     proj: bolaTesla(0, 0), throw: { l: [60, 22] },
+  },
+  // Rellotge de CPU: el cristall de quars de la placa (la càpsula de metall ovalada amb les dues potes) i, a la cara,
+  // l'ona quadrada del rellotge: és el que llança a cada tic (baixa al camí) i es torna a dibuixar
+  rellotge: {
+    svg: `${runeBase(TD_RARITIES.epic.color)}<g class="b">${tube("M50 92 V104 M70 92 V104", "#d8dde6", 3)}
+      <rect x="34" y="30" width="52" height="62" rx="20" fill="#12303f"/>${tube("M54 30 H66 A20 20 0 0 1 86 50 V72 A20 20 0 0 1 66 92 H54 A20 20 0 0 1 34 72 V50 A20 20 0 0 1 54 30 Z", GQ, 4.4)}
+      ${tube("M44 40 H76", GQ, 1.4, 'opacity="0.5"')}${core(60, 82, GQ, 2.4)}
+      <g class="al">${ONA_CPU}</g></g>${sparks(GQ)}`,
+    proj: ONA_CPU, throw: { l: [60, 60] },
+  },
+  // Resistència: el cilindre amb les puntes bombades i les potes doblegades cap avall (punxada a la placa), amb les
+  // bandes de colors de debò (marró, negre, roig, or = 1 kΩ). Llança la roja i la marró, que es tornen a pintar
+  resistencia: {
+    svg: `${runeBase(GQ)}<g class="b">${tube("M26 56 H20 V100 M94 56 H100 V100", "#d8dde6", 3)}
+      <path d="${RES_BODY}" fill="#12303f"/>${tube(RES_BODY, GQ, 4)}
+      ${banda(52, 47.5, 17, "#2a2f38", GQ)}${banda(82, 45.5, 21, TD_GLOW.gold)}${core(58, 56, GQ, 2)}
+      <g class="al">${banda(64, 47.5, 17, "#ff5a4a")}</g><g class="ar">${banda(38, 45, 22, "#c97a3a")}</g></g>${sparks(GQ)}`,
+    proj: banda(0, -8.5, 17, "#ff5a4a"), projR: banda(0, -11, 22, "#c97a3a"), throw: { l: [64, 56], r: [38, 56] },
   },
   // Condensador: les dues plaques paral·leles amb els fils (com el símbol del circuit), + a una i − a l'altra; entre les
   // plaques es veu com puja la càrrega (--q). No dispara: es carrega com un canó i, ple, llança l'electró gran

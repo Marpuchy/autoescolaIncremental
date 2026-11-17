@@ -390,6 +390,7 @@ function tdbFire(t) {
   const part = (TD_ART[t.id].throw || {}).c ? "c" : t.side ? "r" : "l";
   if (d.role === "pulse") { tdbPulse(t); return true; }
   if (d.role === "line") return true; // ja crema sempre; el tir només fa l'animació d'abocar
+  if (d.role === "clock") { tdbClock(t); return true; }
   if (d.aim) { // la fletxa es posa dins de la V (o l'agulla gira), s'encara a l'objectiu i dispara
     tdbAim(t, targets[0], part === "r");
     t.svg.classList.add("load");
@@ -444,7 +445,7 @@ function tdbHit(p, e) {
     }
     return;
   }
-  if (d.role === "slow") tdbSlow(e, d.slow, d.slowDur * ab);
+  if (d.role === "slow") { tdbSlow(e, d.slow, d.slowDur * ab); if (d.band) tdbBand(e, d.band[p.part === "r" ? "r" : "l"]); }
   if (d.role === "vuln") { e.vuln = Math.max(e.vuln, d.vuln); e.vulnT = d.vulnDur * ab; }
   if (d.role === "lasso") { e.stunT = Math.max(e.stunT, d.stun * ab); e.dot = d.dot; e.dotT = d.stun * ab; }
   const willDie = e.hp - dmg * (1 + e.vuln) <= 0;
@@ -530,6 +531,41 @@ function tdbZig(x0, y0, x1, y1, n, amp) {
 function tdbForkFrom(x0, y0, x1, y1, len = 26) { // una branca curta que ix d'un punt del llamp
   const t = 0.3 + Math.random() * 0.4, mx = x0 + (x1 - x0) * t, my = y0 + (y1 - y0) * t, a = Math.random() * Math.PI * 2;
   return [mx, my, mx + Math.cos(a) * len, my + Math.sin(a) * len];
+}
+// Rellotge de CPU: a cada tic l'ona quadrada de la cara baixa al camí i el recorre (cada tram dins de l'abast, des
+// del punt més pròxim cap als dos costats); colpeja totes les distraccions del tram. Cada `every` tics, tic doble.
+function tdbClock(t) {
+  const d = TD_DEFENDERS[t.id], double = (t.ticks = (t.ticks || 0) + 1) % d.every === 0;
+  tdbPartOut(t, "l");
+  if (double) { t.svg?.classList.remove("tick2"); void t.svg?.getBoundingClientRect(); t.svg?.classList.add("tick2"); }
+  const color = double ? TD_GLOW.gold : TD_GLOW.maq, [x, y] = tdb.world.slots[t.slot], P = tdb.path, R = t.stats.range;
+  // trams del camí dins de l'abast
+  const runs = []; let run = null;
+  for (let dd = 0; dd <= P.total + 6; dd += 6) {
+    const [px, py] = P.at(dd), inside = dd <= P.total && Math.hypot(px - x, py - y) <= R;
+    if (inside) { if (!run) run = { a: dd, b: dd, best: dd, r: Infinity }; run.b = dd; const r = Math.hypot(px - x, py - y); if (r < run.r) { run.r = r; run.best = dd; } }
+    else if (run) { runs.push(run); run = null; }
+  }
+  const half = 16, A = double ? 15 : 11;
+  for (const r of runs) for (const dir of [1, -1]) { // des del punt més pròxim cap a cada costat
+    const end = dir > 0 ? r.b : r.a, pts = [];
+    let sign = 1;
+    for (let dd = r.best; dir > 0 ? dd < end : dd > end; dd += dir * half) {
+      const n = Math.min(half, Math.abs(end - dd)), [ax, ay] = P.at(dd), [bx, by] = P.at(dd + dir * n);
+      const L = Math.hypot(bx - ax, by - ay) || 1, nx = -(by - ay) / L, ny = (bx - ax) / L;
+      pts.push(tdbS(ax + nx * A * sign, ay + ny * A * sign), tdbS(bx + nx * A * sign, by + ny * A * sign));
+      sign = -sign;
+      pts.push(tdbS(bx + nx * A * sign, by + ny * A * sign));
+    }
+    if (pts.length < 2) continue;
+    const g = el("g", { class: `tdb-clockwave${double ? " double" : ""}` }, $("tdb-lines"));
+    const pl = pts.map(p => p.map(v => v.toFixed(1)).join(",")).join(" ");
+    g.innerHTML = `<polyline points="${pl}" pathLength="1" fill="none" stroke="${color}" stroke-width="${double ? 11 : 8}" opacity="0.3" stroke-linejoin="miter"/>
+      <polyline points="${pl}" pathLength="1" fill="none" stroke="#e8fbff" stroke-width="${double ? 3.4 : 2.4}" stroke-linejoin="miter"/>`;
+    setTimeout(() => g.remove(), 600);
+  }
+  const mult = (double ? 2 : 1) * tdbAuraMult(t);
+  for (const e of tdb.enemies) if (tdbVisible(e) && Math.hypot(...tdbPos(e).map((v, i) => v - [x, y][i])) <= R) tdbDamage(e, t.stats.dmg * mult, color, double);
 }
 // Condensador (com la Guspira del Clash Royale): no dispara mentre es carrega. La càrrega puja entre les plaques i
 // l'electró del mig creix amb ella (--q); quan està ple i té algú a tir, el llança d'un colp, com un canó, i a l'impacte
@@ -719,6 +755,15 @@ function tdbMarkJump(e) {
   tdbMark(next[0], e.mark);
 }
 function tdbSlow(e, amount, dur) { e.slowMult = Math.min(e.slowMult, 1 - amount); e.slowT = Math.max(e.slowT, dur); }
+// Resistència: la banda de color s'estreny al voltant de la distracció i hi queda mentre la frena (es lleva en acabar)
+function tdbBand(e, color) {
+  if (!e.el) return;
+  e.band?.remove();
+  const s = e.size, r = (s * 0.5).toFixed(1);
+  e.band = el("g", { class: "tdb-band", transform: `translate(0 ${(-s * 0.48).toFixed(1)})` }, e.el);
+  e.band.innerHTML = `<g class="tdb-band-in"><circle r="${r}" fill="none" stroke="${color}" stroke-width="7" opacity="0.85"/>
+    <circle r="${r}" fill="none" stroke="#fff" stroke-width="1.2" stroke-dasharray="3 9" class="tdb-band-run" opacity="0.8"/></g>`;
+}
 
 function tdbSpecial(t, target) {
   const s = TD_DEFENDERS[t.id].special, ab = t.stats.ability;
@@ -902,7 +947,7 @@ function tdbUpdate(dt) {
   for (const e of tdb.enemies) {
     if (e.hp <= 0) continue;
     for (const k of ["slowT", "vulnT", "dotT", "stunT"]) if (e[k] > 0) e[k] -= dt;
-    if (e.slowT <= 0) e.slowMult = 1;
+    if (e.slowT <= 0) { e.slowMult = 1; if (e.band) { e.band.remove(); e.band = null; } }
     if (e.vulnT <= 0) e.vuln = 0;
     if (e.dotT > 0) tdbDamage(e, e.dot * dt, "#c8f7dd");
     if (e.hp <= 0) continue;

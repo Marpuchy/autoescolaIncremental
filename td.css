@@ -910,3 +910,22 @@
   .td-card:is([data-panel="grimori"], [data-panel="bestiary"]) .tdbook { zoom: 1.1; }
   .tdbook-spread { min-height: 440px; }
 }
+
+/* Resistència: la banda arriba gran, s'estreny fins a abraçar la distracció i el corrent (traços blancs) li dona la volta a poc a poc */
+.tdb-band { pointer-events: none; }
+.tdb-band-in { transform-box: fill-box; transform-origin: center; animation: tdb-band-on 0.35s cubic-bezier(.3, 1.4, .5, 1); }
+@keyframes tdb-band-on { from { transform: scale(1.9); opacity: 0; } }
+.tdb-band-run { transform-box: fill-box; transform-origin: center; animation: tdb-band-run 3s linear infinite; }
+@keyframes tdb-band-run { to { transform: rotate(360deg); } }
+.tdc-resistencia :is(.al, .ar) { animation: none; } /* les bandes van pintades al cos: no suren */
+.tdc-rellotge .al { animation: none; } /* l'ona va dibuixada a la cara del cristall */
+/* Rellotge de CPU: el cristall fa tic (s'encongix i torna), més fort en el tic doble; l'ona es dibuixa pel camí des del
+   punt més pròxim (pathLength 1) i s'apaga */
+.tdc-rellotge.fire .b { transform-box: view-box; transform-origin: 60px 104px; animation: td-tick 0.28s ease-out; }
+.tdc-rellotge.tick2 .b { animation: td-tick2 0.4s ease-out; }
+@keyframes td-tick { 30% { transform: scale(1.06, 0.93); } }
+@keyframes td-tick2 { 30% { transform: scale(1.1, 0.88); filter: brightness(1.8) drop-shadow(0 0 10px #ffd84a); } }
+.tdb-clockwave { pointer-events: none; animation: tdb-clockfade 0.6s ease-in forwards; }
+.tdb-clockwave polyline { stroke-dasharray: 1; stroke-dashoffset: 1; animation: tdb-clockrun 0.22s linear forwards; }
+@keyframes tdb-clockrun { to { stroke-dashoffset: 0; } }
+@keyframes tdb-clockfade { 0%, 45% { opacity: 1; } 100% { opacity: 0; } }
