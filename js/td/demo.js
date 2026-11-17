@@ -51,7 +51,7 @@ function tdDemoBoot() {
   const fit = () => $("tdb-svg").setAttribute("viewBox", view);
   fit();
   addEventListener("resize", () => setTimeout(fit, 0));
-  tdb.god = true; tdb.mana = 1e9; tdb.wave = 1; tdb.waveRunning = false;
+  tdb.god = true; tdb.mana = 1e9; tdb.wave = 1; tdb.waveRunning = false; tdb.demo = true;
   ids.forEach((id, i) => tdbPlace(i, id));
   // les distraccions passen en grups, una vegada i una altra (com a la primera onada)
   const [group, every] = scene.spawn, gap = scene.gap || 0.4;

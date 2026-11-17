@@ -85,8 +85,18 @@ function tdClosePanel() { $("td-dialog").hidden = true; }
 function tdRenderPanel() {
   const name = $("td-card").dataset.panel;
   const body = $("td-card-body");
-  body.innerHTML = ({ gacha: tdGachaHtml, study: tdStudyHtml, grimori: tdGrimoriHtml, bestiary: tdBestiaryHtml,
+  const html = ({ gacha: tdGachaHtml, study: tdStudyHtml, grimori: tdGrimoriHtml, bestiary: tdBestiaryHtml,
     worlds: tdWorldsHtml, upgrades: tdUpgradesHtml, student: tdStudentHtml })[name]();
+  // si la pàgina continua sent la mateixa criatura (p. ex. en comprar una còpia o pujar de nivell), el combat de
+  // demostració no es toca: es canvia tot lo altre i l'iframe segueix on estava, sense tornar a començar
+  const live = body.querySelector("iframe.tdbook-arena"), src = live?.getAttribute("src");
+  if (live && html.includes(`src="${src}"`) && !body.querySelector(".tdbook-spread[data-turning]")) {
+    const tmp = document.createElement("div");
+    tmp.innerHTML = html;
+    tmp.querySelector(`iframe.tdbook-arena`)?.remove();
+    const swap = sel => { const a = body.querySelector(sel), b = tmp.querySelector(sel); if (a && b) a.replaceWith(b); };
+    for (const sel of [".tdbook-tabs", ".tdbook-head", ".tdbook-page.right", ".tdbook-nav"]) swap(sel);
+  } else body.innerHTML = html;
   tdLobbyHud();
 }
 const tdSubjTabs = () => `<div class="td-tabs">${tdFields().map(s => [s, TD_SUBJECTS[s]]).map(([s, d]) =>
@@ -412,14 +422,17 @@ function tdTurnPage(dir, to = null) {
   const spread = document.querySelector(".tdbook-spread");
   if (!spread || spread.dataset.turning) return;
   if (to != null) { if (to === tdBook.page) return; dir = to > tdBook.page ? 1 : -1; }
-  const oldL = spread.querySelector(".left").innerHTML, oldR = spread.querySelector(".right").innerHTML;
+  // les còpies de pàgina que fan la fulla no porten el combat de demostració (un iframe que es tornaria a carregar i
+  // començaria de nou): un requadre quiet en el seu lloc. El de veritat només es carrega una vegada, al seu lloc final.
+  const still = html => html.replace(/<iframe class="tdbook-arena"[^>]*><\/iframe>/g, '<div class="tdbook-arena still"></div>');
+  const oldL = still(spread.querySelector(".left").innerHTML), oldR = still(spread.querySelector(".right").innerHTML);
   tdBook.page = to != null ? to : tdBook.page + dir;
   tdRenderPanel();
   const sp = document.querySelector(".tdbook-spread");
   if (getComputedStyle(sp).gridTemplateColumns.split(" ").length < 3) { sp.classList.add("fade-in"); return; }
   sp.dataset.turning = "1";
   const under = sp.querySelector(dir > 0 ? ".left" : ".right"), newUnder = under.innerHTML;
-  const newFace = sp.querySelector(dir > 0 ? ".left" : ".right").innerHTML;
+  const newFace = still(newUnder);
   under.innerHTML = dir > 0 ? oldL : oldR; // davall, la pàgina vella fins que la tapa la fulla
   const leaf = document.createElement("div");
   leaf.className = `tdbook-leaf ${dir > 0 ? "next" : "prev"}`;

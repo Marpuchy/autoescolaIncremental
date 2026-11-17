@@ -228,7 +228,7 @@ function tdbPlace(slot, id) {
   t.stats = tdStats(id, 0);
   tdb.towers[slot] = t;
   tdbDrawTower(t);
-  tdbSummonFromStudent(t);
+  if (!tdb.demo) tdbSummonFromStudent(t); // a la demostració del grimori ja hi són des del principi
   tdbAuraMarks();
   if (TD_DEFENDERS[id].role === "line") tdbPlaceLine(t);
   return true;
