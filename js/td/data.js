@@ -25,16 +25,14 @@ const TD_STAR_COPIES = [1, 2, 4, 7, 11];
 
 // Criatures. dmg: dany per atac · rate: atacs per segon · range: abast · cost: maná per a posar-la
 // role: què fa a més del dany (vegeu js/td/battle.js). Tots els defensors fan dany.
+// Criatures retirades (menys varietat, més qualitat): les còpies que en tenies passen a la de la mateixa raresa
+const TD_MERGED = { escalar: "sumador", transposada: "vector", comentari: "puntcoma", bucle: "ifelse" };
 const TD_DEFENDERS = {
-  // ---- Àlgebra Lineal
+  // ---- Matemàtiques
   sumador:     { subj: "alg", rar: "comu", name: "Sumador", dmg: 6, rate: 1.6, range: 230, cost: 30, role: "single", alt: true,
                  desc: "Llança alternativament els dos + menuts que té de braços." },
-  escalar:     { subj: "alg", rar: "comu", name: "Escalar ×2", dmg: 13, rate: 0.8, range: 250, cost: 35, role: "crit", crit: 0.22,
-                 desc: "Un 22 % dels atacs fan el doble de dany (×2)." },
   vector:      { subj: "alg", rar: "rar", name: "Vector", dmg: 12, rate: 0.7, range: 330, cost: 55, role: "pierce",
                  desc: "La llança travessa tots els enemics que troba en línia recta." },
-  transposada: { subj: "alg", rar: "rar", name: "Transposada", dmg: 10, rate: 0.8, range: 260, cost: 60, role: "bounce", bounces: 3,
-                 desc: "Es transposa i llança un raig que rebota entre 3 enemics." },
   matriu:      { subj: "alg", rar: "epic", name: "Matriu", dmg: 9, rate: 0.9, range: 240, cost: 85, role: "aoe", aoe: 70,
                  special: { every: 5, type: "freeze", radius: 120, dur: 1.4 },
                  desc: "Dany en zona. Cada 5 atacs, la seua quadrícula congela la zona 1,4 s." },
@@ -43,13 +41,9 @@ const TD_DEFENDERS = {
   lambda:      { subj: "alg", rar: "mitic", name: "Diagonalitzador λ", dmg: 30, rate: 1.0, range: 340, cost: 150, role: "single",
                  special: { every: 6, type: "align", dur: 2, vuln: 0.5, vulnDur: 5 },
                  desc: "Cada 6 atacs alinea els enemics a l'abast: els para 2 s i reben un 50 % més de dany durant 5 s." },
-  // ---- Programació I
+  // ---- Informàtica
   puntcoma:    { subj: "prg", rar: "comu", name: "Punt i coma", dmg: 4, rate: 2.4, range: 200, cost: 25, role: "single", alt: true,
                  desc: "Barat i rapidíssim: escup punts sense parar." },
-  comentari:   { subj: "prg", rar: "comu", name: "Comentari //", dmg: 3, rate: 1.0, range: 230, cost: 30, role: "slow", slow: 0.25, slowDur: 2,
-                 desc: "Els enemics es paren a llegir-lo: els alenteix un 25 % durant 2 s." },
-  bucle:       { subj: "prg", rar: "rar", name: "Bucle for", dmg: 6, rate: 0.6, range: 250, cost: 55, role: "burst", burst: 3,
-                 desc: "Fa voltes i dispara una ràfega de 3 trets." },
   ifelse:      { subj: "prg", rar: "rar", name: "If / else", dmg: 11, rate: 1.0, range: 260, cost: 55, role: "smart", alt: true,
                  desc: "Si n'hi ha un de fort, li dispara a ell; si no, al més ràpid." },
   recursio:    { subj: "prg", rar: "epic", name: "Recursió", dmg: 12, rate: 0.7, range: 260, cost: 85, role: "split", splits: 2, depth: 2,

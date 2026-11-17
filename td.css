@@ -26,10 +26,7 @@
 @keyframes td-flash { 0% { transform: scale(2); } 100% { transform: scale(1); } }
 
 /* animacions pròpies */
-.tdc-escalar .spin { animation: td-spin 6s linear infinite; }
-.tdc-escalar.fire .spin { animation: td-spin 0.4s linear; }
 @keyframes td-spin { to { transform: rotate(360deg); } }
-.tdc-transposada.fire .flip { animation: td-transpose 0.5s ease-in-out; }
 @keyframes td-transpose { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(90deg); } }
 .tdc-matriu .cells { animation: td-cells 1.4s steps(2) infinite; }
 @keyframes td-cells { 50% { opacity: 0.6; } }
@@ -41,10 +38,7 @@
 .tdc-lambda .orbit { transform-box: view-box; transform-origin: 60px 66px; animation: td-spin 5s linear infinite; }
 .tdc-puntcoma .hop { transform-box: fill-box; transform-origin: 50% 100%; animation: td-hop 1.1s ease-in-out infinite; }
 @keyframes td-hop { 0%, 100% { transform: translateY(0) scale(1, 1); } 40% { transform: translateY(-7px) scale(0.97, 1.03); } 80% { transform: translateY(0) scale(1.04, 0.96); } }
-.tdc-comentari .txt { animation: td-type 2.4s steps(4) infinite; transform-origin: 0% 50%; }
 @keyframes td-type { 0% { transform: scaleX(0.2); } 100% { transform: scaleX(1); } }
-.tdc-bucle .ring { animation: td-spin 8s linear infinite; }
-.tdc-bucle.fire .ring { animation: td-spin 0.45s linear; }
 .tdc-ifelse.thrown-l .b { transform-origin: 50% 100%; animation: td-lean-l 0.3s; }
 .tdc-ifelse.thrown-r .b { transform-origin: 50% 100%; animation: td-lean-r 0.3s; }
 @keyframes td-lean-l { 50% { transform: rotate(-8deg); } }
@@ -486,18 +480,19 @@
 #tdb-mana, #tdb-saber { min-width: 4.5ch; }
 .tdb-next { min-width: 8.2em; white-space: nowrap; }
 
-/* índex del grimori i pàgines amb interrogants */
-.tdbook-index { list-style: none; margin: 6px 0; padding: 0; display: grid; gap: 6px; width: 100%; }
-.tdbook-idx { width: 100%; display: grid; grid-template-columns: 44px 1fr auto; grid-template-rows: auto auto; column-gap: 10px; align-items: center; text-align: left;
-  padding: 4px 8px; background: transparent; color: var(--ink); border: 0; border-bottom: 1px dashed color-mix(in srgb, var(--ink) 30%, transparent); border-radius: 0; box-shadow: none; }
+/* índex del grimori (introducció a l'esquerra, índex de text a la dreta) i pàgines amb interrogants */
+.tdbook-intro { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
+.tdbook-intro-icon { font-size: 2.6rem; line-height: 1; }
+.tdbook-intro-count { margin-top: 8px; font-size: 1.05rem; color: var(--ink); }
+.tdbook-index { list-style: none; margin: 10px 0; padding: 0; display: grid; gap: 2px; width: 100%; }
+.tdbook-idx { width: 100%; display: flex; align-items: baseline; gap: 8px; text-align: left; padding: 7px 6px; background: transparent; color: var(--ink);
+  border: 0; border-radius: 6px; box-shadow: none; font-family: inherit; }
 .tdbook-idx:hover, .tdbook-idx:focus-visible { background: color-mix(in srgb, var(--rc) 14%, transparent); }
-.tdbook-idx-art { grid-row: 1 / 3; width: 44px; height: 44px; border-radius: 50%; background: radial-gradient(circle at 50% 60%, #1a2033, #07090f 72%);
-  border: 2px solid var(--rc); display: grid; place-items: center; overflow: hidden; color: var(--rc); font-size: 1.4rem; font-weight: 900; }
-.tdbook-idx-art svg { width: 100%; height: 100%; }
-.tdbook-idx-name { font-weight: 800; font-size: 0.95rem; }
-.tdbook-idx-rar { grid-column: 2; font-size: 0.75rem; color: var(--rc); font-weight: 700; filter: brightness(0.75); }
-.tdbook-idx-pg { grid-column: 3; grid-row: 1 / 3; font-weight: 800; opacity: 0.55; font-variant-numeric: tabular-nums; }
-.tdbook-idx.unknown .tdbook-idx-name { opacity: 0.6; letter-spacing: 2px; }
+.tdbook-idx-name { font-weight: 800; font-size: 1rem; white-space: nowrap; }
+.tdbook-idx-rar { font-size: 0.72rem; font-weight: 700; color: var(--rc); filter: brightness(0.75); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+.tdbook-idx-dots { flex: 1; border-bottom: 2px dotted color-mix(in srgb, var(--ink) 35%, transparent); transform: translateY(-4px); min-width: 12px; }
+.tdbook-idx-pg { font-weight: 800; font-variant-numeric: tabular-nums; }
+.tdbook-idx.unknown .tdbook-idx-name { opacity: 0.55; letter-spacing: 3px; }
 .tdbook-art.locked { display: grid; place-items: center; }
 .tdbook-q { font-size: 7rem; font-weight: 900; color: var(--rc); text-shadow: 0 0 18px var(--rc); opacity: 0.85; }
 .tdbook-toindex { position: absolute; left: 10px; }

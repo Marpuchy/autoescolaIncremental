@@ -39,11 +39,6 @@ const TD_ART = {
     proj: tube("M0 -7 V7 M-7 0 H7", GA, 3.4), throw: { l: [30, 32], r: [90, 32] },
   },
   // Escalar ×2: una × que gira sense parar (més ràpid quan dispara); llança el 2 de l'exponent
-  escalar: {
-    svg: `${runeBase(GA)}<g class="b"><g class="spin">${tube("M36 46 L84 94 M84 46 L36 94", GA, 9)}</g>${core(60, 70, GA)}</g>
-      <g class="al">${glyphText(92, 38, 26, "2", GA)}</g>${sparks(GA)}`,
-    proj: glyphText(0, 8, 24, "2", GA), throw: { l: [92, 30] },
-  },
   // Vector: la lletra v amb la fletxa damunt; la fletxa és la llança que travessa
   vector: {
     svg: `${runeBase(GA)}<g class="b">${tube("M38 56 L60 100 L82 56", GA, 9)}${core(60, 100, GA, 3.6)}</g>
@@ -51,11 +46,6 @@ const TD_ART = {
     proj: tube("M-14 0 H12 M4 -7 L13 0 L4 7", GA, 4.2), throw: { l: [58, 36] },
   },
   // Transposada: una T que gira 90° (es transposa) en disparar; llança un raig que rebota
-  transposada: {
-    svg: `${runeBase(GA)}<g class="b"><g class="flip">${tube("M28 44 H92 M60 44 V100", GA, 9)}</g>${core(60, 44, GA)}</g>
-      <g class="al">${glyphText(98, 28, 22, "T", GA)}</g>${sparks(GA)}`,
-    proj: glyphText(0, 7, 20, "T", GA), throw: { l: [98, 21] },
-  },
   // Matriu: dos claudàtors i la matriu identitat dins, que s'il·lumina; congela per zones
   matriu: {
     svg: `${runeBase(GA)}<g class="b">${tube("M42 30 H28 V102 H42 M78 30 H92 V102 H78", GA, 7)}
@@ -87,19 +77,7 @@ const TD_ART = {
     proj: `<circle r="8" fill="${GP}" opacity="0.25"/><circle r="4.5" fill="#fff" stroke="${GP}" stroke-width="2.4"/>`, throw: { l: [30, 54], r: [90, 54] },
   },
   // Comentari //: dues barres i línies de text que s'apaguen; llança barres que alenteixen
-  comentari: {
-    svg: `${runeBase(GP)}<g class="b">${tube("M42 100 L60 40 M62 100 L80 40", GP, 8)}
-      <g class="txt">${[0, 1, 2].map(i => `<rect x="${30 + i * 4}" y="${18 + i * 7}" width="${48 - i * 14}" height="3" rx="1.5" fill="${GP}" opacity="${0.6 - i * 0.15}"/>`).join("")}</g></g>
-      <g class="al">${tube("M92 50 L100 30", GP, 4)}</g>${sparks(GP)}`,
-    proj: tube("M-4 10 L4 -10", GP, 4), throw: { l: [96, 40] },
-  },
   // Bucle for: un anell-fletxa que gira cada ràfega, amb la paraula for dins
-  bucle: {
-    svg: `${runeBase(GP)}<g class="b"><g class="ring">${tube("M88 70 A28 28 0 1 1 76 48", GP, 8)}${tube("M70 38 L80 48 L68 56", GP, 6)}</g>
-      ${glyphText(60, 76, 15, "for", GP)}</g>
-      <g class="al">${[0, 1, 2].map(i => `<circle cx="${24 + i * 9}" cy="${30 - i * 3}" r="3.4" fill="#fff" stroke="${GP}" stroke-width="2"/>`).join("")}</g>${sparks(GP)}`,
-    proj: `<circle r="7" fill="${GP}" opacity="0.25"/><circle r="3.6" fill="#fff" stroke="${GP}" stroke-width="2"/>`, throw: { l: [33, 27] },
-  },
   // If / else: el rombe de decisió amb l'interrogant; les branques sí / no són els braços
   ifelse: {
     svg: `${runeBase(GP)}<g class="b">${tube("M60 36 L90 68 L60 100 L30 68 Z", GP, 7)}${glyphText(60, 78, 28, "?", GP)}</g>
@@ -184,7 +162,7 @@ const TD_STUDENT_FRONT = `<g class="td-book">
   <path d="M70 112 L38 120 L38 142 L70 154 Z" fill="#5e1f38" stroke="#3a1426" stroke-width="2" stroke-linejoin="round"/>
   <path d="M70 112 L102 120 L102 142 L70 154 Z" fill="#7a2a4a" stroke="#3a1426" stroke-width="2" stroke-linejoin="round"/>
   <path d="M74 117 L98 123 L98 140 L74 149 Z" fill="none" stroke="#ffc23f" stroke-width="1.2" opacity="0.8"/>
-  <text x="86" y="138" font-size="15" font-weight="800" text-anchor="middle" fill="#ffc23f" font-family="Georgia, serif" transform="skewY(9) translate(0 -13)">Σ</text>
+  <path d="M93.3 127.8 L93.3 125.8 L79.9 124.1 L88.3 132.1 L79.9 141.1 L93.3 137.8 L93.3 135.8" fill="none" stroke="#ffc23f" stroke-width="2.2" stroke-linejoin="miter" stroke-linecap="square"/>
   <path d="M70 112 L70 154" stroke="#3a1426" stroke-width="3.5"/>
   <path d="M68 120 h4 M68 146 h4" stroke="#ffc23f" stroke-width="1.6"/></g>
   <ellipse class="hand-l" cx="38" cy="140" rx="12" ry="7" fill="#4fa64d"/><ellipse class="hand-r" cx="102" cy="140" rx="12" ry="7" fill="#4fa64d"/>`;

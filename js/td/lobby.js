@@ -233,20 +233,26 @@ function tdBookHtml(kind) {
     <div class="tdbook-spread"><div class="tdbook-page left">${left}</div><div class="tdbook-spine"></div><div class="tdbook-page right">${right}</div></div>
     <div class="tdbook-nav">${nav}</div></div>`;
 }
-// Índex de l'assignatura: les que tens, amb el nom per a anar-hi directament; les altres, amb interrogants
+// Índex del camp: a l'esquerra, la introducció; a la dreta, l'índex (només text i pàgina).
+// Les que no tens ixen amb interrogants.
+const TD_FIELD_INTRO = {
+  alg: "Criatures fetes de símbols matemàtics: sumes, vectors, matrius i determinants que prenen vida amb el que estudies. Colpegen fort i controlen el camí.",
+  prg: "Criatures fetes de codi: puntuació, condicions, recursions i compiladors. Ràpides, llestes i plenes de trucs.",
+};
 function tdIndexPages(tab, list) {
-  const have = list.filter(id => td.owned[id]).length;
+  const f = TD_SUBJECTS[tab], have = list.filter(id => td.owned[id]).length;
   const row = (id, i) => {
-    const d = TD_DEFENDERS[id], r = TD_RARITIES[d.rar], o = td.owned[id];
-    return `<li><button class="tdbook-idx${o ? "" : " unknown"}" data-goto="${i + 1}" style="--rc:${r.color}">
-      <span class="tdbook-idx-art">${o ? tdCreatureSvg(id) : "?"}</span><span class="tdbook-idx-name">${o ? d.name : "???"}</span>
-      <span class="tdbook-idx-rar">${r.name}${o ? ` · ${"★".repeat(tdStars(id))}` : ""}</span><span class="tdbook-idx-pg">${i + 2}</span></button></li>`;
+    const d = TD_DEFENDERS[id], o = td.owned[id];
+    return `<li><button class="tdbook-idx${o ? "" : " unknown"}" data-goto="${i + 1}" style="--rc:${TD_RARITIES[d.rar].color}">
+      <span class="tdbook-idx-name">${o ? d.name : "???"}</span><span class="tdbook-idx-rar">${TD_RARITIES[d.rar].name}</span>
+      <span class="tdbook-idx-dots"></span><span class="tdbook-idx-pg">${i + 2}</span></button></li>`;
   };
-  const half = Math.ceil(list.length / 2);
-  return [`<h3 class="tdbook-name">${TD_SUBJECTS[tab].icon} ${TD_SUBJECTS[tab].name}</h3>
-      <p class="tdbook-text muted">Índex · en tens ${have} de ${list.length}</p><ol class="tdbook-index">${list.slice(0, half).map((id, i) => row(id, i)).join("")}</ol>`,
-    `<ol class="tdbook-index">${list.slice(half).map((id, i) => row(id, i + half)).join("")}</ol>
-      <p class="tdbook-text muted">${TD_SUBJECTS[tab].classes.join(" · ")}</p>`];
+  return [`<div class="tdbook-intro"><div class="tdbook-intro-icon">${f.icon}</div><h3 class="tdbook-name">${f.name}</h3>
+      <p class="tdbook-text">${TD_FIELD_INTRO[tab] || ""}</p>
+      <p class="tdbook-text muted"><strong>Assignatures:</strong> ${f.classes.join(", ")}.</p>
+      <p class="tdbook-text muted">Invoca-les a l'altar amb pergamins de ${f.name}; la mítica, amb un ${TD_MYTHIC_GRADE} o més en un examen final.</p>
+      <p class="tdbook-intro-count">En tens <strong>${have}</strong> de <strong>${list.length}</strong></p></div>`,
+    `<h3 class="tdbook-name">Índex</h3><ol class="tdbook-index">${list.map(row).join("")}</ol>`];
 }
 function tdCreaturePages(id) {
   const d = TD_DEFENDERS[id], o = td.owned[id], r = TD_RARITIES[d.rar];

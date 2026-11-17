@@ -66,7 +66,7 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   Estilo de las criaturas: símbolos de energía en neón sobre fondo oscuro (referencia: «Animation vs. Math»), sin
   caras; cada una hecha con los símbolos de su asignatura y la pieza que lanza forma parte del cuerpo. Pocas y cuidadas.
   Reiniciar (rellotge) conserva criaturas, pergamins, artefactos y registro; pierde saber, niveles, millores y mundos.
-  Hoy: modo Informático con dos campos, Matemàtiques (clave `alg`) e Informàtica (clave `prg`) (7 criaturas cada uno), mundo 1 (Serp). Asignaturas del usuario
+  Hoy: modo Informático con dos campos, Matemàtiques (clave `alg`) e Informàtica (clave `prg`) (5 criaturas cada uno, una por rareza; las retiradas se fusionan con `TD_MERGED`), mundo 1 (Serp). Asignaturas del usuario
   y modo Forestal: pendientes.
 - Botiga, tests, compendio e inventario viven en la DGT (`js/hub.js`): pantalla completa con el interior dibujado y
   4 puntos interactivos (caixer, instructor, llibre, espill). Ya no hay panel derecho.

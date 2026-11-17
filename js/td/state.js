@@ -44,6 +44,17 @@ function tdLoad() {
       td.pergamins[s] = Math.max(0, Number(td.pergamins[s]) || 0);
       td.pity[s] = { epic: 0, llegendari: 0, ...(td.pity[s] || {}) };
     }
+    // criatures retirades: les seues còpies se sumen a la de la mateixa raresa i assignatura
+    for (const [old, to] of Object.entries(TD_MERGED)) {
+      const o = td.owned[old];
+      if (!o || typeof o !== "object") continue;
+      const t = td.owned[to] || (td.owned[to] = { copies: 0, level: 1 });
+      t.copies = Math.min(TD_STAR_COPIES[TD_STAR_COPIES.length - 1], (Number(t.copies) || 0) + (Number(o.copies) || 0));
+      t.level = Math.max(Number(t.level) || 1, Number(o.level) || 1);
+      td.team = td.team.map(id => id === old ? to : id).filter((id, i, a) => a.indexOf(id) === i);
+      td.favs = td.favs.map(id => id === old ? to : id).filter((id, i, a) => a.indexOf(id) === i);
+      delete td.owned[old];
+    }
     // criatures o artefactes que ja no existixen: fora
     for (const id of Object.keys(td.owned)) if (!TD_DEFENDERS[id]) delete td.owned[id];
     for (const id of Object.keys(td.artifacts)) if (!TD_ARTIFACTS[id]) delete td.artifacts[id];

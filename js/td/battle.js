@@ -613,7 +613,7 @@ function tdbRender() {
     const ang = p.dir ? Math.atan2(p.dir[1], p.dir[0]) : p.ang || 0;
     const rot = (ang * 180 / Math.PI + (tdb.portrait ? 90 : 0)) || 0;
     // les peces simètriques (+, punts, ×) no giren; les fletxes i llances, sí
-    const turn = ["vector", "comentari", "ifelse", "determinant", "compilador"].includes(p.t.id) ? rot : 0;
+    const turn = ["vector", "ifelse", "determinant", "compilador"].includes(p.t.id) ? rot : 0;
     p.el.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${turn.toFixed(0)}) scale(${p.scale})`);
   }
   for (const t of Object.values(tdb.towers)) {
