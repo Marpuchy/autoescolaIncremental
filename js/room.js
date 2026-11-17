@@ -2,7 +2,7 @@
 // L'habitació de l'estudiant, dibuixada en perspectiva (tools/habitacio.js → js/data/room-art.js). No hi ha menús:
 // cada objecte porta a un joc d'estudi.
 //   placa L penjada a la paret → DGT (autoescola) · motxilla → joc d'estudi (tower defense, encara per fer)
-// Des de la DGT es torna ací per la porta d'eixida. El combat de l'autoescola continua de fons.
+// Des de la DGT es torna ací per la porta d'eixida. Mentre s'està ací, l'autoescola està parada (js/main.js).
 const roomOpen = () => !$("room").hidden;
 
 function openRoom() {

@@ -58,6 +58,8 @@ let last = performance.now();
 function loop(now) {
   const dt = Math.min((now - last) / 1000, 1);
   last = now;
+  // a l'habitació l'autoescola està parada: ni combat ni pintat (no gasta recursos i en tornar seguix on estava)
+  if (roomOpen()) { requestAnimationFrame(loop); return; }
   if (!examOpen()) update(dt * CONFIG.debug.speed * gameSpeed); // el combat es para mentre hi ha examen
   render();
   requestAnimationFrame(loop);
