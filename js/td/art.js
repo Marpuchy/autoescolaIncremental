@@ -313,6 +313,11 @@ const TD_ARTIFACT_WEAR = {
   auriculars: { back: `<path d="M20 64 C18 30 122 30 120 64" stroke="#2b2f35" stroke-width="7" fill="none" stroke-linecap="round"/>`,
     front: `<g><rect x="10" y="52" width="16" height="26" rx="7" fill="#2b2f35"/><rect x="114" y="52" width="16" height="26" rx="7" fill="#2b2f35"/>
       <rect x="13" y="56" width="10" height="18" rx="5" fill="#9d8bff"/><rect x="117" y="56" width="10" height="18" rx="5" fill="#9d8bff"/></g>` },
+  // capa de llop: la pell grisa sobre les espatles, amb les puntes blanques i un fermall de fusta al pit
+  capallop: { front: `<g><path d="M14 104 C10 86 20 76 34 80 C40 90 38 102 30 112 C24 116 16 112 14 104 Z" fill="#7a8290" stroke="#3a3f48" stroke-width="2"/>
+      <path d="M126 104 C130 86 120 76 106 80 C100 90 102 102 110 112 C116 116 124 112 126 104 Z" fill="#7a8290" stroke="#3a3f48" stroke-width="2"/>
+      ${[[18, 96], [24, 104], [30, 92], [122, 96], [116, 104], [110, 92]].map(([x, y]) => `<path d="M${x} ${y} l3 7 l3 -7" fill="#dfe4ea" stroke="#9aa2ae" stroke-width="1"/>`).join("")}
+      <path d="M34 82 Q70 96 106 82" stroke="#5a616c" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="70" cy="92" r="5" fill="#8a5a2a" stroke="#4a2e12" stroke-width="1.6"/></g>` },
   cafe: { hides: ["hand-r"], front: `<g><path d="M116 108 h22 v20 q0 8 -8 8 h-6 q-8 0 -8 -8 z" fill="#fff6d8" stroke="#8a6440" stroke-width="2.2"/>
       <path d="M138 114 q8 0 8 7 q0 7 -8 7" stroke="#8a6440" stroke-width="2.4" fill="none"/><rect x="118" y="110" width="18" height="4" fill="#6b4220"/>
       <g class="steam" stroke="#cfe6f5" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.8"><path d="M122 104 q-3 -5 0 -10 q3 -5 0 -10"/><path d="M130 104 q-3 -5 0 -10 q3 -5 0 -10"/></g>

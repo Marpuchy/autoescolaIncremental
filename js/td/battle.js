@@ -339,7 +339,7 @@ function tdbKill(e, byTower) {
 }
 // Un cap derrotat dona el seu artefacte (o el puja de nivell si ja el tens)
 function tdbBossDown(type) {
-  const id = Object.keys(TD_ARTIFACTS).find(k => TD_ARTIFACTS[k].boss === type);
+  const id = Object.keys(TD_ARTIFACTS).find(k => TD_ARTIFACTS[k].boss === type && (TD_ARTIFACTS[k].world || 1) === tdb.world.id);
   if (!id) return;
   const had = td.artifacts[id] || 0;
   if (had >= 5) return;
@@ -822,7 +822,7 @@ function tdbUpdate(dt) {
     }
     tdbEnemyAbility(e, dt);
     if (e.stunT > 0) continue;
-    e.dist += e.def.speed * e.slowMult * (tdb.rushT > 0 ? 1.35 : 1) * dt;
+    e.dist += e.def.speed * e.slowMult * (tdb.rushT > 0 ? 1.35 : 1) * (1 - tdArtBonus("slowAll")) * dt;
     if (e.dist >= tdb.path.total) {
       e.hp = 0;
       e.el.remove();

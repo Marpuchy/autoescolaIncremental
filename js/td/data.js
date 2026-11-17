@@ -123,12 +123,16 @@ const TD_ENEMIES = {
 const TD_WAVE_HP = 0.2; // cada onada, +20 % de vida als enemics
 
 // Artefactes: els donen els caps (la primera vegada i les següents, que els pugen de nivell, fins a 5).
-// L'estudiant en porta 3 com a molt. value: efecte a nivell 1 (cada nivell +25 %).
+// L'estudiant en porta 3 com a molt. value: efecte a nivell 1 (cada nivell +25 %). world: el món on cau (cada món
+// té els seus; els de la Biblioteca, de quan encara n'hi havia dos per món).
 const TD_ARTIFACTS = {
-  auriculars: { name: "Auriculars antisoroll", icon: "🎧", slot: "cap", boss: "series", stat: "range", value: 0.08,
+  auriculars: { name: "Auriculars antisoroll", icon: "🎧", slot: "cap", boss: "series", world: 1, stat: "range", value: 0.08,
                 desc: lvl => `El Son no adorm les teues torres. +${Math.round(0.08 * tdArtMult(lvl) * 100)} % d'abast.` },
-  cafe:       { name: "Cafè arcà", icon: "☕", slot: "ma", boss: "diumenge", stat: "rate", value: 0.15,
+  cafe:       { name: "Cafè arcà", icon: "☕", slot: "ma", boss: "diumenge", world: 1, stat: "rate", value: 0.15,
                 desc: lvl => `+${Math.round(0.15 * tdArtMult(lvl) * 100)} % de velocitat d'atac.` },
+  // Bosc. Sendera de les Arrels: la pell del Llop de la lluna, sobre les espatles; espanta les distraccions
+  capallop:   { name: "Capa de llop", icon: "🐺", slot: "esquena", boss: "diumenge", world: 101, stat: "slowAll", value: 0.06,
+                desc: lvl => `Les distraccions s'espanten: van un ${Math.round(0.06 * tdArtMult(lvl) * 100)} % més lentes.` },
 };
 const tdArtMult = lvl => 1 + 0.25 * (lvl - 1);
 const TD_ARTIFACT_SLOTS = 3;
