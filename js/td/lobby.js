@@ -333,7 +333,7 @@ const TD_FIELD_INTRO = {
   alg: "Criatures fetes de símbols matemàtics: sumes, vectors, matrius i determinants que prenen vida amb el que estudies. Colpegen fort i controlen el camí.",
   prg: "Criatures fetes de codi: puntuació, condicions i compiladors. Ràpides, llestes i plenes de trucs.",
   mnt: "Criatures del mateix bosc: pins, anells de tronc, foc controlat i carrasques velles. Aguanten el camí i protegixen les del costat.",
-  pin: "Criatures del treball de camp: brúixoles, llavors que volen lluny, anelles de marcatge i el projecte que ho ajunta tot.",
+  pin: "El quadern de camp: brúixoles, llavors que volen lluny, anelles de marcatge i el projecte que ho ajunta tot.",
 };
 function tdIndexPages(tab, list) {
   const f = TD_SUBJECTS[tab], have = list.filter(id => td.owned[id]).length;

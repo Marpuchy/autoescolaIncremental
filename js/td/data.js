@@ -10,9 +10,11 @@ const TD_SUBJECTS = {
   prg: { name: "Informàtica", short: "Informàtica", icon: "⌨️", mode: "informatic",
          classes: ["Programació I", "Programació II", "Eines de Programació", "Fonaments de Computadors", "Electrònica", "Dret de les TIC"] },
   // Forestal (2n del cicle superior de Gestió Forestal i del Medi Natural). Llista provisional: falta que Alba la confirme.
+  // Camps per zones temàtiques. Pròxima zona: Fauna (cinegètica i pesca); fins que tinga criatures, les seues
+  // assignatures continuen al Quadern de camp.
   mnt: { name: "Gestió de monts", short: "Monts", icon: "🌲", mode: "forestal",
          classes: ["Gestió de monts", "Defensa contra incendis forestals", "Gestió de la conservació del medi natural"] },
-  pin: { name: "Projecte intermodular", short: "Projecte", icon: "🧭", mode: "forestal",
+  pin: { name: "Quadern de camp", short: "Quadern", icon: "📒", mode: "forestal",
          classes: ["Projecte intermodular", "Gestió cinegètica", "Gestió de la pesca continental", "Itinerari personal per a l'ocupabilitat II"] },
 };
 const tdFieldsOf = mode => Object.keys(TD_SUBJECTS).filter(s => TD_SUBJECTS[s].mode === mode);
@@ -81,7 +83,7 @@ const TD_DEFENDERS = {
   carrasca:    { subj: "mnt", rar: "mitic", name: "Carrasca mil·lenària", dmg: 26, rate: 0.9, range: 320, cost: 150, role: "single",
                  aura: { radius: 340, dmg: 0.3 }, special: { every: 6, type: "root", radius: 150, dur: 1.5 },
                  desc: "Les criatures que té a prop fan un 30 % més de dany. Cada 6 atacs deixa caure una gla: brollen arrels que atrapen els enemics 1,5 s." },
-  // ---- Projecte intermodular (Forestal)
+  // ---- Quadern de camp (Forestal: projecte intermodular i IPO)
   bruixola:    { subj: "pin", rar: "comu", name: "Brúixola", dmg: 4, rate: 2.4, range: 200, cost: 25, role: "single",
                  aim: true, aimHold: true, aimWait: 0.16, alt: true,
                  desc: "Barata i rapidíssima: l'agulla gira cap a l'enemic i dispara una meitat i després l'altra (la roja i la blanca), que tornen a créixer." },

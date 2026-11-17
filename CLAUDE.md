@@ -94,7 +94,9 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   compran copias de cualquier criatura de la carrera menos la mítica (`tdBuyCopy`). Las retiradas se fusionan con `TD_MERGED`.
   Hoy: Informàtica con Matemàtiques (`alg`: Sumador, Vector épico, Determinant, λ) e Informàtica (`prg`: Punt i coma, If/else,
   Compilador, Stack). Forestal (Alba, asignaturas provisionales de 2.º de Gestió Forestal) con Gestió de monts (`mnt`: Pi,
-  Anells, Contrafoc, Carrasca) y Projecte intermodular (`pin`: Brúixola, Sàmara, Anellador, Projecte integrador). En el
+  Anells, Contrafoc, Carrasca) y Quadern de camp (`pin`, projecte intermodular e IPO: Brúixola, Sàmara, Anellador, Projecte integrador). Los campos se hacen
+  por zonas temáticas; las asignaturas de una zona futura (p. ej. Fauna: cinegètica y pesca) siguen en su campo actual hasta
+  que la zona tenga criaturas. En el
   bosque los enemigos son los mismos (mismo nombre y truco) con otro aspecto (`TD_FOREST_ENEMIES`, `TD_FOREST_ENEMY_ART`,
   `tdEnemy`), y el mundo 1 es el mismo trazado con fondo de bosque (`tdbForestBackground`).
 - Botiga, tests, compendio e inventario viven en la DGT (`js/hub.js`): pantalla completa con el interior dibujado y
