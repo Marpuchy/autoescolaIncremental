@@ -765,5 +765,6 @@
 .tdb-burn-f { transform-box: fill-box; transform-origin: 50% 100%; animation: td-flicker 0.4s ease-in-out infinite alternate; }
 .tdb-burn { animation: tdb-burn-in 0.3s ease-out; }
 @keyframes tdb-burn-in { from { opacity: 0; transform-box: fill-box; } }
-.tdb-mark { animation: td-hover 1.4s ease-in-out infinite; }
+.tdb-mark { animation: tdb-mark-on 0.35s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes tdb-mark-on { from { transform: scale(2.4); opacity: 0; } }
 .tdb-aura .tdc { filter: drop-shadow(0 0 10px rgba(143, 212, 90, 0.75)); }

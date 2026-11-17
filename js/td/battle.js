@@ -495,8 +495,15 @@ function tdbMark(e, amount) {
   if (!e.el) return;
   if (e.mark >= amount) return;
   e.mark = amount;
-  if (!e.el.querySelector(".tdb-mark")) e.el.insertAdjacentHTML("beforeend", `<g class="tdb-mark" transform="translate(0 ${-e.size * 0.2})">${anella(0, 0, 0.9)}</g>`);
+  const svg = e.el.querySelector("svg");
+  if (svg && !svg.querySelector(".tdb-mark")) { // l'anella es posa a la pota (o a la tija) de la distracció, dins del seu dibuix
+    const [x, y, k] = TD_MARK_SPOT[e.type] || TD_MARK_SPOT[e.def.art] || [50, 62, 0.8];
+    svg.insertAdjacentHTML("beforeend", `<g class="tdb-mark" style="transform-origin:${x}px ${y}px">${anella(x, y, k)}</g>`);
+  }
 }
+// On es posa l'anella a cada distracció del bosc (x, y, mida al viewBox 0-100 del dibuix): potes i tiges
+const TD_MARK_SPOT = { notificacio: [44, 75, 0.5], procrastinacio: [23, 68, 0.5], son: [49, 84, 0.55], scroll: [50, 86, 0.6],
+  scrollet: [50, 86, 0.6], meme: [58, 89, 0.5], series: [50, 84, 0.6], diumenge: [38, 84, 0.6] };
 function tdbMarkJump(e) {
   const [x, y] = tdbPos(e);
   const next = tdb.enemies.filter(o => o !== e && o.hp > 0 && !o.mark && !o.convertT)
