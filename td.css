@@ -455,3 +455,4 @@
 .tdbook-filter.on { background: var(--accent); color: #fff; border-color: var(--accent); }
 .tdbook-mini.fav::before { content: "★"; position: absolute; top: 2px; right: 5px; color: #ffc23f; font-size: 0.85rem; text-shadow: 0 0 4px #000; }
 .tdbook-fav.on { color: #ffc23f; }
+.td-classes { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 2px; --ink: #e6e6e6; --accent: #7d5cff; }

@@ -136,18 +136,18 @@ function tdDailyLeft(subj) {
   return Math.max(0, TD_DAILY_CAP - (td.daily[subj] || 0));
 }
 // Torna { rolls, capped, mythic } o null si no hi ha res a donar
-function tdRegisterStudy(subj, actId) {
+function tdRegisterStudy(subj, actId, cls = "") {
   const act = TD_ACTIVITIES.find(a => a.id === actId);
   if (!act || !TD_SUBJECTS[subj]) return null;
   const rolls = Math.min(act.rolls, tdDailyLeft(subj));
   if (rolls <= 0) return { rolls: 0, capped: true };
   td.daily[subj] = (td.daily[subj] || 0) + rolls;
   td.pergamins[subj] += rolls;
-  tdLog(subj, `${act.icon} ${act.name}`, rolls);
+  tdLog(subj, `${act.icon} ${act.name}${cls ? ` · ${cls}` : ""}`, rolls);
   tdSave();
   return { rolls, capped: rolls < act.rolls };
 }
-function tdRegisterExam(subj, nota, final) {
+function tdRegisterExam(subj, nota, final, cls = "") {
   nota = Math.round(Number(nota) * 10) / 10;
   if (!TD_SUBJECTS[subj] || !(nota >= 0 && nota <= 10)) return null;
   const rolls = tdExamRolls(nota);
@@ -157,7 +157,7 @@ function tdRegisterExam(subj, nota, final) {
     const id = Object.keys(TD_DEFENDERS).find(k => TD_DEFENDERS[k].subj === subj && TD_DEFENDERS[k].rar === "mitic");
     if (id) mythic = tdGrant(id);
   }
-  tdLog(subj, `${final ? "🎓 Examen final" : "📄 Examen parcial"}: ${String(nota).replace(".", ",")}`, rolls, !!mythic);
+  tdLog(subj, `${final ? "🎓 Examen final" : "📄 Examen parcial"}: ${String(nota).replace(".", ",")}${cls ? ` · ${cls}` : ""}`, rolls, !!mythic);
   tdSave();
   return { rolls, mythic };
 }

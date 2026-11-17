@@ -5,7 +5,8 @@
 // Mentre s'està ací (o en combat), l'autoescola està parada.
 const tdLobbyOpen = () => !$("td-lobby").hidden;
 const tdOpen = () => tdLobbyOpen() || tdBattleOpen();
-let tdSubj = "alg";       // assignatura triada als panells
+let tdSubj = "alg";       // camp triat als panells
+let tdClass = {};         // assignatura triada dins de cada camp (prestatgeria d'estudi)
 
 function tdOpenLobby() {
   if (typeof roomOpen === "function" && roomOpen()) closeRoom();
@@ -69,7 +70,7 @@ function tdGachaHtml() {
   const s = tdSubj, p = td.pity[s], n = td.pergamins[s];
   const pool = Object.entries(TD_DEFENDERS).filter(([, d]) => d.subj === s && d.rar !== "mitic");
   return `${tdSubjTabs()}
-    <p class="td-hint">Cada pergamí de <strong>${TD_SUBJECTS[s].name}</strong> invoca una criatura d'aquesta assignatura. Els pergamins només s'aconseguixen estudiant.</p>
+    <p class="td-hint">Cada pergamí de <strong>${TD_SUBJECTS[s].name}</strong> (${TD_SUBJECTS[s].classes.join(", ")}) invoca una criatura d'aquest camp. Els pergamins només s'aconseguixen estudiant.</p>
     <div class="td-gacha-pool">${pool.map(([id, d]) => `<div class="td-mini rar-${d.rar}" title="${d.name} (${TD_RARITIES[d.rar].name})">${tdCreatureSvg(id)}</div>`).join("")}</div>
     <div class="td-rates">${["comu", "rar", "epic", "llegendari"].map(r => `<span style="color:${TD_RARITIES[r].color}">${TD_RARITIES[r].name} ${String(TD_RARITIES[r].chance * 100).replace(".", ",")} %</span>`).join(" · ")}</div>
     <div class="td-pity"><span>Èpic garantit en <strong>${TD_PITY.epic - p.epic}</strong></span><span>Llegendari garantit en <strong>${TD_PITY.llegendari - p.llegendari}</strong></span></div>
@@ -175,27 +176,28 @@ function tdsTap(ev) {
 
 // ---- escriptori (apuntar l'estudi)
 function tdStudyHtml() {
-  const s = tdSubj, left = tdDailyLeft(s);
+  const s = tdSubj, left = tdDailyLeft(s), cls = tdClass[s] || TD_SUBJECTS[s].classes[0];
   const log = td.log.filter(l => l.subj === s).slice(0, 6);
   return `${tdSubjTabs()}
-    <p class="td-hint">Apunta el que has estudiat de <strong>${TD_SUBJECTS[s].name}</strong>. Et queden <strong>${left}</strong> pergamins per a hui (sense comptar els exàmens).</p>
+    <div class="td-classes">${TD_SUBJECTS[s].classes.map(c => `<button class="tdbook-filter${c === cls ? " on" : ""}" data-cls="${c}">${c}</button>`).join("")}</div>
+    <p class="td-hint">Apunta el que has fet de <strong>${cls}</strong>: els pergamins són de ${TD_SUBJECTS[s].name}. Et queden <strong>${left}</strong> per a hui en aquest camp (sense comptar els exàmens).</p>
     <div class="td-acts">${TD_ACTIVITIES.map(a => `<button class="td-act" data-act="${a.id}" ${left <= 0 ? "disabled" : ""}><span>${a.icon}</span>${a.name}<strong>+${a.rolls} 📜</strong></button>`).join("")}</div>
     <div class="td-exam"><label>Nota de l'examen <input type="number" id="td-nota" min="0" max="10" step="0.1" placeholder="7,5"></label>
       <button class="secondary" data-exam="parcial">📄 Parcial</button><button data-exam="final">🎓 Final</button></div>
-    <p class="td-hint">Parcial o final: 5 → 3 pergamins … 10 → 10. Amb un <strong>${TD_MYTHIC_GRADE} o més al final</strong>, la criatura mítica de l'assignatura.</p>
+    <p class="td-hint">Parcial o final: 5 → 3 pergamins … 10 → 10. Amb un <strong>${TD_MYTHIC_GRADE} o més al final</strong>, la criatura mítica del camp.</p>
     ${log.length ? `<ul class="td-log">${log.map(l => `<li>${l.what} <span>+${l.rolls} 📜${l.mythic ? " · ✨ mític" : ""}</span></li>`).join("")}</ul>` : ""}`;
 }
 function tdDoStudy(actId) {
-  const r = tdRegisterStudy(tdSubj, actId);
+  const r = tdRegisterStudy(tdSubj, actId, tdClass[tdSubj] || TD_SUBJECTS[tdSubj].classes[0]);
   if (!r) return;
   if (r.rolls) toast(`📜 +${r.rolls} pergamins de ${TD_SUBJECTS[tdSubj].short}${r.capped ? " (has arribat al límit d'avui)" : ""}`, "good");
-  else toast("Ja has arribat al límit d'avui per a aquesta assignatura", "bad");
+  else toast("Ja has arribat al límit d'avui per a aquest camp", "bad");
   tdRenderPanel();
 }
 function tdDoExam(kind) {
   const nota = Number(String($("td-nota").value).replace(",", "."));
   if (!(nota >= 0 && nota <= 10) || $("td-nota").value === "") { toast("Escriu una nota de 0 a 10", "bad"); return; }
-  const r = tdRegisterExam(tdSubj, nota, kind === "final");
+  const r = tdRegisterExam(tdSubj, nota, kind === "final", tdClass[tdSubj] || TD_SUBJECTS[tdSubj].classes[0]);
   toast(`📜 +${r.rolls} pergamins de ${TD_SUBJECTS[tdSubj].short}`, "good");
   if (r.mythic) tdReveal([r.mythic]);
   tdRenderPanel();
@@ -233,7 +235,7 @@ function tdBookHtml(kind) {
 function tdCreaturePages(id) {
   const d = TD_DEFENDERS[id], o = td.owned[id], r = TD_RARITIES[d.rar];
   if (!o) return [`<div class="tdbook-art locked">${tdCreatureSvg(id)}</div><h3 class="tdbook-name">???</h3><div class="tdbook-rar" style="color:${r.color}">${r.name}</div>`,
-    `<p class="tdbook-text">Encara no has invocat aquesta criatura.</p><p class="tdbook-text muted">${d.rar === "mitic" ? `Només es pot aconseguir traent un ${TD_MYTHIC_GRADE} o més a l'examen final de ${TD_SUBJECTS[d.subj].name}.` : `Pot eixir a l'altar, amb pergamins de ${TD_SUBJECTS[d.subj].name}.`}</p>`];
+    `<p class="tdbook-text">Encara no has invocat aquesta criatura.</p><p class="tdbook-text muted">${d.rar === "mitic" ? `Només es pot aconseguir traent un ${TD_MYTHIC_GRADE} o més a l'examen final d'una assignatura de ${TD_SUBJECTS[d.subj].name} (${TD_SUBJECTS[d.subj].classes.join(", ")}).` : `Pot eixir a l'altar, amb pergamins de ${TD_SUBJECTS[d.subj].name}.`}</p>`];
   const st = tdStats(id), next = tdNextStar(id);
   const cost = o.level < TD_LEVEL_MAX ? tdLevelCost(d.rar, o.level) : null;
   return [`<div class="tdbook-art rar-${d.rar}">${tdCreatureSvg(id)}</div><h3 class="tdbook-name">${d.name}</h3>
@@ -265,7 +267,7 @@ function tdTeamPages() {
         : `<div class="tdbook-tslot empty">+</div>`).join("")}</div>`,
     `<h3 class="tdbook-name">Les teues criatures</h3>
       <div class="tdbook-filters">${filters.map(([f, l]) => `<button class="tdbook-filter${tdTeamFilter === f ? " on" : ""}" data-filter="${f}">${l}</button>`).join("")}</div>
-      ${owned.length ? "" : `<p class="tdbook-text muted">${tdTeamFilter === "fav" ? "Encara no tens preferides: marca-les amb ☆ a les pàgines del grimori." : "No en tens cap d'aquesta assignatura."}</p>`}
+      ${owned.length ? "" : `<p class="tdbook-text muted">${tdTeamFilter === "fav" ? "Encara no tens preferides: marca-les amb ☆ a les pàgines del grimori." : "No en tens cap d'aquest camp."}</p>`}
       <div class="tdbook-owned">${owned.map(id => `<button class="tdbook-mini rar-${TD_DEFENDERS[id].rar}${td.team.includes(id) ? " inteam" : ""}${td.favs.includes(id) ? " fav" : ""}" data-team="${id}" title="${TD_DEFENDERS[id].name} · ${TD_DEFENDERS[id].cost} de maná">${tdCreatureSvg(id)}<span class="tdbook-cost">🔮 ${TD_DEFENDERS[id].cost}</span></button>`).join("")}</div>`];
 }
 // Passar pàgina com en un llibre de veritat: la fulla gira sobre el llom (davant, la pàgina vella; darrere, la nova)
@@ -379,6 +381,7 @@ function initTdLobby() {
     if (!b || b.disabled) return;
     const ds = b.dataset;
     if (ds.subj) { tdSubj = ds.subj; tdRenderPanel(); }
+    else if (ds.cls) { tdClass[tdSubj] = ds.cls; tdRenderPanel(); }
     else if (ds.bktab) { tdBook = { tab: ds.bktab, page: 0 }; tdRenderPanel(); }
     else if (ds.bk) tdTurnPage(ds.bk === "next" ? 1 : -1);
     else if (ds.filter) { tdTeamFilter = ds.filter; tdRenderPanel(); }

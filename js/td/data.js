@@ -3,19 +3,23 @@
 // mon per mon). Les criatures es dibuixen a js/td/art.js.
 
 const TD_SUBJECTS = {
-  alg: { name: "Àlgebra Lineal", short: "Àlgebra", icon: "➕", mode: "informatic" },
-  prg: { name: "Programació I", short: "Programació", icon: "⌨️", mode: "informatic" },
+  // Camps d'estudi: cada camp ajunta diverses assignatures (pergamins, garantia i criatures compartits),
+  // perquè no cal estudiar tant per a omplir cada gacha. Les claus (alg, prg) són de la partida: no canviar-les.
+  alg: { name: "Matemàtiques", short: "Matemàtiques", icon: "➕", mode: "informatic",
+         classes: ["Àlgebra Lineal", "Càlcul", "Matemàtica Discreta", "Estadística"] },
+  prg: { name: "Informàtica", short: "Informàtica", icon: "⌨️", mode: "informatic",
+         classes: ["Programació I", "Programació II", "Eines de Programació", "Fonaments de Computadors", "Electrònica", "Dret de les TIC"] },
 };
 
 // Raresa: probabilitat de la invocació (el mític no ix mai: només amb un 8 o més a l'examen final)
 const TD_RARITIES = {
-  comu:       { name: "Comú",       chance: 0.70,  color: "#b8c0cc", value: 1 },
-  rar:        { name: "Rar",        chance: 0.25,  color: "#4aa8ff", value: 3 },
-  epic:       { name: "Èpic",       chance: 0.045, color: "#b48cff", value: 10 },
-  llegendari: { name: "Llegendari", chance: 0.005, color: "#ffc23f", value: 40 },
+  comu:       { name: "Comú",       chance: 0.66,  color: "#b8c0cc", value: 1 },
+  rar:        { name: "Rar",        chance: 0.27,  color: "#4aa8ff", value: 3 },
+  epic:       { name: "Èpic",       chance: 0.06,  color: "#b48cff", value: 10 },
+  llegendari: { name: "Llegendari", chance: 0.01,  color: "#ffc23f", value: 40 },
   mitic:      { name: "Mític",      chance: 0,     color: "#ff5ab0", value: 100 },
 };
-const TD_PITY = { epic: 30, llegendari: 150 }; // garantia: èpic cada 30 tirades i llegendari cada 150 (per assignatura)
+const TD_PITY = { epic: 30, llegendari: 90 }; // garantia: èpic com a molt a la tirada 30 i llegendari a la 90 (per camp)
 // Còpies totals per a cada estrela (★1 en traure-la; ★5 amb 11 còpies). Les que sobren es tornen saber.
 const TD_STAR_COPIES = [1, 2, 4, 7, 11];
 
@@ -107,8 +111,9 @@ const TD_UPGRADES = {
 const TD_LEVEL_MAX = 30;
 const tdLevelCost = (rar, lvl) => Math.round(15 * TD_RARITIES[rar].value ** 0.5 * 1.28 ** (lvl - 1));
 
-// Què has estudiat → pergamins d'invocació (de l'assignatura). Límit diari per assignatura (sense comptar els exàmens).
+// Què has estudiat → pergamins d'invocació (del camp de l'assignatura). Límit diari per camp (sense comptar els exàmens).
 const TD_ACTIVITIES = [
+  { id: "classe",   icon: "🏫", name: "Anar a classe",               rolls: 2 },
   { id: "resum",    icon: "📝", name: "Resum (1 pàgina)",            rolls: 3 },
   { id: "exercici", icon: "✏️", name: "Full d'exercicis",           rolls: 2 },
   { id: "llarg",    icon: "📐", name: "Problemes llargs o difícils", rolls: 3 },
