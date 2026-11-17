@@ -18,6 +18,7 @@ const TD_ROOMS = {
 function tdOpenLobby(room = tdRoom) {
   if (typeof roomOpen === "function" && roomOpen()) closeRoom();
   tdRoom = TD_ROOMS[room] ? room : "informatic";
+  tdUseRoomArtifacts(tdRoom);
   $("td-lobby").hidden = false;
   $("td-lobby").classList.toggle("forest", tdRoom === "forestal");
   $("td-lobby-top").querySelector("h2").textContent = TD_ROOMS[tdRoom].title;

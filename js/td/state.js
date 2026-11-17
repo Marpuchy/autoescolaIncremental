@@ -20,6 +20,8 @@ function tdNewState() {
     log: [],                                          // què s'ha estudiat (els 40 últims)
     daily: { date: "", alg: 0, prg: 0 },
     missions: { date: "", list: [] },                 // missions diàries (pergamins extra si es fan abans de mitjanit)
+    artRoom: "informatic",                            // de quina sala són ara artifacts i equipped
+    artBank: {},                                      // artefactes de les altres sales (no es compartixen entre carreres/mòduls)
     pulls: 0,
   };
 }
@@ -61,6 +63,13 @@ function tdLoad() {
     // criatures o artefactes que ja no existixen: fora
     for (const id of Object.keys(td.owned)) if (!TD_DEFENDERS[id]) delete td.owned[id];
     for (const id of Object.keys(td.artifacts)) if (!TD_ARTIFACTS[id]) delete td.artifacts[id];
+    // artefactes de les altres sales: només objectes ben formats
+    if (!["informatic", "forestal"].includes(td.artRoom)) td.artRoom = "informatic";
+    for (const [k, b] of Object.entries(td.artBank)) {
+      if (!b || typeof b !== "object" || k === td.artRoom) { delete td.artBank[k]; continue; }
+      b.artifacts = b.artifacts && typeof b.artifacts === "object" ? b.artifacts : {};
+      b.equipped = Array.isArray(b.equipped) ? b.equipped.filter(id => b.artifacts[id]) : [];
+    }
     td.team = td.team.filter(id => td.owned[id]).slice(0, 6);
     td.favs = td.favs.filter(id => TD_DEFENDERS[id]);
     // un artefacte per espai
@@ -172,6 +181,16 @@ function tdDailyLeft(subj) {
 // Torna { rolls, capped, mythic } o null si no hi ha res a donar
 // Missions del dia: 3, iguals per a tot el dia (es trien a partir de la data). Donen pergamins extra
 // (fora del límit diari) si es completen abans de mitjanit.
+// Cada sala (carrera o mòdul) té els seus artefactes: en canviar de sala, es guarden els d'una i es trauen els de l'altra
+function tdUseRoomArtifacts(room) {
+  if (td.artRoom === room) return;
+  td.artBank[td.artRoom] = { artifacts: td.artifacts, equipped: td.equipped };
+  const b = td.artBank[room] || { artifacts: {}, equipped: [] };
+  td.artifacts = b.artifacts; td.equipped = b.equipped;
+  delete td.artBank[room];
+  td.artRoom = room;
+  tdSave();
+}
 function tdMissions() {
   const day = tdToday();
   if (td.missions.date !== day || !Array.isArray(td.missions.list)) {
