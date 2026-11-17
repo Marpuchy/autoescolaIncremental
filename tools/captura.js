@@ -7,7 +7,7 @@
 //   node tools/captura.js --level 140 --items all --tab inventory
 //   node tools/captura.js --level 60 --size 1300x900,600x1000 --out captures
 //   node tools/captura.js --svg img/escenari-13.svg,img/escenari-14.svg   (fons o sprites solts, en graella)
-// Opcions: --level N · --items id,id|all · --equip id,id · --hub (obri la DGT) · --tab shop|test|bestiary|inventory · --god
+// Opcions: --level N · --items id,id|all · --equip id,id · --room (l'habitació d'inici) · --hub (obri la DGT) · --tab shop|test|bestiary|inventory · --god
 //          --size AMPLExALT[,...] (Chrome headless no baixa de ~500 px d'ample: el mòbil es prova a 600)
 //          --wait ms (temps virtual abans de la captura, per defecte 1500) · --out carpeta (per defecte la temporal)
 // Llig la imatge resultant per a revisar-la. La partida de prova es fa en una pàgina a part: no toca la del navegador.
@@ -51,6 +51,7 @@ if (args.svg) {
 
 // Joc amb una partida nova + accions de la consola de desenvolupador
 const actions = `
+  ${args.room ? '' : 'closeRoom();'}
   ${args.god ? 'CONFIG.debug.godMode = true;' : ''}
   ${args.level ? `dev.gotoLevel(${Number(args.level)});` : ''}
   ${args.items === 'all' ? 'dev.giveAllItems();' : list(args.items).map(id => `dev.giveItem(${JSON.stringify(id)});`).join('')}
@@ -65,8 +66,13 @@ html = html.replace('</body>', `<script>
     try { ${actions} } catch (err) { __errs.push(err.message); }
     setTimeout(() => {
       const doc = document.documentElement;
-      document.querySelector("h1").textContent = "ERRORS: " + (__errs.join(" | ") || "cap") +
+      const info = "ERRORS: " + (__errs.join(" | ") || "cap") +
         " · escenari " + (sceneIndex(state.level) + 1) + " · scroll horitzontal: " + (doc.scrollWidth > doc.clientWidth ? "SÍ" : "no");
+      document.querySelector("h1").textContent = info;
+      // l'habitació tapa la capçalera: la informació va també en una franja damunt de tot
+      if (roomOpen()) { const bar = document.createElement("div"); bar.textContent = info;
+        bar.style.cssText = "position:fixed;bottom:0;left:0;z-index:999;background:#000c;color:#f2c200;font:600 13px sans-serif;padding:4px 8px";
+        document.body.appendChild(bar); }
     }, 300);
   }, 300);
 </script></body>`);

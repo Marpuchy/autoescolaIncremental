@@ -65,6 +65,7 @@ function loop(now) {
 
 initInventory();
 initHub();
+initRoom();
 checkItemRewards(false); // partides d'abans: si ja havien derrotat un cap que dona equipament, el reben ara
 initDevConsole();
 renderUpgrades();
@@ -72,5 +73,5 @@ renderTestPanel();
 renderShop();
 if (state.examPending && CONFIG.debug.autoPassExams) skipExam();
 if (state.examPending) showExamIntro(); // l'examen pendent no es pot evitar recarregant
-else toast("🚗 Benvingut a l'autoescola!");
+else { openRoom(); toast("🏠 Benvingut a casa!"); } // s'entra per l'habitació
 requestAnimationFrame(loop);

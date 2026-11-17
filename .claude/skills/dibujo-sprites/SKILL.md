@@ -12,8 +12,8 @@ degradado suave. Sin imágenes externas salvo las fotos de jefes (`img/*.jpeg`).
 - Sigue la skill importada `svg-creator` (bucle escribir → renderizar → mirar → corregir; personajes por partes;
   sombras de color y degradados suaves) sin perder el estilo plano del juego.
 - **Interiores y escenas con perspectiva: nunca calcules las esquinas a ojo.** Descríbelos en metros con el motor
-  `tools/perspectiva.js` (cámara única, cajas, caras, sombras, figuras escaladas por profundidad). Ejemplo completo:
-  `tools/dgt.js`, que genera `js/data/hub-art.js` (`node tools/dgt.js --preview fichero.svg` para ver el resultado).
+  `tools/perspectiva.js` (cámara única, cajas, caras, sombras, figuras escaladas por profundidad). Ejemplos completos:
+  `tools/dgt.js` y `tools/habitacio.js` (habitación de inicio), que genera `js/data/hub-art.js` (`node tools/dgt.js --preview fichero.svg` para ver el resultado).
   Los objetos de la derecha muestran su cara izquierda y al revés; todo apoya en y = 0; el orden de pintado es del
   fondo hacia delante (z decreciente).
 - Sin textos dentro de los dibujos: pictogramas y formas.

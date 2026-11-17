@@ -13,6 +13,7 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
 - Sintaxis: `node --check js/<archivo>.js` (el hook de `.claude/` lo hace solo tras cada edición).
 - Balance: `node tools/bot.js` (tests por escenario, jugador medio y bueno) · `node tools/tune.js --targets '{...}'`.
 - Capturas: `node tools/captura.js --level 140 --items all --tab inventory` · `--svg img/escenari-13.svg`.
+- Habitación (pantalla de inicio): `node tools/habitacio.js` (regenera `js/data/room-art.js`).
 - Escena de la DGT: `node tools/dgt.js` (regenera `js/data/hub-art.js`; motor de perspectiva en `tools/perspectiva.js`).
   Con Playwright (instalado para Python): skill `webapp-testing`, abriendo `index.html` como `file://`.
 - No hay build, lint ni tests automáticos.
@@ -22,7 +23,7 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
 - `js/data/` — contenidos: `scenes.js` (escenarios y jefes con nombre), `enemies.js`, `enemy-art.js` (dibujos SVG de enemigos y jefes), `upgrades.js`, `items.js`, `questions.js`.
 - Lógica: `state.js` (estado), `save.js` (guardado y migraciones), `enemies.js`, `bosses.js` (habilidades de jefes),
   `combat.js`, `upgrades.js`, `inventory.js`, `evolutions.js` (ramas de evolución de objetos, datos en
-  `data/evolutions.js`), `hub.js` (DGT: espacio común), `progress.js`, `exam.js`, `tests.js`, `shop.js`, `bestiary.js`.
+  `data/evolutions.js`), `hub.js` (DGT: espacio común), `room.js` (habitación de inicio), `progress.js`, `exam.js`, `tests.js`, `shop.js`, `bestiary.js`.
 - Pintado: `render.js` (cada fotograma), `fx.js` (animaciones y números), `style.css`. `dev.js`: consola de desarrollo.
 - `img/` — fondos `escenari-N.svg` (1600×900), sprites SVG y fotos de jefes. `tools/` — bot, ajustador y capturas (no los carga el juego).
 
@@ -42,6 +43,9 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
 - Pruebas en navegador: `webapp-testing` (Playwright en Python, cualquier ancho, errores de consola) o `tools/captura.js`.
 - Toda interfaz nueva debe caber sin scroll (horizontal siempre; vertical en ventanas como el inventario) en
   escritorio, tablet y móvil (1440 / 820 / 390 px). Comprobarlo con captura.
+- Rumbo: el juego pasa a ser de **estudio general** con varios juegos (autoescuela, grado, carrera…) unidos como
+  salas dibujadas, sin menús. Se entra por la **habitación** (`js/room.js`): la placa L lleva a la DGT y la mochila al
+  juego de estudio (tower defense, aún por hacer: de momento un aviso). Desde la DGT se vuelve por la puerta de eixida.
 - Botiga, tests, compendio e inventario viven en la DGT (`js/hub.js`): pantalla completa con el interior dibujado y
   4 puntos interactivos (caixer, instructor, llibre, espill). Ya no hay panel derecho.
 - Cada zona nueva trae un enemigo nuevo y temático (nunca una "versión más fuerte"); jefe con nombre cada 3 zonas,

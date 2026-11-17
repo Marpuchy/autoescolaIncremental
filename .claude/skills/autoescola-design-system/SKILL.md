@@ -46,6 +46,7 @@ mirando a un lado distinto. Botones de solo icono: `title` + texto oculto (patr�
 
 ## Medidas y comportamiento
 - Pantalla principal: combate a todo el ancho + franja de mejoras. Botón 🏢 DGT en la cabecera.
+- Habitación (`js/room.js`): pantalla de inicio, igual que la DGT (SVG 1600×900 con puntos y fila de botones en móvil).
 - DGT (`js/hub.js`): pantalla completa con el interior dibujado (SVG 1600×900, `meet`, pared y suelo continúan fuera)
   y 4 puntos (caixer, instructor, llibre, espill) que abren ventanitas; en móvil y tablet vertical, fila de botones.
 - Inventario: ventana central de 980 px, granoteta con los 3 huecos en triángulo. **Nada puede necesitar scroll horizontal.**

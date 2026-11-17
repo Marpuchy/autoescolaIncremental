@@ -112,6 +112,21 @@
     <div id="upgrade-list"></div>
   </section>
 
+  <!-- HABITACIÓ: pantalla d'inici (js/room.js). Cada objecte porta a un joc d'estudi: la placa L a la DGT, la motxilla
+       al joc d'estudi. L'escena es pinta en #room-scene. -->
+  <div id="room" hidden>
+    <div class="hub-top room-top">
+      <h2>🏠 La meua habitació</h2>
+      <p class="room-hint">Toca la <span class="lplate sm">L</span> per a anar a l'autoescola o la motxilla per a estudiar</p>
+    </div>
+    <div class="hub-scene room-scene" id="room-scene"></div>
+    <!-- accessos ràpids (al mòbil l'escena queda menuda) -->
+    <nav class="hub-actions room-actions" id="room-actions" aria-label="Llocs de l'habitació">
+      <button data-room="dgt"><span class="lplate">L</span><span>Autoescola</span></button>
+      <button data-room="study">🎒<span>Estudiar</span></button>
+    </nav>
+  </div>
+
   <!-- DGT: ESPAI COMÚ a pantalla completa (js/hub.js). L'escena es pinta en #hub-scene. -->
   <div id="hub" hidden>
     <div class="hub-top">
@@ -126,6 +141,7 @@
       <button data-hub="test">☕<span>Tests</span></button>
       <button data-hub="bestiary">📖<span>Compendi</span></button>
       <button data-hub="inventory">🪞<span>Espill</span></button>
+      <button data-hub="exit" class="hub-action-exit">🚪<span>Eixida</span></button>
       <button data-hub="reset" class="hub-action-reset">🗑️<span>Reiniciar</span></button>
     </nav>
     <div id="hub-dialog" hidden>
@@ -231,6 +247,8 @@
   <script src="js/evolutions.js"></script>
   <script src="js/data/hub-art.js"></script>
   <script src="js/hub.js"></script>
+  <script src="js/data/room-art.js"></script>
+  <script src="js/room.js"></script>
   <script src="js/fx.js"></script>
   <script src="js/render.js"></script>
   <script src="js/dev.js"></script>

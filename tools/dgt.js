@@ -104,6 +104,29 @@ wall += wallRect(1.55, 1.45, 2.75, 2.25, `fill="#b9935a" rx="3"`);
 wall += wallRect(1.62, 1.95, 1.98, 2.18, `fill="#fff"`) + wallRect(2.05, 1.9, 2.4, 2.15, `fill="#ffe27a"`) + wallRect(2.45, 1.6, 2.7, 1.98, `fill="#bfe4ff"`) + wallRect(1.7, 1.55, 2.05, 1.85, `fill="#f4c6d0"`);
 add(wall);
 
+// ---------------------------------------------------------------- porta d'eixida amb el cartell verd (→ habitació)
+// Porta de la paret del fons, a la dreta de la tele, i damunt el cartell d'eixida d'emergència (pictograma, sense text).
+{
+  let s = "";
+  const dx0 = 3.0, dx1 = 3.75, dh = 2.15;
+  s += wallRect(dx0 - 0.07, 0, dx1 + 0.07, dh + 0.07, `fill="#cfc8b8"`);
+  s += wallRect(dx0, 0, dx1, dh, `fill="url(#dgt-door)"`);
+  s += wallRect(dx0 + 0.18, 1.3, dx1 - 0.18, 1.85, `fill="#bfe4ff" stroke="#8a949c" stroke-width="2"`);
+  s += wallRect(dx0 + 0.08, 0.95, dx1 - 0.08, 1.02, `fill="#c3c8cd"`) + wallRect(dx0 + 0.08, 0.93, dx0 + 0.14, 1.04, `fill="#8a949c"`) + wallRect(dx1 - 0.14, 0.93, dx1 - 0.08, 1.04, `fill="#8a949c"`);
+  // cartell: home corrent cap a una porta, amb fletxa
+  const SIGN = `<rect x="-42" y="-36" width="84" height="36" rx="2.5" fill="#1e9e4a" stroke="#fff" stroke-width="1.6"/>
+    <rect x="16" y="-31" width="18" height="27" fill="none" stroke="#fff" stroke-width="2.4"/>
+    <circle cx="4" cy="-27" r="3.4" fill="#fff"/>
+    <g stroke="#fff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" fill="none">
+      <path d="M2 -22 L-1 -13"/><path d="M-1 -13 L5 -9 L4 -4"/><path d="M-1 -13 L-6 -9 L-11 -9"/><path d="M2 -21 L8 -17 L12 -19"/><path d="M1 -20 L-5 -17 L-7 -21"/>
+    </g>
+    <path d="M-36 -18 H-20 M-26 -24 L-19 -18 L-26 -12" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`;
+  const [gx, gy] = P((dx0 + dx1) / 2, dh + 0.3, BACK);
+  s += `<ellipse cx="${r(gx)}" cy="${r(gy)}" rx="70" ry="34" fill="url(#dgt-exit-glow)"/>`;
+  s += figure(SIGN, (dx0 + dx1) / 2, dh + 0.12, BACK);
+  add(s, { spot: "exit", title: "Eixida: tornar a l'habitació", hit: bbox([[dx0 - 0.1, 0, BACK], [dx1 + 0.1, dh + 0.55, BACK]]) });
+}
+
 // ---------------------------------------------------------------- mapa a la paret esquerra (decoratiu, per al futur canvi de zones)
 // Mapa del País Valencià amb la costa, la mar a la dreta i els punts de les zones units per una ruta discontínua.
 {
@@ -436,6 +459,8 @@ const defs = `${cam.defs}
   <linearGradient id="dgt-mirror-glass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e3eff5"/><stop offset="0.6" stop-color="#b8ccd8"/><stop offset="1" stop-color="#94adbd"/></linearGradient>
   <linearGradient id="dgt-frame" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d0aa6a"/><stop offset="1" stop-color="#a8844f"/></linearGradient>
   <linearGradient id="dgt-cone" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffd23f"/><stop offset="1" stop-color="#e0a800"/></linearGradient>
+  <linearGradient id="dgt-door" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9aa5ae"/><stop offset="1" stop-color="#b3bcc4"/></linearGradient>
+  <radialGradient id="dgt-exit-glow"><stop offset="0" stop-color="#3fdc8a" stop-opacity="0.35"/><stop offset="1" stop-color="#3fdc8a" stop-opacity="0"/></radialGradient>
   <radialGradient id="dgt-vignette" cx="0.5" cy="0.5" r="0.75"><stop offset="0.6" stop-color="#1a1a4e" stop-opacity="0"/><stop offset="1" stop-color="#1a1a4e" stop-opacity="0.28"/></radialGradient>`;
 add(`<rect width="1600" height="900" fill="url(#dgt-vignette)" pointer-events="none"/>`);
 
