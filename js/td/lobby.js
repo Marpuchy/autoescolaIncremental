@@ -103,6 +103,14 @@ const tdSubjTabs = () => `<div class="td-tabs">${tdFields().map(s => [s, TD_SUBJ
   `<button class="td-tab s-${s}${tdSubj === s ? " on" : ""}" data-subj="${s}">${d.icon} ${d.short}</button>`).join("")}</div>`;
 const tdStarStr = n => `<span class="td-stars">${"★".repeat(n)}<span class="off">${"★".repeat(5 - n)}</span></span>`;
 
+// Llista de quines assignatures va a cada camp (a la dreta de la prestatgeria), perquè se sàpia on apuntar cada cosa
+function tdSubjectListHtml() {
+  return `<aside class="td-subjlist" aria-label="Assignatures de cada camp"><h4>📋 Assignatures</h4>
+    ${tdFields().map(s => { const F = TD_SUBJECTS[s];
+      return `<div class="td-subjlist-f s-${s}" style="--fc:hsl(${TD_FIELD_HUE[s]} 70% 62%)"><strong>${F.icon} ${F.name}</strong>
+        <ul>${F.classes.map(c => `<li>${c}</li>`).join("")}</ul></div>`; }).join("")}</aside>`;
+}
+
 // ---- altar (invocar)
 function tdGachaHtml() {
   const s = tdSubj, p = td.pity[s] || { epic: 0, llegendari: 0 }, n = td.pergamins[s] || 0;
@@ -262,7 +270,8 @@ function tdStudyHtml() {
         <button class="td-tome" data-exambook="${f}" title="Exàmens de ${F.name}: obri'l per a apuntar una nota"><span>🎓</span><b>Exàmens</b></button></div></div>`;
   };
   return `<p class="td-hint">Cada lleixa és un camp: agafa el llibre del que has fet. Al final, el llibre d'exàmens.</p>
-    <div class="td-study">${tdMissionsHtml()}<div class="td-bookcase">${Array.from({ length: TD_SHELF_ROWS }, (_, i) => row(i)).join("")}</div></div>
+    <div class="td-study">${tdMissionsHtml()}<div class="td-bookcase">${Array.from({ length: TD_SHELF_ROWS }, (_, i) => row(i)).join("")}</div>
+      ${tdSubjectListHtml()}</div>
     ${log.length ? `<ul class="td-log">${log.map(l => `<li>${l.what} <span>+${l.rolls} 📜${l.mythic ? " · ✨ mític" : ""}</span></li>`).join("")}</ul>` : ""}
     ${tdExamOpen ? tdExamBookHtml(tdExamOpen) : ""}`;
 }
