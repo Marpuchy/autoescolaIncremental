@@ -22,9 +22,12 @@ function tdCloseLobby() {
 
 function tdRenderLobby() {
   const student = tdStudentSvg(td.equipped, `x="0" y="0" width="100" height="105"`);
+  // el cristall de la sala és el mateix que el de la finestra de millores: s'encén igual
+  const ups = Object.keys(TD_UPGRADES), frac = ups.reduce((a, id) => a + td.upgrades[id], 0) / ups.reduce((a, id) => a + TD_UPGRADES[id].max, 0);
+  const crystal = tdCrystalSvg(frac).replace("<svg ", `<svg x="-42" y="-64" width="84" height="114" `);
   const spots = [];
   const layers = TD_LOBBY_ART.layers.map(l => {
-    const svg = l.svg.replace("%STUDENT%", student);
+    const svg = l.svg.replace("%STUDENT%", student).replace("%CRYSTAL%", crystal);
     if (!l.spot) return svg;
     const [x, y, w, h] = l.hit;
     spots.push([w * h, `<rect class="hub-hit" data-td="${l.spot}" tabindex="0" role="button" aria-label="${l.title}" x="${x}" y="${y}" width="${w}" height="${h}" fill="transparent"><title>${l.title}</title></rect>`]);
@@ -175,36 +178,65 @@ function tdsTap(ev) {
 }
 
 // ---- escriptori (apuntar l'estudi)
-let tdExamFor = null; // assignatura de la qual s'apunta un examen
-function tdStudyHtml() {
-  const f = tdSubj, left = tdDailyLeft(f), F = TD_SUBJECTS[f];
-  const log = td.log.filter(l => l.subj === f).slice(0, 5);
-  if (tdExamFor && !F.classes.includes(tdExamFor)) tdExamFor = null;
-  return `${tdSubjTabs()}
-    <p class="td-hint">Cada lleixa és una assignatura: agafa el llibre del que has fet. Hui et queden <strong>${left}</strong> pergamins de ${F.name} (els exàmens no compten).</p>
-    <div class="td-bookcase s-${f}">${F.classes.map(cls => `<div class="td-shelf"><div class="td-shelf-label">${cls}</div>
-      <div class="td-shelf-books">${TD_ACTIVITIES.map(a => `<button class="td-spine" data-act="${a.id}" data-cls="${cls}" style="--c:${a.color};--h:${a.h}%" title="${a.name} · +${a.rolls} pergamins" ${left <= 0 ? "disabled" : ""}>
-          <span class="td-spine-i">${a.icon}</span><span class="td-spine-t">${a.short}</span><span class="td-spine-r">+${a.rolls}</span></button>`).join("")}
-        <button class="td-spine exam${tdExamFor === cls ? " open" : ""}" data-examfor="${cls}" style="--c:#7a1f2e;--h:100%" title="Examen: apunta la nota">
-          <span class="td-spine-i">🎓</span><span class="td-spine-t">Examen</span><span class="td-spine-r">nota</span></button></div></div>`).join("")}</div>
-    ${tdExamFor ? `<div class="td-exam"><label>Examen de <strong>${tdExamFor}</strong>: nota <input type="number" id="td-nota" min="0" max="10" step="0.1" placeholder="7,5"></label>
-      <button class="secondary" data-exam="parcial">📄 Parcial</button><button data-exam="final">🎓 Final</button></div>
-      <p class="td-hint">5 → 3 pergamins … 10 → 10. Amb un <strong>${TD_MYTHIC_GRADE} o més al final</strong>, la criatura mítica de ${F.name}.</p>` : ""}
-    ${log.length ? `<ul class="td-log">${log.map(l => `<li>${l.what} <span>+${l.rolls} 📜${l.mythic ? " · ✨ mític" : ""}</span></li>`).join("")}</ul>` : ""}`;
+let tdExamOpen = null;  // camp de l'examen obert (llibre d'exàmens)
+let tdExamClass = {};   // assignatura triada a l'examen, per camp
+const TD_SHELF_ROWS = 4; // lleixes de la prestatgeria: una per camp; les que sobren, buides de moment
+const TD_FIELD_HUE = { alg: 258, prg: 150 };
+// Color del llom: tots els llibres d'un camp són de la mateixa gamma
+const tdSpineColor = (f, i) => `hsl(${TD_FIELD_HUE[f] + ((i * 5) % 3 - 1) * 14} ${42 + (i % 3) * 8}% ${26 + ((i * 3) % 4) * 5}%)`;
+function tdMissionsHtml() {
+  const now = new Date(), end = new Date(now); end.setHours(24, 0, 0, 0);
+  const mins = Math.max(0, Math.round((end - now) / 60000));
+  return `<div class="td-missions"><div class="td-missions-pin"></div><h4>📌 Missions d'avui</h4>
+    <ul>${tdMissions().map(m => { const a = TD_ACTIVITIES.find(x => x.id === m.a), F = TD_SUBJECTS[m.f];
+      return `<li class="${m.done ? "done" : ""}"><span>${a.icon} ${a.short} ×${m.need} <small>${F.short}</small></span>
+        <span class="td-mission-bar"><i style="width:${100 * Math.min(m.have, m.need) / m.need}%"></i><b>${Math.min(m.have, m.need)}/${m.need}</b></span>
+        <strong>${m.done ? "✔" : `+${m.bonus} 📜`}</strong></li>`; }).join("")}</ul>
+    <p class="td-missions-time">⏳ Queden ${Math.floor(mins / 60)} h ${mins % 60} min</p></div>`;
 }
-function tdDoStudy(actId) {
-  const r = tdRegisterStudy(tdSubj, actId, tdClass[tdSubj] || TD_SUBJECTS[tdSubj].classes[0]);
+function tdStudyHtml() {
+  const fields = Object.keys(TD_SUBJECTS);
+  const log = td.log.slice(0, 4);
+  const row = i => {
+    const f = fields[i];
+    if (!f) return `<div class="td-shelf empty"><div class="td-shelf-label">Pròximament</div><div class="td-shelf-books"></div></div>`;
+    const F = TD_SUBJECTS[f], left = tdDailyLeft(f);
+    return `<div class="td-shelf s-${f}"><div class="td-shelf-label">${F.icon} ${F.name}<small>${left} 📜 hui</small></div>
+      <div class="td-shelf-books">${TD_ACTIVITIES.map((a, j) => `<button class="td-spine" data-act="${a.id}" data-field="${f}" style="--c:${tdSpineColor(f, j)};--h:${a.h}%" title="${a.name} · +${a.rolls} pergamins de ${F.name}" ${left <= 0 ? "disabled" : ""}>
+          <span class="td-spine-i">${a.icon}</span><span class="td-spine-t">${a.short}</span><span class="td-spine-r">+${a.rolls}</span></button>`).join("")}
+        <button class="td-tome" data-exambook="${f}" title="Exàmens de ${F.name}: obri'l per a apuntar una nota"><span>🎓</span><b>Exàmens</b></button></div></div>`;
+  };
+  return `<p class="td-hint">Cada lleixa és un camp: agafa el llibre del que has fet. Al final, el llibre d'exàmens.</p>
+    <div class="td-study">${tdMissionsHtml()}<div class="td-bookcase">${Array.from({ length: TD_SHELF_ROWS }, (_, i) => row(i)).join("")}</div></div>
+    ${log.length ? `<ul class="td-log">${log.map(l => `<li>${l.what} <span>+${l.rolls} 📜${l.mythic ? " · ✨ mític" : ""}</span></li>`).join("")}</ul>` : ""}
+    ${tdExamOpen ? tdExamBookHtml(tdExamOpen) : ""}`;
+}
+// Llibre d'exàmens obert al mig de la pantalla: a l'esquerra l'assignatura, a la dreta la nota
+function tdExamBookHtml(f) {
+  const F = TD_SUBJECTS[f], cls = tdExamClass[f] || F.classes[0];
+  return `<div class="td-exambook-bg" data-examclose="1"></div><div class="td-exambook" role="dialog" aria-label="Exàmens de ${F.name}">
+    <button class="td-exambook-x" data-examclose="1" aria-label="Tancar">×</button>
+    <div class="td-exambook-page"><h3>🎓 Exàmens · ${F.name}</h3><p class="muted">De quina assignatura?</p>
+      <div class="td-exam-classes">${F.classes.map(c => `<button class="tdbook-filter${c === cls ? " on" : ""}" data-examcls="${c}">${c}</button>`).join("")}</div></div>
+    <div class="td-exambook-page"><label class="td-exam-nota">Nota de <strong>${cls}</strong><input type="number" id="td-nota" min="0" max="10" step="0.1" placeholder="7,5"></label>
+      <div class="td-exam-btns"><button class="secondary" data-exam="parcial">📄 Parcial</button><button data-exam="final">🎓 Final</button></div>
+      <p class="muted">5 → 3 pergamins … 10 → 10. Amb un <strong>${TD_MYTHIC_GRADE} o més al final</strong>, la criatura mítica de ${F.name}.</p></div></div>`;
+}
+function tdDoStudy(actId, f = tdSubj) {
+  const r = tdRegisterStudy(f, actId);
   if (!r) return;
-  if (r.rolls) toast(`📜 +${r.rolls} pergamins de ${TD_SUBJECTS[tdSubj].short}${r.capped ? " (has arribat al límit d'avui)" : ""}`, "good");
+  if (r.rolls) toast(`📜 +${r.rolls} pergamins de ${TD_SUBJECTS[f].short}${r.capped ? " (has arribat al límit d'avui)" : ""}`, "good");
   else toast("Ja has arribat al límit d'avui per a aquest camp", "bad");
+  for (const m of r.missions || []) toast(`🏅 Missió feta: +${m.bonus} pergamins de ${TD_SUBJECTS[f].short}`, "good");
   tdRenderPanel();
 }
 function tdDoExam(kind) {
-  const nota = Number(String($("td-nota").value).replace(",", "."));
+  const f = tdExamOpen, nota = Number(String($("td-nota").value).replace(",", "."));
+  if (!f) return;
   if (!(nota >= 0 && nota <= 10) || $("td-nota").value === "") { toast("Escriu una nota de 0 a 10", "bad"); return; }
-  const r = tdRegisterExam(tdSubj, nota, kind === "final", tdExamFor || TD_SUBJECTS[tdSubj].classes[0]);
-  tdExamFor = null;
-  toast(`📜 +${r.rolls} pergamins de ${TD_SUBJECTS[tdSubj].short}`, "good");
+  const r = tdRegisterExam(f, nota, kind === "final", tdExamClass[f] || TD_SUBJECTS[f].classes[0]);
+  toast(`📜 +${r.rolls} pergamins de ${TD_SUBJECTS[f].short}`, "good");
+  tdExamOpen = null;
   if (r.mythic) tdReveal([r.mythic]);
   tdRenderPanel();
 }
@@ -474,11 +506,12 @@ function initTdLobby() {
     else if (ds.summon) tdDoSummon(Number(ds.summon));
     else if (ds.act) {
       const b = ev.target.closest("[data-act]");
-      if (ds.cls) tdClass[tdSubj] = ds.cls;
       b.classList.add("taken");
-      setTimeout(() => tdDoStudy(ds.act), 380);
+      setTimeout(() => tdDoStudy(ds.act, ds.field), 380);
     }
-    else if (ds.examfor) { tdExamFor = tdExamFor === ds.examfor ? null : ds.examfor; tdRenderPanel(); $("td-nota")?.focus(); }
+    else if (ds.exambook) { tdExamOpen = ds.exambook; tdRenderPanel(); setTimeout(() => $("td-nota")?.focus(), 350); }
+    else if (ds.examclose) { tdExamOpen = null; tdRenderPanel(); }
+    else if (ds.examcls) { tdExamClass[tdExamOpen] = ds.examcls; const v = $("td-nota")?.value; tdRenderPanel(); if (v) $("td-nota").value = v; }
     else if (ds.exam) tdDoExam(ds.exam);
     else if (ds.lvl) {
       if (tdLevelUp(ds.lvl)) {
@@ -488,7 +521,7 @@ function initTdLobby() {
     }
     else if (ds.team) tdToggleTeam(ds.team);
     else if (ds.play) { tdClosePanel(); tdOpenBattle(Number(ds.play)); }
-    else if (ds.up) { if (tdBuyUpgrade(ds.up)) { tdRenderPanel(); document.querySelector(".td-crys")?.classList.add("flash"); } }
+    else if (ds.up) { if (tdBuyUpgrade(ds.up)) { tdRenderPanel(); tdRenderLobby(); document.querySelector(".td-card .td-crys")?.classList.add("flash"); } }
     else if (ds.equip) tdToggleEquip(ds.equip);
     else if (ds.eslot) { tdEquipSlot = ds.eslot; tdRenderPanel(); }
   });

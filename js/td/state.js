@@ -19,6 +19,7 @@ function tdNewState() {
     seen: [],                                         // enemics vistos (bestiari)
     log: [],                                          // què s'ha estudiat (els 40 últims)
     daily: { date: "", alg: 0, prg: 0 },
+    missions: { date: "", list: [] },                 // missions diàries (pergamins extra si es fan abans de mitjanit)
     pulls: 0,
   };
 }
@@ -150,16 +151,42 @@ function tdDailyLeft(subj) {
   return Math.max(0, TD_DAILY_CAP - (td.daily[subj] || 0));
 }
 // Torna { rolls, capped, mythic } o null si no hi ha res a donar
+// Missions del dia: 3, iguals per a tot el dia (es trien a partir de la data). Donen pergamins extra
+// (fora del límit diari) si es completen abans de mitjanit.
+function tdMissions() {
+  const day = tdToday();
+  if (td.missions.date !== day || !Array.isArray(td.missions.list)) {
+    let seed = [...day].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
+    const rnd = () => (seed = (seed * 1103515245 + 12345) >>> 0) / 4294967296;
+    const acts = TD_MISSION_ACTS.slice(), list = [];
+    for (let i = 0; i < 3; i++) {
+      const [a, need, bonus] = acts.splice(Math.floor(rnd() * acts.length), 1)[0];
+      list.push({ f: Object.keys(TD_SUBJECTS)[Math.floor(rnd() * Object.keys(TD_SUBJECTS).length)], a, need, bonus, have: 0, done: false });
+    }
+    td.missions = { date: day, list };
+  }
+  return td.missions.list;
+}
+function tdMissionProgress(subj, actId) {
+  const done = [];
+  for (const m of tdMissions()) {
+    if (m.done || m.f !== subj || m.a !== actId) continue;
+    m.have++;
+    if (m.have >= m.need) { m.done = true; td.pergamins[subj] += m.bonus; tdLog(subj, `🏅 Missió: ${TD_ACTIVITIES.find(a => a.id === m.a).name}`, m.bonus); done.push(m); }
+  }
+  return done;
+}
 function tdRegisterStudy(subj, actId, cls = "") {
   const act = TD_ACTIVITIES.find(a => a.id === actId);
   if (!act || !TD_SUBJECTS[subj]) return null;
   const rolls = Math.min(act.rolls, tdDailyLeft(subj));
-  if (rolls <= 0) return { rolls: 0, capped: true };
+  const missions = tdMissionProgress(subj, actId); // la missió compta encara que ja no queden pergamins per hui
+  if (rolls <= 0) { tdSave(); return { rolls: 0, capped: true, missions }; }
   td.daily[subj] = (td.daily[subj] || 0) + rolls;
   td.pergamins[subj] += rolls;
   tdLog(subj, `${act.icon} ${act.name}${cls ? ` · ${cls}` : ""}`, rolls);
   tdSave();
-  return { rolls, capped: rolls < act.rolls };
+  return { rolls, capped: rolls < act.rolls, missions };
 }
 function tdRegisterExam(subj, nota, final, cls = "") {
   nota = Math.round(Number(nota) * 10) / 10;

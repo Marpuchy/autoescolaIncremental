@@ -126,6 +126,8 @@ const TD_ACTIVITIES = [
   { id: "repas",    icon: "🃏", name: "Repàs amb test o targetes",   short: "Repàs",     color: "#2a8a8e", h: 68, rolls: 1 },
   { id: "projecte", icon: "🛠️", name: "Fer un projecte (una sessió)", short: "Projecte", color: "#8e3a6e", h: 96, rolls: 4 },
 ];
+// Missions diàries possibles: [activitat, quantes vegades, pergamins extra]
+const TD_MISSION_ACTS = [["exercici", 2, 3], ["resum", 1, 2], ["repas", 3, 2], ["llarg", 1, 2], ["esquema", 2, 3], ["classe", 2, 2], ["projecte", 1, 3]];
 const TD_DAILY_CAP = 15;
 // Examen parcial o final: 5 → 3 pergamins … 10 → 10. Suspés: 1 (de consolació).
 const tdExamRolls = nota => nota < 5 ? 1 : Math.round(3 + (nota - 5) * 1.4);

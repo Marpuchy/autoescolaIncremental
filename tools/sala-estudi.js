@@ -83,11 +83,64 @@ const V = "#9d8bff", G = "#3fdc8a", PINK = "#ff5ab0", GOLD = "#ffc23f", CYAN = "
   // espelmes que suren
   for (const [x, y, z] of [[-2.2, 3.4, 6.5], [-0.9, 3.8, 7.6], [1.3, 3.6, 7.2], [2.6, 3.3, 6], [0.3, 3.55, 5]]) {
     const [px, py] = P(x, y, z), k = cam.scale(z) / 150;
-    s += `<g class="sl-candle" transform="translate(${r(px)} ${r(py)}) scale(${k.toFixed(3)})"><ellipse cx="0" cy="-26" rx="22" ry="26" fill="#ffd27a" opacity="0.12"/>
-      <rect x="-5" y="-14" width="10" height="26" rx="2" fill="#efe6d0"/><path d="M0 -26 C5 -20 4 -15 0 -13 C-4 -15 -5 -20 0 -26 Z" fill="#ffd27a"/></g>`;
+    s += `<g class="sl-candle" transform="translate(${r(px)} ${r(py)}) scale(${k.toFixed(3)})"><g class="sl-candle-in" style="animation-delay:${(-(x * 7 + z) % 4).toFixed(1)}s">
+      <ellipse cx="0" cy="-26" rx="22" ry="26" fill="#ffd27a" opacity="0.12"/><rect x="-5" y="-14" width="10" height="26" rx="2" fill="#efe6d0"/>
+      <path d="M-5 -12 q3 4 0 8" stroke="#d8ccb0" stroke-width="1.5" fill="none"/>
+      <path class="sl-flame" d="M0 -26 C5 -20 4 -15 0 -13 C-4 -15 -5 -20 0 -26 Z" fill="#ffd27a"/></g></g>`;
+  }
+  // candelers de ferro a les parets laterals, amb una espelma cadascun
+  for (const [sx, z] of [[-1, 5.8], [-1, 8.5], [1, 3.2], [1, 5.9], [1, 8.4]]) {
+    const [px, py] = P(sx * W, 2.55, z), k = cam.scale(z) / 120, m = -sx; // m: cap a on ix de la paret
+    s += `<g transform="translate(${r(px)} ${r(py)}) scale(${k.toFixed(3)})">
+      <ellipse cx="${m * 14}" cy="-34" rx="30" ry="34" fill="#ffd27a" opacity="0.1"/>
+      <rect x="-3" y="-6" width="6" height="22" rx="2" fill="#2a2f45"/>
+      <path d="M0 8 Q${m * 14} 8 ${m * 16} -4" stroke="#3a4060" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <ellipse cx="${m * 16}" cy="-4" rx="9" ry="3" fill="#3a4060"/>
+      <rect x="${m * 16 - 4}" y="-22" width="8" height="18" rx="1.5" fill="#efe6d0"/>
+      <path class="sl-flame" style="animation-delay:-${(z % 1).toFixed(2)}s" d="M${m * 16} -34 C${m * 16 + 4} -29 ${m * 16 + 3} -25 ${m * 16} -23 C${m * 16 - 3} -25 ${m * 16 - 4} -29 ${m * 16} -34 Z" fill="#ffd27a"/></g>`;
   }
   add(s);
 }
+
+// ---------------------------------------------------------------- planta (racó del fons, a l'esquerra): llengua de sogra en un test de fang
+{
+  let s = "";
+  const x = -3.9, z = 8.4, rad = 0.2, h = 0.42;
+  const ring = y => Array.from({ length: 33 }, (_, i) => { const a = i / 32 * Math.PI * 2; return P(x + Math.cos(a) * rad, y, z + Math.sin(a) * rad); });
+  const top = ring(h), bot = ring(0).map(([px, py]) => [px, py]);
+  const xs = top.map(p => p[0]), lx = Math.min(...xs), rx = Math.max(...xs);
+  const [, ty] = P(x, h, z), [, by] = P(x, 0, z), half = (rx - lx) / 2, cx = (lx + rx) / 2;
+  s += `<ellipse cx="${r(cx)}" cy="${r(by + 2)}" rx="${r(half * 1.2)}" ry="${r(half * 0.3)}" fill="#000" opacity="0.3"/>`;
+  s += `<path d="M${r(lx)} ${r(ty)} L${r(lx + half * 0.15)} ${r(by)} Q${r(cx)} ${r(by + half * 0.25)} ${r(rx - half * 0.15)} ${r(by)} L${r(rx)} ${r(ty)} Z" fill="#a8582e"/>`;
+  s += `<path d="M${r(lx)} ${r(ty)} L${r(lx + half * 0.15)} ${r(by)} Q${r(cx - half * 0.4)} ${r(by + half * 0.2)} ${r(cx - half * 0.3)} ${r(by + half * 0.2)} L${r(cx - half * 0.35)} ${r(ty)} Z" fill="#8a4422" opacity="0.6"/>`;
+  s += `<ellipse cx="${r(cx)}" cy="${r(ty)}" rx="${r(half * 1.08)}" ry="${r(half * 0.28)}" fill="#c06a38"/><ellipse cx="${r(cx)}" cy="${r(ty)}" rx="${r(half * 0.9)}" ry="${r(half * 0.2)}" fill="#3a2414"/>`;
+  // fulles: llargues, punxegudes, verd fosc amb vora groguenca; cada una amb la seua inclinació
+  const k = cam.scale(z) / 100;
+  const leaves = [[-14, 120, -10], [-6, 150, -3], [4, 135, 4], [12, 112, 11], [-20, 92, -16], [18, 96, 17], [0, 104, 0]];
+  s += `<g transform="translate(${r(cx)} ${r(ty)}) scale(${k.toFixed(3)})">${leaves.map(([dx, len, lean]) => {
+    const tipX = dx + lean * 1.6, w = 7;
+    return `<path d="M${dx - w} 0 C${dx - w} ${-len * 0.4} ${tipX - 3} ${-len * 0.8} ${tipX} ${-len} C${tipX + 3} ${-len * 0.8} ${dx + w} ${-len * 0.4} ${dx + w} 0 Z" fill="#2e6a3a" stroke="#c9c46a" stroke-width="1.6"/>
+      <path d="M${dx - 3} ${-len * 0.25} q4 -6 7 0 M${dx - 3} ${-len * 0.5} q4 -6 6 0" stroke="#4a9a5a" stroke-width="1.6" fill="none"/>`; }).join("")}</g>`;
+  add(s);
+}
+
+// ---------------------------------------------------------------- catifes: de la porta cap a dins, davall del cercle d'invocació i als peus dels faristols
+const rugSvg = (X0, X1, Z0, Z1, { base = "#3a1830", inner = "#4a1f3e", line = GOLD, fringe = "z" } = {}) => {
+  const y = 0.004, pts = a => a.map(([x, z]) => P(x, y, z).map(r).join(",")).join(" ");
+  let t = `<polygon points="${pts([[X0, Z0], [X1, Z0], [X1, Z1], [X0, Z1]])}" fill="${base}"/>`;
+  const m = Math.min(X1 - X0, Z1 - Z0) * 0.09;
+  t += `<polygon points="${pts([[X0 + m, Z0 + m], [X1 - m, Z0 + m], [X1 - m, Z1 - m], [X0 + m, Z1 - m]])}" fill="${inner}" stroke="${line}" stroke-width="1.6" opacity="0.95"/>`;
+  const n = 12;
+  for (let i = 0; i <= n; i++) {
+    if (fringe === "z") { const xx = X0 + 0.02 + i * (X1 - X0 - 0.04) / n; for (const [za, zb] of [[Z0, Z0 - 0.05], [Z1, Z1 + 0.05]]) { const [a, b] = P(xx, y, za), [c, d] = P(xx, y, zb); t += `<line x1="${r(a)}" y1="${r(b)}" x2="${r(c)}" y2="${r(d)}" stroke="#e8c98a" stroke-width="1.4"/>`; } }
+    else { const zz = Z0 + 0.02 + i * (Z1 - Z0 - 0.04) / n; for (const [xa, xb] of [[X1, X1 + 0.05]]) { const [a, b] = P(xa, y, zz), [c, d] = P(xb, y, zz); t += `<line x1="${r(a)}" y1="${r(b)}" x2="${r(c)}" y2="${r(d)}" stroke="#e8c98a" stroke-width="1.4"/>`; } }
+  }
+  return t;
+};
+add(rugSvg(-W + 0.02, -2.6, 6.75, 7.65, { base: "#1f2a4a", inner: "#2a3a66", line: CYAN, fringe: "x" })   // davant de la porta, cap a dins
+  + rugSvg(-1.7, 1.7, 3.45, 5.15, { base: "#2a1636", inner: "#341c44", line: PINK })                     // davall del cercle d'invocació
+  + rugSvg(-2.65, -1.75, 1.75, 2.75, { base: "#241a3a", inner: "#2e2250", line: V })                     // als peus del grimori
+  + rugSvg(3.25, 4.15, 4.05, 5.05, { base: "#2a1416", inner: "#3a1a1c", line: RED }));                  // als peus del bestiari
 
 // ---------------------------------------------------------------- porta d'eixida (paret esquerra, al fons) i rellotge de sorra
 {
@@ -143,9 +196,7 @@ const V = "#9d8bff", G = "#3fdc8a", PINK = "#ff5ab0", GOLD = "#ffc23f", CYAN = "
   s += quad(face(pB, "front"), 0.15, 0.15, 0.85, 0.22, `fill="${CYAN}" opacity="0.6"`);
   const [cx, cy] = P(2.95, 1.55, 7.15), k = cam.scale(7.15) / 110;
   s += `<g class="sl-crystal" transform="translate(${r(cx)} ${r(cy)}) scale(${k.toFixed(3)})">
-    <ellipse rx="60" ry="70" fill="${CYAN}" opacity="0.14"/>
-    <path d="M0 -50 L24 -10 L0 34 L-24 -10 Z" fill="#0b2a3a" stroke="${CYAN}" stroke-width="4" stroke-linejoin="round"/>
-    <path d="M0 -50 L0 34 M-24 -10 H24" stroke="#bff4ff" stroke-width="1.6" opacity="0.8"/></g>`;
+    <g class="sl-bob">%CRYSTAL%</g></g>`;
   add(s, { spot: "upgrades", title: "Cristall: millores (vida, maná, saber)", hit: bbox([...corners(pB), [2.95, 2.2, 7.15]]) });
 }
 
@@ -194,7 +245,7 @@ const V = "#9d8bff", G = "#3fdc8a", PINK = "#ff5ab0", GOLD = "#ffc23f", CYAN = "
     ["#5a43d6", 3, [[0.25, 0.78], [0.25, 0.38]]], ["#5a43d6", 3, [[0.13, 0.58], [0.37, 0.58]]],
     ["#8a80c8", 2, [[0.1, 0.83], [0.16, 0.83]]], ["#8a80c8", 2, [[0.13, 0.8], [0.13, 0.86]]], ["#8a80c8", 2, [[0.34, 0.83], [0.4, 0.83]]], ["#8a80c8", 2, [[0.37, 0.8], [0.37, 0.86]]]] });
   g += `<g class="sl-float" transform="translate(${r(gx)} ${r(gy - 34 * gk)}) scale(${gk.toFixed(3)})" font-family="ui-monospace, monospace" font-weight="700" font-size="13">
-    <text x="-22" y="-4" fill="${V}">+</text><text x="2" y="-12" fill="${G}">;</text><text x="20" y="-2" fill="${V}">λ</text></g>`;
+    <text class="sl-glyph" x="-22" y="-4" fill="${V}">+</text><text class="sl-glyph" x="2" y="-12" fill="${G}">;</text><text class="sl-glyph" x="20" y="-2" fill="${V}">λ</text></g>`;
   add(g, { spot: "grimori", title: "Grimori: les teues criatures i l'equip", hit: bbox([[-2.5, 0, 2.1], [-1.9, 0, 2.5], [-2.2, 1.65, 2.3]]) });
 }
 
@@ -234,12 +285,13 @@ const V = "#9d8bff", G = "#3fdc8a", PINK = "#ff5ab0", GOLD = "#ffc23f", CYAN = "
   sc.push(`<g fill="none" stroke="#a88a5a" stroke-width="0.8" opacity="0.6"><path d="M-24 14 h14 M-24 18 h10 M12 14 h12 M16 18 h8"/></g>`); // línies d'escriptura
   sc.push(`<circle cy="-2" r="11" fill="none" stroke="${PINK}" stroke-width="1.2" opacity="0.9"/><circle cy="-2" r="7" fill="none" stroke="${PINK}" stroke-width="0.8" opacity="0.7"/>`);
   sc.push(`<path d="M0 -13 L9.5 3.5 L-9.5 3.5 Z M0 9 L9.5 -7.5 L-9.5 -7.5 Z" fill="none" stroke="${PINK}" stroke-width="0.9" opacity="0.85"/>`); // estrela de sis puntes
-  for (const [yy, dir] of [[-26, 1], [24, -1]]) { // rotlles amb els poms
-    sc.push(`<rect x="-34" y="${yy - 4}" width="68" height="8" rx="4" fill="#8a5a32"/><rect x="-34" y="${yy - 4}" width="68" height="3" rx="1.5" fill="#b07a4a" opacity="0.8"/>`);
-    sc.push(`<circle cx="-36" cy="${yy}" r="4.5" fill="${GOLD}"/><circle cx="36" cy="${yy}" r="4.5" fill="${GOLD}"/>`);
-  }
-  sc.push(`<path d="M-4 22 L-6 34 L0 30 L6 34 L4 22" fill="#9a1f2e"/><circle cy="22" r="6" fill="#b52a3a" stroke="#7a1420" stroke-width="1.2"/><text y="24.5" font-size="7" font-weight="900" text-anchor="middle" fill="#ffd0d6" font-family="Georgia, serif">Σ</text>`);
-  s += `<g class="sl-scroll" transform="translate(${r(px)} ${r(py)}) scale(${k.toFixed(3)})"><g transform="rotate(-6)">${sc.join("")}</g></g>`;
+  // el paper (tot menys el halo) es plega cap al centre mentre els rotlles s'ajunten: s'obri i es tanca
+  const halo = sc.shift(), paper = sc.join("");
+  const roll = yy => `<rect x="-34" y="${yy - 4}" width="68" height="8" rx="4" fill="#8a5a32"/><rect x="-34" y="${yy - 4}" width="68" height="3" rx="1.5" fill="#b07a4a" opacity="0.8"/>
+    <circle cx="-36" cy="${yy}" r="4.5" fill="${GOLD}"/><circle cx="36" cy="${yy}" r="4.5" fill="${GOLD}"/>`;
+  const seal = `<path d="M-4 22 L-6 34 L0 30 L6 34 L4 22" fill="#9a1f2e"/><circle cy="22" r="6" fill="#b52a3a" stroke="#7a1420" stroke-width="1.2"/><text y="24.5" font-size="7" font-weight="900" text-anchor="middle" fill="#ffd0d6" font-family="Georgia, serif">Σ</text>`;
+  s += `<g class="sl-scroll" transform="translate(${r(px)} ${r(py)}) scale(${k.toFixed(3)})"><g class="sl-bob">${halo}<g transform="rotate(-6)">
+    <g class="sl-paper">${paper}</g><g class="sl-roll-t">${roll(-26)}</g><g class="sl-roll-b">${roll(24)}${seal}</g></g></g></g>`;
   add(s, { spot: "gacha", title: "Altar: invocar criatures amb pergamins", hit: bbox([[-1.25, 0, z - 0.6], [1.25, 0, z + 0.6], [0, 1.5, z]]) });
 }
 
@@ -259,23 +311,12 @@ const V = "#9d8bff", G = "#3fdc8a", PINK = "#ff5ab0", GOLD = "#ffc23f", CYAN = "
   for (const [x, z, n] of [[-3.55, 3.3, 4], [-3.2, 2.15, 3]]) {
     let y = 0;
     for (let i = 0; i < n; i++) {
-      const th = 0.05 + (i % 3) * 0.01, w = 0.3 - i * 0.025, d = 0.22 - i * 0.015, dx = ((i * 37) % 7 - 3) * 0.012;
+      const th = 0.055, w = 0.3, d = 0.21, dx = (i % 2 ? 1 : -1) * 0.012; // llibres de la mateixa mida, apilats una mica desplaçats
       const c = ["#8a2a4a", "#2f6fc0", "#1f9e5c", "#a37a2a", "#5a43d6"][(i + n) % 5];
       s += box({ x0: x - w / 2 + dx, x1: x + w / 2 + dx, y0: y, y1: y + th, z0: z - d / 2, z1: z + d / 2 },
         { front: c, side: "#efe6d0", top: c });
       y += th;
     }
-  }
-  // planta arcana en un test: fulles que brillen una mica
-  {
-    const x = 3.95, z = 8.35; // racó del fons a la dreta, que no tape res
-    s += box({ x0: x - 0.16, x1: x + 0.16, y0: 0, y1: 0.34, z0: z - 0.16, z1: z + 0.16 }, { front: "#6b3a2a", side: "#5a3022", top: "#3a2016" });
-    const [px, py] = P(x, 0.34, z), k = cam.scale(z) / 100;
-    s += `<g transform="translate(${r(px)} ${r(py)}) scale(${k.toFixed(3)})">
-      ${[[-28, -70, -30], [26, -76, 28], [-8, -96, -6], [40, -46, 50], [-42, -44, -52]].map(([lx, ly, rot]) =>
-        `<path d="M0 0 Q${lx * 0.4} ${ly * 0.5} ${lx} ${ly}" stroke="#2f8a5a" stroke-width="3" fill="none"/>
-         <ellipse cx="${lx}" cy="${ly}" rx="9" ry="20" transform="rotate(${rot} ${lx} ${ly})" fill="#1f9e5c" stroke="${G}" stroke-width="1.5"/>`).join("")}
-      <circle cx="-8" cy="-100" r="4" fill="#fff" opacity="0.8"/><circle cx="-8" cy="-100" r="10" fill="${G}" opacity="0.2"/></g>`;
   }
   add(s);
 }
@@ -317,10 +358,10 @@ add(`<rect x="-1600" y="-900" width="4800" height="2700" fill="url(#sl-vignette)
 
 const out = `// GENERAT per tools/sala-estudi.js (no l'edites a mà: canvia l'escena allà i torna a executar-lo)
 // Capes de la sala d'estudi (del fons cap al davant). Les capes amb \`spot\` són punts interactius (js/td/lobby.js).
-// %STUDENT% es substituïx pel dibuix de l'estudiant.
+// %STUDENT% es substituïx pel dibuix de l'estudiant i %CRYSTAL% pel cristall de les millores (s'encén amb elles).
 const TD_LOBBY_ART = ${JSON.stringify({ defs, layers }, null, 0)};
 `;
 fs.writeFileSync(path.join(__dirname, "..", "js", "data", "td-lobby-art.js"), out);
 const pi = process.argv.indexOf("--preview");
-if (pi > 0) fs.writeFileSync(process.argv[pi + 1], `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900"><defs>${defs}</defs>${layers.map(l => l.svg.replace("%STUDENT%", '<rect width="100" height="108" fill="#3fdc8a" opacity="0.4"/>')).join("")}</svg>`);
+if (pi > 0) fs.writeFileSync(process.argv[pi + 1], `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900"><defs>${defs}</defs>${layers.map(l => l.svg.replace("%STUDENT%", '<rect width="100" height="108" fill="#3fdc8a" opacity="0.4"/>').replace("%CRYSTAL%", '<path d="M0 -50 L24 -10 L0 34 L-24 -10 Z" fill="#7fe8ff"/>')).join("")}</svg>`);
 console.log(`js/data/td-lobby-art.js: ${layers.length} capes, ${(out.length / 1024).toFixed(0)} KB`);
