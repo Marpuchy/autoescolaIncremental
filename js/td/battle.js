@@ -270,7 +270,12 @@ function tdbSpawn(type, dist = 0, small = false) {
   if (def.boss && !tdb.bossesSeen.has(type)) { tdb.bossesSeen.add(type); toast(`⚠️ Cap: ${def.name}`, "bad"); }
   return e;
 }
-const tdbPos = e => tdb.path.at(e.dist);
+// Posició al camí; si està enganxat a l'ham, ix del camí cap a la canya a mesura que es recull el fil
+const tdbPos = e => {
+  if (!e.hooked) return tdb.path.at(e.dist);
+  const h = e.hooked, k = 1 - Math.max(0, h.left) / h.total, q = k * k * (3 - 2 * k); // suau al principi i al final
+  return [h.from[0] + (h.to[0] - h.from[0]) * q, h.from[1] + (h.to[1] - h.from[1]) * q];
+};
 const tdbVisible = e => !(e.def.stealth && e.dist < e.def.stealth * tdb.path.total) && !e.convertT && e.hp > 0;
 
 function tdbDamage(e, amount, color = "#fff", big = false, tick = 0) { // tick: segons d'un dany continu
@@ -455,8 +460,8 @@ function tdbHit(p, e) {
     e.dot = Math.max(e.dotT > 0 ? e.dot : 0, d.poison.dps * ab * tdbAuraMult(p.t)); e.dotT = Math.max(e.dotT, d.poison.dur); e.poison = true;
   }
   if (d.role === "hook") { // l'ham enganxa: tarda a recollir el fil (l'arrossega a poc a poc) i al final la pesca
-    const reel = d.hook.reel / ab;
-    e.hooked = { t: p.t, left: reel }; e.pull = d.hook.pull; e.pullV = d.hook.pull / reel;
+    const reel = d.hook.reel / ab, [sx, sy] = tdb.world.slots[p.t.slot];
+    e.hooked = { t: p.t, left: reel, total: reel, from: tdbPos(e), to: [sx + 18, sy + 22] }; // fins als peus de la canya
     e.el?.classList.add("hooked"); // forceja poquet (sense tremolar)
     const h = tdb.hooks?.find(h => h.p === p);
     if (h) h.e = e;
@@ -623,10 +628,14 @@ function tdbHooksDraw() {
 // Pescat: la distracció ix volant cap a la punta de la canya i desapareix (els caps no: perden part de la vida)
 function tdbCatch(e) {
   const t = e.hooked.t, d = TD_DEFENDERS[t.id];
-  e.hooked = null; e.pull = 0; e.el?.classList.remove("hooked");
+  e.el?.classList.remove("hooked");
   const [x, y] = tdbS(...tdbPos(e));
   tdbFx("ring", x, y - e.size * 0.4, TD_GLOW.fau, 46);
-  if (e.def.boss) { tdbDamage(e, e.maxHp * d.hook.boss, TD_GLOW.fau, true); return; }
+  if (e.def.boss) { // un cap no cap a la cistella: torna al camí on era, amb menys vida
+    e.hooked = null; // (no ha avançat mentre estava enganxat: torna on era)
+    tdbDamage(e, e.maxHp * d.hook.boss, TD_GLOW.fau, true); return;
+  }
+  e.hooked = null;
   const tip = tdbTipPos(t), ghost = e.el?.cloneNode(true);
   if (ghost && tip) { // el peix ix del camí cap a la canya
     ghost.classList.add("tdb-pescat"); $("tdb-proj").append(ghost);
@@ -1061,9 +1070,7 @@ function tdbUpdate(dt) {
       continue;
     }
     tdbEnemyAbility(e, dt);
-    if (e.hooked) { // enganxat a l'ham: recula a poc a poc i, quan s'acaba de recollir el fil, és pescat
-      const step = Math.min(e.pull, e.pullV * dt);
-      e.dist = Math.max(0, e.dist - step); e.pull -= step;
+    if (e.hooked) { // enganxat a l'ham: el fil el porta fins a la canya i, quan arriba, és pescat
       if ((e.hooked.left -= dt) <= 0) tdbCatch(e);
       continue;
     }

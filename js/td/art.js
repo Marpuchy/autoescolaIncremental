@@ -220,9 +220,9 @@ const TD_ART = {
   cervol: {
     svg: `${runeBase(TD_GLOW.myth)}<g class="b">
       <path d="M44 74 h32 v30 h-32 z M46 50 h28 v24 h-28 z" fill="#2a1a0c"/>${tube("M44 74 h32 v30 h-32 Z M46 50 h28 v24 h-28 Z", GB, 3)}
-      <g class="gravats">${tube("M52 96 q8 -12 16 0 M54 86 h12 M60 80 v-2", GF, 2.2)}${tube("M52 68 l8 -10 l8 10 M56 62 h8", GF, 2.2)}</g>
+      <g class="gravats">${tube("M53 82 v14 M60 80 v18 M67 82 v14", GF, 2.2)}${tube("M52 70 l8 -8 l8 8 M52 62 l8 -8 l8 8", GF, 2.2)}</g>
       <g class="cap"><path d="M48 50 C46 38 52 30 60 30 C68 30 74 38 72 50 L66 58 H54 Z" fill="#2a1a0c"/>${tube("M48 50 C46 38 52 30 60 30 C68 30 74 38 72 50 L66 58 H54 Z", GB, 3)}
-        ${tube("M48 38 L38 34 M72 38 L82 34", GB, 3)}${tube("M56 44 l-3 2 M64 44 l3 2 M58 54 h4", GF, 2)}
+        ${tube("M48 38 L38 34 M72 38 L82 34", GB, 3)}${tube("M54 44 l4 2 M66 44 l-4 2", GF, 2)}
         <g class="antlers">${tube("M54 32 C50 22 44 14 34 8 M46 18 L38 20 M50 24 L42 28 M40 12 L36 4 M66 32 C70 22 76 14 86 8 M74 18 L82 20 M70 24 L78 28 M80 12 L84 4", "#e8ffd8", 3)}</g></g>
       ${core(60, 90, TD_GLOW.myth, 2.8)}</g>${sparks(TD_GLOW.myth)}`,
     proj: "",

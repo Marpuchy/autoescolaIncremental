@@ -437,6 +437,10 @@
 #td-summon.assemble .tds-creature .rune { animation: tds-a-in 0.6s 0.3s both; }
 #td-summon.assemble .tds-creature .b path { stroke-dasharray: 320; stroke-dashoffset: 320; animation: tds-draw 1.5s 0.8s ease-in-out forwards; }
 #td-summon.assemble .tds-creature .b circle { animation: tds-a-in 0.5s 1.4s both; }
+/* els farcits (blocs del tòtem…) apareixen després dels traços, no de colp al principi */
+#td-summon.assemble .tds-creature .b path[fill]:not([fill="none"]) { stroke-dasharray: none; stroke-dashoffset: 0; animation: tds-a-in 0.6s 1.9s both; }
+/* el cérvol no llança cap peça: el que arriba al final és la cornamenta */
+#td-summon.assemble .tds-creature .antlers { animation: tds-fly-in 0.8s 2.4s cubic-bezier(.2, 1.4, .4, 1) both; }
 #td-summon.assemble .tds-creature .core { animation: tds-a-in 0.5s 2.2s both; }
 #td-summon.assemble .tds-creature .al { animation: tds-fly-in 0.8s 2.4s cubic-bezier(.2, 1.4, .4, 1) both; }
 #td-summon.assemble .tds-creature .sparks, #td-summon.assemble .tds-creature .flame { animation: tds-a-in 0.4s 2.9s both; }
