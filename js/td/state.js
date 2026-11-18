@@ -219,13 +219,27 @@ function tdDailyLeft(subj) {
 // Missions del dia: 3, iguals per a tot el dia (es trien a partir de la data). Donen pergamins extra
 // (fora del límit diari) si es completen abans de mitjanit.
 // Cada sala (carrera o mòdul) té els seus artefactes: en canviar de sala, es guarden els d'una i es trauen els de l'altra
+// De quina sala és un artefacte: la del món on cau (els de la Biblioteca, d'Informàtica; els del bosc, de Forestal)
+const tdArtMode = id => (TD_WORLDS.find(w => w.id === (TD_ARTIFACTS[id]?.world || 1)) || {}).mode || "informatic";
+// Si un artefacte ha acabat en una sala que no és la seua (partides d'abans de separar-les), torna a la seua
+function tdSortRoomArtifacts() {
+  for (const id of Object.keys(td.artifacts)) {
+    const m = tdArtMode(id);
+    if (m === td.artRoom) continue;
+    const b = td.artBank[m] ||= { artifacts: {}, equipped: [] };
+    b.artifacts[id] = Math.max(b.artifacts[id] || 0, td.artifacts[id]);
+    delete td.artifacts[id];
+  }
+  td.equipped = td.equipped.filter(id => td.artifacts[id]);
+}
 function tdUseRoomArtifacts(room) {
-  if (td.artRoom === room) return;
+  if (td.artRoom === room) { tdSortRoomArtifacts(); return; }
   td.artBank[td.artRoom] = { artifacts: td.artifacts, equipped: td.equipped };
   const b = td.artBank[room] || { artifacts: {}, equipped: [] };
   td.artifacts = b.artifacts; td.equipped = b.equipped;
   delete td.artBank[room];
   td.artRoom = room;
+  tdSortRoomArtifacts();
   tdSave();
 }
 function tdMissions(mode) {

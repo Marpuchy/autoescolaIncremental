@@ -477,7 +477,7 @@ function tdStudentSvg(equipped = [], attrs = "") {
   const skin = equipped.map(id => TD_FROG_SKINS[id]).find(Boolean) || {}; // pell: canvia els colors de la granoteta
   const paint = str => Object.entries(skin).reduce((t, [a, b]) => t.split(a).join(b), str);
   const front = paint(tdDruidBook(TD_STUDENT_FRONT));
-  return `<svg viewBox="-4 -6 152 160" class="td-student-svg druid" aria-label="Estudiant (granoteta)" overflow="visible" ${attrs}>${TD_DRUID_BACK}${paint(TD_STUDENT_BACK)}
+  return `<svg viewBox="-4 -12 152 160" class="td-student-svg druid" aria-label="Estudiant (granoteta)" overflow="visible" ${attrs}>${TD_DRUID_BACK}${paint(TD_STUDENT_BACK)}
     ${w.map(x => x.back || "").join("")}${TD_DRUID_HAT}${w.flatMap(x => x.hides || []).reduce((f, cls) => f.replace(new RegExp(`<ellipse class="${cls}"[^>]*/>`), ""), front)}${w.map(x => x.front || "").join("")}</svg>`;
 }
 const TD_STUDENT_SVG = tdStudentSvg();
