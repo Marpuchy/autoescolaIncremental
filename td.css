@@ -1036,3 +1036,10 @@
 .tdc-cervol.roar .antlers { animation: tdb-roar-ant 1s ease-out; transform-box: view-box; transform-origin: 60px 30px; }
 @keyframes tdb-roar { 25% { filter: drop-shadow(0 0 16px #ffc23f) brightness(1.4); } }
 @keyframes tdb-roar-ant { 25% { transform: translateY(-5px) scale(1.08); } }
+/* condensador apuntant: el raig avança i, ple, la mira fa pampallugues */
+.tdb-capaim { pointer-events: none; filter: drop-shadow(0 0 4px #5ad8ff); }
+.tdb-capaim-ray { animation: tdb-capaim-run 0.6s linear infinite; }
+@keyframes tdb-capaim-run { to { stroke-dashoffset: -13; } }
+.tdb-capaim.full g { animation: tdb-capaim-blink 0.3s steps(2) infinite; }
+@keyframes tdb-capaim-blink { 50% { opacity: 0.35; } }
+.tdb-proj.sp-overload .tdb-proj-in { filter: drop-shadow(0 0 10px #c57dff) drop-shadow(0 0 3px #fff); }
