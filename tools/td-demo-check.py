@@ -1,5 +1,5 @@
 # Demostracions del grimori: en temps real (com es veuen al llibre), quan salta l habilitat de cada criatura.
-# Ús: python tools/td-demo-check.py [id,id,...]   (sense ids: totes les que tenen habilitat). Ha d eixir en menys de ~12 s.
+# Ús: python tools/td-demo-check.py [id,id,...]   (sense ids: totes les que tenen habilitat). La primera ha d eixir prompte (la demo comença carregada a la meitat).
 import pathlib, sys
 from playwright.sync_api import sync_playwright
 root = pathlib.Path(__file__).resolve().parent.parent.as_uri()
@@ -15,8 +15,8 @@ with sync_playwright() as p:
     for cid in ids:
         pg = ctx.new_page(); pg.goto(f"{root}/tddemo.html?d={cid}"); pages.append((cid, pg))
     for cid, pg in pages: pg.wait_for_function("()=>typeof tdb!=='undefined' && tdb"); pg.evaluate(HOOK)
-    pages[0][1].wait_for_timeout(24000)
+    pages[0][1].wait_for_timeout(40000)
     for cid, pg in pages:
         ev = pg.evaluate("()=>EV"); en = pg.evaluate("()=>tdb.enemies.length")
-        print(f"{cid:12} {' · '.join(ev[:5]) or '— CAP en 24 s'}")
+        print(f"{cid:12} {' · '.join(ev[:5]) or '— CAP en 40 s'}")
     b.close()

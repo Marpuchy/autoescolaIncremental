@@ -85,7 +85,7 @@ Reúne lo que el usuario ha ido pidiendo criatura a criatura. Seguir el orden y 
    principio y la vista está centrada en la acción. **Siempre, antes de publicar** (lo pide el usuario): mirar la demo
    en tiempo real hasta que salga la animación de la habilidad (`python tools/td-demo-check.py <id>`: tiene que saltar
    en menos de ~12 s) y capturarla. Las distracciones de la demo, en grupos que luzcan la habilidad (p. ej. la Tesla,
-   oleadas de 4 juntas). En la demo la primera especial sale al primer ataque y luego cada 4 (`demo.js`).
+   oleadas de 4 juntas). La demo empieza con todo cargado a la mitad y luego va al ritmo real (`demo.js`).
 5. 1440 / 820 / 390 px sin errores de consola ni scroll horizontal.
 6. Pasar el bot (punto 6).
 

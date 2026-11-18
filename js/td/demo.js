@@ -60,24 +60,13 @@ function tdDemoBoot() {
   addEventListener("resize", () => setTimeout(fit, 0));
   tdb.god = true; tdb.mana = 1e9; tdb.wave = 1; tdb.waveRunning = false; tdb.demo = true;
   ids.forEach((id, i) => tdbPlace(i, id));
-  // l'habilitat especial s'ha de veure de seguida: la primera ix al primer atac i després cada 4 (al combat de debò, cada
-  // `special.every`); el tic doble del Rellotge i el desbordament de l'Stack, igual
-  const main = Object.values(tdb.towers).find(t => t.id === TD_DEMO_ID), S = d.special;
-  if (S && S.every > 4) {
-    main.shots = S.every - 1;
-    const special = tdbSpecial;
-    tdbSpecial = (t, target) => { special(t, target); if (t === main) t.shots += S.every - 4; };
-  }
-  if (d.role === "clock") {
-    main.ticks = d.every - 2;
-    const clock = tdbClock;
-    tdbClock = t => { clock(t); if (t === main && t.ticks % d.every === 0) t.ticks += d.every - 4; };
-  }
-  if (d.role === "stacks") {
-    main.stacks = d.stacks - 4;
-    const blast = tdbBlast;
-    tdbBlast = t => { blast(t); if (t === main) t.stacks = d.stacks - 4; };
-  }
+  // la demostració comença amb tot carregat a la meitat (l'habilitat especial, el tic doble del Rellotge, les piles de
+  // l'Stack, la càrrega del Condensador) i després va al ritme de debò
+  const main = Object.values(tdb.towers).find(t => t.id === TD_DEMO_ID);
+  if (d.special) main.shots = Math.floor(d.special.every / 2);
+  if (d.role === "clock") main.ticks = Math.floor(d.every / 2);
+  if (d.role === "stacks") main.stacks = Math.floor(d.stacks / 2);
+  if (d.role === "capacitor") main.charge = 0.5;
   // les distraccions passen en grups, una vegada i una altra (com a la primera onada)
   const [group, every] = scene.spawn, gap = scene.gap || 0.4;
   let next = 0;
