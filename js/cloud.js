@@ -11,11 +11,15 @@ const CLOUD_PROD_HOST = "marpuchy.github.io";
 const PLAYERS = {
   marc:    { name: "Marc",    icon: "💻", games: ["estudi"] },
   parella: { name: "Alba", icon: "🌳", games: ["autoescola", "estudi"] },
+  // Només a la versió de proves: un perfil comú que juga a tot (Informàtica, Forestal i l'autoescola) amb una còpia de
+  // les dues partides reals juntes. No existix a la web publicada, i la base de dades tampoc el deixaria escriure.
+  comu:    { name: "Comú (proves)", icon: "🧪", games: ["autoescola", "estudi"], test: true },
 };
 const ROOM_OWNER = { informatic: "marc", forestal: "parella", autoescola: "parella" };
 const CLOUD_WHO_KEY = "estudi-qui";
 const cloudProd = () => location.hostname === CLOUD_PROD_HOST;
-const cloudWho = () => { try { const w = localStorage.getItem(CLOUD_WHO_KEY); return PLAYERS[w] ? w : null; } catch { return null; } };
+const cloudWho = () => { try { const w = localStorage.getItem(CLOUD_WHO_KEY); return PLAYERS[w] && !(PLAYERS[w].test && cloudProd()) ? w : null; } catch { return null; } };
+const cloudPlayers = () => Object.entries(PLAYERS).filter(([, p]) => !p.test || !cloudProd()); // els que es poden triar ací
 const cloudCanWrite = game => !!cloudWho() && PLAYERS[cloudWho()].games.includes(game);
 const cloudOther = () => (cloudWho() === "marc" ? "parella" : "marc");
 let cloudStatus = "";                                  // última cosa que ha passat (es veu als ajustos)
@@ -35,7 +39,7 @@ async function cloudGet(player, game) {
 // ---- pujar: cada vegada que es guarda en local (amb un poc d'espera per no pujar a cada fotograma)
 const cloudTimers = {};
 function cloudSaved(game, json) {
-  if (!cloudProd() || !cloudCanWrite(game) || cloudViewing(game)) return;
+  if (!cloudProd() || !cloudCanWrite(game) || cloudViewing(game) || PLAYERS[cloudWho()].test) return;
   clearTimeout(cloudTimers[game]);
   cloudTimers[game] = setTimeout(() => cloudPush(game, json), 4000);
 }
@@ -97,6 +101,7 @@ function cloudProgress(game, raw) {
 async function cloudCopyReal(manual) {
   const who = cloudWho();
   if (!who || cloudProd()) return;
+  if (PLAYERS[who].test) return cloudCopyCommon(manual);
   try {
     let any = false;
     for (const game of PLAYERS[who].games) {
@@ -111,6 +116,42 @@ async function cloudCopyReal(manual) {
     if (any) { savingSuspended = true; tdSavingSuspended = true; location.reload(); }
     else if (manual) toast("Encara no hi ha cap partida real guardada al núvol", "info");
   } catch { if (manual) toast("⚠️ No s'ha pogut copiar: sense connexió", "bad"); }
+}
+
+// Perfil comú (proves): l'autoescola d'Alba i, al joc d'estudi, les dues partides juntes (Informàtica de Marc i Forestal
+// d'Alba en una sola). Abans de substituir les locals se'n guarda una còpia.
+async function cloudCopyCommon(manual) {
+  try {
+    const [auto, mE, aE] = await Promise.all([cloudGet("parella", "autoescola"), cloudGet("marc", "estudi"), cloudGet("parella", "estudi")]);
+    const put = (key, data) => { const old = localStorage.getItem(key); if (old) localStorage.setItem(`${key}-backup-proves-${Date.now()}`, old); localStorage.setItem(key, JSON.stringify(data)); };
+    if (auto) put(SAVE_KEY, auto.data);
+    if (mE || aE) put(TD_SAVE_KEY, tdMergeRooms(mE?.data, aE?.data));
+    localStorage.setItem("estudi-proves-copiat", "1");
+    if (auto || mE || aE) { savingSuspended = true; tdSavingSuspended = true; location.reload(); }
+    else if (manual) toast("Encara no hi ha cap partida real guardada al núvol", "info");
+  } catch { if (manual) toast("⚠️ No s'ha pogut copiar: sense connexió", "bad"); }
+}
+// Ajunta dues partides del joc d'estudi: de la primera, tot el d'Informàtica; de la segona, tot el de Forestal
+function tdMergeRooms(a, b) {
+  if (!a || !b) return a || b;
+  const r = JSON.parse(JSON.stringify(a)), F = "forestal";
+  const isF = id => TD_DEFENDERS[id] && tdModeOf(id) === F, fields = Object.keys(TD_SUBJECTS).filter(s => TD_SUBJECTS[s].mode === F);
+  r.owned = Object.fromEntries([...Object.entries(r.owned || {}).filter(([id]) => !isF(id)), ...Object.entries(b.owned || {}).filter(([id]) => isF(id))]);
+  r.team = [...(r.team || []).filter(id => !isF(id)), ...(b.team || []).filter(isF)];
+  r.favs = [...(r.favs || []).filter(id => !isF(id)), ...(b.favs || []).filter(isF)];
+  for (const k of ["pergamins", "pity", "boost"]) { r[k] = r[k] || {}; for (const f of fields) if (b[k]?.[f] !== undefined) r[k][f] = b[k][f]; else delete r[k][f]; }
+  const fw = id => TD_WORLDS.find(w => String(w.id) === String(id))?.mode === F;
+  r.worlds = Object.fromEntries([...Object.entries(r.worlds || {}).filter(([id]) => !fw(id)), ...Object.entries(b.worlds || {}).filter(([id]) => fw(id))]);
+  r.seen = [...new Set([...(r.seen || []), ...(b.seen || [])])];
+  r.log = [...(r.log || []), ...(b.log || [])].slice(-40);
+  r.stelles = { ...(r.stelles || {}), [F]: b.stelles?.[F] || 0 };
+  // artefactes: cada sala els seus
+  const bF = b.artRoom === F ? { artifacts: b.artifacts, equipped: b.equipped } : b.artBank?.[F];
+  r.artBank = r.artBank || {};
+  if (r.artRoom === F) { r.artifacts = bF?.artifacts || {}; r.equipped = bF?.equipped || []; } else if (bF) r.artBank[F] = bF;
+  r.saber = (Number(r.saber) || 0) + (Number(b.saber) || 0);
+  r.pulls = (Number(r.pulls) || 0) + (Number(b.pulls) || 0);
+  return r;
 }
 
 // ---- mirar la partida de l'altre (sense poder canviar-la)
@@ -137,7 +178,7 @@ function cloudEndVisit() {
 let tdViewingOf = null;
 async function cloudTdEnter(room) {
   const owner = ROOM_OWNER[room], who = cloudWho();
-  if (!who || owner === who) { if (tdViewingOf) cloudTdLeave(); return; }
+  if (!who || owner === who || PLAYERS[who].test) { if (tdViewingOf) cloudTdLeave(); return; } // el comú juga a les dues
   if (tdViewingOf === owner) return;
   tdSave();
   tdViewingOf = owner;
@@ -166,10 +207,10 @@ const cloudVisitBanner = () => {
 function cloudChooser() {
   $("who-dialog").hidden = false;
   $("who-dialog").innerHTML = `<div class="who-card"><h2>Qui eres?</h2><p class="muted">Es recordarà en este dispositiu. Ho pots canviar als ajustos (la vitrina de l'habitació).</p>
-    <div class="who-btns">${Object.entries(PLAYERS).map(([id, p]) => `<button data-who="${id}"><span>${p.icon}</span>${p.name}</button>`).join("")}</div></div>`;
+    <div class="who-btns">${cloudPlayers().map(([id, p]) => `<button data-who="${id}"><span>${p.icon}</span>${p.name}</button>`).join("")}</div></div>`;
 }
 function cloudSetWho(id) {
-  if (!PLAYERS[id]) return;
+  if (!PLAYERS[id] || (PLAYERS[id].test && cloudProd())) return;
   try { localStorage.setItem(CLOUD_WHO_KEY, id); localStorage.removeItem("estudi-proves-copiat"); } catch {}
   sessionStorage.removeItem("estudi-sincronitzat");
   savingSuspended = true; tdSavingSuspended = true;
@@ -178,8 +219,8 @@ function cloudSetWho(id) {
 function cloudSettingsHtml() {
   const who = cloudWho(), prod = cloudProd();
   return `<p>${prod ? "🌐 <strong>Versió real</strong>: el progrés es guarda al núvol." : "🧪 <strong>Versió de proves</strong>: comença amb una còpia de la partida real i no la toca mai."}</p>
-    <p>Eres <strong>${who ? `${PLAYERS[who].icon} ${PLAYERS[who].name}` : "—"}</strong>. Pots jugar a: ${who ? PLAYERS[who].games.map(g => g === "estudi" ? (who === "marc" ? "Informàtica" : "Forestal") : "l'autoescola").join(" i ") : "—"}. La resta, només mirar-la.</p>
-    <div class="who-btns">${Object.entries(PLAYERS).map(([id, p]) => `<button class="${id === who ? "" : "secondary"}" data-who="${id}"><span>${p.icon}</span>${p.name}</button>`).join("")}</div>
+    <p>Eres <strong>${who ? `${PLAYERS[who].icon} ${PLAYERS[who].name}` : "—"}</strong>. ${who && PLAYERS[who].test ? "Jugues a tot: Informàtica, Forestal i l'autoescola, amb una còpia de les dues partides reals." : `Pots jugar a: ${who ? PLAYERS[who].games.map(g => g === "estudi" ? (who === "marc" ? "Informàtica" : "Forestal") : "l'autoescola").join(" i ") : "—"}. La resta, només mirar-la.`}</p>
+    <div class="who-btns">${cloudPlayers().map(([id, p]) => `<button class="${id === who ? "" : "secondary"}" data-who="${id}"><span>${p.icon}</span>${p.name}</button>`).join("")}</div>
     ${prod ? "" : `<p><button class="secondary" data-copyreal="1">⬇️ Tornar a copiar la partida real</button></p>`}
     ${cloudStatus ? `<p class="muted">${cloudStatus}</p>` : ""}`;
 }

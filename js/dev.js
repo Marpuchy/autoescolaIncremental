@@ -62,6 +62,18 @@ const dev = {
   // El logo de la tele de la DGT toca un racó en 3 s (i obri la DGT si cal)
   dvdCorner() { if (!hubOpen()) openHub(); forceDvdCorner(3); toast("📀 El logo tocarà el racó en 3 s"); },
   giveAllItems() { for (const id of Object.keys(ITEMS)) grantItem(id); save(); },
+  // Desbloqueja tota l'autoescola: tots els objectes (i pells), el compendi sencer, millores al màxim i l'últim escenari
+  unlockAll() {
+    for (const id of Object.keys(ITEMS)) grantItem(id, false);
+    const names = [...ENEMY_TYPES.map(t => t.name), BOSS_NAME, ...SCENES.filter(sc => sc.boss).map(sc => sc.boss.name)];
+    for (const n of names) { const b = bestiaryEntry(n); b.seen = Math.max(b.seen, 1); b.defeated = Math.max(b.defeated, 1); }
+    dev.gotoLevel((SCENES.length - 1) * CONFIG.levelsPerScene + 1);
+    dev.maxUpgrades();
+    if (!$("tab-bestiary").hidden) renderBestiary();
+    refreshInventory?.();
+    save();
+    toast("🔓 Tota l'autoescola desbloquejada", "good");
+  },
   // Buida l'inventari (es torna a bloquejar), per a provar com es desbloqueja
   clearInventory() {
     state.inventory = { items: [], equipped: {} };
@@ -115,6 +127,8 @@ const DEV_ACTIONS = {
   "heal": dev.heal,
   "max-upgrades": dev.maxUpgrades,
   "all-items": dev.giveAllItems,
+  "unlock-all": dev.unlockAll,
+  "unlock-everything": () => { dev.unlockAll(); if (typeof tdDev !== "undefined") tdDev.unlockAll(); },
   "clear-items": dev.clearInventory,
   "dvd": dev.dvdCorner,
   "export": () => {
@@ -164,6 +178,8 @@ function initDevConsole() {
   panel.hidden = true;
   panel.innerHTML = `
     <div class="dev-head">🛠 Consola de desenvolupador <button class="small secondary" data-dev="close">✕</button></div>
+    <div class="dev-section"><div class="dev-row"><button class="small" data-dev="unlock-everything">🔓 Desbloquejar-ho TOT (autoescola i estudi)</button>
+      <button class="small secondary" data-dev="unlock-all">🔓 Només l'autoescola</button></div></div>
     <div class="dev-section">
       <label><input type="checkbox" id="dev-autopass"> Aprovar exàmens sols</label>
       <label><input type="checkbox" id="dev-god"> Invulnerable</label>

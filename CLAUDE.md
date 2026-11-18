@@ -52,6 +52,9 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   (modo visita, sin guardar). La base de datos lo impone (`save_game` comprueba quién puede escribir qué; la tabla
   solo se lee) y guarda un historial (`saves_history`). Solo la web publicada (`CLOUD_PROD_HOST`) escribe en la nube;
   local/file:// es **versión de pruebas** («🧪 PROVES»): empieza con una copia de la partida real y nunca la toca.
+  En pruebas hay además un perfil **Comú** (`PLAYERS.comu`, `test: true`; no existe en la web publicada) que juega a todo
+  a la vez: copia la autoescola de Alba y junta las dos partidas de estudio (`tdMergeRooms`). La consola dev tiene
+  «🔓 Desbloquejar-ho TOT» (`dev.unlockAll`, `tdDev.unlockAll`).
   **Nunca perder la partida de la autoescola de la pareja**: antes de sustituir una partida local se guarda una copia
   (`…-backup-nuvol-…`) y la primera vez en un dispositivo gana la más avanzada (`cloudProgress`). No probar escribiendo
   en la base de datos real: simular `fetch` en el navegador.

@@ -21,6 +21,27 @@ const tdDev = {
     td.equipped = Object.keys(TD_ARTIFACTS).filter((id, i, a) => a.findIndex(o => tdArtSlot(o) === tdArtSlot(id)) === i);
     tdSave(); tdRefreshAll();
   },
+  // Desbloqueja tot el joc d'estudi (les dues sales): criatures a ★5 i nivell màxim, artefactes (i pells) de cada
+  // sala a nivell 5 i posats, tots els mons superats, el bestiari sencer, els camps potenciats, pergamins i saber
+  unlockAll() {
+    for (const id of Object.keys(TD_DEFENDERS)) {
+      const o = td.owned[id] || (td.owned[id] = { copies: 0, level: 1 });
+      o.copies = Math.max(o.copies, TD_STAR_COPIES[TD_STAR_COPIES.length - 1]);
+      o.stars = TD_STAR_COPIES.length; o.level = TD_LEVEL_MAX;
+    }
+    for (const id of Object.keys(TD_ARTIFACTS)) td.artifacts[id] = 5;
+    tdSortRoomArtifacts();
+    const equip = arts => Object.keys(arts).filter((id, i, a) => a.findIndex(o => tdArtSlot(o) === tdArtSlot(id)) === i);
+    td.equipped = equip(td.artifacts);
+    for (const b of Object.values(td.artBank)) b.equipped = equip(b.artifacts);
+    for (const w of TD_WORLDS) if (!w.soon && w.waves) td.worlds[w.id] = { best: w.waves.length, clears: Math.max(1, td.worlds[w.id]?.clears || 0) };
+    td.seen = Object.keys(TD_ENEMIES);
+    for (const s of Object.keys(TD_SUBJECTS)) { td.boost[s] = true; td.pergamins[s] += 100; }
+    td.saber += 1e6;
+    for (const m of Object.keys(TD_POINTS)) td.stelles[m] = (td.stelles[m] || 0) + 1000;
+    tdSave(); tdRefreshAll();
+    toast("🔓 Tot el joc d'estudi desbloquejat", "good");
+  },
   // combat
   mana(n = 500) { if (tdb) tdb.mana += n; },
   god(on = true) { if (tdb) tdb.god = on; },
@@ -61,7 +82,7 @@ function initTdDev() {
   sec.innerHTML = `<div class="dev-row"><strong>📚 Estudi</strong>
       <button class="small" data-tddev="perg">+10 📜</button><button class="small" data-tddev="perg100">+100 📜</button>
       <button class="small" data-tddev="saber">+1.000 ✨</button></div>
-    <div class="dev-row"><button class="small" data-tddev="all">Totes les criatures</button><button class="small" data-tddev="stars">★5 a totes</button>
+    <div class="dev-row"><button class="small" data-tddev="unlock">🔓 Desbloquejar tot</button><button class="small" data-tddev="all">Totes les criatures</button><button class="small" data-tddev="stars">★5 a totes</button>
       <button class="small" data-tddev="arts">Artefactes</button></div>
     <div class="dev-row">Combat <button class="small" data-tddev="mana">+500 🔮</button><button class="small" data-tddev="god">Cristall invencible</button>
       <button class="small" data-tddev="win">Guanyar onada</button></div>
@@ -71,7 +92,7 @@ function initTdDev() {
   $("dev-console").insertBefore(sec, $("dev-info"));
   const acts = {
     perg: () => tdDev.pergamins(10), perg100: () => tdDev.pergamins(100), saber: () => tdDev.saber(1000),
-    all: () => tdDev.allCreatures(1), stars: tdDev.maxStars, arts: tdDev.allArtifacts,
+    all: () => tdDev.allCreatures(1), unlock: tdDev.unlockAll, stars: tdDev.maxStars, arts: tdDev.allArtifacts,
     mana: () => tdDev.mana(500), god: () => tdDev.god(!(tdb && tdb.god)), win: tdDev.winWave,
     wave: () => tdDev.gotoWave(Number($("td-dev-wave").value)), wipe: tdDev.wipe,
     export: () => { const t = tdDev.export(); $("dev-save").value = t; navigator.clipboard?.writeText(t).then(() => toast("📋 Partida d'estudi copiada"), () => {}); },
