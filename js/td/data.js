@@ -93,8 +93,8 @@ const TD_DEFENDERS = {
   // ---- Fauna (cinegètica i pesca)
   prismatics: { subj: "fau", rar: "rar", name: "Prismàtics", dmg: 38, rate: 0.42, range: 400, cost: 60, role: "single", alt: true, projSpeed: 2.4, regrow: 1.2,
                 desc: "Els prismàtics d'observar fauna: veuen molt lluny i, alternant les dues lents, llancen el seu reflex, que pega fort a una sola distracció. Tir lent." },
-  canya:      { subj: "fau", rar: "llegendari", name: "Canya de pescar", dmg: 0, rate: 0.12, range: 320, cost: 120, role: "hook", projSpeed: 1.1, regrow: 6,
-                hook: { reel: 2.5, boss: 0.3 },
+  canya:      { subj: "fau", rar: "llegendari", name: "Canya de pescar", dmg: 0, rate: 0.04, range: 320, cost: 120, role: "hook", projSpeed: 1.1, regrow: 6,
+                hook: { reel: 6, boss: 0.3 },
                 desc: "Cada molt de temps llança l'ham. Si enganxa una distracció, la trau del camí i, recollint el fil a poc a poc, la porta fins a la canya: pescada, desapareix. Als caps els lleva un 30 % de la vida i tornen al camí." },
   rusc:       { subj: "fau", rar: "llegendari", name: "Rusc d'abelles", dmg: 6, rate: 0.5, range: 270, cost: 120, role: "swarm", projSpeed: 0.7, regrow: 1.6,
                 poison: { dps: 8, dur: 4 },
