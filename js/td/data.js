@@ -106,7 +106,7 @@ const TD_DEFENDERS = {
   // ---- Gestió de monts (Forestal)
   pi:          { subj: "mnt", rar: "comu", name: "Pi", dmg: 6, rate: 1.5, range: 230, cost: 30, role: "single", alt: true,
                  desc: "Llança les pinyes que li pengen de les branques." },
-  anells:      { subj: "mnt", rar: "rar", name: "Anells del tronc", dmg: 5, rate: 1.6, range: 230, cost: 60, role: "pulse", pulse: 620,
+  anells:      { subj: "mnt", rar: "epic", name: "Anells del tronc", dmg: 5, rate: 1.6, range: 230, cost: 60, role: "pulse", pulse: 620,
                  special: { every: 12, type: "freeze", radius: 120, dur: 1.2 },
                  desc: "Li ixen anells grans del centre que s'eixamplen fins a l'abast i fan mal a tot el que travessen. Ataca molt sovint, amb poc dany. Cada 12 atacs, la resina deixa enganxada la zona 1,2 s." },
   contrafoc:   { subj: "mnt", rar: "llegendari", name: "Contrafoc", dmg: 16, rate: 1, range: 300, cost: 120, role: "line", line: { dps: 3, width: 70, len: 150 },
