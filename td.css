@@ -1045,10 +1045,8 @@
 @keyframes tdb-capaim-blink { 50% { opacity: 0.35; } }
 .tdb-proj.sp-overload .tdb-proj-in { filter: drop-shadow(0 0 10px #a64dff) drop-shadow(0 0 3px #fff); }
 /* ---- elements: etiqueta al grimori i al bestiari, i números de dany segons si és feble o forta */
-.td-elem { display: inline-block; padding: 0 7px; border-radius: 999px; font-weight: 800; color: var(--ec); background: color-mix(in srgb, var(--ec) 16%, transparent); border: 1px solid color-mix(in srgb, var(--ec) 55%, transparent); white-space: nowrap; }
+.td-elem { display: inline-block; padding: 0 7px; border-radius: 999px; font-weight: 800; color: var(--ec); background: color-mix(in srgb, var(--ec) 14%, #10141f); border: 1px solid color-mix(in srgb, var(--ec) 60%, #10141f); white-space: nowrap; } /* fons fosc: es llig igual sobre paper clar i fosc */
 .tdb-num.strong { opacity: 0.6; font-size: 19px; }
-/* al bestiari (paper clar), el text de l'element enfosquit perquè es llija */
-.tdbook.theme-best .td-elem { color: color-mix(in srgb, var(--ec) 35%, #2a1606); background: color-mix(in srgb, var(--ec) 38%, transparent); border-color: color-mix(in srgb, var(--ec) 60%, #2a1606); }
 .td-elem-dot { position: absolute; top: 3px; left: 3px; z-index: 2; width: 1.45em; height: 1.45em; display: grid; place-items: center; border-radius: 50%; font-size: 0.78rem;
   background: color-mix(in srgb, var(--ec) 28%, #0b0f17); border: 1.5px solid var(--ec); box-shadow: 0 0 6px color-mix(in srgb, var(--ec) 50%, transparent); pointer-events: none; }
 .tdb-card, .tdbook-tslot, .tdbook-mini { position: relative; }

@@ -438,6 +438,7 @@ function tdCreaturePages(id) {
      <table class="tdbook-stats"><tr><th>Nivell</th><td>${o.level} / ${cap}${cap < TD_LEVEL_MAX ? ` <span class="muted">(més amb ★${st.stars + 1})</span>` : ""}</td></tr><tr><th>Dany</th><td>${fmtNum(st.dmg)}</td></tr>
        <tr><th>Velocitat</th><td>${st.rate.toFixed(2)} / s</td></tr><tr><th>Abast</th><td>${Math.round(st.range)}</td></tr><tr><th>Cost</th><td>🔮 ${d.cost}</td></tr>
        <tr><th>Element</th><td>${tdElemTag(d.el)}</td></tr>
+       ${d.special?.type === "align" ? `<tr><th>Paràlisi</th><td>${String(+(d.special.dur * st.ability).toFixed(1)).replace(".", ",")} s <span class="muted">(puja amb l'habilitat)</span></td></tr>` : ""}
        <tr><th>Habilitat</th><td>×${st.ability.toFixed(2).replace(".", ",")} <span class="tdbook-steps">${steps.map(([t, on]) => `<span class="${on ? "on" : ""}">${t}</span>`).join("")}</span></td></tr></table>
      <div class="tdbook-btns">${lvlBtn}
        <button class="secondary" data-team="${id}" title="${td.team.includes(id) ? "Traure de l'equip" : "Posar a l'equip"}">${td.team.includes(id) ? "➖" : "➕"}<span class="lbl"> Equip</span></button>

@@ -68,7 +68,7 @@ const TD_DEFENDERS = {
                  desc: "Colps molt forts, un braç cada vegada. Si a l'enemic li queda menys d'un 15 % de vida, det = 0: l'elimina." },
   lambda:      { subj: "alg", rar: "mitic", name: "Diagonalitzador λ", dmg: 30, rate: 1.0, range: 340, cost: 150, role: "single",
                  special: { every: 15, type: "align", area: 1.8, dur: 2, vuln: 0.5, vulnDur: 5 },
-                 desc: "Cada 15 atacs alinea els enemics d'una zona molt gran (gairebé el doble del seu abast): els para 2 s i reben un 50 % més de dany durant 5 s." },
+                 desc: "Cada 15 atacs alinea els enemics d'una zona molt gran (gairebé el doble del seu abast): els para 2 s (més com més habilitat té) i reben un 50 % més de dany durant 5 s." },
   // ---- Informàtica
   puntcoma:    { subj: "prg", rar: "comu", name: "Punt i coma", dmg: 4, rate: 2.4, range: 200, cost: 25, role: "single", alt: true,
                  desc: "Barat i rapidíssim: escup punts sense parar." },
