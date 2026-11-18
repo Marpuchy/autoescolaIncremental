@@ -943,3 +943,4 @@
 .td-student-svg.axolot .tw1 { animation-delay: -0.6s; } .td-student-svg.axolot .tw2 { animation-delay: -1.2s; }
 @keyframes td-twinkle { 50% { transform: scale(0.45); opacity: 0.5; } }
 @keyframes td-tail { 50% { transform: rotate(-6deg); } }
+.td-student-svg.druid .llavor { transform-box: fill-box; transform-origin: center; animation: td-twinkle 2.4s ease-in-out infinite; }

@@ -153,9 +153,9 @@ const TD_ARTIFACTS = {
   // Bosc. Sendera de les Arrels: el Corro de bolets deixa la pell de bolet (la granoteta es torna d'amanita)
   setes:      { name: "Pell de bolet", icon: "🍄", slot: "pell", boss: "series", world: 101, stat: "rate", value: 0.15,
                 desc: lvl => `La granoteta es torna roja d'amanita, amb pigues blanques. +${Math.round(0.15 * tdArtMult(lvl) * 100)} % de velocitat d'atac.` },
-  // Bosc. Sendera de les Arrels: la pell del Llop de la lluna, sobre les espatles; espanta les distraccions
-  capallop:   { name: "Musclereres de llop", icon: "🐺", slot: "cap", boss: "diumenge", world: 101, stat: "slowAll", value: 0.06,
-                desc: lvl => `Les distraccions s'espanten: van un ${Math.round(0.06 * tdArtMult(lvl) * 100)} % més lentes.` },
+  // Bosc. Sendera de les Arrels: el Llop de la lluna deixa el bastó de la natura (id capallop: abans era la capa)
+  capallop:   { name: "Bastó de la natura", icon: "🌿", slot: "ma", boss: "diumenge", world: 101, stat: "slowAll", value: 0.06,
+                desc: lvl => `Arrels i fulles responen a la granoteta: les distraccions van un ${Math.round(0.06 * tdArtMult(lvl) * 100)} % més lentes.` },
 };
 const tdArtMult = lvl => 1 + 0.25 * (lvl - 1);
 const TD_ARTIFACT_SLOTS = 3;

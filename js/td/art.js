@@ -450,12 +450,14 @@ const TD_AXO_WEAR = {
 // Peces dels artefactes: `back` es pinta davall del barret (diadema), `front` damunt de tot.
 // `hides`: parts de la granoteta que deixen de veure's (la mà dreta, si l'artefacte la fa servir: només en té dues)
 const TD_ARTIFACT_WEAR = {
-  // capa de llop: només unes musclereres de pell de llop grisa damunt de les espatles, amb les puntes blanques
-  // (la capa de molsa del druida continua darrere)
-  capallop: { front: `<g><path d="M12 104 C8 86 18 74 34 78 C42 88 40 102 32 112 C24 117 14 113 12 104 Z" fill="#7a8290"/>
-      <path d="M128 104 C132 86 122 74 106 78 C98 88 100 102 108 112 C116 117 126 113 128 104 Z" fill="#7a8290"/>
-      <path d="M16 96 C20 86 28 82 34 82 M124 96 C120 86 112 82 106 82" stroke="#9aa2ae" stroke-width="2" fill="none" stroke-linecap="round"/>
-      ${[[16, 108], [23, 113], [31, 110], [124, 108], [117, 113], [109, 110]].map(([x, y]) => `<path d="M${x - 3} ${y - 3} l3 7 l3 -7" fill="#dfe4ea"/>`).join("")}</g>` },
+  // Bastó de la natura (id capallop): dret davant seu (pot tapar-li la cara), branca torta amb fulles i una llavor que
+  // brilla a dalt; la mà dreta es torna a pintar damunt i l'agafa (com l'ajolot)
+  capallop: { front: `<g class="basto-natura"><path d="M104 158 Q108 120 102 84 Q98 60 104 40" stroke="#6b4a2a" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+      <path d="M104.6 152 Q108 120 102.6 86" stroke="#8a6440" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M104 40 Q96 34 96 24 M104 40 Q113 32 111 22 M102 80 Q110 76 116 70" stroke="#6b4a2a" stroke-width="3" fill="none" stroke-linecap="round"/>
+      ${[[94, 22, -40], [113, 20, 30], [118, 68, 50], [96, 108, -60]].map(([x, y, r]) => `<path d="M${x - 7} ${y} Q${x} ${y - 6} ${x + 7} ${y} Q${x} ${y + 6} ${x - 7} ${y} Z" fill="#6fbf4a" transform="rotate(${r} ${x} ${y})"/>`).join("")}
+      <g class="llavor"><circle cx="104" cy="28" r="10" fill="#b8ff7a" opacity="0.25"/><circle cx="104" cy="28" r="4.5" fill="#d8ffb0"/><circle cx="104" cy="28" r="2" fill="#fff"/></g></g>
+      <ellipse cx="102" cy="140" rx="12" ry="7" fill="#4fa64d"/>` },
   // pell de bolet: les pigues blanques de l'amanita (els colors canvien amb frogSkin)
   setes: { back: `<g fill="#fff6e8">${[[52, 84, 4.5], [86, 80, 3.5], [100, 100, 5], [38, 108, 4], [104, 124, 3.5], [30, 124, 3], [70, 76, 2.8], [28, 58, 3.2], [108, 56, 3], [44, 50, 2.4], [96, 48, 2.4]]
       .map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}"/>`).join("")}</g>` },
@@ -478,7 +480,7 @@ function tdStudentSvg(equipped = [], attrs = "") {
   const paint = str => Object.entries(skin).reduce((t, [a, b]) => t.split(a).join(b), str);
   const front = paint(tdDruidBook(TD_STUDENT_FRONT));
   return `<svg viewBox="-4 -12 152 160" class="td-student-svg druid" aria-label="Estudiant (granoteta)" overflow="visible" ${attrs}>${TD_DRUID_BACK}${paint(TD_STUDENT_BACK)}
-    ${w.map(x => x.back || "").join("")}${TD_DRUID_HAT}${w.flatMap(x => x.hides || []).reduce((f, cls) => f.replace(new RegExp(`<ellipse class="${cls}"[^>]*/>`), ""), front)}${w.map(x => x.front || "").join("")}</svg>`;
+    ${w.map(x => x.back || "").join("")}${TD_DRUID_HAT}${w.flatMap(x => x.hides || []).reduce((f, cls) => f.replace(new RegExp(`<ellipse class="${cls}"[^>]*/>`), ""), front)}${w.map(x => paint(x.front || "")).join("")}</svg>`;
 }
 const TD_STUDENT_SVG = tdStudentSvg();
 
