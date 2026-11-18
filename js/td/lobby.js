@@ -19,6 +19,8 @@ const TD_ROOMS = {
 function tdOpenLobby(room = tdRoom) {
   if (typeof roomOpen === "function" && roomOpen()) closeRoom();
   tdRoom = TD_ROOMS[room] ? room : "informatic";
+  const sb = document.querySelector('#td-lobby [data-td="student"]'); // icona de l'estudiant: ajolot (Marc) o granoteta (Alba)
+  if (sb?.firstChild) sb.firstChild.textContent = tdRoom === "forestal" ? "🐸" : "🎓";
   const settle = () => {
     if (!tdFields().includes(tdSubj)) tdSubj = tdFields()[0];
     if (tdViewingOf) return;
@@ -67,10 +69,10 @@ function tdLobbyHud() {
 // ---------------------------------------------------------------- finestretes
 const TD_PANELS = {
   gacha: "🔮 Altar d'invocació", study: "📚 Prestatgeria d'estudi", grimori: "📖 Grimori", bestiary: "👾 Bestiari",
-  worlds: "🌀 Portal dels mons", upgrades: "💎 Cristall", student: "🐸 Estudiant",
+  worlds: "🌀 Portal dels mons", upgrades: "💎 Cristall", student: "🎓 Estudiant",
 };
 // al bosc, alguns punts tenen un altre nom
-const TD_PANELS_FOREST = { upgrades: "🟢 Jade", gacha: "🌱 Altar d'invocació", worlds: "🌳 Portal dels mons" };
+const TD_PANELS_FOREST = { student: "🐸 Estudiant", upgrades: "🟢 Jade", gacha: "🌱 Altar d'invocació", worlds: "🌳 Portal dels mons" };
 function tdSpot(name) {
   if (name === "exit") { tdCloseLobby(); openRoom(); return; }
   if (name === "reset") { if (tdViewingOf) { toast("👀 És la partida de l'altra persona: no es pot reiniciar", "bad"); return; } tdAskRestart(); return; }
@@ -539,15 +541,15 @@ function tdUpgradesHtml() {
 }
 
 // ---- estudiant (artefactes)
-let tdEquipSlot = "cap"; // espai triat a la finestra de l'estudiant
+let tdEquipSlot = ""; // espai triat a la finestra de l'estudiant (buit: el primer de la sala)
 function tdStudentHtml() {
-  const slot = TD_EQUIP_SLOTS.find(x => x.id === tdEquipSlot) || TD_EQUIP_SLOTS[0];
+  const slots = tdEquipSlots(), slot = slots.find(x => x.id === tdEquipSlot) || slots[0];
   const worn = sid => td.equipped.find(id => tdArtSlot(id) === sid);
   const own = Object.keys(td.artifacts).filter(id => tdArtSlot(id) === slot.id);
   const cur = worn(slot.id);
   return `<div class="td-inv">
     <div class="td-inv-stage"><div class="td-inv-student">${tdStudentSvg(td.equipped)}</div>
-      ${TD_EQUIP_SLOTS.map((x, i) => { const id = worn(x.id);
+      ${slots.map((x, i) => { const id = worn(x.id);
         return `<button class="td-inv-slot td-inv-slot-${i}${x.id === slot.id ? " selected" : ""}${id ? "" : " empty"}" data-eslot="${x.id}">
           <span class="td-inv-slot-item">${id ? TD_ARTIFACTS[id].icon : x.icon}</span><span class="td-inv-slot-name">${x.name}</span></button>`; }).join("")}</div>
     <div class="td-inv-side"><h3>${slot.icon} ${slot.name}</h3>

@@ -145,10 +145,11 @@ const TD_WAVE_HP = 0.2; // cada onada, +20 % de vida als enemics
 // L'estudiant en porta 3 com a molt. value: efecte a nivell 1 (cada nivell +25 %). world: el món on cau (cada món
 // té els seus; els de la Biblioteca, de quan encara n'hi havia dos per món).
 const TD_ARTIFACTS = {
-  auriculars: { name: "Auriculars antisoroll", icon: "🎧", slot: "cap", boss: "series", world: 1, stat: "range", value: 0.08,
-                desc: lvl => `El Son no adorm les teues torres. +${Math.round(0.08 * tdArtMult(lvl) * 100)} % d'abast.` },
-  cafe:       { name: "Cafè arcà", icon: "☕", slot: "ma", boss: "diumenge", world: 1, stat: "rate", value: 0.15,
-                desc: lvl => `+${Math.round(0.15 * tdArtMult(lvl) * 100)} % de velocitat d'atac.` },
+  // (els id auriculars i cafe es queden per no trencar partides: ara són la pols d'estrelles i el bastó de l'ajolot)
+  auriculars: { name: "Pols d'estrelles", icon: "✨", slot: "branquies", boss: "diumenge", world: 1, stat: "range", value: 0.08,
+                desc: lvl => `Pols màgica a les branquies: el Son no adorm les teues torres. +${Math.round(0.08 * tdArtMult(lvl) * 100)} % d'abast.` },
+  cafe:       { name: "Bastó d'aprenent", icon: "🪄", slot: "ma", boss: "series", world: 1, stat: "rate", value: 0.15,
+                desc: lvl => `Sura al costat de l'ajolot i canalitza la màgia. +${Math.round(0.15 * tdArtMult(lvl) * 100)} % de velocitat d'atac.` },
   // Bosc. Sendera de les Arrels: la pell del Llop de la lluna, sobre les espatles; espanta les distraccions
   capallop:   { name: "Capa de llop", icon: "🐺", slot: "pell", boss: "diumenge", world: 101, stat: "slowAll", value: 0.06,
                 desc: lvl => `Les distraccions s'espanten: van un ${Math.round(0.06 * tdArtMult(lvl) * 100)} % més lentes.` },
@@ -161,6 +162,13 @@ const TD_EQUIP_SLOTS = [
   { id: "ma",      icon: "✋", name: "Mà" },
   { id: "pell",    icon: "🎨", name: "Pell" },     // com a l'autoescola (cap, mà i pell), sense mascota
 ];
+// A Informàtica l'estudiant és un ajolot (en Marc): el barret no es canvia i en lloc del cap té les branquies
+const TD_EQUIP_SLOTS_AXO = [
+  { id: "branquies", icon: "🪸", name: "Branquies" },
+  { id: "ma",        icon: "✋", name: "Mà" },
+  { id: "pell",      icon: "🎨", name: "Pell" },
+];
+const tdEquipSlots = () => typeof tdRoom !== "undefined" && tdRoom === "forestal" ? TD_EQUIP_SLOTS : TD_EQUIP_SLOTS_AXO;
 const tdArtSlot = id => TD_ARTIFACTS[id]?.slot;
 
 // Millores del cristall (es paguen amb saber)

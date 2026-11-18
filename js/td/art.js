@@ -359,33 +359,92 @@ const TD_STUDENT_FRONT = `<g class="td-book">
   <path d="M70 112 L70 154" stroke="#3a1426" stroke-width="3.5"/>
   <path d="M68 120 h4 M68 146 h4" stroke="#ffc23f" stroke-width="1.6"/></g>
   <ellipse class="hand-l" cx="38" cy="140" rx="12" ry="7" fill="#4fa64d"/><ellipse class="hand-r" cx="102" cy="140" rx="12" ry="7" fill="#4fa64d"/>`;
-// A Informàtica l'estudiant és en Marc: un suricat dret (com quan fan guàrdia), amb el llibre i el barret de mag.
-// Mateixos punts que la granoteta (barret a y 46, mans a 38/102 × 140, espatles a 30/110 × 90) perquè els
-// artefactes li caiguen igual. Pelatge torrat amb la panxa i el morro clars, les taques fosques dels ulls, les
-// orelletes negres als costats, la tòfona fosca i la cua prima amb la punta negra (que es mou).
-const TD_SURI = { fur: "#c9a46b", dark: "#a07a45", light: "#efdcb0", mask: "#3b2a1a" };
-const TD_SURI_BACK = `<ellipse cx="70" cy="146" rx="54" ry="6" fill="#000" opacity="0.3"/>
-  <g class="tail"><path d="M98 138 Q124 146 134 132 Q140 122 138 110" stroke="${TD_SURI.dark}" stroke-width="8" fill="none" stroke-linecap="round"/>
-    <path d="M137.5 118 Q140 112 138 104" stroke="${TD_SURI.mask}" stroke-width="6" fill="none" stroke-linecap="round"/></g>
-  <ellipse cx="38" cy="134" rx="15" ry="11" fill="${TD_SURI.dark}"/><ellipse cx="102" cy="134" rx="15" ry="11" fill="${TD_SURI.dark}"/>
-  <ellipse cx="34" cy="145" rx="12" ry="4.5" fill="${TD_SURI.dark}"/><ellipse cx="106" cy="145" rx="12" ry="4.5" fill="${TD_SURI.dark}"/>
-  <path d="M70 76 C96 76 106 100 106 122 C106 140 92 148 70 148 C48 148 34 140 34 122 C34 100 44 76 70 76 Z" fill="${TD_SURI.fur}"/>
-  <path d="M70 92 C86 92 92 108 92 124 C92 138 84 144 70 144 C56 144 48 138 48 124 C48 108 54 92 70 92 Z" fill="${TD_SURI.light}"/>
-  ${[100, 110, 120].map(y => `<path d="M36 ${y} q4 3 8 1 M104 ${y} q-4 3 -8 1" stroke="${TD_SURI.dark}" stroke-width="2.6" fill="none" stroke-linecap="round"/>`).join("")}
-  <ellipse cx="36" cy="64" rx="5.5" ry="7.5" fill="${TD_SURI.mask}"/><ellipse cx="104" cy="64" rx="5.5" ry="7.5" fill="${TD_SURI.mask}"/>
-  <path d="M38 62 Q38 38 70 36 Q102 38 102 62 Q102 78 86 88 Q78 96 70 98 Q62 96 54 88 Q38 78 38 62 Z" fill="${TD_SURI.fur}"/>
-  <ellipse cx="70" cy="82" rx="15" ry="13" fill="${TD_SURI.light}"/>
-  <ellipse cx="53" cy="64" rx="10" ry="8" fill="${TD_SURI.mask}" transform="rotate(-22 53 64)"/><ellipse cx="87" cy="64" rx="10" ry="8" fill="${TD_SURI.mask}" transform="rotate(22 87 64)"/>
-  <g class="eyes"><circle cx="54" cy="63" r="5.2" fill="#1a120b"/><circle cx="86" cy="63" r="5.2" fill="#1a120b"/>
-    <circle cx="55.8" cy="61" r="1.9" fill="#fff"/><circle cx="87.8" cy="61" r="1.9" fill="#fff"/></g>
-  <path d="M63 86 Q70 82 77 86 Q75 93 70 94 Q65 93 63 86 Z" fill="#2a1e14"/>
-  <path d="M70 94 V97 M65 98 Q70 101 75 98" stroke="#2a1e14" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-  <ellipse cx="46" cy="80" rx="5" ry="3" fill="#ff8fa3" opacity="0.4"/><ellipse cx="94" cy="80" rx="5" ry="3" fill="#ff8fa3" opacity="0.4"/>`;
-// Auriculars a la mida del cap del suricat (més estret que el de la granoteta), damunt de les orelles
-const TD_SURI_WEAR = {
-  auriculars: { back: `<path d="M30 66 C28 32 112 32 110 66" stroke="#2b2f35" stroke-width="7" fill="none" stroke-linecap="round"/>`,
-    front: `<g><rect x="25" y="52" width="15" height="25" rx="7" fill="#2b2f35"/><rect x="100" y="52" width="15" height="25" rx="7" fill="#2b2f35"/>
-      <rect x="28" y="56" width="9" height="17" rx="4.5" fill="#9d8bff"/><rect x="103" y="56" width="9" height="17" rx="4.5" fill="#9d8bff"/></g>` },
+// A Informàtica l'estudiant és en Marc: un ajolot de cara, sense vores (silueta de colors plans), sobre quatre potes,
+// amb el cap gran i rodó, les branquies en ventall, la boca oberta i un barret de mag tou (sempre posat). Els seus
+// espais són branquies, mà i pell (TD_EQUIP_SLOTS_AXO). P = paleta de la pell (TD_AXO_SKINS); %BACK% i %FRONT%, artefactes.
+const TD_AXO_SKINS = {
+  leucistic: { body: "#fde6ee", body2: "#f6cddb", shade: "#f2c3d3", belly: "#fff6f9", line: "#2e1d26", gill: "#f59ab0", gillL: "#cf5a7c", mouth: "#e96a8e", tongue: "#f7a6c0" },
+};
+const tdAxoSvg = (() => {
+  let P = TD_AXO_SKINS.leucistic; // paleta activa (la fan servir les peces de baix)
+  const pt = (x, y) => `${x.toFixed(1)} ${y.toFixed(1)}`;
+  function taper(x0, y0, x1, y1, w0, w1, bend = 0) {
+    const dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy), nx = -dy / L, ny = dx / L, mx = (x0 + x1) / 2 + nx * bend, my = (y0 + y1) / 2 + ny * bend, wm = (w0 + w1) / 2;
+    return `M${pt(x0 + nx * w0, y0 + ny * w0)} Q${pt(mx + nx * wm, my + ny * wm)} ${pt(x1 + nx * w1, y1 + ny * w1)} L${pt(x1 - nx * w1, y1 - ny * w1)} Q${pt(mx - nx * wm, my - ny * wm)} ${pt(x0 - nx * w0, y0 - ny * w0)} Z`;
+  }
+  const blob = (x, y, rx, ry) => `M${pt(x + rx, y)} A${rx} ${ry} 0 1 0 ${pt(x - rx, y)} A${rx} ${ry} 0 1 0 ${pt(x + rx, y)} Z`;
+  const digit = (x, y, ang, len, w) => { const a = ang * Math.PI / 180; return taper(x, y, x + Math.cos(a) * len, y + Math.sin(a) * len, w, 0.5); };
+  // pota: de gruixuda (unida al cos) a prima, amb el peu i quatre dits en punta cap a `dir` (graus)
+  const leg = (bx, by, fx, fy, dir, w0 = 15) => [taper(bx, by, fx, fy, w0, 10), blob(fx, fy, 11, 7.5),
+    ...[-40, -13, 13, 40].map((d, i) => digit(fx, fy, dir + d, 7 - Math.abs(i - 1.5) * 0.6, 3.6))];
+  // Cap ample i baix i cos rodó: dues peces que s'ajunten fent unes entradetes als costats (la cara queda rodanxona)
+  // El cap ho ocupa quasi tot; el cos és una base curta davall i les potes, bonyets que ixen de la vora de baix
+  const HEAD = blob(96, 70, 62, 45);
+  const rrect = (x, y, w, h, r) => `M${x + r} ${y} H${x + w - r} Q${x + w} ${y} ${x + w} ${y + r} V${y + h - r} Q${x + w} ${y + h} ${x + w - r} ${y + h} H${x + r} Q${x} ${y + h} ${x} ${y + h - r} V${y + r} Q${x} ${y} ${x + r} ${y} Z`;
+  const BODY = rrect(56, 100, 80, 46, 20); // rectangular amb les vores corbes
+  const TAIL = "";
+  // De cara: les de davant, grans i a baix; les de darrere, més menudes, un poc més amunt i per fora (al fons)
+  const BACK = [blob(62, 143, 15, 10), blob(130, 143, 15, 10)]; // potes de darrere: més fosques (queden al fons)
+  const SIL = [blob(78, 149, 12.5, 9.5), blob(114, 149, 12.5, 9.5), BODY];
+  const MOUTH = "M64 76 Q96 67 128 76 Q124 110 96 112 Q68 110 64 76 Z";
+  const FAN = "M0 -16 C-2 -22 4 -28 10 -26 C14 -30 22 -28 22 -21 C28 -20 31 -12 26 -7 C32 -3 31 6 25 8 C29 13 26 21 19 20 C17 27 8 28 5 22 C0 24 -2 20 0 16 Z";
+  const gill = (x, y, rot, flip) => `<g transform="translate(${x} ${y}) ${flip ? "scale(-1 1)" : ""} rotate(${rot})">
+    <path d="${FAN}" fill="${P.gill}"/>
+    <path d="M4 -10 Q12 -16 18 -18 M5 0 Q14 -1 22 -2 M4 10 Q12 14 17 16" stroke="${P.gillL}" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.55"/></g>`;
+  // Barret de mag tou: copa ampla (tapa tota la coroneta), punta caiguda cap a un costat amb una estrela, sense vores
+  const STAR5 = (x, y, r, c) => `<path d="${[0,1,2,3,4,5,6,7,8,9].map(i => { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * 0.45 : r; return `${i ? "L" : "M"}${(x + Math.cos(a) * rr).toFixed(1)} ${(y + Math.sin(a) * rr).toFixed(1)}`; }).join(" ")} Z" fill="${c}"/>`;
+  // Capes: primer l'ala sencera (darrere de tot), damunt la copa, que acaba en un arc (la seua base vista en perspectiva),
+  // i la cinta seguint el mateix arc: així l'ala no es menja la copa ni la copa l'ala
+  const HAT = `<ellipse cx="0" cy="3" rx="72" ry="13" fill="#26336e"/><path d="M-66 5 A66 10 0 0 0 66 5" stroke="#3a4c9a" stroke-width="2" fill="none" opacity="0.7"/>
+    <path d="M-52 3 C-51 -16 -38 -38 -8 -46 C10 -51 28 -46 40 -38 C47 -33 56 -31 62 -35 C60 -25 50 -21 41 -23 C46 -15 51 -6 52 3 A52 9 0 0 1 -52 3 Z" fill="#2f3f86"/>
+    <path d="M-52 3 C-51 -16 -38 -38 -8 -46 C-24 -35 -33 -18 -33 3 L-33 10 A52 9 0 0 1 -52 3 Z" fill="#3a4c9a"/>
+    <path d="M-51 -6 A51 9 0 0 0 51 -6 L52 3 A52 9 0 0 1 -52 3 Z" fill="#9d8bff"/>
+    ${STAR5(-8, -24, 7, "#ffe27a")}<circle cx="20" cy="-32" r="1.8" fill="#ffe27a"/><circle cx="-28" cy="-13" r="1.6" fill="#ffe27a"/><circle cx="24" cy="-13" r="1.3" fill="#fff"/>
+    ${STAR5(63, -35, 5.5, "#ffe27a")}`;
+  const cache = {};
+  return (skin = "leucistic") => cache[skin] ||= (pal => { P = pal; return `<defs>
+    <linearGradient id="axo-fin" x1="0" x2="1" y1="0" y2="0.3"><stop offset="0" stop-color="#ffd8e4" stop-opacity="0.9"/><stop offset="1" stop-color="#f7a6c0" stop-opacity="0.72"/></linearGradient></defs>
+  <ellipse cx="96" cy="152" rx="64" ry="5.5" fill="#000" opacity="0.28"/>
+  <!-- aleta de la cua: transparent per dalt i per baix, acaba en punta -->
+  <g class="tail"><path d="M126 113 C138 109 147 104 155 99 C166 93 173 103 168 112 C160 127 144 140 126 149 Z" transform="rotate(-6 126 126) translate(126 130) scale(0.87 0.9) translate(-126 -130)" fill="#f7a6c0"/></g>
+  <g class="branquies">${gill(40, 66, -4, true)}${gill(152, 66, -4)}</g>
+  %BACK%
+  <g class="silueta">
+    <g fill="${P.shade}">${BACK.map(d => `<path d="${d}"/>`).join("")}</g>
+    <g fill="${P.body}">${SIL.map(d => `<path d="${d}"/>`).join("")}</g>
+    <clipPath id="axo-cos"><path d="${BODY}"/></clipPath>
+    <g clip-path="url(#axo-cos)">
+      <ellipse cx="96" cy="133" rx="26" ry="13" fill="${P.belly}"/>
+      <path d="${HEAD}" transform="translate(0 4)" fill="${P.shade}"/>
+    </g>
+    <path d="${HEAD}" fill="${P.body}"/>
+  </g>
+  <!-- cara -->
+  <g>
+    <g class="eyes"><circle cx="58" cy="64" r="5.2" fill="${P.line}"/><circle cx="134" cy="64" r="5.2" fill="${P.line}"/></g>
+    <clipPath id="axo-boca"><path d="${MOUTH}"/></clipPath>
+    <path d="${MOUTH}" fill="${P.mouth}"/>
+    <g clip-path="url(#axo-boca)"><ellipse cx="96" cy="112" rx="26" ry="15" fill="${P.tongue}"/></g>
+    <ellipse cx="48" cy="80" rx="10" ry="6" fill="${P.tongue}" opacity="0.6"/><ellipse cx="144" cy="80" rx="10" ry="6" fill="${P.tongue}" opacity="0.6"/>
+    <path d="M43 78 l7 1 M43 82.5 l7 1 M142 79 l7 -1 M142 83.5 l7 -1" stroke="#e05a80" stroke-width="1.8" stroke-linecap="round"/>
+  </g>
+  <g class="hat" transform="translate(92 36) rotate(-7)">${HAT}</g>
+  %FRONT%`; })(TD_AXO_SKINS[skin] || TD_AXO_SKINS.leucistic);
+})();
+// Artefactes posats a l'ajolot: `back` va darrere del cap (davant de les branquies) i `front`, damunt de tot
+const TD_AXO_WEAR = {
+  // Pols d'estrelles (id auriculars): purpurina daurada, cian i rosa sobre els ventalls de les branquies, que titil·la
+  auriculars: { front: `<g class="pols">${[[14, 52, 5.4, "#ffe27a"], [26, 72, 4.2, "#bff3ff"], [10, 84, 3.6, "#ff9ae8"], [30, 46, 3, "#fff"], [22, 94, 3.8, "#ffe27a"], [34, 60, 2.6, "#ff9ae8"],
+      [178, 52, 5.4, "#ffe27a"], [166, 72, 4.2, "#bff3ff"], [182, 84, 3.6, "#ff9ae8"], [162, 46, 3, "#fff"], [170, 94, 3.8, "#ffe27a"], [158, 60, 2.6, "#bff3ff"]]
+      .map(([x, y, r, c], i) => `<path class="tw tw${i % 3}" d="M${x} ${y - r * 1.6} L${x + r * 0.45} ${y - r * 0.45} L${x + r * 1.6} ${y} L${x + r * 0.45} ${y + r * 0.45} L${x} ${y + r * 1.6} L${x - r * 0.45} ${y + r * 0.45} L${x - r * 1.6} ${y} L${x - r * 0.45} ${y - r * 0.45} Z" fill="${c}"/>`).join("")}
+      ${[[18, 60], [26, 86], [10, 70], [174, 60], [166, 86], [182, 70]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.8" fill="#fff" opacity="0.85"/>`).join("")}</g>` },
+  // Bastó d'aprenent (id cafe): sura al costat (l'ajolot va a quatre potes), de fusta torta amb un cristall que brilla
+  cafe: { front: `<g class="float"><ellipse cx="10" cy="150" rx="10" ry="2.6" fill="#9d8bff" opacity="0.35"/>
+      <path d="M8 144 Q12 112 7 82 Q5 72 9 64" stroke="#5a3418" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <path d="M8.6 140 Q12.2 112 7.6 84" stroke="#8a5a30" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <path d="M9 64 Q3 58 5 50 M9 64 Q16 58 14 49" stroke="#5a3418" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <circle cx="9.5" cy="52" r="11" fill="#5ad8ff" opacity="0.22"/><path d="M9.5 43 L15 52 L9.5 61 L4 52 Z" fill="#bff3ff"/><circle cx="9.5" cy="52" r="2.2" fill="#5ad8ff"/>
+      <path d="M-4 40 l1.5 3 3 1.5 -3 1.5 -1.5 3 -1.5 -3 -3 -1.5 3 -1.5 z M24 38 l1 2 2 1 -2 1 -1 2 -1 -2 -2 -1 2 -1 z" fill="#ffe27a"/></g>` },
 };
 // Peces dels artefactes: `back` es pinta davall del barret (diadema), `front` damunt de tot.
 // `hides`: parts de la granoteta que deixen de veure's (la mà dreta, si l'artefacte la fa servir: només en té dues)
@@ -406,12 +465,15 @@ const TD_ARTIFACT_WEAR = {
 // Estudiant amb els artefactes posats. attrs: atributs extra de l'<svg> (posició i mida dins d'un altre SVG)
 function tdStudentSvg(equipped = [], attrs = "") {
   const druid = typeof tdRoom !== "undefined" && tdRoom === "forestal"; // al bosc, l'Alba (granoteta druida)
-  const suri = !druid; // a Informàtica, en Marc (suricat)
-  const w = equipped.map(id => (suri && TD_SURI_WEAR[id]) || TD_ARTIFACT_WEAR[id]).filter(Boolean);
-  const skin = str => suri ? str.replace(/#4fa64d/g, TD_SURI.dark) : str; // les mans (també les dels artefactes), del seu color
-  const front = skin(druid ? tdDruidBook(TD_STUDENT_FRONT) : TD_STUDENT_FRONT);
-  return `<svg viewBox="-4 -6 152 160" class="td-student-svg${druid ? " druid" : " suricat"}" aria-label="${suri ? "Estudiant (suricat)" : "Estudiant (granoteta)"}" overflow="visible" ${attrs}>${druid ? TD_DRUID_BACK : ""}${suri ? TD_SURI_BACK : TD_STUDENT_BACK}
-    ${w.map(x => x.back || "").join("")}${druid ? TD_DRUID_HAT : TD_STUDENT_HAT}${w.flatMap(x => x.hides || []).reduce((f, cls) => f.replace(new RegExp(`<ellipse class="${cls}"[^>]*/>`), ""), front)}${w.map(x => skin(x.front || "")).join("")}</svg>`;
+  if (!druid) { // a Informàtica, en Marc (ajolot)
+    const w = equipped.map(id => TD_AXO_WEAR[id]).filter(Boolean), skin = equipped.map(id => TD_ARTIFACTS[id]?.skin).find(Boolean);
+    const art = tdAxoSvg(skin).replace("%BACK%", w.map(x => x.back || "").join("")).replace("%FRONT%", w.map(x => x.front || "").join(""));
+    return `<svg viewBox="2 -32 196 196" preserveAspectRatio="xMidYMax meet" class="td-student-svg axolot" aria-label="Estudiant (ajolot)" overflow="visible" ${attrs}>${art}</svg>`;
+  }
+  const w = equipped.map(id => TD_ARTIFACT_WEAR[id]).filter(Boolean);
+  const front = tdDruidBook(TD_STUDENT_FRONT);
+  return `<svg viewBox="-4 -6 152 160" class="td-student-svg druid" aria-label="Estudiant (granoteta)" overflow="visible" ${attrs}>${TD_DRUID_BACK}${TD_STUDENT_BACK}
+    ${w.map(x => x.back || "").join("")}${TD_DRUID_HAT}${w.flatMap(x => x.hides || []).reduce((f, cls) => f.replace(new RegExp(`<ellipse class="${cls}"[^>]*/>`), ""), front)}${w.map(x => x.front || "").join("")}</svg>`;
 }
 const TD_STUDENT_SVG = tdStudentSvg();
 
