@@ -438,14 +438,15 @@ const TD_AXO_WEAR = {
       [178, 52, 5.4, "#ffe27a"], [166, 72, 4.2, "#bff3ff"], [182, 84, 3.6, "#ff9ae8"], [162, 46, 3, "#fff"], [170, 94, 3.8, "#ffe27a"], [158, 60, 2.6, "#bff3ff"]]
       .map(([x, y, r, c], i) => `<path class="tw tw${i % 3}" d="M${x} ${y - r * 1.6} L${x + r * 0.45} ${y - r * 0.45} L${x + r * 1.6} ${y} L${x + r * 0.45} ${y + r * 0.45} L${x} ${y + r * 1.6} L${x - r * 0.45} ${y + r * 0.45} L${x - r * 1.6} ${y} L${x - r * 0.45} ${y - r * 0.45} Z" fill="${c}"/>`).join("")}
       ${[[18, 60], [26, 86], [10, 70], [174, 60], [166, 86], [182, 70]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.8" fill="#fff" opacity="0.85"/>`).join("")}</g>` },
-  // Bastó d'aprenent (id cafe): inclinat al costat, amb el peu ficat darrere de la pota de davant esquerra (el
-  // cerclet de la pota queda davant i el subjecta, amb els ditets marcats); el cristall, a l'altura del cap
-  cafe: { back: `<g class="basto"><path d="M72 157 Q48 112 22 74 Q16 64 18 56" stroke="#5a3418" stroke-width="5" fill="none" stroke-linecap="round"/>
-      <path d="M70 151 Q47 112 23 76" stroke="#8a5a30" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-      <path d="M18 56 Q10 52 10 44 M18 56 Q25 49 22 41" stroke="#5a3418" stroke-width="3" fill="none" stroke-linecap="round"/>
-      <g class="cristall"><circle cx="16" cy="45" r="11" fill="#5ad8ff" opacity="0.22"/><path d="M16 36 L21.5 45 L16 54 L10.5 45 Z" fill="#bff3ff"/><circle cx="16" cy="45" r="2.2" fill="#5ad8ff"/></g>
-      <path d="M0 34 l1.5 3 3 1.5 -3 1.5 -1.5 3 -1.5 -3 -3 -1.5 3 -1.5 z M32 30 l1 2 2 1 -2 1 -1 2 -1 -2 -2 -1 2 -1 z" fill="#ffe27a"/></g>`,
-    front: () => `<path d="M71 144 q4 -2 8 0 M69.5 148.5 q5 -2 10 0 M71 153 q4 -2 8 0" stroke="${TD_AXO_SKINS.leucistic.shade}" stroke-width="2" fill="none" stroke-linecap="round"/>` },
+  // Bastó d'aprenent (id cafe): dret davant seu, a l'altura de la pota de davant esquerra (pot tapar-li la cara); el
+  // cerclet de la pota es torna a pintar damunt i el subjecta, amb els ditets marcats
+  cafe: { front: () => `<g class="basto"><path d="M80 160 Q83 120 76 80 Q73 64 76 52" stroke="#5a3418" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <path d="M80.6 156 Q83.2 120 76.6 82" stroke="#8a5a30" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <path d="M76 52 Q68 48 68 40 M76 52 Q83 45 80 37" stroke="#5a3418" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <g class="cristall"><circle cx="74" cy="41" r="11" fill="#5ad8ff" opacity="0.22"/><path d="M74 32 L79.5 41 L74 50 L68.5 41 Z" fill="#bff3ff"/><circle cx="74" cy="41" r="2.2" fill="#5ad8ff"/></g>
+      <path d="M58 30 l1.5 3 3 1.5 -3 1.5 -1.5 3 -1.5 -3 -3 -1.5 3 -1.5 z M90 26 l1 2 2 1 -2 1 -1 2 -1 -2 -2 -1 2 -1 z" fill="#ffe27a"/></g>
+      <ellipse cx="78" cy="149" rx="12.5" ry="9.5" fill="${TD_AXO_SKINS.leucistic.body}"/>
+      <path d="M72 144 q4 -2 8 0 M70.5 148.5 q5 -2 10 0 M72 153 q4 -2 8 0" stroke="${TD_AXO_SKINS.leucistic.shade}" stroke-width="2" fill="none" stroke-linecap="round"/>` },
 };
 // Peces dels artefactes: `back` es pinta davall del barret (diadema), `front` damunt de tot.
 // `hides`: parts de la granoteta que deixen de veure's (la mà dreta, si l'artefacte la fa servir: només en té dues)
