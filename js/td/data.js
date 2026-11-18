@@ -164,17 +164,17 @@ const TD_ELEMENTS = {
   foc:      { name: "Foc",      icon: "🔥", color: "#ff7a2f" },
   natura:   { name: "Natura",   icon: "🌿", color: "#7ddc5a" },
   arca:     { name: "Arcà",     icon: "✨", color: "#c58bff" },
-  ona:      { name: "Ona",      icon: "🔊", color: "#4fd1c5" },
+  buit:     { name: "Buit",     icon: "∅",  color: "#b9c2e0" }, // el conjunt buit: el de les criatures matemàtiques
   llum:     { name: "Llum",     icon: "☀️", color: "#fff4b0", always: true },
   ombra:    { name: "Ombra",    icon: "🌑", color: "#8e7dff", always: true },
 };
 const TD_ELEM_WEAK = 1.5, TD_ELEM_STRONG = 0.5;
 const TD_DEFENDER_ELEMENT = {
-  sumador: "fisic", vector: "fisic", determinant: "fisic", lambda: "arca",
-  puntcoma: "arca", ifelse: "arca", compilador: "arca", stack: "arca",
+  sumador: "buit", vector: "buit", determinant: "buit", lambda: "buit",
+  puntcoma: "arca", ifelse: "arca", compilador: "buit", stack: "arca",
   rellotge: "electric", tesla: "electric", resistencia: "electric", condensador: "electric",
-  prismatics: "arca", canya: "fisic", rusc: "natura", cervol: "ona",
-  pi: "fisic", anells: "natura", contrafoc: "foc", carrasca: "natura",
+  prismatics: "arca", canya: "fisic", rusc: "natura", cervol: "arca",
+  pi: "natura", anells: "natura", contrafoc: "foc", carrasca: "natura",
   bruixola: "fisic", samara: "fisic", anellador: "fisic", projecte: "arca",
 };
 for (const [id, d] of Object.entries(TD_DEFENDERS)) d.el = TD_DEFENDER_ELEMENT[id] || "fisic";
@@ -182,12 +182,12 @@ for (const [id, d] of Object.entries(TD_DEFENDERS)) d.el = TD_DEFENDER_ELEMENT[i
 const TD_ENEMY_ELEMENTS = {
   notificacio:    { weak: "electric", why: "Un curtcircuit i el mòbil s'apaga. És tan feble que no és forta contra res." },
   procrastinacio: { weak: "foc", strong: "fisic", why: "Quan li crema la data d'entrega, corre; els colps, però, els esmorteïx com un sofà." },
-  son:            { weak: "ona", strong: "arca", why: "Un bon despertador la desperta de colp; la màgia només li dona més somnis." },
-  scroll:         { weak: "arca", strong: "electric", why: "La concentració el talla; la bateria, la té infinita." },
-  scrollet:       { weak: "arca", strong: "electric" },
-  meme:           { weak: "natura", strong: "ona", why: "Eixir a tocar herba el desfà; si fas soroll, només es fa més viral." },
-  series:         { weak: "fisic", strong: "ona", why: "Tancar el portàtil d'un colp l'atura; si alces la veu, només puja el volum." },
-  diumenge:       { weak: "foc", strong: "arca", why: "Les preses del dilluns el cremen; cap encanteri allarga el cap de setmana." },
+  son:            { weak: "electric", strong: "buit", why: "Un cafè ben carregat la desperta de colp; en el buit, en canvi, s'hi està de meravella: no pensar en res." },
+  scroll:         { weak: "buit", strong: "electric", why: "El conjunt buit s'empassa fins i tot l'infinit; la bateria, però, la té infinita." },
+  scrollet:       { weak: "buit", strong: "electric" },
+  meme:           { weak: "natura", strong: "arca", why: "Eixir a tocar herba el desfà; la màgia només el fa més viral." },
+  series:         { weak: "fisic", strong: "foc", why: "Tancar el portàtil d'un colp l'atura; ja té les crispetes calentes: el foc no li fa res." },
+  diumenge:       { weak: "arca", strong: "natura", why: "Un encanteri de concentració l'escurça; ni eixir a passejar el salva." },
 };
 for (const [id, e] of Object.entries(TD_ENEMIES)) Object.assign(e, TD_ENEMY_ELEMENTS[id] || {});
 // Multiplicador d'un element contra una distracció

@@ -89,7 +89,7 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   que cambian el tiro (`TD_SHOT_SPECIALS`: llança escalada, sàmara que arrela, sobrecàrrega de la Tesla, mel del rusc, gran
   bramit del cérvol) van en `t.boostShot`/`p.sp`; el Projecte las hace desde su sitio. Zonas de suelo: `tdbZone`. La Canya y el
   Contrafoc se quedan como están (decisión del usuario).
-  **Elementos** (`TD_ELEMENTS`, `d.el` por criatura en `TD_DEFENDER_ELEMENT`): físic, elèctric, foc, natura, arcà, ona, y
+  **Elementos** (`TD_ELEMENTS`, `d.el` por criatura en `TD_DEFENDER_ELEMENT`): físic, elèctric, foc, natura, arcà, buit (∅: las matemáticas y el Compilador), y
   llum/ombra (siempre con ventaja; aún ninguna criatura). Cada distracción es débil a uno (×1,5) y fuerte contra otro (×0,5)
   (`TD_ENEMY_ELEMENTS`, `tdElemMult`); el número de daño sale del color del elemento (grande si es débil, pequeño si resiste).
   `tdbDamage(e, n, src)`: src es la criatura (o el elemento; null = daño puro, p. ej. la pesca). Se ve en el bestiario, el

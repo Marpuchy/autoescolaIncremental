@@ -13,10 +13,11 @@ with sync_playwright() as p:
     b = p.chromium.launch(); ctx = b.new_context(viewport={"width":700,"height":490})
     pages = []
     for cid in ids:
-        pg = ctx.new_page(); pg.goto(f"{root}/tddemo.html?d={cid}"); pages.append((cid, pg))
-    for cid, pg in pages: pg.wait_for_function("()=>typeof tdb!=='undefined' && tdb"); pg.evaluate(HOOK)
+        pg = ctx.new_page(); errs = []; pg.on("pageerror", lambda e, errs=errs: errs.append(str(e)))
+        pg.goto(f"{root}/tddemo.html?d={cid}"); pages.append((cid, pg, errs))
+    for cid, pg, _ in pages: pg.wait_for_function("()=>typeof tdb!=='undefined' && tdb"); pg.evaluate(HOOK)
     pages[0][1].wait_for_timeout(40000)
-    for cid, pg in pages:
-        ev = pg.evaluate("()=>EV"); en = pg.evaluate("()=>tdb.enemies.length")
-        print(f"{cid:12} {' · '.join(ev[:5]) or '— CAP en 40 s'}")
+    for cid, pg, errs in pages:
+        ev = pg.evaluate("()=>EV")
+        print(f"{cid:12} {' · '.join(ev[:5]) or '— CAP en 40 s'}" + (f"   ERRORS: {set(errs)}" if errs else ""))
     b.close()

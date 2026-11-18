@@ -443,10 +443,6 @@ function tdCreaturePages(id) {
        <button class="secondary" data-team="${id}" title="${td.team.includes(id) ? "Traure de l'equip" : "Posar a l'equip"}">${td.team.includes(id) ? "➖" : "➕"}<span class="lbl"> Equip</span></button>
        <button class="secondary tdbook-fav${td.favs.includes(id) ? " on" : ""}" data-fav="${id}" aria-pressed="${td.favs.includes(id)}" title="Preferida: ix primer a la llista de l'equip">${td.favs.includes(id) ? "★" : "☆"}<span class="lbl"> Preferida</span></button></div>`];
 }
-// Icona de l'element al racó de les cartes (equip, triar criatura al combat)
-const tdElemDot = id => { const E = TD_ELEMENTS[TD_DEFENDERS[id].el]; return `<span class="td-elem-dot" style="--ec:${E.color}" aria-label="${E.name}">${E.icon}</span>`; };
-// L'element d'una criatura o d'una debilitat, amb la icona i el color
-const tdElemTag = el => TD_ELEMENTS[el] ? `<span class="td-elem" style="--ec:${TD_ELEMENTS[el].color}">${TD_ELEMENTS[el].icon} ${TD_ELEMENTS[el].name}</span>` : "";
 // Índex del bestiari: introducció a l'esquerra i, a la dreta, les distraccions (les que no has vist, amb interrogants)
 function tdBeastIndexPages(list) {
   const seen = list.filter(id => td.seen.includes(id)).length;
