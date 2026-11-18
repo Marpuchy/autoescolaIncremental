@@ -84,6 +84,11 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   reacciona para dispararla (gira, apunta, se recarga, alterna piezas). Ejemplo: la Brúixola gira la aguja para que la
   mitad que toca (roja o blanca, iguales) apunte al enemigo, la dispara y vuelve a crecer (`aim`, `aimHold`, `alt`, `projR`). La pieza lanzada vuelve a crecer
   despacio y acaba justo cuando sale el tiro siguiente; no se dispara una pieza a medio crecer (`regrow`, `tdbPartOut`).
+  **Habilidades especiales** (lo pide el usuario): toda épica, legendaria y mítica tiene una además del ataque normal, y
+  salen **poco** (cada 8-15 ataques, `special.every`) para que el Projecte integrador (cada 3) tenga valor copiándolas. Las
+  que cambian el tiro (`TD_SHOT_SPECIALS`: llança escalada, sàmara que arrela, sobrecàrrega de la Tesla, mel del rusc, gran
+  bramit del cérvol) van en `t.boostShot`/`p.sp`; el Projecte las hace desde su sitio. Zonas de suelo: `tdbZone`. La Canya y el
+  Contrafoc se quedan como están (decisión del usuario).
   **Aparador del grimorio** (siempre, para cada criatura nueva o cambiada): la demostración del libro ES el combate real
   (`tddemo.html?d=<id>` en un iframe, `js/td/demo.js`: mismo código, mismas animaciones, no guarda nada). Solo cambian
   las condiciones, favorables para lucir el arma: escenario por criatura o rol en `TD_DEMO_SCENES` (camino, vista

@@ -1020,3 +1020,19 @@
 .td-gacha-det[open] summary { background: #ffffff14; }
 .td-gacha-det[open] { flex-basis: 100%; }
 .td-gacha-det > div, .td-gacha-det > p { text-align: left; margin-top: 6px; }
+
+/* ---- habilitats especials que porta el tir (llança escalada, llavor que arrela, sobrecàrrega, mel) */
+.tdb-proj.sp-scale .tdb-proj-in { filter: drop-shadow(0 0 10px #c8b8ff) drop-shadow(0 0 4px #fff); }
+.tdb-proj.sp-sprout .tdb-proj-in { filter: drop-shadow(0 0 8px #8fd45a); }
+.tdb-proj.sp-overload .tdb-proj-in { filter: drop-shadow(0 0 10px #5ad8ff) drop-shadow(0 0 3px #fff); }
+.tdb-proj.sp-honey .tdb-proj-in { filter: drop-shadow(0 0 8px #ffb020); }
+.tdb-zone { transition: opacity 0.2s; }
+.tdb-zone.honey { animation: tdb-zone-in 0.35s ease-out; transform-box: fill-box; }
+.tdb-sprout { transform-box: fill-box; transform-origin: 50% 100%; animation: tdb-sprout 0.6s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes tdb-sprout { from { transform: scale(0.1, 0); } }
+@keyframes tdb-zone-in { from { opacity: 0; } }
+/* gran bramit del cérvol: el tòtem s'estira cap amunt i les banyes brillen d'or */
+.tdc-cervol.roar { animation: tdb-roar 1s ease-out; }
+.tdc-cervol.roar .antlers { animation: tdb-roar-ant 1s ease-out; transform-box: view-box; transform-origin: 60px 30px; }
+@keyframes tdb-roar { 25% { filter: drop-shadow(0 0 16px #ffc23f) brightness(1.4); } }
+@keyframes tdb-roar-ant { 25% { transform: translateY(-5px) scale(1.08); } }
