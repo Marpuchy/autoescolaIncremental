@@ -935,7 +935,7 @@
 .td-student-svg.axolot .eyes { animation: td-blink 3.6s infinite; }
 .td-student-svg.axolot .tail { transform-box: view-box; transform-origin: 126px 130px; animation: td-tail 3.4s ease-in-out infinite; }
 .td-student-svg.axolot .branquies { transform-box: view-box; transform-origin: 96px 66px; animation: td-gills 2.8s ease-in-out infinite; }
-.td-student-svg.axolot .float { animation: td-float 2.6s ease-in-out infinite; }
+.td-student-svg.axolot .cristall { transform-box: fill-box; transform-origin: center; animation: td-twinkle 2.4s ease-in-out infinite; }
 @keyframes td-gills { 50% { transform: scaleX(1.03); } }
 @keyframes td-float { 50% { transform: translateY(-3px); } }
 .td-student-svg.axolot .tw { transform-box: fill-box; transform-origin: center; animation: td-twinkle 1.8s ease-in-out infinite; }

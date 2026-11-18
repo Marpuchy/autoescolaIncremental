@@ -365,6 +365,7 @@ const TD_STUDENT_FRONT = `<g class="td-book">
 const TD_AXO_SKINS = {
   leucistic: { body: "#fde6ee", body2: "#f6cddb", shade: "#f2c3d3", belly: "#fff6f9", line: "#2e1d26", gill: "#f59ab0", gillL: "#cf5a7c", mouth: "#e96a8e", tongue: "#f7a6c0" },
 };
+const TD_AXO_PART = {}; // peces de l'ajolot que fan servir els artefactes (el braç que agafa el bastó)
 const tdAxoSvg = (() => {
   let P = TD_AXO_SKINS.leucistic; // paleta activa (la fan servir les peces de baix)
   const pt = (x, y) => `${x.toFixed(1)} ${y.toFixed(1)}`;
@@ -402,6 +403,7 @@ const tdAxoSvg = (() => {
     ${STAR5(-8, -24, 7, "#ffe27a")}<circle cx="20" cy="-32" r="1.8" fill="#ffe27a"/><circle cx="-28" cy="-13" r="1.6" fill="#ffe27a"/><circle cx="24" cy="-13" r="1.3" fill="#fff"/>
     ${STAR5(63, -35, 5.5, "#ffe27a")}`;
   const cache = {};
+  TD_AXO_PART.arm = taper(58, 126, 36, 117, 10, 7.5) + blob(33, 116, 9, 8);
   return (skin = "leucistic") => cache[skin] ||= (pal => { P = pal; return `<defs>
     <linearGradient id="axo-fin" x1="0" x2="1" y1="0" y2="0.3"><stop offset="0" stop-color="#ffd8e4" stop-opacity="0.9"/><stop offset="1" stop-color="#f7a6c0" stop-opacity="0.72"/></linearGradient></defs>
   <ellipse cx="96" cy="152" rx="64" ry="5.5" fill="#000" opacity="0.28"/>
@@ -411,7 +413,7 @@ const tdAxoSvg = (() => {
   %BACK%
   <g class="silueta">
     <g fill="${P.shade}">${BACK.map(d => `<path d="${d}"/>`).join("")}</g>
-    <g fill="${P.body}">${SIL.map(d => `<path d="${d}"/>`).join("")}</g>
+    <g fill="${P.body}"><path class="foot-l" d="${SIL[0]}"/><path class="foot-r" d="${SIL[1]}"/><path d="${SIL[2]}"/></g>
     <clipPath id="axo-cos"><path d="${BODY}"/></clipPath>
     <g clip-path="url(#axo-cos)">
       <ellipse cx="96" cy="133" rx="26" ry="13" fill="${P.belly}"/>
@@ -438,13 +440,16 @@ const TD_AXO_WEAR = {
       [178, 52, 5.4, "#ffe27a"], [166, 72, 4.2, "#bff3ff"], [182, 84, 3.6, "#ff9ae8"], [162, 46, 3, "#fff"], [170, 94, 3.8, "#ffe27a"], [158, 60, 2.6, "#bff3ff"]]
       .map(([x, y, r, c], i) => `<path class="tw tw${i % 3}" d="M${x} ${y - r * 1.6} L${x + r * 0.45} ${y - r * 0.45} L${x + r * 1.6} ${y} L${x + r * 0.45} ${y + r * 0.45} L${x} ${y + r * 1.6} L${x - r * 0.45} ${y + r * 0.45} L${x - r * 1.6} ${y} L${x - r * 0.45} ${y - r * 0.45} Z" fill="${c}"/>`).join("")}
       ${[[18, 60], [26, 86], [10, 70], [174, 60], [166, 86], [182, 70]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.8" fill="#fff" opacity="0.85"/>`).join("")}</g>` },
-  // Bastó d'aprenent (id cafe): sura al costat (l'ajolot va a quatre potes), de fusta torta amb un cristall que brilla
-  cafe: { front: `<g class="float"><ellipse cx="10" cy="150" rx="10" ry="2.6" fill="#9d8bff" opacity="0.35"/>
-      <path d="M8 144 Q12 112 7 82 Q5 72 9 64" stroke="#5a3418" stroke-width="5" fill="none" stroke-linecap="round"/>
-      <path d="M8.6 140 Q12.2 112 7.6 84" stroke="#8a5a30" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-      <path d="M9 64 Q3 58 5 50 M9 64 Q16 58 14 49" stroke="#5a3418" stroke-width="3" fill="none" stroke-linecap="round"/>
-      <circle cx="9.5" cy="52" r="11" fill="#5ad8ff" opacity="0.22"/><path d="M9.5 43 L15 52 L9.5 61 L4 52 Z" fill="#bff3ff"/><circle cx="9.5" cy="52" r="2.2" fill="#5ad8ff"/>
-      <path d="M-4 40 l1.5 3 3 1.5 -3 1.5 -1.5 3 -1.5 -3 -3 -1.5 3 -1.5 z M24 38 l1 2 2 1 -2 1 -1 2 -1 -2 -2 -1 2 -1 z" fill="#ffe27a"/></g>` },
+  // Bastó d'aprenent (id cafe): recolzat a terra al seu costat i agafat amb la pota de davant esquerra, que ja no
+  // trepitja (hides: el peu de terra desapareix). Primer el bastó, damunt la pota que l'abraça amb els dits marcats.
+  cafe: { hides: ["foot-l"], front: () => `<g class="basto"><ellipse cx="32" cy="151" rx="8" ry="2.4" fill="#000" opacity="0.25"/>
+      <path d="M32 151 Q35 120 30 86 Q28 74 32 66" stroke="#5a3418" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <path d="M32.6 147 Q35.2 120 30.6 88" stroke="#8a5a30" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <path d="M32 66 Q26 60 28 52 M32 66 Q39 60 37 51" stroke="#5a3418" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <g class="cristall"><circle cx="32.5" cy="54" r="11" fill="#5ad8ff" opacity="0.22"/><path d="M32.5 45 L38 54 L32.5 63 L27 54 Z" fill="#bff3ff"/><circle cx="32.5" cy="54" r="2.2" fill="#5ad8ff"/></g>
+      <path d="M18 42 l1.5 3 3 1.5 -3 1.5 -1.5 3 -1.5 -3 -3 -1.5 3 -1.5 z M46 40 l1 2 2 1 -2 1 -1 2 -1 -2 -2 -1 2 -1 z" fill="#ffe27a"/></g>
+      <path d="${TD_AXO_PART.arm}" fill="${TD_AXO_SKINS.leucistic.body}"/>
+      <path d="M27 112 q5 -2 9 0 M26 116.5 q5 -2 10 0 M27 121 q4 -2 8 0" stroke="${TD_AXO_SKINS.leucistic.shade}" stroke-width="2" fill="none" stroke-linecap="round"/>` },
 };
 // Peces dels artefactes: `back` es pinta davall del barret (diadema), `front` damunt de tot.
 // `hides`: parts de la granoteta que deixen de veure's (la mà dreta, si l'artefacte la fa servir: només en té dues)
@@ -467,7 +472,9 @@ function tdStudentSvg(equipped = [], attrs = "") {
   const druid = typeof tdRoom !== "undefined" && tdRoom === "forestal"; // al bosc, l'Alba (granoteta druida)
   if (!druid) { // a Informàtica, en Marc (ajolot)
     const w = equipped.map(id => TD_AXO_WEAR[id]).filter(Boolean), skin = equipped.map(id => TD_ARTIFACTS[id]?.skin).find(Boolean);
-    const art = tdAxoSvg(skin).replace("%BACK%", w.map(x => x.back || "").join("")).replace("%FRONT%", w.map(x => x.front || "").join(""));
+    const part = x => typeof x === "function" ? x() : x || "";
+    let art = tdAxoSvg(skin).replace("%BACK%", w.map(x => part(x.back)).join("")).replace("%FRONT%", w.map(x => part(x.front)).join(""));
+    for (const cls of w.flatMap(x => x.hides || [])) art = art.replace(new RegExp(`<path class="${cls}"[^>]*/>`), "");
     return `<svg viewBox="2 -32 196 196" preserveAspectRatio="xMidYMax meet" class="td-student-svg axolot" aria-label="Estudiant (ajolot)" overflow="visible" ${attrs}>${art}</svg>`;
   }
   const w = equipped.map(id => TD_ARTIFACT_WEAR[id]).filter(Boolean);
