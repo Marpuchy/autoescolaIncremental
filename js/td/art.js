@@ -438,15 +438,14 @@ const TD_AXO_WEAR = {
       [178, 52, 5.4, "#ffe27a"], [166, 72, 4.2, "#bff3ff"], [182, 84, 3.6, "#ff9ae8"], [162, 46, 3, "#fff"], [170, 94, 3.8, "#ffe27a"], [158, 60, 2.6, "#bff3ff"]]
       .map(([x, y, r, c], i) => `<path class="tw tw${i % 3}" d="M${x} ${y - r * 1.6} L${x + r * 0.45} ${y - r * 0.45} L${x + r * 1.6} ${y} L${x + r * 0.45} ${y + r * 0.45} L${x} ${y + r * 1.6} L${x - r * 0.45} ${y + r * 0.45} L${x - r * 1.6} ${y} L${x - r * 0.45} ${y - r * 0.45} Z" fill="${c}"/>`).join("")}
       ${[[18, 60], [26, 86], [10, 70], [174, 60], [166, 86], [182, 70]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.8" fill="#fff" opacity="0.85"/>`).join("")}</g>` },
-  // Bastó d'aprenent (id cafe): dret davant seu, a l'altura de la pota de davant esquerra (pot tapar-li la cara); el
-  // cerclet de la pota es torna a pintar damunt i el subjecta
-  cafe: { front: () => `<g class="basto" transform="translate(-7 0)"><path d="M80 160 Q83 120 76 80 Q73 64 76 52" stroke="#5a3418" stroke-width="5" fill="none" stroke-linecap="round"/>
+  // Bastó d'aprenent (id cafe): dret davant seu (pot tapar-li la cara), agafat amb la pota de davant esquerra, que
+  // s'alça (el peu de terra desapareix) i el subjecta un poc per davall de l'espatla
+  cafe: { hides: ["foot-l"], front: () => `<g class="basto" transform="translate(-17 0)"><path d="M80 160 Q83 120 76 80 Q73 64 76 52" stroke="#5a3418" stroke-width="5" fill="none" stroke-linecap="round"/>
       <path d="M80.6 156 Q83.2 120 76.6 82" stroke="#8a5a30" stroke-width="1.8" fill="none" stroke-linecap="round"/>
       <path d="M76 52 Q68 48 68 40 M76 52 Q83 45 80 37" stroke="#5a3418" stroke-width="3" fill="none" stroke-linecap="round"/>
       <g class="cristall"><circle cx="74" cy="41" r="11" fill="#5ad8ff" opacity="0.22"/><path d="M74 32 L79.5 41 L74 50 L68.5 41 Z" fill="#bff3ff"/><circle cx="74" cy="41" r="2.2" fill="#5ad8ff"/></g>
       <path d="M58 30 l1.5 3 3 1.5 -3 1.5 -1.5 3 -1.5 -3 -3 -1.5 3 -1.5 z M90 26 l1 2 2 1 -2 1 -1 2 -1 -2 -2 -1 2 -1 z" fill="#ffe27a"/></g>
-      <ellipse cx="78" cy="149" rx="12.5" ry="9.5" fill="${TD_AXO_SKINS.leucistic.body}"/>
-` },
+      <ellipse cx="63" cy="120" rx="11" ry="9" fill="${TD_AXO_SKINS.leucistic.body}"/>` },
 };
 // Peces dels artefactes: `back` es pinta davall del barret (diadema), `front` damunt de tot.
 // `hides`: parts de la granoteta que deixen de veure's (la mà dreta, si l'artefacte la fa servir: només en té dues)
