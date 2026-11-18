@@ -114,26 +114,66 @@ function tdSubjectListHtml() {
 }
 
 // ---- altar (invocar)
+// Fons temàtic de cada banner (SVG): cel del color del camp, raigs de llum, els símbols del camp de fons i, a baix,
+// el paisatge de la zona (constel·lació, terminal, circuit, pinar, mapa de camp, riu amb canyes)
+function tdBannerBg(s) {
+  const h = TD_FIELD_HUE[s], G = TDS_GLYPHS[s] || [], c = (l, a = 1) => `hsl(${h} 70% ${l}% / ${a})`;
+  let seed = [...s].reduce((a, ch) => a * 31 + ch.charCodeAt(0), 7);
+  const rnd = () => ((seed = (seed * 1103515245 + 12345) >>> 0) / 4294967296);
+  const glyphs = Array.from({ length: 18 }, (_, i) => `<text x="${(rnd() * 800).toFixed(0)}" y="${(20 + rnd() * 200).toFixed(0)}" font-size="${(14 + rnd() * 30).toFixed(0)}"
+    transform="rotate(${(rnd() * 40 - 20).toFixed(0)})" fill="${c(75, 0.12 + rnd() * 0.12)}" font-weight="700">${G[i % G.length] || "✦"}</text>`).join("");
+  const stars = Array.from({ length: 30 }, () => `<circle cx="${(rnd() * 800).toFixed(0)}" cy="${(rnd() * 180).toFixed(0)}" r="${(0.6 + rnd() * 1.4).toFixed(1)}" fill="#fff" opacity="${(0.3 + rnd() * 0.5).toFixed(2)}"/>`).join("");
+  const land = {
+    alg: `<circle cx="600" cy="130" r="120" fill="none" stroke="${c(70, 0.25)}" stroke-width="2"/><circle cx="600" cy="130" r="80" fill="none" stroke="${c(70, 0.18)}" stroke-dasharray="6 8"/>
+      <path d="M40 260 L160 200 L260 236 L360 190 L470 230" stroke="${c(80, 0.4)}" stroke-width="1.5" fill="none"/>${[[40, 260], [160, 200], [260, 236], [360, 190], [470, 230]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3" fill="${c(85)}"/>`).join("")}`,
+    prg: Array.from({ length: 9 }, (_, i) => `<rect x="${30 + (i % 3) * 18}" y="${160 + i * 15}" width="${60 + ((i * 53) % 180)}" height="6" rx="3" fill="${c(60, 0.3)}"/>`).join("") +
+      `<text x="560" y="250" font-size="120" fill="${c(60, 0.18)}" font-weight="800">{ }</text>`,
+    maq: `<path d="M0 240 H180 V200 H320 V260 H460 V210 H620 V250 H800 M80 240 V290 M400 260 V300 M700 250 V300" stroke="${c(65, 0.35)}" stroke-width="3" fill="none"/>` +
+      [[180, 240], [320, 200], [460, 260], [620, 210]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="6" fill="${c(80)}"/>`).join(""),
+    mnt: `<path d="M0 300 L0 230 L120 150 L230 220 L340 140 L470 230 L600 160 L800 250 L800 300 Z" fill="${c(14, 0.9)}"/>` +
+      [40, 110, 190, 270, 520, 600, 690, 760].map((x, i) => `<path d="M${x} ${300 - (i % 3) * 10} l20 -70 l20 70 z" fill="${c(9)}"/>`).join(""),
+    pin: Array.from({ length: 6 }, (_, i) => `<path d="M0 ${300 - i * 22} Q200 ${250 - i * 26} 400 ${280 - i * 20} T800 ${260 - i * 24}" stroke="${c(65, 0.22)}" stroke-width="2" fill="none"/>`).join("") +
+      `<g transform="translate(110 90)" stroke="${c(75, 0.35)}" stroke-width="2" fill="none"><circle r="44"/><path d="M0 -58 V58 M-58 0 H58"/><path d="M0 -44 L8 0 L0 44 L-8 0 Z" fill="${c(70, 0.3)}"/></g>`,
+    fau: `<circle cx="640" cy="70" r="34" fill="#f4f9ff" opacity="0.8"/><path d="M0 220 Q200 190 400 214 T800 206 V300 H0 Z" fill="${c(30, 0.6)}"/>
+      <path d="M0 246 Q200 232 400 248 T800 240 V300 H0 Z" fill="${c(18, 0.85)}"/>${[600, 630, 660, 690].map((x, i) => `<path d="M${x - 20} ${236 + i * 8} h40" stroke="#f4f9ff" stroke-width="2" opacity="${0.5 - i * 0.1}"/>`).join("")}
+      ${[60, 80, 96, 740, 760].map((x, i) => `<path d="M${x} 300 Q${x - 6} 230 ${x + (i % 2 ? 8 : -8)} 170" stroke="${c(12)}" stroke-width="4" fill="none"/><ellipse cx="${x + (i % 2 ? 8 : -8)}" cy="176" rx="4" ry="12" fill="${c(12)}"/>`).join("")}`,
+  }[s] || "";
+  return `<svg class="td-banner-bg" viewBox="0 0 800 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs><linearGradient id="bb-${s}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c(26)}"/><stop offset="1" stop-color="${c(7)}"/></linearGradient>
+      <radialGradient id="bl-${s}" cx="0.78" cy="0.15" r="0.7"><stop offset="0" stop-color="${c(80, 0.45)}"/><stop offset="1" stop-color="${c(50, 0)}"/></radialGradient></defs>
+    <rect width="800" height="300" fill="url(#bb-${s})"/><rect width="800" height="300" fill="url(#bl-${s})"/>
+    ${[0, 1, 2, 3].map(i => `<path d="M${620 + i * 30} -10 L${380 + i * 70} 310 L${430 + i * 70} 310 Z" fill="#fff" opacity="0.04"/>`).join("")}
+    ${stars}${glyphs}${land}</svg>`;
+}
 function tdGachaHtml() {
-  const s = tdSubj, F = TD_SUBJECTS[s], p = td.pity[s] || { epic: 0, llegendari: 0 }, n = td.pergamins[s] || 0, P = TD_POINTS[tdRoom];
+  const s = tdSubj, F = TD_SUBJECTS[s], p = td.pity[s] || { epic: 0, llegendari: 0, mitic: 0 }, n = td.pergamins[s] || 0, P = TD_POINTS[tdRoom];
   const ord = ["comu", "rar", "epic", "llegendari", "mitic"]; // el que pot eixir, de menys a més rar
   const pool = Object.entries(TD_DEFENDERS).filter(([, d]) => d.subj === s).sort((a, b) => ord.indexOf(a[1].rar) - ord.indexOf(b[1].rar));
-  // banner: les criatures del camp en fila (com més rares, més grans); la mítica, a l'ombra (només per examen)
+  const R = tdRates(s), boost = !!td.boost[s], pct = x => String(+(x * 100).toFixed(1)).replace(".", ",") + " %";
+  const small = pool.filter(([, d]) => !["llegendari", "mitic"].includes(d.rar)), feat = pool.filter(([, d]) => ["llegendari", "mitic"].includes(d.rar));
+  const card = ([id, d]) => `<div class="td-banner-c rar-${d.rar}" title="${d.name} · ${TD_RARITIES[d.rar].name} · ${pct(R[d.rar])}${d.rar === "mitic" ? ` (segura amb un ${TD_MYTHIC_GRADE} o més a l'examen final)` : ""}">
+    <div class="td-banner-art">${tdCreatureSvg(id)}</div><span style="color:${TD_RARITIES[d.rar].color}">${d.name}</span></div>`;
+  // banner a l'estil dels gacha: a la dreta, les protagonistes (llegendàries i mítica) en gran; a l'esquerra, el títol i la resta
   return `${tdSubjTabs()}
-    <div class="td-banner" style="--fh:${TD_FIELD_HUE[s]}">
-      <div class="td-banner-title">${F.icon} ${F.name}</div>
-      <div class="td-banner-row">${pool.map(([id, d]) => `<div class="td-banner-c rar-${d.rar}${d.rar === "mitic" ? " locked" : ""}" title="${d.name} · ${TD_RARITIES[d.rar].name}${d.rar === "mitic" ? ` (només amb un ${TD_MYTHIC_GRADE} o més a l'examen final)` : ""}">
-        <div class="td-banner-art">${tdCreatureSvg(id)}</div><span style="color:${TD_RARITIES[d.rar].color}">${d.rar === "mitic" ? "🔒 " : ""}${d.name}</span></div>`).join("")}</div>
-      <div class="td-banner-pity">Èpic en <strong>${TD_PITY.epic - p.epic}</strong> · Llegendari en <strong>${TD_PITY.llegendari - p.llegendari}</strong></div>
+    <div class="td-banner${boost ? " boost" : ""}" style="--fh:${TD_FIELD_HUE[s]}">${tdBannerBg(s)}
+      <div class="td-banner-info">
+        <div class="td-banner-kicker">Invocació${boost ? `<span class="td-banner-boost" title="Has tret un ${TD_MYTHIC_GRADE} o més en un examen final: este camp té millors probabilitats per sempre">✨ Potenciat</span>` : ""}</div>
+        <div class="td-banner-title">${F.icon} ${F.name}</div>
+        <div class="td-banner-row">${small.map(card).join("")}</div>
+        <div class="td-banner-pity">Èpic en <strong>${TD_PITY.epic - p.epic}</strong> · Llegendari en <strong>${TD_PITY.llegendari - p.llegendari}</strong> · Mític en <strong>${TD_PITY.mitic - (p.mitic || 0)}</strong></div>
+      </div>
+      <div class="td-banner-feat n${feat.length}">${feat.map(card).join("")}</div>
     </div>
     <div class="td-summon-btns">
       <button class="big td-summon" data-summon="1" ${n < 1 ? "disabled" : ""}>Invocar ×1 · 📜 1</button>
       <button class="big td-summon" data-summon="10" ${n < 10 ? "disabled" : ""}>Invocar ×10 · 📜 10</button></div>
     <div class="td-gacha-foot"><span>📜 <strong>${n}</strong> de ${F.short}</span>
       <details class="td-gacha-det"><summary>Detalls</summary>
-        <div class="td-rates">${["comu", "rar", "epic", "llegendari"].map(r => `<span style="color:${TD_RARITIES[r].color}">${TD_RARITIES[r].name} ${String(TD_RARITIES[r].chance * 100).replace(".", ",")} %${tdPool(s, r).length ? "" : ` → ${P.icon} ${TD_POINT_GAIN[r] || 1}`}</span>`).join(" · ")}</div>
+        <div class="td-rates">${ord.map(r => `<span style="color:${TD_RARITIES[r].color}">${TD_RARITIES[r].name} ${pct(R[r])}${tdPool(s, r).length ? "" : ` → ${P.icon} ${TD_POINT_GAIN[r] || 1}`}</span>`).join(" · ")}</div>
+        <p class="td-hint">Garanties: èpic a la tirada ${TD_PITY.epic}, llegendari a la ${TD_PITY.llegendari} i mític a la ${TD_PITY.mitic}; en l'últim 15 % abans de cada una, la probabilitat va pujant.</p>
+        <p class="td-hint">${boost ? "✨ Camp potenciat" : `Amb un ${TD_MYTHIC_GRADE} o més en un examen final, a més de la mítica, el camp queda potenciat per sempre`}: èpic ${pct(TD_RATES.boost.epic)}, llegendari ${pct(TD_RATES.boost.llegendari)}, mític ${pct(TD_RATES.boost.mitic)}.</p>
         <p class="td-hint">Assignatures: ${F.classes.join(", ")}. Els pergamins només s'aconseguixen estudiant.</p>
-        <p class="td-hint">${P.icon} Per davall de llegendari, ${TD_POINT_SWAP * 100} % de les tirades donen ${P.name} en lloc de la còpia${["comu", "rar", "epic"].some(r => !tdPool(s, r).length) ? ", i també les rareses que este camp no té" : ""}; al grimori es canvien per còpies. La mítica només ix amb un ${TD_MYTHIC_GRADE} o més a l'examen final.</p>
+        <p class="td-hint">${P.icon} Per davall de llegendari, ${TD_POINT_SWAP * 100} % de les tirades donen ${P.name} en lloc de la còpia${["comu", "rar", "epic"].some(r => !tdPool(s, r).length) ? ", i també les rareses que este camp no té" : ""}; al grimori es canvien per còpies.</p>
       </details></div>`;
 }
 function tdDoSummon(n) {
@@ -296,7 +336,7 @@ function tdExamBookHtml(f) {
       <div class="td-exam-classes">${F.classes.map(c => `<button class="tdbook-filter${c === cls ? " on" : ""}" data-examcls="${c}">${c}</button>`).join("")}</div></div>
     <div class="td-exambook-page"><label class="td-exam-nota">Nota de <strong>${cls}</strong><input type="number" id="td-nota" min="0" max="10" step="0.1" placeholder="7,5"></label>
       <div class="td-exam-btns"><button class="secondary" data-exam="parcial">📄 Parcial</button><button data-exam="final">🎓 Final</button></div>
-      <p class="muted">5 → 3 pergamins … 10 → 10. Amb un <strong>${TD_MYTHIC_GRADE} o més al final</strong>, la criatura mítica de ${F.name}.</p></div></div>`;
+      <p class="muted">5 → 3 pergamins … 10 → 10. Amb un <strong>${TD_MYTHIC_GRADE} o més al final</strong>, la criatura mítica de ${F.name} i el seu altar potenciat per sempre.</p></div></div>`;
 }
 function tdDoStudy(actId, f = tdSubj) {
   const r = tdRegisterStudy(f, actId);
@@ -313,7 +353,7 @@ function tdDoExam(kind) {
   const r = tdRegisterExam(f, nota, kind === "final", tdExamClass[f] || TD_SUBJECTS[f].classes[0]);
   toast(`📜 +${r.rolls} pergamins de ${TD_SUBJECTS[f].short}`, "good");
   tdExamOpen = null;
-  if (r.mythic) tdReveal([r.mythic]);
+  if (r.mythic) { tdReveal([r.mythic]); toast(`✨ L'altar de ${TD_SUBJECTS[f].short} queda potenciat per sempre`, "good"); }
   tdRenderPanel();
 }
 
@@ -369,14 +409,14 @@ function tdIndexPages(tab, list) {
   return [`<div class="tdbook-intro"><div class="tdbook-intro-icon">${f.icon}</div><h3 class="tdbook-name">${f.name}</h3>
       <p class="tdbook-text">${TD_FIELD_INTRO[tab] || ""}</p>
       <p class="tdbook-text muted"><strong>Assignatures:</strong> ${f.classes.join(", ")}.</p>
-      <p class="tdbook-text muted">Invoca-les a l'altar amb pergamins de ${f.name}; la mítica, amb un ${TD_MYTHIC_GRADE} o més en un examen final.</p>
+      <p class="tdbook-text muted">Invoca-les a l'altar amb pergamins de ${f.name}; la mítica és raríssima a l'altar, però és segura amb un ${TD_MYTHIC_GRADE} o més en un examen final.</p>
       <p class="tdbook-intro-count">En tens <strong>${have}</strong> de <strong>${list.length}</strong></p></div>`,
     `<h3 class="tdbook-name">Índex</h3><ol class="tdbook-index">${list.map(row).join("")}</ol>`];
 }
 function tdCreaturePages(id) {
   const d = TD_DEFENDERS[id], o = td.owned[id], r = TD_RARITIES[d.rar];
   if (!o) return [`<div class="tdbook-art locked" style="--rc:${r.color}"><span class="tdbook-q">?</span></div><h3 class="tdbook-name">???</h3><div class="tdbook-rar" style="color:${r.color}">${r.name}</div>`,
-    `<p class="tdbook-text">Encara no has invocat aquesta criatura.</p><p class="tdbook-text muted">${d.rar === "mitic" ? `Només es pot aconseguir traent un ${TD_MYTHIC_GRADE} o més a l'examen final d'una assignatura de ${TD_SUBJECTS[d.subj].name} (${TD_SUBJECTS[d.subj].classes.join(", ")}).` : `Pot eixir a l'altar, amb pergamins de ${TD_SUBJECTS[d.subj].name}.`}</p>`];
+    `<p class="tdbook-text">Encara no has invocat aquesta criatura.</p><p class="tdbook-text muted">${d.rar === "mitic" ? `És raríssima a l'altar; segura traent un ${TD_MYTHIC_GRADE} o més a l'examen final d'una assignatura de ${TD_SUBJECTS[d.subj].name} (${TD_SUBJECTS[d.subj].classes.join(", ")}).` : `Pot eixir a l'altar, amb pergamins de ${TD_SUBJECTS[d.subj].name}.`}</p>`];
   const st = tdStats(id), next = tdNextStar(id), cap = tdLevelCap(id);
   const cost = o.level < cap ? tdLevelCost(d.rar, o.level) : null;
   // millores de l'habilitat: per estreles i per nivell

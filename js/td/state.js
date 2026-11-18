@@ -7,7 +7,8 @@ function tdNewState() {
   return {
     v: 1,
     pergamins: Object.fromEntries(Object.keys(TD_SUBJECTS).map(s => [s, s === "alg" || s === "prg" ? 5 : 0])), // regal de benvinguda: 5 invocacions de cada assignatura (al bosc, tdStartRoom)
-    pity: Object.fromEntries(Object.keys(TD_SUBJECTS).map(s => [s, { epic: 0, llegendari: 0 }])),
+    pity: Object.fromEntries(Object.keys(TD_SUBJECTS).map(s => [s, { epic: 0, llegendari: 0, mitic: 0 }])),
+    boost: {},                                        // camps potenciats (un 8+ a un examen final): millors probabilitats
     owned: { sumador: { copies: 1, level: 1 }, puntcoma: { copies: 1, level: 1 } }, // les dues primeres criatures
     team: ["sumador", "puntcoma"],
     favs: [],                                         // criatures preferides (grimori)
@@ -48,8 +49,9 @@ function tdLoad(fromRaw = null) { // fromRaw: una partida que no és la d'este d
     for (const k of Object.keys(base)) if (data[k] !== undefined && typeof data[k] === typeof base[k]) td[k] = data[k];
     for (const s of Object.keys(TD_SUBJECTS)) {
       td.pergamins[s] = Math.max(0, Number(td.pergamins[s]) || 0);
-      td.pity[s] = { epic: 0, llegendari: 0, ...(td.pity[s] || {}) };
+      td.pity[s] = { epic: 0, llegendari: 0, mitic: 0, ...(td.pity[s] || {}) };
     }
+    for (const k of Object.keys(td.boost)) if (!TD_SUBJECTS[k] || td.boost[k] !== true) delete td.boost[k];
     // criatures retirades: les seues còpies se sumen a la de la mateixa raresa i assignatura
     for (const [old, to] of Object.entries(TD_MERGED)) {
       const o = td.owned[old];
@@ -146,16 +148,23 @@ function tdStats(id, up = 0) {
 
 // ---------------------------------------------------------------- invocacions (gacha)
 const tdRand = () => Math.random();
+const tdRates = subj => td.boost?.[subj] ? TD_RATES.boost : TD_RATES.base;
+// Probabilitat amb «pity suau»: en l'últim 15 % de tirades abans de la garantia, la probabilitat puja a poc a poc
+// fins arribar al 100 % a la tirada garantida
+function tdSoftChance(base, count, pity) {
+  const start = Math.floor(pity * 0.85);
+  return count <= start ? base : Math.min(1, base + (1 - base) * (count - start) / (pity - start));
+}
 function tdRollRarity(subj) {
-  const p = td.pity[subj] || (td.pity[subj] = { epic: 0, llegendari: 0 });
-  p.epic++; p.llegendari++;
+  const p = td.pity[subj] || (td.pity[subj] = { epic: 0, llegendari: 0, mitic: 0 }), R = tdRates(subj);
+  p.mitic = (p.mitic || 0) + 1; p.epic++; p.llegendari++;
   let rar;
-  const r = tdRand();
-  if (p.llegendari >= TD_PITY.llegendari || r < TD_RARITIES.llegendari.chance) rar = "llegendari";
-  else if (p.epic >= TD_PITY.epic || r < TD_RARITIES.llegendari.chance + TD_RARITIES.epic.chance) rar = "epic";
-  else if (r < TD_RARITIES.llegendari.chance + TD_RARITIES.epic.chance + TD_RARITIES.rar.chance) rar = "rar";
-  else rar = "comu";
-  if (rar === "llegendari") { p.llegendari = 0; p.epic = 0; }
+  if (tdRand() < tdSoftChance(R.mitic, p.mitic, TD_PITY.mitic)) rar = "mitic";
+  else if (tdRand() < tdSoftChance(R.llegendari, p.llegendari, TD_PITY.llegendari)) rar = "llegendari";
+  else if (tdRand() < tdSoftChance(R.epic, p.epic, TD_PITY.epic)) rar = "epic";
+  else rar = tdRand() < R.rar / (R.rar + R.comu) ? "rar" : "comu";
+  if (rar === "mitic") p.mitic = 0;
+  if (rar === "llegendari" || rar === "mitic") { p.llegendari = 0; p.epic = 0; }
   if (rar === "epic") p.epic = 0;
   return rar;
 }
@@ -287,6 +296,7 @@ function tdRegisterExam(subj, nota, final, cls = "") {
   if (final && nota >= TD_MYTHIC_GRADE) {
     const id = Object.keys(TD_DEFENDERS).find(k => TD_DEFENDERS[k].subj === subj && TD_DEFENDERS[k].rar === "mitic");
     if (id) mythic = tdGrant(id);
+    td.boost[subj] = true; // i el camp queda potenciat per sempre
   }
   tdLog(subj, `${final ? "🎓 Examen final" : "📄 Examen parcial"}: ${String(nota).replace(".", ",")}${cls ? ` · ${cls}` : ""}`, rolls, !!mythic);
   tdSave();

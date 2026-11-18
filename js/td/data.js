@@ -47,7 +47,7 @@ const TD_RARITIES = {
   llegendari: { name: "Llegendari", chance: 0.01,  color: "#ffc23f", value: 40 },
   mitic:      { name: "Mític",      chance: 0,     color: "#ff5ab0", value: 100 },
 };
-const TD_PITY = { epic: 30, llegendari: 90 }; // garantia: èpic com a molt a la tirada 30 i llegendari a la 90 (per camp)
+const TD_PITY = { epic: 30, llegendari: 50, mitic: 200 }; // garantia per camp: èpic a la tirada 30, llegendari a la 50, mític a la 200
 // Còpies totals per a cada estrela (★1 en traure-la; ★5 amb 11 còpies). Les que sobren es tornen saber.
 // Pujar d'estrella costa saber (a més de les còpies): base × √(valor de la raresa) × multiplicador de l'estrella
 const TD_STAR_COST = [1, 3, 8, 20];
@@ -218,6 +218,12 @@ const TD_DAILY_CAP = 15;
 // Examen parcial o final: 5 → 3 pergamins … 10 → 10. Suspés: 1 (de consolació).
 const tdExamRolls = nota => nota < 5 ? 1 : Math.round(3 + (nota - 5) * 1.4);
 const TD_MYTHIC_GRADE = 8;
+// Probabilitats de l'altar. Normal: la mítica hi és però és minúscula. Amb un 8 o més en un examen final, el camp
+// queda «potenciat» per sempre (td.boost): més èpiques, llegendàries i mítiques. (La mítica es regala igualment.)
+const TD_RATES = {
+  base:  { comu: 0.66, rar: 0.27, epic: 0.06, llegendari: 0.009, mitic: 0.001 },
+  boost: { comu: 0.55, rar: 0.30, epic: 0.10, llegendari: 0.04,  mitic: 0.01 },
+};
 
 // Combat
 const TD_BATTLE = {
