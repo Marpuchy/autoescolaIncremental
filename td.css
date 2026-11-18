@@ -929,3 +929,7 @@
 .tdb-clockwave polyline { stroke-dasharray: 1; stroke-dashoffset: 1; animation: tdb-clockrun 0.22s linear forwards; }
 @keyframes tdb-clockrun { to { stroke-dashoffset: 0; } }
 @keyframes tdb-clockfade { 0%, 45% { opacity: 1; } 100% { opacity: 0; } }
+
+/* Sargantana (en Marc, a Informàtica): la cua es mou a poc a poc des de la base */
+.td-student-svg .tail { transform-box: view-box; transform-origin: 102px 136px; animation: td-tail 3.6s ease-in-out infinite; }
+@keyframes td-tail { 50% { transform: rotate(-7deg); } }

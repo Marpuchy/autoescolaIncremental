@@ -320,7 +320,7 @@ const TD_FOREST_ENEMY_ART = {
     <circle cx="35" cy="30" r="2.2" fill="#ffe8a0"/>${tube("M20 18 Q14 10 16 4 M14 22 Q6 18 4 12", "#7fb8ff", 1.6, 'class="howl"')}`,
 };
 
-// ---------------------------------------------------------------- ESTUDIANT: la granoteta (colors de l'autoescola) amb barret de mag
+// ---------------------------------------------------------------- ESTUDIANT: la granoteta (l'Alba, colors de l'autoescola) amb barret de mag
 // Els artefactes equipats es porten posats (com l'equipament de la granoteta): cada un té `wear` en aquestes coordenades.
 const TD_STUDENT_BACK = `<ellipse cx="70" cy="146" rx="54" ry="6" fill="#000" opacity="0.3"/>
   <ellipse cx="24" cy="126" rx="22" ry="14" fill="#4fa64d"/><ellipse cx="116" cy="126" rx="22" ry="14" fill="#4fa64d"/>
@@ -359,6 +359,33 @@ const TD_STUDENT_FRONT = `<g class="td-book">
   <path d="M70 112 L70 154" stroke="#3a1426" stroke-width="3.5"/>
   <path d="M68 120 h4 M68 146 h4" stroke="#ffc23f" stroke-width="1.6"/></g>
   <ellipse class="hand-l" cx="38" cy="140" rx="12" ry="7" fill="#4fa64d"/><ellipse class="hand-r" cx="102" cy="140" rx="12" ry="7" fill="#4fa64d"/>`;
+// A Informàtica l'estudiant és en Marc: una sargantana (la de les parets del Mediterrani), asseguda de cara amb el
+// llibre. Mateixos punts que la granoteta (barret a y 46, mans a 38/102 × 140, espatles a 30/110 × 90) perquè els
+// artefactes li caiguen igual. Verd de sargantana amb taquetes fosques pels costats i la panxa clara; la cua es mou.
+const TD_LIZ = { body: "#8fb84a", dark: "#5f8a2e", belly: "#efe4ad", spot: "#3d5a1e" };
+const TD_LIZARD_BACK = `<ellipse cx="70" cy="146" rx="54" ry="6" fill="#000" opacity="0.3"/>
+  <g class="tail"><path d="M100 136 C122 140 138 132 140 114 C142 98 132 88 124 94 C118 98 124 106 130 104" stroke="${TD_LIZ.dark}" stroke-width="13" fill="none" stroke-linecap="round"/>
+    <path d="M100 136 C122 140 138 132 140 114 C142 98 132 88 124 94 C118 98 124 106 130 104" stroke="${TD_LIZ.body}" stroke-width="8" fill="none" stroke-linecap="round"/></g>
+  ${[[24, 132, -1], [116, 132, 1]].map(([x, y, k]) => `<path d="M${x + k * 14} ${y - 12} Q${x - k * 2} ${y - 14} ${x} ${y + 4}" stroke="${TD_LIZ.dark}" stroke-width="12" fill="none" stroke-linecap="round"/>
+    ${[-14, -5, 4, 13].map((dx, i) => `<path d="M${x} ${y + 4} L${x + dx * k * -1 - k * 2} ${y + 13 - Math.abs(i - 1.5) * 2}" stroke="${TD_LIZ.dark}" stroke-width="3.2" stroke-linecap="round"/>`).join("")}`).join("")}
+  <path d="M70 82 C98 82 108 104 106 124 C104 140 90 146 70 146 C50 146 36 140 34 124 C32 104 42 82 70 82 Z" fill="${TD_LIZ.body}"/>
+  <path d="M70 96 C86 96 92 110 92 124 C92 136 84 142 70 142 C56 142 48 136 48 124 C48 110 54 96 70 96 Z" fill="${TD_LIZ.belly}"/>
+  ${[[42, 100], [38, 112], [44, 124], [98, 100], [102, 112], [96, 124], [50, 90], [90, 90]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3.2" fill="${TD_LIZ.spot}" opacity="0.8"/>`).join("")}
+  <path d="M34 60 Q34 38 70 36 Q106 38 106 60 Q104 80 84 96 Q70 104 56 96 Q36 80 34 60 Z" fill="${TD_LIZ.body}"/>
+  <path d="M46 80 Q58 94 70 96 Q82 94 94 80 Q86 94 78 99 Q70 103 62 99 Q54 94 46 80 Z" fill="${TD_LIZ.belly}" opacity="0.95"/>
+  ${[[56, 46], [70, 43], [84, 46], [62, 54], [78, 54]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.6" fill="${TD_LIZ.spot}" opacity="0.55"/>`).join("")}
+  <path d="M33 58 Q44 46 56 56 M107 58 Q96 46 84 56" stroke="${TD_LIZ.dark}" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <g class="eyes"><circle cx="44" cy="61" r="8.5" fill="#f4d35e"/><circle cx="96" cy="61" r="8.5" fill="#f4d35e"/>
+    <circle cx="45.5" cy="62" r="5" fill="#1d2416"/><circle cx="94.5" cy="62" r="5" fill="#1d2416"/><circle cx="47" cy="59.5" r="1.9" fill="#fff"/><circle cx="96" cy="59.5" r="1.9" fill="#fff"/></g>
+  <circle cx="66" cy="88" r="1.5" fill="${TD_LIZ.spot}"/><circle cx="74" cy="88" r="1.5" fill="${TD_LIZ.spot}"/>
+  <path d="M44 76 Q56 90 70 93 Q84 90 96 76" stroke="${TD_LIZ.spot}" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <ellipse cx="44" cy="76" rx="5" ry="3" fill="#ff8fa3" opacity="0.45"/><ellipse cx="96" cy="76" rx="5" ry="3" fill="#ff8fa3" opacity="0.45"/>`;
+// Auriculars a la mida del cap de la sargantana (més estret que el de la granoteta)
+const TD_LIZARD_WEAR = {
+  auriculars: { back: `<path d="M30 66 C28 32 112 32 110 66" stroke="#2b2f35" stroke-width="7" fill="none" stroke-linecap="round"/>`,
+    front: `<g><rect x="20" y="54" width="15" height="25" rx="7" fill="#2b2f35"/><rect x="105" y="54" width="15" height="25" rx="7" fill="#2b2f35"/>
+      <rect x="23" y="58" width="9" height="17" rx="4.5" fill="#9d8bff"/><rect x="108" y="58" width="9" height="17" rx="4.5" fill="#9d8bff"/></g>` },
+};
 // Peces dels artefactes: `back` es pinta davall del barret (diadema), `front` damunt de tot.
 // `hides`: parts de la granoteta que deixen de veure's (la mà dreta, si l'artefacte la fa servir: només en té dues)
 const TD_ARTIFACT_WEAR = {
@@ -377,11 +404,13 @@ const TD_ARTIFACT_WEAR = {
 };
 // Estudiant amb els artefactes posats. attrs: atributs extra de l'<svg> (posició i mida dins d'un altre SVG)
 function tdStudentSvg(equipped = [], attrs = "") {
-  const w = equipped.map(id => TD_ARTIFACT_WEAR[id]).filter(Boolean);
-  const druid = typeof tdRoom !== "undefined" && tdRoom === "forestal"; // al bosc, druida
-  const front = druid ? tdDruidBook(TD_STUDENT_FRONT) : TD_STUDENT_FRONT;
-  return `<svg viewBox="-4 -6 152 160" class="td-student-svg${druid ? " druid" : ""}" aria-label="Estudiant" overflow="visible" ${attrs}>${druid ? TD_DRUID_BACK : ""}${TD_STUDENT_BACK}
-    ${w.map(x => x.back || "").join("")}${druid ? TD_DRUID_HAT : TD_STUDENT_HAT}${w.flatMap(x => x.hides || []).reduce((f, cls) => f.replace(new RegExp(`<ellipse class="${cls}"[^>]*/>`), ""), front)}${w.map(x => x.front || "").join("")}</svg>`;
+  const druid = typeof tdRoom !== "undefined" && tdRoom === "forestal"; // al bosc, l'Alba (granoteta druida)
+  const liz = !druid; // a Informàtica, en Marc (sargantana)
+  const w = equipped.map(id => (liz && TD_LIZARD_WEAR[id]) || TD_ARTIFACT_WEAR[id]).filter(Boolean);
+  const skin = str => liz ? str.replace(/#4fa64d/g, TD_LIZ.dark) : str; // les mans (també les dels artefactes), del seu color
+  const front = skin(druid ? tdDruidBook(TD_STUDENT_FRONT) : TD_STUDENT_FRONT);
+  return `<svg viewBox="-4 -6 152 160" class="td-student-svg${druid ? " druid" : " lizard"}" aria-label="${liz ? "Estudiant (sargantana)" : "Estudiant (granoteta)"}" overflow="visible" ${attrs}>${druid ? TD_DRUID_BACK : ""}${liz ? TD_LIZARD_BACK : TD_STUDENT_BACK}
+    ${w.map(x => x.back || "").join("")}${druid ? TD_DRUID_HAT : TD_STUDENT_HAT}${w.flatMap(x => x.hides || []).reduce((f, cls) => f.replace(new RegExp(`<ellipse class="${cls}"[^>]*/>`), ""), front)}${w.map(x => skin(x.front || "")).join("")}</svg>`;
 }
 const TD_STUDENT_SVG = tdStudentSvg();
 
