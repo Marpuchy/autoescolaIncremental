@@ -150,6 +150,9 @@ const TD_ARTIFACTS = {
                 desc: lvl => `Pols màgica a les branquies: el Son no adorm les teues torres. +${Math.round(0.08 * tdArtMult(lvl) * 100)} % d'abast.` },
   cafe:       { name: "Bastó d'aprenent", icon: "🪄", slot: "ma", boss: "series", world: 1, stat: "rate", value: 0.15,
                 desc: lvl => `Sura al costat de l'ajolot i canalitza la màgia. +${Math.round(0.15 * tdArtMult(lvl) * 100)} % de velocitat d'atac.` },
+  // Bosc. Sendera de les Arrels: el Corro de bolets deixa la pell de bolet (la granoteta es torna d'amanita)
+  setes:      { name: "Pell de bolet", icon: "🍄", slot: "pell", boss: "series", world: 101, stat: "rate", value: 0.15,
+                desc: lvl => `La granoteta es torna roja d'amanita, amb pigues blanques. +${Math.round(0.15 * tdArtMult(lvl) * 100)} % de velocitat d'atac.` },
   // Bosc. Sendera de les Arrels: la pell del Llop de la lluna, sobre les espatles; espanta les distraccions
   capallop:   { name: "Capa de llop", icon: "🐺", slot: "pell", boss: "diumenge", world: 101, stat: "slowAll", value: 0.06,
                 desc: lvl => `Les distraccions s'espanten: van un ${Math.round(0.06 * tdArtMult(lvl) * 100)} % més lentes.` },
