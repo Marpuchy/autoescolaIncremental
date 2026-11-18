@@ -116,7 +116,8 @@ function tdSubjectListHtml() {
 // ---- altar (invocar)
 function tdGachaHtml() {
   const s = tdSubj, p = td.pity[s] || { epic: 0, llegendari: 0 }, n = td.pergamins[s] || 0;
-  const pool = Object.entries(TD_DEFENDERS).filter(([, d]) => d.subj === s && d.rar !== "mitic");
+  const ord = ["comu", "rar", "epic", "llegendari"]; // el que pot eixir, de menys a més rar
+  const pool = Object.entries(TD_DEFENDERS).filter(([, d]) => d.subj === s && d.rar !== "mitic").sort((a, b) => ord.indexOf(a[1].rar) - ord.indexOf(b[1].rar));
   return `${tdSubjTabs()}
     <p class="td-hint">Cada pergamí de <strong>${TD_SUBJECTS[s].name}</strong> (${TD_SUBJECTS[s].classes.join(", ")}) invoca una criatura d'aquest camp. Els pergamins només s'aconseguixen estudiant.</p>
     <div class="td-gacha-pool">${pool.map(([id, d]) => `<div class="td-mini rar-${d.rar}" title="${d.name} (${TD_RARITIES[d.rar].name})">${tdCreatureSvg(id)}</div>`).join("")}</div>
