@@ -440,12 +440,12 @@ const TD_AXO_WEAR = {
       ${[[18, 60], [26, 86], [10, 70], [174, 60], [166, 86], [182, 70]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.8" fill="#fff" opacity="0.85"/>`).join("")}</g>` },
   // Bastó d'aprenent (id cafe): dret davant seu (pot tapar-li la cara), agafat amb la pota de davant esquerra, que
   // s'alça (el peu de terra desapareix) i el subjecta un poc per davall de l'espatla
-  cafe: { hides: ["foot-l"], front: () => `<g class="basto" transform="translate(-17 0)"><path d="M80 160 Q83 120 76 80 Q73 64 76 52" stroke="#5a3418" stroke-width="5" fill="none" stroke-linecap="round"/>
+  cafe: { hides: ["foot-l"], front: () => `<g class="basto" transform="translate(-23 0)"><path d="M80 160 Q83 120 76 80 Q73 64 76 52" stroke="#5a3418" stroke-width="5" fill="none" stroke-linecap="round"/>
       <path d="M80.6 156 Q83.2 120 76.6 82" stroke="#8a5a30" stroke-width="1.8" fill="none" stroke-linecap="round"/>
       <path d="M76 52 Q68 48 68 40 M76 52 Q83 45 80 37" stroke="#5a3418" stroke-width="3" fill="none" stroke-linecap="round"/>
       <g class="cristall"><circle cx="74" cy="41" r="11" fill="#5ad8ff" opacity="0.22"/><path d="M74 32 L79.5 41 L74 50 L68.5 41 Z" fill="#bff3ff"/><circle cx="74" cy="41" r="2.2" fill="#5ad8ff"/></g>
       <path d="M58 30 l1.5 3 3 1.5 -3 1.5 -1.5 3 -1.5 -3 -3 -1.5 3 -1.5 z M90 26 l1 2 2 1 -2 1 -1 2 -1 -2 -2 -1 2 -1 z" fill="#ffe27a"/></g>
-      <ellipse cx="63" cy="120" rx="11" ry="9" fill="${TD_AXO_SKINS.leucistic.body}"/>` },
+      <ellipse cx="57" cy="120" rx="11" ry="9" fill="${TD_AXO_SKINS.leucistic.body}"/>` },
 };
 // Peces dels artefactes: `back` es pinta davall del barret (diadema), `front` damunt de tot.
 // `hides`: parts de la granoteta que deixen de veure's (la mà dreta, si l'artefacte la fa servir: només en té dues)
