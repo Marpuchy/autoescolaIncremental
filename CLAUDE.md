@@ -92,7 +92,10 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   **Aparador del grimorio** (siempre, para cada criatura nueva o cambiada): la demostración del libro ES el combate real
   (`tddemo.html?d=<id>` en un iframe, `js/td/demo.js`: mismo código, mismas animaciones, no guarda nada). Solo cambian
   las condiciones, favorables para lucir el arma: escenario por criatura o rol en `TD_DEMO_SCENES` (camino, vista
-  acercada, dónde va, amigas al lado —`allies`—, qué distracciones pasan y agrupadas cómo).
+  acercada, dónde va, amigas al lado —`allies`—, qué distracciones pasan y agrupadas cómo). La habilidad especial sale al
+  primer ataque y luego cada 4; **antes de publicar, comprobar que sale** (`python tools/td-demo-check.py`).
+- Al recargar (F5) se vuelve a donde se estaba (DGT, carretera, sala de Informàtica o de Forestal): `setPlace`/`getPlace`
+  en `sessionStorage` (`estudi-lloc`, `js/room.js`) y `restorePlace` en `main.js`; la autoescola del otro no se reabre sola.
   Invocación: pantalla propia; «Saltar» se para en legendarias y míticas; la mítica se monta pieza a pieza.
   Estilo de las criaturas: símbolos de energía en neón sobre fondo oscuro (referencia: «Animation vs. Math»), sin
   caras; cada una hecha con los símbolos de su asignatura y la pieza que lanza forma parte del cuerpo. Pocas y cuidadas.

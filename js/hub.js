@@ -9,6 +9,7 @@ const hubOpen = () => !$("hub").hidden;
 function openHub() {
   $("hub").hidden = false;
   document.body.classList.add("hub-open");
+  setPlace("dgt");
   renderHub();
   $("btn-hub-close").focus();
 }
@@ -17,6 +18,7 @@ function closeHub() {
   closeHubPanel();
   $("hub").hidden = true;
   document.body.classList.remove("hub-open");
+  setPlace("carretera"); // si va a l'habitació o a una sala, ho torna a apuntar després
 }
 
 function openHubPanel(name) {

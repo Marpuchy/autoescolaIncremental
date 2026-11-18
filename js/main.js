@@ -77,8 +77,18 @@ renderUpgrades();
 renderTestPanel();
 renderShop();
 if (state.examPending && CONFIG.debug.autoPassExams) skipExam();
+const lastPlace = getPlace(); // on s'estava abans de recarregar (openRoom ho sobreescriu)
 if (state.examPending) showExamIntro(); // l'examen pendent no es pot evitar recarregant
-else { openRoom(); toast("🏠 Benvingut a casa!"); } // s'entra per l'habitació
+else { openRoom(); if (!lastPlace || lastPlace === "room") toast("🏠 Benvingut a casa!"); } // s'entra per l'habitació (o on s'estava, més avall)
 initCloud(); // qui eres, guardar i baixar del núvol, mode visita (js/cloud.js)
 if (sessionStorage.getItem("estudi-visita-obrir") === "dgt") { sessionStorage.removeItem("estudi-visita-obrir"); if (!state.examPending) { closeRoom(); openHub(); } }
+else if (!state.examPending) restorePlace(lastPlace);
+// En recarregar (F5) es torna on s'estava: la DGT, la carretera o la sala d'Informàtica o de Forestal. L'autoescola de
+// l'altra persona no es reobri sola (seria una visita: s'hi entra des de l'habitació).
+function restorePlace(place) {
+  const auto = place === "dgt" || place === "carretera";
+  if (auto && cloudWho() && !cloudCanWrite("autoescola") && !cloudViewing("autoescola")) return;
+  if (auto) { closeRoom(); if (place === "dgt") openHub(); else setPlace("carretera"); }
+  else if (place === "td-informatic" || place === "td-forestal") tdOpenLobby(place.slice(3));
+}
 requestAnimationFrame(loop);

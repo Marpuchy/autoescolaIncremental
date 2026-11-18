@@ -27,7 +27,7 @@ const TD_DEMO_SCENES = {
   line:      { view: [560, 180, 760, 540], path: TD_DEMO_U, slots: [[980, 470]], spawn: [["notificacio", "notificacio"], 1.8], gap: 0.6 },
   mark:      { view: [400, 150, 720, 500], path: TD_DEMO_ROAD, slots: [[560, 320], [880, 320]], allies: ["pi"], spawn: [["procrastinacio", "notificacio", "notificacio"], 3.6], gap: 0.6 },
   lambda:    { path: TD_DEMO_ROAD, slots: [[640, 320]], spawn: [["notificacio", "notificacio", "notificacio", "notificacio"], 3.6], gap: 0.4 },
-  chain:     { view: [420, 150, 720, 500], path: TD_DEMO_ROAD, slots: [[600, 320]], spawn: [["notificacio", "notificacio", "notificacio", "notificacio", "notificacio"], 4], gap: 0.75 },
+  chain:     { view: [420, 150, 720, 500], path: TD_DEMO_ROAD, slots: [[600, 320]], spawn: [["notificacio", "notificacio", "notificacio", "notificacio"], 4], gap: 0.4 }, // onades de 4 juntes
   slow:      { view: [420, 150, 720, 500], path: TD_DEMO_ROAD, slots: [[640, 320]], spawn: [["notificacio", "notificacio", "notificacio"], 3.4], gap: 0.8 },
   clock:     { view: [420, 150, 720, 500], path: TD_DEMO_ROAD, slots: [[640, 300]], spawn: [["notificacio", "notificacio", "notificacio", "notificacio"], 3.6], gap: 0.55 },
   hook:      { view: [420, 150, 720, 500], path: TD_DEMO_ROAD, slots: [[640, 330]], spawn: [["son", "meme"], 5], gap: 1.4 },
@@ -60,6 +60,24 @@ function tdDemoBoot() {
   addEventListener("resize", () => setTimeout(fit, 0));
   tdb.god = true; tdb.mana = 1e9; tdb.wave = 1; tdb.waveRunning = false; tdb.demo = true;
   ids.forEach((id, i) => tdbPlace(i, id));
+  // l'habilitat especial s'ha de veure de seguida: la primera ix al primer atac i després cada 4 (al combat de debò, cada
+  // `special.every`); el tic doble del Rellotge i el desbordament de l'Stack, igual
+  const main = Object.values(tdb.towers).find(t => t.id === TD_DEMO_ID), S = d.special;
+  if (S && S.every > 4) {
+    main.shots = S.every - 1;
+    const special = tdbSpecial;
+    tdbSpecial = (t, target) => { special(t, target); if (t === main) t.shots += S.every - 4; };
+  }
+  if (d.role === "clock") {
+    main.ticks = d.every - 2;
+    const clock = tdbClock;
+    tdbClock = t => { clock(t); if (t === main && t.ticks % d.every === 0) t.ticks += d.every - 4; };
+  }
+  if (d.role === "stacks") {
+    main.stacks = d.stacks - 4;
+    const blast = tdbBlast;
+    tdbBlast = t => { blast(t); if (t === main) t.stacks = d.stacks - 4; };
+  }
   // les distraccions passen en grups, una vegada i una altra (com a la primera onada)
   const [group, every] = scene.spawn, gap = scene.gap || 0.4;
   let next = 0;

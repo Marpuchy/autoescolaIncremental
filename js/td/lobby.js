@@ -19,6 +19,7 @@ const TD_ROOMS = {
 function tdOpenLobby(room = tdRoom) {
   if (typeof roomOpen === "function" && roomOpen()) closeRoom();
   tdRoom = TD_ROOMS[room] ? room : "informatic";
+  setPlace("td-" + tdRoom);
   const sb = document.querySelector('#td-lobby [data-td="student"]'); // icona de l'estudiant: ajolot (Marc) o granoteta (Alba)
   if (sb?.firstChild) sb.firstChild.textContent = tdRoom === "forestal" ? "🐸" : "🎓";
   const settle = () => {

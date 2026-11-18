@@ -4,11 +4,16 @@
 //   placa L penjada a la paret → DGT (autoescola) · motxilla → sala del joc d'estudi (js/td/lobby.js)
 // Des de la DGT es torna ací per la porta d'eixida. Mentre s'està ací, l'autoescola està parada (js/main.js).
 const roomOpen = () => !$("room").hidden;
+// On s'està ara (habitació, DGT, carretera o una sala d'estudi), per a tornar-hi en recarregar (F5). Només dura la pestanya.
+const PLACE_KEY = "estudi-lloc";
+function setPlace(place) { try { sessionStorage.setItem(PLACE_KEY, place); } catch {} }
+function getPlace() { try { return sessionStorage.getItem(PLACE_KEY); } catch { return null; } }
 
 function openRoom() {
   if (hubOpen()) closeHub();
   $("room").hidden = false;
   document.body.classList.add("room-open");
+  setPlace("room");
   renderRoom();
 }
 function closeRoom() {
