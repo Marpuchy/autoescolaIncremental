@@ -86,7 +86,7 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   despacio y acaba justo cuando sale el tiro siguiente; no se dispara una pieza a medio crecer (`regrow`, `tdbPartOut`).
   **Habilidades especiales** (lo pide el usuario): toda épica, legendaria y mítica tiene una además del ataque normal, y
   salen **poco** (cada 8-15 ataques, `special.every`) para que el Projecte integrador (cada 3) tenga valor copiándolas. Las
-  que cambian el tiro (`TD_SHOT_SPECIALS`: llança escalada, sàmara que arrela, sobrecàrrega de la Tesla, mel del rusc, gran
+  que cambian el tiro (`TD_SHOT_SPECIALS`: llança escalada, disàmara que arrela, sobrecàrrega de la Tesla, mel del rusc, gran
   bramit del cérvol) van en `t.boostShot`/`p.sp`; el Projecte las hace desde su sitio. Zonas de suelo: `tdbZone`. La Canya y el
   Contrafoc se quedan como están (decisión del usuario).
   **Elementos** (`TD_ELEMENTS`, `d.el` por criatura en `TD_DEFENDER_ELEMENT`): físic, elèctric, foc, natura, arcà, buit (∅: las matemáticas y el Compilador), y
@@ -112,7 +112,7 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   Càlcul y Àlgebra, más Discreta y Estadística hasta que exista la zona Lògica i dades), Programació (`prg`: Punt i coma,
   If/else, Compilador, Stack; Prog I y II, Eines, Dret TIC) y Màquina (`maq`: Resistència, Rellotge de CPU, Bobina de Tesla, Condensador; Electrònica y
   Fonaments de Computadors). Forestal (Alba, asignaturas provisionales de 2.º de Gestió Forestal) con Gestió de monts (`mnt`: Pi,
-  Anells, Contrafoc, Carrasca) Quadern de camp (`pin`, projecte intermodular, IPO y transversales: Brúixola, Sàmara, Anellador, Projecte integrador) y
+  Anells, Contrafoc, Carrasca) Quadern de camp (`pin`, projecte intermodular, IPO y transversales: Brúixola, Disàmara (id `samara`), Anellador, Projecte integrador) y
   Fauna (`fau`, cinegètica y pesca: Prismàtics, Canya de pescar —arrastra hacia atrás, `hook`—, Rusc d'abelles —veneno, `swarm`— y
   Cérvol de la brama —onda que hace retroceder a todas, `bellow`—). Los campos se hacen por zonas temáticas; las asignaturas de
   una zona futura siguen en su campo actual hasta que la zona tenga criaturas. En el

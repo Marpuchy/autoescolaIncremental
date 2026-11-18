@@ -878,10 +878,9 @@ function tdbLines(dt) {
     if (l.dur !== Infinity) l.dur -= dt;
     if (l.t.lines?.includes(l)) l.dps = l.t.stats.dmg * TD_DEFENDERS.contrafoc.line.dps * tdbAuraMult(l.t); // puja amb les millores
     for (const e of tdb.enemies) if (e.hp > 0 && !e.convertT && tdbLineDist(l, ...tdbPos(e)) <= l.half) {
-      e.hp -= l.dps * dt * (1 + e.vuln) * (1 + (e.mark || 0)) * tdElemMult(e.def, TD_DEFENDERS[l.t.id].el);
       e.burnFx = (e.burnFx || 0) - dt;
       if (e.burnFx <= 0) { e.burnFx = 0.4; e.el.classList.remove("burning"); void e.el.getBoundingClientRect(); e.el.classList.add("burning"); }
-      if (e.hp <= 0) tdbKill(e);
+      tdbDamage(e, l.dps * dt, l.t, false, dt); // el número del cremat, junt cada mig segon, del color del foc
     }
     if (l.dur <= 0) l.el?.remove();
   }

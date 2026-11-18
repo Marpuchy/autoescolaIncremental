@@ -259,7 +259,7 @@ const TD_ART = {
       <g class="aim"><g class="al">${agulla("#ff5a4a", "#ffd0c4", 60, 64)}</g><g class="ar">${agulla("#e9eef5", "#ffffff", 60, 64, 180)}</g>${core(60, 64, GN, 3)}</g>${sparks(GN)}`,
     proj: agulla("#ff5a4a", "#ffd0c4", -12, 0, 90), projR: agulla("#e9eef5", "#ffffff", -12, 0, 90), throw: { l: [60, 52], r: [60, 76] },
   },
-  // Sàmara: dues llavors alades d'auró unides pel peduncle; la de l'esquerra vola girant fins a l'altra punta del mapa
+  // Disàmara: dues sàmares (llavors alades) d'auró unides pel peduncle; la de l'esquerra vola girant fins a l'altra punta del mapa
   samara: {
     svg: `${runeBase(GN)}<g class="b">${tube("M60 82 Q62 94 60 104", GB, 3)}${core(60, 82, GN, 3)}</g>
       <g class="al"><g class="flutter">${samara(56, 80, -1, 1.05, -4)}</g></g><g class="ar"><g class="flutter">${samara(64, 80, 1, 1.05, 4)}</g></g>${sparks(GN)}`,
