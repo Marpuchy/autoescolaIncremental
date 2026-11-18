@@ -437,11 +437,16 @@ function tdCreaturePages(id) {
     `<p class="tdbook-text">${d.desc}</p>
      <table class="tdbook-stats"><tr><th>Nivell</th><td>${o.level} / ${cap}${cap < TD_LEVEL_MAX ? ` <span class="muted">(més amb ★${st.stars + 1})</span>` : ""}</td></tr><tr><th>Dany</th><td>${fmtNum(st.dmg)}</td></tr>
        <tr><th>Velocitat</th><td>${st.rate.toFixed(2)} / s</td></tr><tr><th>Abast</th><td>${Math.round(st.range)}</td></tr><tr><th>Cost</th><td>🔮 ${d.cost}</td></tr>
+       <tr><th>Element</th><td>${tdElemTag(d.el)}</td></tr>
        <tr><th>Habilitat</th><td>×${st.ability.toFixed(2).replace(".", ",")} <span class="tdbook-steps">${steps.map(([t, on]) => `<span class="${on ? "on" : ""}">${t}</span>`).join("")}</span></td></tr></table>
      <div class="tdbook-btns">${lvlBtn}
        <button class="secondary" data-team="${id}" title="${td.team.includes(id) ? "Traure de l'equip" : "Posar a l'equip"}">${td.team.includes(id) ? "➖" : "➕"}<span class="lbl"> Equip</span></button>
        <button class="secondary tdbook-fav${td.favs.includes(id) ? " on" : ""}" data-fav="${id}" aria-pressed="${td.favs.includes(id)}" title="Preferida: ix primer a la llista de l'equip">${td.favs.includes(id) ? "★" : "☆"}<span class="lbl"> Preferida</span></button></div>`];
 }
+// Icona de l'element al racó de les cartes (equip, triar criatura al combat)
+const tdElemDot = id => { const E = TD_ELEMENTS[TD_DEFENDERS[id].el]; return `<span class="td-elem-dot" style="--ec:${E.color}" aria-label="${E.name}">${E.icon}</span>`; };
+// L'element d'una criatura o d'una debilitat, amb la icona i el color
+const tdElemTag = el => TD_ELEMENTS[el] ? `<span class="td-elem" style="--ec:${TD_ELEMENTS[el].color}">${TD_ELEMENTS[el].icon} ${TD_ELEMENTS[el].name}</span>` : "";
 // Índex del bestiari: introducció a l'esquerra i, a la dreta, les distraccions (les que no has vist, amb interrogants)
 function tdBeastIndexPages(list) {
   const seen = list.filter(id => td.seen.includes(id)).length;
@@ -462,7 +467,10 @@ function tdBeastPages(id) {
   if (!seen) return [`<div class="tdbook-art locked">${tdEnemySvg(id)}</div><h3 class="tdbook-name">???</h3>`, `<p class="tdbook-text">Encara no t'ha atacat.</p>`];
   return [`<div class="tdbook-art">${tdEnemySvg(id)}</div><h3 class="tdbook-name">${e.name}</h3>${e.look ? `<div class="tdbook-rar look">${e.look}</div>` : ""}${e.boss ? '<div class="tdbook-rar boss">CAP</div>' : ""}`,
     `<p class="tdbook-text tdbook-lore">${e.lore || ""}</p><p class="tdbook-text"><strong>Habilitat:</strong> ${e.desc}</p><table class="tdbook-stats"><tr><th>Vida</th><td>${e.hp} <span class="muted">(+${TD_WAVE_HP * 100} % per onada)</span></td></tr>
-      <tr><th>Velocitat</th><td>${e.speed}</td></tr><tr><th>Dany al cristall</th><td>${e.lives}</td></tr><tr><th>Maná en morir</th><td>🔮 ${e.mana}</td></tr></table>`];
+      <tr><th>Velocitat</th><td>${e.speed}</td></tr><tr><th>Dany al cristall</th><td>${e.lives}</td></tr><tr><th>Maná en morir</th><td>🔮 ${e.mana}</td></tr>
+      ${e.weak ? `<tr><th>Feble a</th><td>${tdElemTag(e.weak)} <span class="muted">×${String(TD_ELEM_WEAK).replace(".", ",")}</span></td></tr>` : ""}
+      ${e.strong ? `<tr><th>Forta contra</th><td>${tdElemTag(e.strong)} <span class="muted">×${String(TD_ELEM_STRONG).replace(".", ",")}</span></td></tr>` : ""}</table>
+      ${e.why ? `<p class="tdbook-text muted">${e.why}</p>` : ""}`];
 }
 function tdTeamPages() {
   const team = tdTeam(tdRoom), slots = Array.from({ length: 6 }, (_, i) => team[i]);
@@ -473,12 +481,12 @@ function tdTeamPages() {
   if (!["all", "fav", ...tdFields()].includes(tdTeamFilter)) tdTeamFilter = "all";
   const filters = [["all", "Totes"], ["fav", "★ Preferides"], ...tdFields().map(s => [s, `${TD_SUBJECTS[s].icon} ${TD_SUBJECTS[s].short}`])];
   return [`<h3 class="tdbook-name">Equip</h3><p class="tdbook-text muted">Les 6 criatures que portes al combat. Toca'n una per a traure-la.</p>
-      <div class="tdbook-team">${slots.map(id => id ? `<button class="tdbook-tslot rar-${TD_DEFENDERS[id].rar}" data-team="${id}" title="Traure ${TD_DEFENDERS[id].name}">${tdCreatureSvg(id)}<span>${TD_DEFENDERS[id].name}</span><span class="tdbook-cost">🔮 ${TD_DEFENDERS[id].cost}</span></button>`
+      <div class="tdbook-team">${slots.map(id => id ? `<button class="tdbook-tslot rar-${TD_DEFENDERS[id].rar}" data-team="${id}" title="Traure ${TD_DEFENDERS[id].name} · ${TD_ELEMENTS[TD_DEFENDERS[id].el].name}">${tdElemDot(id)}${tdCreatureSvg(id)}<span>${TD_DEFENDERS[id].name}</span><span class="tdbook-cost">🔮 ${TD_DEFENDERS[id].cost}</span></button>`
         : `<div class="tdbook-tslot empty">+</div>`).join("")}</div>`,
     `<h3 class="tdbook-name">Les teues criatures</h3>
       <div class="tdbook-filters">${filters.map(([f, l]) => `<button class="tdbook-filter${tdTeamFilter === f ? " on" : ""}" data-filter="${f}">${l}</button>`).join("")}</div>
       ${owned.length ? "" : `<p class="tdbook-text muted">${tdTeamFilter === "fav" ? "Encara no tens preferides: marca-les amb ☆ a les pàgines del grimori." : "No en tens cap d'aquest camp."}</p>`}
-      <div class="tdbook-owned">${owned.map(id => `<button class="tdbook-mini rar-${TD_DEFENDERS[id].rar}${td.team.includes(id) ? " inteam" : ""}${td.favs.includes(id) ? " fav" : ""}" data-team="${id}" title="${TD_DEFENDERS[id].name} · ${TD_DEFENDERS[id].cost} de maná">${tdCreatureSvg(id)}<span class="tdbook-cost">🔮 ${TD_DEFENDERS[id].cost}</span></button>`).join("")}</div>`];
+      <div class="tdbook-owned">${owned.map(id => `<button class="tdbook-mini rar-${TD_DEFENDERS[id].rar}${td.team.includes(id) ? " inteam" : ""}${td.favs.includes(id) ? " fav" : ""}" data-team="${id}" title="${TD_DEFENDERS[id].name} · ${TD_ELEMENTS[TD_DEFENDERS[id].el].name} · ${TD_DEFENDERS[id].cost} de maná">${tdElemDot(id)}${tdCreatureSvg(id)}<span class="tdbook-cost">🔮 ${TD_DEFENDERS[id].cost}</span></button>`).join("")}</div>`];
 }
 // Passar pàgina com en un llibre de veritat: la fulla gira sobre el llom (davant, la pàgina vella; darrere, la nova)
 // i el que hi ha davall no canvia fins que la fulla cau. En mòbil (una pàgina damunt de l'altra), es fon.
