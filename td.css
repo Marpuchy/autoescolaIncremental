@@ -930,6 +930,6 @@
 @keyframes tdb-clockrun { to { stroke-dashoffset: 0; } }
 @keyframes tdb-clockfade { 0%, 45% { opacity: 1; } 100% { opacity: 0; } }
 
-/* Sargantana (en Marc, a Informàtica): la cua es mou a poc a poc des de la base */
-.td-student-svg .tail { transform-box: view-box; transform-origin: 102px 136px; animation: td-tail 3.6s ease-in-out infinite; }
+/* Suricat (en Marc, a Informàtica): la cua es mou a poc a poc des de la base */
+.td-student-svg .tail { transform-box: view-box; transform-origin: 98px 138px; animation: td-tail 3.6s ease-in-out infinite; }
 @keyframes td-tail { 50% { transform: rotate(-7deg); } }
