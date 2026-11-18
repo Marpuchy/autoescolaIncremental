@@ -454,11 +454,13 @@ function tdbHit(p, e) {
   if (d.role === "swarm") { // verí: fa mal uns segons (no s'acumula: es renova)
     e.dot = Math.max(e.dotT > 0 ? e.dot : 0, d.poison.dps * ab * tdbAuraMult(p.t)); e.dotT = Math.max(e.dotT, d.poison.dur); e.poison = true;
   }
-  if (d.role === "hook") { // l'ham enganxa: el fil l'arrossega cap enrere pel camí
-    const boss = e.def.boss ? 0.5 : 1;
-    e.pull = Math.max(e.pull || 0, d.hook.pull * ab * boss); e.pullV = d.hook.speed * boss;
+  if (d.role === "hook") { // l'ham enganxa: tarda a recollir el fil (l'arrossega a poc a poc) i al final la pesca
+    const reel = d.hook.reel / ab;
+    e.hooked = { t: p.t, left: reel }; e.pull = d.hook.pull; e.pullV = d.hook.pull / reel;
+    e.el?.classList.add("hooked"); // forceja poquet (sense tremolar)
     const h = tdb.hooks?.find(h => h.p === p);
     if (h) h.e = e;
+    return;
   }
   if (d.role === "mark") tdbMark(e, d.mark * p.t.stats.ability);
   if (d.role === "crit" && Math.random() < d.crit) { dmg *= 2; color = "#ff8a1f"; big = true; }
@@ -605,7 +607,7 @@ function tdbTipPos(t) {
 function tdbHooksDraw() {
   const layer = $("tdb-proj");
   for (const h of tdb.hooks) {
-    const flying = !h.e && !h.p.done, pulling = h.e && h.e.hp > 0 && h.e.pull > 0;
+    const flying = !h.e && !h.p.done, pulling = h.e && h.e.hp > 0 && !!h.e.hooked;
     if (!flying && !pulling) { h.el?.remove(); h.over = true; continue; }
     const a = tdbTipPos(h.t);
     if (!a) continue;
@@ -618,17 +620,50 @@ function tdbHooksDraw() {
   for (const t of Object.values(tdb.towers)) if (TD_DEFENDERS[t.id].role === "hook") // el fil de la canya penja només si l'ham hi és
     t.svg?.querySelector(".fil")?.setAttribute("opacity", tdb.hooks.some(h => h.t === t) ? "0" : "0.8");
 }
-// Cérvol de la brama: brama i l'ona recorre tot el camí; fa mal a totes les distraccions visibles i les fa recular
-function tdbBellow(t) {
-  const d = TD_DEFENDERS[t.id], ab = t.stats.ability, [x, y] = tdb.world.slots[t.slot];
-  tdbFx("ring", ...tdbS(x, y), TD_GLOW.fau, 260);
-  setTimeout(() => tdb && tdbFx("ring", ...tdbS(x, y), "#e8ffd8", 420), 140); // segona onda (si el combat continua)
-  for (const e of tdb.enemies) if (tdbVisible(e)) {
-    const boss = e.def.boss ? 0.5 : 1;
-    e.dist = Math.max(0, e.dist - d.bellow.push * ab * boss);
-    e.stunT = Math.max(e.stunT, d.bellow.stun);
-    tdbDamage(e, t.stats.dmg * tdbAuraMult(t), TD_GLOW.fau, true);
+// Pescat: la distracció ix volant cap a la punta de la canya i desapareix (els caps no: perden part de la vida)
+function tdbCatch(e) {
+  const t = e.hooked.t, d = TD_DEFENDERS[t.id];
+  e.hooked = null; e.pull = 0; e.el?.classList.remove("hooked");
+  const [x, y] = tdbS(...tdbPos(e));
+  tdbFx("ring", x, y - e.size * 0.4, TD_GLOW.fau, 46);
+  if (e.def.boss) { tdbDamage(e, e.maxHp * d.hook.boss, TD_GLOW.fau, true); return; }
+  const tip = tdbTipPos(t), ghost = e.el?.cloneNode(true);
+  if (ghost && tip) { // el peix ix del camí cap a la canya
+    ghost.classList.add("tdb-pescat"); $("tdb-proj").append(ghost);
+    ghost.style.setProperty("--dx", `${(tip[0] - x).toFixed(0)}px`); ghost.style.setProperty("--dy", `${(tip[1] - y).toFixed(0)}px`);
+    setTimeout(() => ghost.remove(), 700);
   }
+  tdbDamage(e, e.hp, TD_GLOW.fau, true);
+}
+// Cérvol de la brama: brama i ix una ona (tres anells de llum) que s'expandix per tot el mapa; quan l'anell arriba a
+// una distracció, li fa mal i la fa recular (en temps de joc: tdb.waves)
+const TD_WAVE_SPEED = 620, TD_WAVE_MAX = 1500;
+function tdbBellow(t) {
+  const d = TD_DEFENDERS[t.id], [x, y] = tdb.world.slots[t.slot];
+  const g = el("g", { class: "tdb-wave" }, $("tdb-fx"));
+  g.innerHTML = [0, 1, 2].map(i => `<circle r="0" fill="none" stroke="${i === 1 ? "#e8ffd8" : TD_GLOW.fau}" stroke-width="${6 - i * 1.5}"/>`).join("");
+  (tdb.waves ||= []).push({ t, d, x, y, r: 0, hit: new Set(), g });
+}
+function tdbWaves(dt) {
+  for (const w of tdb.waves) {
+    w.r += TD_WAVE_SPEED * dt;
+    const ab = w.t.stats.ability;
+    for (const e of tdb.enemies) if (tdbVisible(e) && !w.hit.has(e.uid) && Math.hypot(...tdbPos(e).map((v, i) => v - [w.x, w.y][i])) <= w.r) {
+      w.hit.add(e.uid);
+      e.dist = Math.max(0, e.dist - w.d.bellow.push * ab * (e.def.boss ? 0.5 : 1));
+      e.stunT = Math.max(e.stunT, w.d.bellow.stun);
+      tdbDamage(e, w.t.stats.dmg * tdbAuraMult(w.t), TD_GLOW.fau, true);
+    }
+    // els tres anells, un darrere de l'altre, es fan transparents en allunyar-se
+    const [cx, cy] = tdbS(w.x, w.y), k = tdbS(w.x + 1, w.y)[0] - cx;
+    [...w.g.children].forEach((c, i) => {
+      const r = Math.max(0, w.r - i * 46) * k;
+      c.setAttribute("cx", cx.toFixed(1)); c.setAttribute("cy", cy.toFixed(1)); c.setAttribute("r", r.toFixed(1));
+      c.setAttribute("opacity", Math.max(0, 1 - w.r / TD_WAVE_MAX).toFixed(2));
+    });
+    if (w.r > TD_WAVE_MAX) { w.g.remove(); w.over = true; }
+  }
+  tdb.waves = tdb.waves.filter(w => !w.over);
 }
 // Condensador (com la Guspira del Clash Royale): no dispara mentre es carrega. La càrrega puja entre les plaques i
 // l'electró del mig creix amb ella (--q); quan està ple i té algú a tir, el llança d'un colp, com un canó, i a l'impacte
@@ -1006,6 +1041,7 @@ function tdbUpdate(dt) {
   if (tdb.lines.length) tdbLines(dt);
   if (tdb.pulses.length) tdbPulses(dt);
   if (tdb.chains?.length) tdbChains(dt);
+  if (tdb.waves?.length) tdbWaves(dt);
   // enemics
   for (const e of tdb.enemies) {
     if (e.hp <= 0) continue;
@@ -1025,9 +1061,10 @@ function tdbUpdate(dt) {
       continue;
     }
     tdbEnemyAbility(e, dt);
-    if (e.pull > 0) { // l'ham l'arrossega cap enrere
+    if (e.hooked) { // enganxat a l'ham: recula a poc a poc i, quan s'acaba de recollir el fil, és pescat
       const step = Math.min(e.pull, e.pullV * dt);
       e.dist = Math.max(0, e.dist - step); e.pull -= step;
+      if ((e.hooked.left -= dt) <= 0) tdbCatch(e);
       continue;
     }
     if (e.stunT > 0) continue;

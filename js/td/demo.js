@@ -30,7 +30,7 @@ const TD_DEMO_SCENES = {
   chain:     { view: [420, 150, 720, 500], path: TD_DEMO_ROAD, slots: [[600, 320]], spawn: [["notificacio", "notificacio", "notificacio", "notificacio", "notificacio"], 4], gap: 0.75 },
   slow:      { view: [420, 150, 720, 500], path: TD_DEMO_ROAD, slots: [[640, 320]], spawn: [["notificacio", "notificacio", "notificacio"], 3.4], gap: 0.8 },
   clock:     { view: [420, 150, 720, 500], path: TD_DEMO_ROAD, slots: [[640, 300]], spawn: [["notificacio", "notificacio", "notificacio", "notificacio"], 3.6], gap: 0.55 },
-  hook:      { view: [420, 150, 720, 500], path: TD_DEMO_ROAD, slots: [[640, 330]], spawn: [["procrastinacio"], 4.5] },
+  hook:      { view: [420, 150, 720, 500], path: TD_DEMO_ROAD, slots: [[640, 330]], spawn: [["son", "meme"], 5], gap: 1.4 },
   swarm:     { view: [420, 150, 720, 500], path: TD_DEMO_ROAD, slots: [[640, 330]], spawn: [["meme", "son", "meme"], 3.6], gap: 0.9 },
   bellow:    { view: [420, 150, 720, 500], path: TD_DEMO_ROAD, slots: [[640, 330]], spawn: [["son", "meme", "son", "meme"], 3.2], gap: 0.7 },
   capacitor: { view: [420, 150, 720, 500], path: TD_DEMO_ROAD, slots: [[640, 320]], spawn: [["notificacio", "notificacio", "notificacio", "notificacio"], 5], gap: 0.3 },

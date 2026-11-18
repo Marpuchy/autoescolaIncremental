@@ -215,15 +215,16 @@ const TD_ART = {
       <g class="al">${ABELLA(24, 56)}</g><g class="ar">${ABELLA(98, 48)}</g>${sparks("#ffc23f")}`,
     proj: ABELLA(0, 0), throw: { l: [24, 56], r: [98, 48] },
   },
-  // Cérvol de la brama: un cérvol de llum de perfil (mira a l'esquerra), amb la cornamenta gran que s'encén quan brama
+  // Cérvol de la brama: un tòtem de fusta tallada (tres blocs amb gravats que brillen) coronat pel cap del cérvol, de
+  // cara, amb la cornamenta gran; quan brama, el tòtem s'encén de baix a dalt i la cornamenta resplendeix
   cervol: {
     svg: `${runeBase(TD_GLOW.myth)}<g class="b">
-      ${tube("M44 64 C56 58 80 58 92 64 C98 70 96 80 88 82 C74 86 56 86 46 82 C40 78 40 70 44 64 Z", GF, 3.6)}
-      ${tube("M50 82 L48 104 M58 84 L60 104 M80 84 L78 104 M88 80 L92 104", GF, 3)}${tube("M92 64 Q100 62 98 72", GF, 2.4)}
-      <g class="cap">${tube("M46 66 L34 42 M40 66 L30 46", GF, 3.4)}${tube("M34 42 C30 38 22 38 16 42 C14 46 18 48 24 48 L30 46", GF, 3.4)}
-        ${tube("M30 38 l-4 -6", GF, 2)}<circle cx="17" cy="44" r="1.6" fill="#fff"/>
-        <g class="antlers">${tube("M32 36 C30 26 26 18 18 12 M28 24 L20 22 M30 30 L22 32 M36 36 C40 26 46 20 54 16 M44 24 L50 28 M40 30 L48 32 M50 18 L56 10", "#e8ffd8", 2.8)}</g></g>
-      ${core(50, 70, TD_GLOW.myth, 2.6)}</g>${sparks(TD_GLOW.myth)}`,
+      <path d="M44 74 h32 v30 h-32 z M46 50 h28 v24 h-28 z" fill="#2a1a0c"/>${tube("M44 74 h32 v30 h-32 Z M46 50 h28 v24 h-28 Z", GB, 3)}
+      <g class="gravats">${tube("M52 96 q8 -12 16 0 M54 86 h12 M60 80 v-2", GF, 2.2)}${tube("M52 68 l8 -10 l8 10 M56 62 h8", GF, 2.2)}</g>
+      <g class="cap"><path d="M48 50 C46 38 52 30 60 30 C68 30 74 38 72 50 L66 58 H54 Z" fill="#2a1a0c"/>${tube("M48 50 C46 38 52 30 60 30 C68 30 74 38 72 50 L66 58 H54 Z", GB, 3)}
+        ${tube("M48 38 L38 34 M72 38 L82 34", GB, 3)}${tube("M56 44 l-3 2 M64 44 l3 2 M58 54 h4", GF, 2)}
+        <g class="antlers">${tube("M54 32 C50 22 44 14 34 8 M46 18 L38 20 M50 24 L42 28 M40 12 L36 4 M66 32 C70 22 76 14 86 8 M74 18 L82 20 M70 24 L78 28 M80 12 L84 4", "#e8ffd8", 3)}</g></g>
+      ${core(60, 90, TD_GLOW.myth, 2.8)}</g>${sparks(TD_GLOW.myth)}`,
     proj: "",
   },
   // Anells del tronc: la secció d'un tronc dreta, amb l'escorça i els anells que s'encenen; l'anell del mig ix volant
