@@ -14,13 +14,14 @@ const TD_SUBJECTS = {
   maq: { name: "Màquina", short: "Màquina", icon: "⚡", mode: "informatic",
          classes: ["Electrònica", "Fonaments de Computadors"] },
   // Forestal (2n del cicle superior de Gestió Forestal i del Medi Natural). Llista provisional: falta que Alba la confirme.
-  // Camps per zones temàtiques. Pròxima zona: Fauna (cinegètica i pesca); fins que tinga criatures, les seues
-  // assignatures continuen al Quadern de camp.
+  // Camps per zones temàtiques: Monts, Quadern de camp i Fauna (cinegètica i pesca).
   mnt: { name: "Gestió de monts", short: "Monts", icon: "🌲", mode: "forestal",
          classes: ["Gestió de monts", "Defensa contra incendis forestals", "Gestió de la conservació del medi natural"] },
   pin: { name: "Quadern de camp", short: "Quadern", icon: "📒", mode: "forestal",
-         classes: ["Projecte intermodular", "Gestió cinegètica", "Gestió de la pesca continental", "Itinerari personal per a l'ocupabilitat II",
+         classes: ["Projecte intermodular", "Itinerari personal per a l'ocupabilitat II",
                    "Digitalització aplicada al sistema productiu", "Sostenibilitat aplicada al sistema productiu", "Mòdul optatiu"] },
+  fau: { name: "Fauna", short: "Fauna", icon: "🦌", mode: "forestal",
+         classes: ["Gestió cinegètica", "Gestió de la pesca continental"] },
 };
 const tdFieldsOf = mode => Object.keys(TD_SUBJECTS).filter(s => TD_SUBJECTS[s].mode === mode);
 // Temps que tarda a tornar a créixer la peça que llança una criatura (regrow a la seua fitxa; per defecte 0,7 s)
@@ -89,6 +90,18 @@ const TD_DEFENDERS = {
   condensador: { subj: "maq", rar: "mitic", name: "Condensador", dmg: 14, rate: 0.25, range: 300, cost: 150, role: "capacitor", projSpeed: 1.3,
                  charge: { blast: 11, radius: 120, stun: 0.8 },
                  desc: "No dispara mentre es carrega: entre les plaques puja la càrrega i l'electró del mig creix. Quan està ple, el llança d'un colp, com un canó, i esclata en zona (11 × el dany) amb un llamp a cada distracció del voltant, que es queden parades un moment." },
+  // ---- Fauna (cinegètica i pesca)
+  prismatics: { subj: "fau", rar: "rar", name: "Prismàtics", dmg: 38, rate: 0.42, range: 400, cost: 60, role: "single", alt: true, projSpeed: 2.4, regrow: 1.2,
+                desc: "Els prismàtics d'observar fauna: veuen molt lluny i, alternant les dues lents, llancen el seu reflex, que pega fort a una sola distracció. Tir lent." },
+  canya:      { subj: "fau", rar: "llegendari", name: "Canya de pescar", dmg: 42, rate: 0.4, range: 300, cost: 120, role: "hook", projSpeed: 1.1, regrow: 1.4,
+                hook: { pull: 110, speed: 140 },
+                desc: "Llança l'ham amb el fil, enganxa una distracció i, recollint el fil, l'arrossega cap enrere pel camí. Els caps pesen el doble i es mouen la meitat." },
+  rusc:       { subj: "fau", rar: "llegendari", name: "Rusc d'abelles", dmg: 6, rate: 0.5, range: 270, cost: 120, role: "swarm", projSpeed: 0.7, regrow: 1.6,
+                poison: { dps: 8, dur: 4 },
+                desc: "Deixa anar les abelles: cadascuna persegueix una distracció diferent i la pica amb verí, que li fa mal durant uns segons. Després tornen al rusc." },
+  cervol:     { subj: "fau", rar: "mitic", name: "Cérvol de la brama", dmg: 40, rate: 0.13, range: 900, cost: 150, role: "bellow",
+                bellow: { push: 80, stun: 0.35 },
+                desc: "Un cérvol de llum: cada poc brama i l'ona recorre tot el camí, fa mal a totes les distraccions i les fa recular uns passos (els caps, la meitat)." },
   // ---- Gestió de monts (Forestal)
   pi:          { subj: "mnt", rar: "comu", name: "Pi", dmg: 6, rate: 1.5, range: 230, cost: 30, role: "single", alt: true,
                  desc: "Llança les pinyes que li pengen de les branques." },

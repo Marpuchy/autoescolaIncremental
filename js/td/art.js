@@ -5,7 +5,7 @@
 // com a projectil i es tornen a formar (td.css). Totes: viewBox 0 0 120 120, base a y ≈ 108.
 // Projectils (`proj`): dibuix menut centrat en 0,0 (≈ 20×20).
 
-const TD_GLOW = { alg: "#9d8bff", prg: "#3fdc8a", maq: "#5ad8ff", mnt: "#8fd45a", pin: "#e8a64a", gold: "#ffc23f", myth: "#ff5ab0", bad: "#ff5a4a" };
+const TD_GLOW = { alg: "#9d8bff", prg: "#3fdc8a", maq: "#5ad8ff", mnt: "#8fd45a", pin: "#e8a64a", fau: "#4fd1c5", gold: "#ffc23f", myth: "#ff5ab0", bad: "#ff5a4a" };
 
 // Traç de neó: halo ample i transparent + tub de color + nucli blanc
 function tube(d, c, w = 7, extra = "") {
@@ -31,6 +31,7 @@ const sparks = c => `<g class="sparks">${[[30, 60], [92, 50], [84, 92], [38, 92]
 const GA = TD_GLOW.alg, GP = TD_GLOW.prg;
 const GM = TD_GLOW.mnt, GN = TD_GLOW.pin, GB = "#c98a4a"; // fulla, ambre i fusta
 const GQ = TD_GLOW.maq; // blau elèctric
+const GF = TD_GLOW.fau; // turquesa de riu
 // Peces de la Màquina: la bola de càrrega de la Tesla (amb espurnes) i un electró (e⁻) del condensador
 const bolaTesla = (x, y) => `<g transform="translate(${x} ${y})"><circle r="13" fill="${GQ}" opacity="0.2"/><circle r="6.5" fill="#e8fbff" stroke="${GQ}" stroke-width="2.4"/>
   ${tube("M7 -2 L11 -6 L10 -1 L15 -4 M-7 2 L-11 5 L-10 0 L-15 3", "#e8fbff", 1.4)}</g>`;
@@ -40,6 +41,11 @@ const ONA_CPU = tube("M40 66 H46 V52 H54 V66 H62 V52 H70 V66 H76", "#e8fbff", 2.
 // Resistència: el cos (puntes bombades i cintura més estreta) i una banda de color (x al centre, des de y, alta h)
 const RES_BODY = "M34 44 C22 44 22 68 34 68 C40 68 42 65 48 65 H72 C78 65 80 68 86 68 C98 68 98 44 86 44 C80 44 78 47 72 47 H48 C42 47 40 44 34 44 Z";
 const banda = (x, y, h, c, edge = "#fff") => `<rect x="${x - 3.2}" y="${y}" width="6.4" height="${h}" rx="2" fill="${c}" stroke="${edge}" stroke-width="1" stroke-opacity="0.7"/>`;
+// Peces de Fauna (centrades a x, y)
+const LENT = (x, y) => `<g><circle cx="${x}" cy="${y}" r="6" fill="#bff7f0" opacity="0.35"/><path d="M${x} ${y - 7} L${x + 2} ${y - 2} L${x + 7} ${y} L${x + 2} ${y + 2} L${x} ${y + 7} L${x - 2} ${y + 2} L${x - 7} ${y} L${x - 2} ${y - 2} Z" fill="#fff"/></g>`;
+const HAM = (x, y) => `<g>${tube(`M${x} ${y - 8} V${y + 3} Q${x} ${y + 9} ${x - 6} ${y + 9} Q${x - 11} ${y + 9} ${x - 11} ${y + 3} L${x - 8} ${y + 5}`, "#e8fbff", 2.4)}<circle cx="${x}" cy="${y - 9}" r="2.2" fill="none" stroke="#e8fbff" stroke-width="1.6"/></g>`;
+const ABELLA = (x, y) => `<g><ellipse cx="${x - 2}" cy="${y - 6}" rx="5" ry="3.4" fill="#e8fbff" opacity="0.75" transform="rotate(-25 ${x - 2} ${y - 6})"/><ellipse cx="${x + 3}" cy="${y - 6}" rx="5" ry="3.4" fill="#e8fbff" opacity="0.75" transform="rotate(25 ${x + 3} ${y - 6})"/>
+  <ellipse cx="${x}" cy="${y}" rx="7.5" ry="5.2" fill="#ffc23f"/><path d="M${x - 2} ${y - 5} v10 M${x + 2.5} ${y - 5} v10" stroke="#1a1204" stroke-width="2"/><circle cx="${x - 6}" cy="${y}" r="2.6" fill="#1a1204"/></g>`;
 // Peces del bosc (centrades en x, y): pinya, flama, gla, sàmara, anella de marcatge i fulla
 const pinya = (x, y) => `<g><ellipse cx="${x}" cy="${y}" rx="11" ry="13" fill="${GB}" opacity="0.2"/><ellipse cx="${x}" cy="${y}" rx="5.6" ry="8" fill="#5a3412" stroke="${GB}" stroke-width="2.2"/>
   <path d="M${x - 5} ${y - 3} L${x} ${y + 1} L${x + 5} ${y - 3} M${x - 5} ${y + 2} L${x} ${y + 6} L${x + 5} ${y + 2}" stroke="#ffd9a0" stroke-width="1.3" fill="none"/>${tube(`M${x} ${y - 8} V${y - 12}`, GB, 2)}</g>`;
@@ -178,6 +184,47 @@ const TD_ART = {
       ${tube("M52 50 L60 44 L68 50 M46 72 L60 64 L74 72", GM, 2.4, 'opacity="0.7"')}</g>${tube("M60 84 V104", GB, 7)}${core(60, 76, GM, 3.4)}</g>
       <g class="al">${pinya(36, 68)}</g><g class="ar">${pinya(84, 68)}</g>${sparks(GM)}`,
     proj: pinya(0, 0), throw: { l: [36, 68], r: [84, 68] },
+  },
+  // ---- Fauna
+  // Prismàtics: els binocles damunt d'un trípode, amb les dues lents; el reflex de cada lent és el que llança
+  prismatics: {
+    svg: `${runeBase(GF)}<g class="b">${tube("M60 74 L42 104 M60 74 L78 104 M60 74 V104", GB, 3)}
+      ${tube("M36 30 h16 M68 30 h16", GF, 3)}<rect x="37" y="26" width="14" height="8" rx="3" fill="#0d2a2c"/><rect x="69" y="26" width="14" height="8" rx="3" fill="#0d2a2c"/>
+      <rect x="30" y="34" width="28" height="42" rx="13" fill="#0d2a2c"/><rect x="62" y="34" width="28" height="42" rx="13" fill="#0d2a2c"/>
+      ${tube("M43 34 h2 a13 13 0 0 1 13 13 v16 a13 13 0 0 1 -13 13 h-2 a13 13 0 0 1 -13 -13 v-16 a13 13 0 0 1 13 -13 Z M75 34 h2 a13 13 0 0 1 13 13 v16 a13 13 0 0 1 -13 13 h-2 a13 13 0 0 1 -13 -13 v-16 a13 13 0 0 1 13 -13 Z", GF, 3.4)}
+      ${tube("M57 46 H63 M57 62 H63", GF, 3)}${tube("M44 58 m-11 0 a11 11 0 1 0 22 0 a11 11 0 1 0 -22 0 M76 58 m-11 0 a11 11 0 1 0 22 0 a11 11 0 1 0 -22 0", "#bff7f0", 2.2)}
+      ${core(60, 80, GF, 2.6)}</g>
+      <g class="al">${LENT(44, 58)}</g><g class="ar">${LENT(76, 58)}</g>${sparks(GF)}`,
+    proj: LENT(0, 0), throw: { l: [44, 58], r: [76, 58] },
+  },
+  // Canya de pescar: la canya inclinada amb el rodet a baix i l'ham penjant del fil a la punta (.tip: d'on ix el fil)
+  canya: {
+    svg: `${runeBase(GF)}<g class="b">${tube("M30 100 L98 22", GB, 4.4)}${tube("M44 84 l6 4 M60 66 l6 4 M76 48 l6 4", GF, 2.2)}
+      ${tube("M40 92 m-9 0 a9 9 0 1 0 18 0 a9 9 0 1 0 -18 0", GF, 3)}${tube("M40 92 l6 -4", "#bff7f0", 2)}
+      <circle class="tip" cx="98" cy="22" r="1.5" fill="#bff7f0"/><path class="fil" d="M98 22 V50" stroke="#bff7f0" stroke-width="1.2" opacity="0.8"/>${core(40, 92, GF, 2.4)}</g>
+      <g class="al">${HAM(98, 58)}</g>${sparks(GF)}`,
+    proj: HAM(0, 0), throw: { l: [98, 58] },
+  },
+  // Rusc d'abelles: el rusc de palla (anells que s'estrenyen cap amunt) penjat d'una branca, amb la porteta;
+  // les dues abelles que volen al voltant són les que ix a picar
+  rusc: {
+    svg: `${runeBase(GF)}<g class="b">${tube("M18 22 Q60 14 104 24", GB, 4)}${tube("M60 18 V28", GB, 3)}
+      <path d="M60 28 C80 28 90 48 90 70 C90 90 78 100 60 100 C42 100 30 90 30 70 C30 48 40 28 60 28 Z" fill="#3a2a10"/>
+      ${[40, 52, 64, 76, 88].map((y, i) => tube(`M${36 - (i === 0 ? -6 : 0)} ${y} Q60 ${y + 6} ${84 + (i === 0 ? -6 : 0)} ${y}`, "#ffc23f", 2.6, 'opacity="0.85"')).join("")}
+      <ellipse cx="60" cy="84" rx="7" ry="6" fill="#120c04"/>${tube("M53 84 a7 6 0 1 1 14 0", GF, 1.6)}${core(60, 60, "#ffc23f", 2.4)}</g>
+      <g class="al">${ABELLA(24, 56)}</g><g class="ar">${ABELLA(98, 48)}</g>${sparks("#ffc23f")}`,
+    proj: ABELLA(0, 0), throw: { l: [24, 56], r: [98, 48] },
+  },
+  // Cérvol de la brama: un cérvol de llum de perfil (mira a l'esquerra), amb la cornamenta gran que s'encén quan brama
+  cervol: {
+    svg: `${runeBase(TD_GLOW.myth)}<g class="b">
+      ${tube("M44 64 C56 58 80 58 92 64 C98 70 96 80 88 82 C74 86 56 86 46 82 C40 78 40 70 44 64 Z", GF, 3.6)}
+      ${tube("M50 82 L48 104 M58 84 L60 104 M80 84 L78 104 M88 80 L92 104", GF, 3)}${tube("M92 64 Q100 62 98 72", GF, 2.4)}
+      <g class="cap">${tube("M46 66 L34 42 M40 66 L30 46", GF, 3.4)}${tube("M34 42 C30 38 22 38 16 42 C14 46 18 48 24 48 L30 46", GF, 3.4)}
+        ${tube("M30 38 l-4 -6", GF, 2)}<circle cx="17" cy="44" r="1.6" fill="#fff"/>
+        <g class="antlers">${tube("M32 36 C30 26 26 18 18 12 M28 24 L20 22 M30 30 L22 32 M36 36 C40 26 46 20 54 16 M44 24 L50 28 M40 30 L48 32 M50 18 L56 10", "#e8ffd8", 2.8)}</g></g>
+      ${core(50, 70, TD_GLOW.myth, 2.6)}</g>${sparks(TD_GLOW.myth)}`,
+    proj: "",
   },
   // Anells del tronc: la secció d'un tronc dreta, amb l'escorça i els anells que s'encenen; l'anell del mig ix volant
   anells: {

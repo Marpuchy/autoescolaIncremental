@@ -96,9 +96,10 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   Càlcul y Àlgebra, más Discreta y Estadística hasta que exista la zona Lògica i dades), Programació (`prg`: Punt i coma,
   If/else, Compilador, Stack; Prog I y II, Eines, Dret TIC) y Màquina (`maq`: Resistència, Rellotge de CPU, Bobina de Tesla, Condensador; Electrònica y
   Fonaments de Computadors). Forestal (Alba, asignaturas provisionales de 2.º de Gestió Forestal) con Gestió de monts (`mnt`: Pi,
-  Anells, Contrafoc, Carrasca) y Quadern de camp (`pin`, projecte intermodular e IPO: Brúixola, Sàmara, Anellador, Projecte integrador). Los campos se hacen
-  por zonas temáticas; las asignaturas de una zona futura (p. ej. Fauna: cinegètica y pesca) siguen en su campo actual hasta
-  que la zona tenga criaturas. En el
+  Anells, Contrafoc, Carrasca) Quadern de camp (`pin`, projecte intermodular, IPO y transversales: Brúixola, Sàmara, Anellador, Projecte integrador) y
+  Fauna (`fau`, cinegètica y pesca: Prismàtics, Canya de pescar —arrastra hacia atrás, `hook`—, Rusc d'abelles —veneno, `swarm`— y
+  Cérvol de la brama —onda que hace retroceder a todas, `bellow`—). Los campos se hacen por zonas temáticas; las asignaturas de
+  una zona futura siguen en su campo actual hasta que la zona tenga criaturas. En el
   bosque los enemigos son los mismos (mismo nombre y truco) con otro aspecto (`TD_FOREST_ENEMIES`, `TD_FOREST_ENEMY_ART`,
   `tdEnemy`), y el mundo 1 es el mismo trazado con fondo de bosque (`tdbForestBackground`).
 - Botiga, tests, compendio e inventario viven en la DGT (`js/hub.js`): pantalla completa con el interior dibujado y
