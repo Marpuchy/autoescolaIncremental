@@ -881,6 +881,7 @@
 
 /* Màquina */
 .theme-maq .tdbook-page { background-image: linear-gradient(90deg, rgba(90, 216, 255, 0.06) 1px, transparent 1px), linear-gradient(rgba(90, 216, 255, 0.06) 1px, transparent 1px); background-size: 24px 24px; }
+.tdc-condensador .aim { transform-box: view-box; transform-origin: 60px 72px; transition: transform 0.25s ease-in-out; }
 .tdc-condensador .charge { transform-box: fill-box; transform-origin: 50% 100%; transform: scaleY(var(--q, 1)); }
 /* l'electró creix amb la càrrega, entre les plaques (la .al ja fa el vol; l'escala va a dins) */
 .tdc-condensador .al { transform: translate(60px, 68px); animation: none; }
@@ -1042,4 +1043,4 @@
 @keyframes tdb-capaim-run { to { stroke-dashoffset: -13; } }
 .tdb-capaim.full g { animation: tdb-capaim-blink 0.3s steps(2) infinite; }
 @keyframes tdb-capaim-blink { 50% { opacity: 0.35; } }
-.tdb-proj.sp-overload .tdb-proj-in { filter: drop-shadow(0 0 10px #c57dff) drop-shadow(0 0 3px #fff); }
+.tdb-proj.sp-overload .tdb-proj-in { filter: drop-shadow(0 0 10px #a64dff) drop-shadow(0 0 3px #fff); }

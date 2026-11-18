@@ -522,13 +522,13 @@ function tdbHit(p, e) {
 // Bobina de Tesla: el raig salta de la distracció tocada a la més pròxima (sense repetir), perdent força a cada salt.
 // Els salts van en temps de joc (tdb.chains), un cada 0,09 s. Cada enllaç és un llamp viu que espurneja i segueix les
 // dues distraccions mentre dura (TD_CHAIN_ARC s), i a cada distracció tocada li queda una espurna.
-const TD_CHAIN_ARC = 0.55, TD_OVER_COLOR = "#c57dff"; // la sobrecàrrega, de color violeta
+const TD_CHAIN_ARC = 0.55, TD_OVER_COLOR = "#a64dff"; // la sobrecàrrega, de color violeta
 function tdbChain(t, first, dmg, over = false) {
   const d = TD_DEFENDERS[t.id], c = d.chain, S = d.special;
   const g = el("g", { class: `tdb-chain${over ? " over" : ""}` }, $("tdb-fx"));
   // sobrecàrrega: més salts, sense perdre força, i cada tocada queda parada un moment
   if (over) { first.stunT = Math.max(first.stunT, S.stun); tdbNumber(...tdbS(...tdbPos(first)).map((v, i) => v - (i ? first.size : 0)), "⚡ sobrecàrrega", TD_OVER_COLOR, true); }
-  (tdb.chains ||= []).push({ t, cur: first, hit: new Set([first]), k: 0, jumps: (over ? S.jumps : c.jumps) + (t.stats.ability > 1 ? 1 : 0), dmg, over,
+  (tdb.chains ||= []).push({ t, cur: first, hit: new Set([first]), k: 0, jumps: (over ? S.jumps : c.jumps) + (t.stats.ability > 1 ? 1 : 0), dmg, big: over,
     falloff: over ? 1 : c.falloff, wait: 0.06, links: [], zaps: [{ e: first, life: TD_CHAIN_ARC, p: tdbPos(first) }], g, flick: 0 });
 }
 function tdbChains(dt) {
@@ -536,14 +536,14 @@ function tdbChains(dt) {
     if (!ch.done && (ch.wait -= dt) <= 0) {
       const c = TD_DEFENDERS[ch.t.id].chain, [x, y] = tdbPos(ch.cur);
       const next = ch.k < ch.jumps && tdb.enemies.filter(o => tdbVisible(o) && !ch.hit.has(o))
-        .map(o => [o, Math.hypot(...tdbPos(o).map((v, i) => v - [x, y][i]))]).filter(([, dd]) => dd < c.radius * (ch.over ? 1.4 : 1)).sort((a, b) => a[1] - b[1])[0]?.[0];
+        .map(o => [o, Math.hypot(...tdbPos(o).map((v, i) => v - [x, y][i]))]).filter(([, dd]) => dd < c.radius * (ch.big ? 1.4 : 1)).sort((a, b) => a[1] - b[1])[0]?.[0];
       if (!next) ch.done = true;
       else {
         ch.k++;
         ch.hit.add(next);
         ch.links.push({ a: ch.cur, b: next, life: TD_CHAIN_ARC, pa: tdbPos(ch.cur), pb: tdbPos(next) });
-        tdbDamage(next, ch.dmg * ch.falloff ** ch.k, ch.over ? TD_OVER_COLOR : TD_GLOW.maq, ch.over);
-        if (ch.over) next.stunT = Math.max(next.stunT, TD_DEFENDERS.tesla.special.stun);
+        tdbDamage(next, ch.dmg * ch.falloff ** ch.k, ch.big ? TD_OVER_COLOR : TD_GLOW.maq, ch.big);
+        if (ch.big) next.stunT = Math.max(next.stunT, TD_DEFENDERS.tesla.special.stun);
         ch.zaps.push({ e: next, life: TD_CHAIN_ARC, p: tdbPos(next) });
         ch.cur = next;
         ch.wait = 0.09;
@@ -567,13 +567,13 @@ function tdbChainDraw(ch) {
     const [x0, y0] = tdbChainEnd(l.a, l.pa), [x1, y1] = tdbChainEnd(l.b, l.pb), k = l.life / TD_CHAIN_ARC;
     const L = Math.hypot(x1 - x0, y1 - y0), main = tdbZig(x0, y0, x1, y1, Math.max(3, Math.round(L / 14)), Math.min(30, L * 0.3)),
       fork = tdbZig(...tdbForkFrom(x0, y0, x1, y1, Math.min(26, L * 0.5)), 3, 10);
-    const w = ch.over ? 1.9 : 1, C = ch.over ? [TD_OVER_COLOR, "#f6e8ff", "#e0b8ff"] : [TD_GLOW.maq, "#e8fbff", "#b8f0ff"]; // la sobrecàrrega, més gros i violeta
+    const w = ch.big ? 1.9 : 1, C = ch.big ? [TD_OVER_COLOR, "#d9a8ff", "#c07aff"] : [TD_GLOW.maq, "#e8fbff", "#b8f0ff"]; // la sobrecàrrega, més gros i violeta
     return `<g opacity="${Math.min(1, k * 1.8).toFixed(2)}"><polyline points="${main}" fill="none" stroke="${C[0]}" stroke-width="${9 * w}" opacity="0.3" stroke-linejoin="round"/>
       <polyline points="${main}" fill="none" stroke="${C[1]}" stroke-width="${2.6 * w}" stroke-linejoin="round"/><polyline points="${fork}" fill="none" stroke="${C[2]}" stroke-width="1.4" stroke-linejoin="round"/></g>`;
   }).join("") + ch.zaps.map(z => { // espurna damunt de cada distracció tocada, que la seguix
     const [x, y] = tdbChainEnd(z.e, z.p), k = z.life / TD_CHAIN_ARC, r = (z.e.size * 0.36).toFixed(0);
-    return `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)})" opacity="${Math.min(1, k * 1.6).toFixed(2)}"><circle r="${r}" fill="${TD_GLOW.maq}" opacity="0.22"/>
-      <polyline points="${tdbZig(-r * 0.7, -r * 0.8, r * 0.6, r * 0.8, 3, 8)}" fill="none" stroke="#e8fbff" stroke-width="1.8"/></g>`;
+    return `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)})" opacity="${Math.min(1, k * 1.6).toFixed(2)}"><circle r="${r}" fill="${ch.big ? TD_OVER_COLOR : TD_GLOW.maq}" opacity="${ch.big ? 0.35 : 0.22}"/>
+      <polyline points="${tdbZig(-r * 0.7, -r * 0.8, r * 0.6, r * 0.8, 3, 8)}" fill="none" stroke="${ch.big ? "#d9a8ff" : "#e8fbff"}" stroke-width="1.8"/></g>`;
   }).join("");
 }
 function tdbZig(x0, y0, x1, y1, n, amp) {
@@ -716,7 +716,7 @@ function tdbCapacitor(t, dt) {
   t.charge = 0;
   t.svg?.style.setProperty("--q", "0");
   t.svg?.classList.remove("full", "discharge"); void t.svg?.getBoundingClientRect(); t.svg?.classList.add("discharge");
-  tdbProjectile(t, tg, t.stats.dmg * c.blast, { part: "c" });
+  tdbProjectile(t, tg, t.stats.dmg * c.blast, { part: "c", from: tdbThrowFrom(t, "l") }); // ix d'on està l'electró (gira amb el cos)
 }
 // Mentre es carrega, apunta: un raig fi de l'electró a la distracció que té a tir (cada vegada més intens) i una mira
 // damunt d'ella que es tanca a mesura que puja la càrrega; ple, la mira es queda tancada i fa pampallugues
@@ -725,9 +725,10 @@ function tdbCapAim(t) {
   const q = t.charge ?? 0, [tx, ty] = tdb.world.slots[t.slot], far = e => Math.hypot(...tdbPos(e).map((v, i) => v - [tx, ty][i]));
   const tg = tdbTargets(t)[0] || tdb.enemies.filter(e => tdbVisible(e) && far(e) <= t.stats.range * 1.8).sort((a, b) => far(a) - far(b))[0];
   if (!tg) { t.aimEl?.remove(); t.aimEl = null; return; }
+  tdbAim(t, tg); // el condensador gira sencer cap a ella
   const inRange = far(tg) <= t.stats.range;
   if (!t.aimEl) t.aimEl = el("g", { class: "tdb-capaim" }, $("tdb-fx"));
-  const [x0, y0] = tdbS(...tdbThrowFrom(t, "c")), [ex, ey] = tdbPos(tg), [x1, y1] = tdbS(ex, ey - tg.size * 0.45);
+  const [x0, y0] = tdbS(...tdbThrowFrom(t, "l")), [ex, ey] = tdbPos(tg), [x1, y1] = tdbS(ex, ey - tg.size * 0.45);
   const r = 34 - 18 * q, C = TD_GLOW.maq, o = ((0.55 + 0.45 * q) * (inRange ? 1 : 0.45)).toFixed(2);
   t.aimEl.classList.toggle("full", q >= 1 && inRange);
   t.aimEl.innerHTML = `<line x1="${x0.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${x1.toFixed(1)}" y2="${y1.toFixed(1)}" stroke="${C}" stroke-width="${(1.6 + 1.8 * q).toFixed(1)}" stroke-dasharray="7 6" opacity="${o}" class="tdb-capaim-ray"/>
