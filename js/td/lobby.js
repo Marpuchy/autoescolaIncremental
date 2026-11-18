@@ -115,19 +115,26 @@ function tdSubjectListHtml() {
 
 // ---- altar (invocar)
 function tdGachaHtml() {
-  const s = tdSubj, p = td.pity[s] || { epic: 0, llegendari: 0 }, n = td.pergamins[s] || 0;
-  const ord = ["comu", "rar", "epic", "llegendari"]; // el que pot eixir, de menys a més rar
-  const pool = Object.entries(TD_DEFENDERS).filter(([, d]) => d.subj === s && d.rar !== "mitic").sort((a, b) => ord.indexOf(a[1].rar) - ord.indexOf(b[1].rar));
+  const s = tdSubj, F = TD_SUBJECTS[s], p = td.pity[s] || { epic: 0, llegendari: 0 }, n = td.pergamins[s] || 0, P = TD_POINTS[tdRoom];
+  const ord = ["comu", "rar", "epic", "llegendari", "mitic"]; // el que pot eixir, de menys a més rar
+  const pool = Object.entries(TD_DEFENDERS).filter(([, d]) => d.subj === s).sort((a, b) => ord.indexOf(a[1].rar) - ord.indexOf(b[1].rar));
+  // banner: les criatures del camp en fila (com més rares, més grans); la mítica, a l'ombra (només per examen)
   return `${tdSubjTabs()}
-    <p class="td-hint">Cada pergamí de <strong>${TD_SUBJECTS[s].name}</strong> (${TD_SUBJECTS[s].classes.join(", ")}) invoca una criatura d'aquest camp. Els pergamins només s'aconseguixen estudiant.</p>
-    <div class="td-gacha-pool">${pool.map(([id, d]) => `<div class="td-mini rar-${d.rar}" title="${d.name} (${TD_RARITIES[d.rar].name})">${tdCreatureSvg(id)}</div>`).join("")}</div>
-    <div class="td-rates">${["comu", "rar", "epic", "llegendari"].map(r => `<span style="color:${TD_RARITIES[r].color}">${TD_RARITIES[r].name} ${String(TD_RARITIES[r].chance * 100).replace(".", ",")} %${tdPool(s, r).length ? "" : ` → ${TD_POINTS[tdRoom].icon} ${TD_POINT_GAIN[r] || 1}`}</span>`).join(" · ")}</div>
-    <p class="td-hint">${TD_POINTS[tdRoom].icon} Per davall de llegendari, ${TD_POINT_SWAP * 100} % de les tirades donen ${TD_POINTS[tdRoom].name} en lloc de la còpia${["comu", "rar", "epic"].some(r => !tdPool(s, r).length) ? ", i també les rareses que este camp no té" : ""}. Al grimori es canvien per còpies de qualsevol criatura.</p>
-    <div class="td-pity"><span>${tdPool(s, "epic").length ? "Èpic" : "Èpic (→ " + TD_POINTS[tdRoom].icon + ")"} garantit en <strong>${TD_PITY.epic - p.epic}</strong></span><span>Llegendari garantit en <strong>${TD_PITY.llegendari - p.llegendari}</strong></span></div>
+    <div class="td-banner" style="--fh:${TD_FIELD_HUE[s]}">
+      <div class="td-banner-title">${F.icon} ${F.name}</div>
+      <div class="td-banner-row">${pool.map(([id, d]) => `<div class="td-banner-c rar-${d.rar}${d.rar === "mitic" ? " locked" : ""}" title="${d.name} · ${TD_RARITIES[d.rar].name}${d.rar === "mitic" ? ` (només amb un ${TD_MYTHIC_GRADE} o més a l'examen final)` : ""}">
+        <div class="td-banner-art">${tdCreatureSvg(id)}</div><span style="color:${TD_RARITIES[d.rar].color}">${d.rar === "mitic" ? "🔒 " : ""}${d.name}</span></div>`).join("")}</div>
+      <div class="td-banner-pity">Èpic en <strong>${TD_PITY.epic - p.epic}</strong> · Llegendari en <strong>${TD_PITY.llegendari - p.llegendari}</strong></div>
+    </div>
     <div class="td-summon-btns">
       <button class="big td-summon" data-summon="1" ${n < 1 ? "disabled" : ""}>Invocar ×1 · 📜 1</button>
       <button class="big td-summon" data-summon="10" ${n < 10 ? "disabled" : ""}>Invocar ×10 · 📜 10</button></div>
-    <p class="td-hint">Tens <strong>${n}</strong> pergamins de ${TD_SUBJECTS[s].short}. ${n < 1 ? "Ves a l'escriptori a apuntar el que has estudiat." : ""}</p>`;
+    <div class="td-gacha-foot"><span>📜 <strong>${n}</strong> de ${F.short}</span>
+      <details class="td-gacha-det"><summary>Detalls</summary>
+        <div class="td-rates">${["comu", "rar", "epic", "llegendari"].map(r => `<span style="color:${TD_RARITIES[r].color}">${TD_RARITIES[r].name} ${String(TD_RARITIES[r].chance * 100).replace(".", ",")} %${tdPool(s, r).length ? "" : ` → ${P.icon} ${TD_POINT_GAIN[r] || 1}`}</span>`).join(" · ")}</div>
+        <p class="td-hint">Assignatures: ${F.classes.join(", ")}. Els pergamins només s'aconseguixen estudiant.</p>
+        <p class="td-hint">${P.icon} Per davall de llegendari, ${TD_POINT_SWAP * 100} % de les tirades donen ${P.name} en lloc de la còpia${["comu", "rar", "epic"].some(r => !tdPool(s, r).length) ? ", i també les rareses que este camp no té" : ""}; al grimori es canvien per còpies. La mítica només ix amb un ${TD_MYTHIC_GRADE} o més a l'examen final.</p>
+      </details></div>`;
 }
 function tdDoSummon(n) {
   const res = tdSummon(tdSubj, n);
