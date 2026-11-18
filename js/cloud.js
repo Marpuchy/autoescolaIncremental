@@ -149,6 +149,10 @@ function tdMergeRooms(a, b) {
   const bF = b.artRoom === F ? { artifacts: b.artifacts, equipped: b.equipped } : b.artBank?.[F];
   r.artBank = r.artBank || {};
   if (r.artRoom === F) { r.artifacts = bF?.artifacts || {}; r.equipped = bF?.equipped || []; } else if (bF) r.artBank[F] = bF;
+  // cristalls: el d'Informàtica de la primera i el de Forestal de la segona
+  const upsOf = (x, room) => (x.upRoom || x.artRoom || "informatic") === room ? x.upgrades : x.upBank?.[room];
+  r.upgrades = upsOf(a, "informatic") || { vida: 0, mana: 0, saber: 0 }; r.upRoom = "informatic";
+  r.upBank = { forestal: upsOf(b, "forestal") || { vida: 0, mana: 0, saber: 0 } };
   r.saber = (Number(r.saber) || 0) + (Number(b.saber) || 0);
   r.pulls = (Number(r.pulls) || 0) + (Number(b.pulls) || 0);
   return r;

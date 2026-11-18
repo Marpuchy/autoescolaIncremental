@@ -13,7 +13,9 @@ function tdNewState() {
     team: ["sumador", "puntcoma"],
     favs: [],                                         // criatures preferides (grimori)
     saber: 0,
-    upgrades: { vida: 0, mana: 0, saber: 0 },
+    upgrades: { vida: 0, mana: 0, saber: 0 },          // millores del cristall de la sala on s'està (upRoom)
+    upRoom: "informatic",                             // cada sala té el seu cristall: les millores no es compartixen
+    upBank: {},                                       // millores dels cristalls de les altres sales
     artifacts: {},                                    // id → nivell
     equipped: [],                                     // artefactes que porta l'estudiant
     worlds: {},                                       // id → { best: onada, clears: vegades }
@@ -76,6 +78,12 @@ function tdLoad(fromRaw = null) { // fromRaw: una partida que no és la d'este d
       b.equipped = Array.isArray(b.equipped) ? b.equipped.filter(id => b.artifacts[id]) : [];
     }
     td.team = td.team.filter(id => td.owned[id]).filter((id, i, a) => a.slice(0, i).filter(o => tdModeOf(o) === tdModeOf(id)).length < 6);
+    // cristalls: cada sala el seu. Les partides d'abans tenien unes millores per a tot: són de la sala on es jugava
+    if (!["informatic", "forestal"].includes(data.upRoom)) td.upRoom = td.artRoom;
+    if (!td.upBank || typeof td.upBank !== "object") td.upBank = {};
+    const okUps = u => Object.fromEntries(Object.keys(TD_UPGRADES).map(id => [id, Math.max(0, Math.min(TD_UPGRADES[id].max, Math.floor(Number(u?.[id]) || 0)))]));
+    td.upgrades = okUps(td.upgrades);
+    for (const k of Object.keys(td.upBank)) { if (k === td.upRoom || !["informatic", "forestal"].includes(k)) delete td.upBank[k]; else td.upBank[k] = okUps(td.upBank[k]); }
     for (const [m, n] of Object.entries(td.stelles)) if (!TD_POINTS[m] || !(n >= 0)) delete td.stelles[m];
     td.favs = td.favs.filter(id => TD_DEFENDERS[id]);
     // un artefacte per espai
@@ -241,6 +249,15 @@ function tdSortRoomArtifacts() {
   }
   td.equipped = td.equipped.filter(id => td.artifacts[id]);
 }
+// En entrar a una sala, el cristall és el d'eixa sala: es guarden les millores de l'altra i es trauen les seues
+function tdUseRoomUpgrades(room) {
+  if (td.upRoom === room) return;
+  td.upBank[td.upRoom] = td.upgrades;
+  td.upgrades = td.upBank[room] || { vida: 0, mana: 0, saber: 0 };
+  delete td.upBank[room];
+  td.upRoom = room;
+  tdSave();
+}
 function tdUseRoomArtifacts(room) {
   if (td.artRoom === room) { tdSortRoomArtifacts(); return; }
   td.artBank[td.artRoom] = { artifacts: td.artifacts, equipped: td.equipped };
@@ -334,6 +351,7 @@ function tdRestart() {
   td.saber = 0;
   for (const o of Object.values(td.owned)) o.level = 1;
   td.upgrades = { vida: 0, mana: 0, saber: 0 };
+  td.upBank = {}; // es perden les dels dos cristalls, com els mons
   td.worlds = {};
   tdSave();
 }

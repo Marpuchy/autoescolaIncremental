@@ -26,6 +26,7 @@ function tdOpenLobby(room = tdRoom) {
     if (!tdFields().includes(tdSubj)) tdSubj = tdFields()[0];
     if (tdViewingOf) return;
     tdUseRoomArtifacts(tdRoom);
+    tdUseRoomUpgrades(tdRoom);
     if (tdStartRoom(tdRoom)) toast(`🎁 Benvinguda: dues criatures i 5 pergamins de cada camp`, "good");
   };
   settle();
