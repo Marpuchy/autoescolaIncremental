@@ -574,7 +574,7 @@ function tdCreaturePages(id) {
         ${next && next.have >= next.need ? `<button class="tdbook-ascend" data-ascend="${id}" ${td.saber < tdAscendCost(id) ? "disabled" : ""}>⭐ Pujar a ★${st.stars + 1} · ✨ ${fmtNum(tdAscendCost(id))}</button>` : ""}</div></div>
       <iframe class="tdbook-arena" src="tddemo.html?d=${id}" title="Demostració: ${d.name} en combat" tabindex="-1" loading="lazy"></iframe></div>`,
     `<p class="tdbook-text">${d.desc}</p>${d.rar === "mh" ? `<p class="tdbook-text muted">Matrícula d'Honor: ${tdForgeHow(id)}.</p>` : ""}
-     <table class="tdbook-stats"><tr><th>Nivell</th><td>${o.level} / ${cap}${cap < TD_LEVEL_MAX ? ` <span class="muted">(més amb ★${st.stars + 1})</span>` : ""}</td></tr><tr><th>Dany</th><td>${fmtNum(st.dmg)}</td></tr>
+     <table class="tdbook-stats"><tr><th>Nivell</th><td>${o.level} / ${cap}${cap < TD_LEVEL_MAX ? ` <span class="muted">(més amb ★${st.stars + 1})</span>` : ""}</td></tr><tr><th>Dany</th><td>${tdDmgText(id, st.dmg)}</td></tr>
        <tr><th>Velocitat</th><td>${st.rate.toFixed(2)} / s</td></tr><tr><th>Abast</th><td>${Math.round(st.range)}</td></tr><tr><th>Cost</th><td>🔮 ${d.cost}</td></tr>
        <tr><th>Element</th><td>${tdElemTag(d.el, d.el2)}</td></tr>
        ${d.special?.type === "align" ? `<tr><th>Paràlisi</th><td>${String(+(d.special.dur * st.ability).toFixed(1)).replace(".", ",")} s <span class="muted">(puja amb l'habilitat)</span></td></tr>` : ""}

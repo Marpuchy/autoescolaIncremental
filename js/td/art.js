@@ -600,6 +600,8 @@ const tdElemDot = id => { const d = TD_DEFENDERS[id], E = TD_ELEMENTS[d.el], F =
     : `<span class="td-elem-dot" style="--ec:${E.color}" aria-label="${E.name}">${E.icon}</span>`; };
 // L'element d'una criatura o d'una debilitat, amb la icona i el color
 const tdElemTag = (el, el2) => (TD_ELEMENTS[el] ? `<span class="td-elem" style="--ec:${TD_ELEMENTS[el].color}">${TD_ELEMENTS[el].icon} ${TD_ELEMENTS[el].name}</span>` : "") + (el2 ? " " + tdElemTag(el2) : "");
+// Dany que es mostra: un número o, si és a l'atzar (codi spaghetti), «de – a»
+const tdDmgText = (id, dmg) => { const r = TD_DEFENDERS[id].randDmg; return r ? `${fmtNum(dmg * r[0])}–${fmtNum(dmg * r[1])}` : fmtNum(dmg); };
 function tdCreatureSvg(id, extraClass = "") {
   return `<svg viewBox="-6 -10 132 132" class="tdc tdc-${id} ${extraClass}" aria-hidden="true" overflow="visible">${TD_ART[id].svg}</svg>`;
 }

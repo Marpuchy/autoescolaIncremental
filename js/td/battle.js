@@ -716,6 +716,7 @@ function tdbProjectile(t, target, dmg, opts = {}) {
 function tdbHit(p, e) {
   const d = p.d, ab = p.t.stats.ability;
   let dmg = p.dmg * tdbAuraMult(p.t), color = TD_GLOW[d.subj] || "#fff", big = false;
+  if (d.randDmg) dmg *= d.randDmg[0] + Math.random() * (d.randDmg[1] - d.randDmg[0]); // codi spaghetti: cada colp, a l'atzar (del 10 % al 100 %)
   if (d.role === "capacitor") { tdbDischarge(p.t, e, dmg); return; }
   if (p.sp === "sprout" || p.sp === "honey") tdbZone(p.t, p.sp, tdbPos(e));
   if (d.role === "swarm") { // verí: fa mal uns segons (no s'acumula: es renova)
@@ -1810,7 +1811,7 @@ function tdbPickInfo() {
   if (!id) return "";
   const d = TD_DEFENDERS[id], s = tdStats(id), full = tdbFull(id), can = tdb.mana >= d.cost && !full;
   return `<div class="tdb-pick-info"><div class="tdb-panel-info"><strong>${d.name}</strong> ${tdElemTag(d.el, d.el2)} <span class="td-stars">${"★".repeat(s.stars)}</span> · Nv. ${s.level}
-      <div class="muted">⚔️ ${fmtNum(s.dmg)} · ⏱ ${s.rate.toFixed(1)}/s · 🎯 ${Math.round(s.range)} · ${fmtNum(s.dmg * s.rate)} de dany/s</div><div class="tdb-panel-desc">${d.desc}</div></div>
+      <div class="muted">⚔️ ${tdDmgText(id, s.dmg)} · ⏱ ${s.rate.toFixed(1)}/s · 🎯 ${Math.round(s.range)} · ${fmtNum(s.dmg * s.rate * (d.randDmg ? (d.randDmg[0] + d.randDmg[1]) / 2 : 1))} de dany/s</div><div class="tdb-panel-desc">${d.desc}</div></div>
     <button data-place="${id}" ${can ? "" : "disabled"}>${full ? `Màxim al mapa (${tdbLimit(id)})` : can ? `✨ Invocar · 🔮 ${d.cost}` : `🔮 Et falten ${Math.ceil(d.cost - tdb.mana)}`}</button></div>`;
 }
 function tdbOpenPicker(slot) {
@@ -1865,7 +1866,7 @@ function tdbTowerPanel() {
   const p = $("tdb-panel");
   const html = `<div class="tdb-panel-art rar-${d.rar}">${tdCreatureSvg(t.id)}</div>
     <div class="tdb-panel-info"><strong>${d.name}</strong> <span class="td-stars">${"★".repeat(t.stats.stars)}</span> · Nv. ${t.stats.level} · ${"◆".repeat(t.up + 1)}
-      <div class="muted">⚔️ ${fmtNum(t.stats.dmg)} · ⏱ ${t.stats.rate.toFixed(1)}/s · 🎯 ${Math.round(t.stats.range)}</div><div class="tdb-panel-desc">${d.desc}</div></div>
+      <div class="muted">⚔️ ${tdDmgText(t.id, t.stats.dmg)} · ⏱ ${t.stats.rate.toFixed(1)}/s · 🎯 ${Math.round(t.stats.range)}</div><div class="tdb-panel-desc">${d.desc}</div></div>
     <div class="tdb-panel-btns">
       ${cost != null ? `<button data-tp="up" ${tdb.mana < cost ? "disabled" : ""}>⬆ Potenciar · 🔮 ${cost}</button>` : `<button disabled>◆◆◆ Al màxim</button>`}
       <button class="secondary" data-tp="sell">♻ Retirar · +${Math.round(t.spent * TD_BATTLE.sellBack)} 🔮</button>

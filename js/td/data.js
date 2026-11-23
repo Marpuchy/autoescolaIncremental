@@ -151,9 +151,9 @@ const TD_DEFENDERS = {
   quantic:     { subj: "maq", rar: "mh", name: "Processador quàntic", dmg: 24, rate: 0.95, range: 320, cost: 170, role: "chain", projSpeed: 1.6, tick: 4,
                  chain: { jumps: 5, falloff: 0.85, radius: 220 }, special: { every: 10, type: "collapse", stun: 0.6 },
                  desc: "El rellotge i la Tesla, en un xip amb un qubit. Llança la bola de càrrega i el raig salta de distracció en distracció; cada 4 tics del rellotge, salta el doble de vegades. Cada 10, col·lapse: tot el que té a l'abast es queda parat mig segon." },
-  spaghetti:   { subj: "prg", rar: "mh", name: "Codi Spaghetti", dmg: 20, rate: 1.1, range: 300, cost: 160, role: "bounce", bounces: 4, random: true, alt: true, projSpeed: 0.55,
+  spaghetti:   { subj: "prg", rar: "mh", name: "Codi Spaghetti", dmg: 20, rate: 1.1, range: 300, cost: 160, role: "bounce", bounces: 4, random: true, randDmg: [0.1, 1], alt: true, projSpeed: 0.55,
                  slow: 0.3, slowDur: 1.5, special: { every: 12, type: "goto", upTo: 0.85 },
-                 desc: "L'If/else, quan el codi se n'ix de mare. Llança els caps dels fideus, que reboten entre 4 distraccions a l'atzar i les deixen enredades (més lentes). Cada 12 tirs, GOTO: la distracció més avançada salta a un lloc a l'atzar del seu camí (pot tocar-li davant o darrere)." },
+                 desc: "L'If/else, quan el codi se n'ix de mare. Llança els caps dels fideus, que reboten entre 4 distraccions a l'atzar, i cada colp fa un dany a l'atzar (entre el 10 % i el 100 % del seu) i les deixen enredades (més lentes). Cada 12 tirs, GOTO: la distracció més avançada salta a un lloc a l'atzar del seu camí (pot tocar-li davant o darrere)." },
 };
 // Com s'aconseguixen les de Matrícula d'Honor: a l'onada 100 del món (world) es guanya la recepta o la pedra
 const TD_FORGE = {
