@@ -181,26 +181,92 @@ function tdForgeHtml() {
         <div class="td-forge-act">${own ? `<span class="muted">✔ Ja la tens</span>` : !have ? `<span class="muted">🔒 Onada ${TD_IDLE.waves} de «${w?.name}»</span>`
           : `<button data-forge="${k}" ${tdCanForge(k) ? "" : "disabled"}>${F.from ? "⚗️ Fusionar" : "✨ Evolucionar"}</button>${tdCanForge(k) ? "" : `<span class="muted">Et falta alguna criatura</span>`}`}</div></div>`; }).join("")}</div>`;
 }
-// Animació de la fusió: les dues peces (o la criatura i la pedra) van girant cap al mig i s'hi fonen; la nova es munta
-// amb un esclat roig. Al final, la pantalla d'invocació la presenta
+// Cerimònia de la fusió (més gran que la de les mítiques): les ingredients es desmunten peça a peça (cada traç d'energia
+// salta i va a fer voltes al nucli del mig) i, amb eixes peces, la nova es munta com un robot, de baix a dalt: cada peça
+// arriba volant, encaixa amb un colp (espurna i tremolor) i, al final, s'encén el nucli, gira el cercle de runes i ix el nom.
 function tdForgeAnim(k) {
-  const row = document.querySelector(`[data-forgerow="${k}"]`), out = row?.querySelector(".td-forge-out");
-  const done = () => { if (tdForge(k)) { tdClosePanel(); tdReveal([{ id: k, isNew: true, stars: tdStars(k) }]); toast(`✨ ${TD_DEFENDERS[k].name}: Matrícula d'Honor!`, "good"); } };
-  if (!row || !out || matchMedia("(prefers-reduced-motion: reduce)").matches) { done(); return; }
-  row.classList.add("forging");
-  row.querySelectorAll("button").forEach(b => b.disabled = true);
-  const c = out.getBoundingClientRect(), cx = c.x + c.width / 2, cy = c.y + c.height / 2;
-  out.innerHTML = `${tdCreatureSvg(k)}<span>${TD_DEFENDERS[k].name}</span>`; // es munta a poc a poc (td.css: .forging .td-forge-out)
-  for (const side of row.querySelectorAll(".td-forge-side")) {
-    const r = side.getBoundingClientRect(), dx = cx - (r.x + r.width / 2), dy = cy - (r.y + r.height / 2), sg = side.classList.contains("l") ? 1 : -1;
-    side.animate([
-      { transform: "translate(0, 0) rotate(0) scale(1)", opacity: 1, filter: "none" },
-      { transform: `translate(${dx * 0.35}px, ${dy * 0.35 - 30}px) rotate(${sg * 120}deg) scale(0.9)`, opacity: 1, filter: "drop-shadow(0 0 8px #ff3b4e)", offset: 0.45 },
-      { transform: `translate(${dx}px, ${dy}px) rotate(${sg * 360}deg) scale(0.2)`, opacity: 0, filter: "drop-shadow(0 0 18px #ff3b4e)" },
-    ], { duration: 1400, easing: "cubic-bezier(.5,0,.6,1)", fill: "forwards" });
-  }
-  setTimeout(() => row.classList.add("forged"), 1300);
-  setTimeout(done, 2600);
+  const F = TD_FORGE[k], parts = tdForgeParts(k);
+  if (!tdForge(k)) return;
+  tdClosePanel();
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const box = document.createElement("div");
+  box.id = "td-forge-show";
+  box.setAttribute("role", "dialog"); box.setAttribute("aria-label", `Fusió: ${TD_DEFENDERS[k].name}`);
+  const S = 240, art = (id, x) => `<g class="fs-src" transform="translate(${x} 150) scale(${S / 132}) translate(6 10)"><g class="fs-root tdc tdc-${id}">${TD_ART[id].svg}</g></g>`;
+  const right = F.evolve ? `<g class="fs-src" transform="translate(900 150)"><g class="fs-root fs-gem"><circle cx="120" cy="120" r="70" fill="#7fe8ff" opacity="0.15"/>
+      <path d="M120 40 L176 100 L120 200 L64 100 Z" fill="#12303f" stroke="#7fe8ff" stroke-width="6" stroke-linejoin="round"/><path d="M64 100 H176 M120 40 L96 100 L120 200 L144 100 Z" stroke="#bff4ff" stroke-width="3" fill="none"/></g></g>` : art(parts[1], 900);
+  box.innerHTML = `<div class="fs-bg"></div><svg class="fs-stage" viewBox="0 0 1380 620" aria-hidden="true">
+      <defs><radialGradient id="fs-core-g"><stop offset="0" stop-color="#fff"/><stop offset="0.35" stop-color="#ff3b4e"/><stop offset="1" stop-color="#ff3b4e" stop-opacity="0"/></radialGradient></defs>
+      <g class="fs-rays" transform="translate(690 300)">${Array.from({ length: 18 }, (_, i) => `<path d="M0 0 L${Math.cos(i / 18 * 6.283 - 0.06) * 900} ${Math.sin(i / 18 * 6.283 - 0.06) * 900} L${Math.cos(i / 18 * 6.283 + 0.06) * 900} ${Math.sin(i / 18 * 6.283 + 0.06) * 900} Z" fill="#ff3b4e" opacity="0.08"/>`).join("")}</g>
+      <circle class="fs-core" cx="690" cy="300" r="70" fill="url(#fs-core-g)"/>
+      ${art(parts[0], 240)}${right}
+      <g class="fs-new" transform="translate(${690 - 1.45 * S / 2} ${300 - 1.45 * S / 2 - 20}) scale(${1.45 * S / 132}) translate(6 10)"><g class="fs-root tdc tdc-${k}">${TD_ART[k].svg}</g></g>
+      <g class="fs-fx"></g></svg>
+    <div class="fs-title"><div class="fs-kicker">Matrícula d'Honor</div><div class="fs-name">${TD_DEFENDERS[k].name}</div>
+      <div class="fs-sub">${F.from ? parts.map(id => TD_DEFENDERS[id].name).join(" + ") : `${TD_DEFENDERS[F.evolve].name} + pedra`}</div></div>
+    <div class="fs-btns"><button class="secondary small" data-fs="skip">Saltar ⏭</button><button data-fs="ok" hidden>✨ Continuar</button></div>`;
+  $("td-lobby").appendChild(box);
+  const svg = box.querySelector(".fs-stage"), fx = box.querySelector(".fs-fx");
+  const finish = () => { box.querySelectorAll("*").forEach(n => n.getAnimations?.().forEach(a => { try { a.finish(); } catch {} })); box.classList.add("done"); box.querySelector('[data-fs="ok"]').hidden = false; box.querySelector('[data-fs="skip"]').hidden = true; };
+  const close = () => { clearTimeout(box.timer); box.remove(); tdRenderLobby(); tdSpot("grimori"); tdBook = { tab: TD_DEFENDERS[k].subj, page: tdBookList("grimori", TD_DEFENDERS[k].subj).indexOf(k) + 1 }; tdRenderPanel(); };
+  box.addEventListener("click", ev => { const b = ev.target.closest("[data-fs]"); if (!b) return; if (b.dataset.fs === "skip") finish(); else close(); });
+  if (reduce) { finish(); return; }
+  // les peces d'un dibuix: els traços de neó (cada tube és un <g>), els cercles i els grups de dalt (cercle de runes, nucli, peces)
+  const pieces = root => { const out = []; const walk = n => { for (const c of n.children) {
+    if (c.tagName === "defs" || c.tagName === "title") continue;
+    if (c.tagName === "g" && c.children.length > 3 && !c.matches(".core, .al, .ar")) walk(c); else out.push(c); } };
+    walk(root);
+    // cada peça dins d'un <g> nou: l'animació va en el grup, i la peça es queda amb el seu transform
+    return out.map(n => { const w = document.createElementNS("http://www.w3.org/2000/svg", "g"); w.setAttribute("class", "fs-p"); n.replaceWith(w); w.appendChild(n); return w; }); };
+  const centerOf = n => { const b = n.getBBox(), m = n.getCTM(), sm = svg.getCTM().inverse(); const p = new DOMPoint(b.x + b.width / 2, b.y + b.height / 2).matrixTransform(m).matrixTransform(sm); return [p.x, p.y]; };
+  const olds = [...box.querySelectorAll(".fs-src .fs-root")].flatMap(pieces), news = pieces(box.querySelector(".fs-new .fs-root"));
+  // la nova es munta de baix a dalt: el cercle de runes, el cos, i al final el nucli i les peces que llança
+  const rank = w => { const n = w.firstChild; return n.matches(".rune") ? 0 : n.matches(".sparks") ? 4 : n.matches(".core") ? 3 : n.matches(".al, .ar") ? 3.5 : 1; };
+  news.forEach(n => { n._c = centerOf(n); });
+  news.sort((a, b) => rank(a) - rank(b) || b._c[1] - a._c[1]);
+  const kNew = 1.45 * S / 132; // escala de la nova (per a passar distàncies de l'escenari al dibuix)
+  news.forEach(n => { n.style.opacity = "0"; n.style.transformBox = "fill-box"; n.style.transformOrigin = "center"; });
+  box.querySelector(".fs-new .fs-root").style.animation = "none";
+  const T0 = 700, step = Math.max(50, Math.min(110, 1700 / olds.length));
+  // 1. desmuntar: cada peça salta, gira i se'n va a fer voltes al nucli
+  olds.forEach((n, i) => {
+    const [x, y] = centerOf(n), a = Math.random() * 6.283, r = 70 + Math.random() * 60, tx = 690 + Math.cos(a) * r, ty = 300 + Math.sin(a) * r * 0.6;
+    const m = n.getCTM(), sm = svg.getCTM(), k2 = (m.a / sm.a) || 1; // l'escala del dibuix
+    n.style.transformBox = "fill-box"; n.style.transformOrigin = "center";
+    n.animate([{ transform: "translate(0,0) rotate(0) scale(1)", opacity: 1 },
+      { transform: `translate(${(Math.random() - 0.5) * 30 / k2}px, ${-40 / k2}px) rotate(${(Math.random() - 0.5) * 60}deg) scale(1.1)`, opacity: 1, offset: 0.25 },
+      { transform: `translate(${(tx - x) / k2}px, ${(ty - y) / k2}px) rotate(${(Math.random() - 0.5) * 720}deg) scale(0.45)`, opacity: 0.9, offset: 0.8 },
+      { transform: `translate(${(tx - x) / k2}px, ${(ty - y) / k2}px) rotate(${(Math.random() - 0.5) * 900}deg) scale(0.2)`, opacity: 0 }],
+      { duration: 1300, delay: T0 + i * step, easing: "cubic-bezier(.4,0,.6,1)", fill: "both" });
+  });
+  box.querySelector(".fs-core").animate([{ r: 0, opacity: 0 }, { r: 70, opacity: 0.9 }], { duration: 900, delay: T0 + 400, fill: "both" });
+  // 2. muntar: cada peça de la nova ix del núvol del nucli, vola al seu lloc i encaixa amb un colp
+  const T1 = T0 + olds.length * step + 450, step2 = Math.max(90, Math.min(170, 3200 / news.length));
+  news.forEach((n, i) => {
+    const [x, y] = n._c, a = Math.random() * 6.283, sx = 690 + Math.cos(a) * 110, sy = 300 + Math.sin(a) * 70;
+    const at = T1 + i * step2;
+    n.animate([{ transform: `translate(${(sx - x) / kNew}px, ${(sy - y) / kNew}px) rotate(${(Math.random() - 0.5) * 540}deg) scale(0.3)`, opacity: 0 },
+      { transform: `translate(${(sx - x) / kNew}px, ${(sy - y) / kNew - 30}px) rotate(${(Math.random() - 0.5) * 180}deg) scale(0.6)`, opacity: 1, offset: 0.25 },
+      { transform: "translate(0, -4px) rotate(0) scale(1.18)", opacity: 1, offset: 0.82 },
+      { transform: "translate(0,0) rotate(0) scale(1)", opacity: 1 }],
+      { duration: 620, delay: at, easing: "cubic-bezier(.3,.1,.3,1)", fill: "both" });
+    // l'encaix: espurna on cau la peça i un tremolor menut
+    setTimeout(() => {
+      if (!box.isConnected || box.classList.contains("done")) return;
+      const sp = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      sp.setAttribute("transform", `translate(${x} ${y})`);
+      sp.innerHTML = `<circle r="18" fill="none" stroke="#ff8a96" stroke-width="3"/>${[0, 1, 2, 3, 4, 5].map(j => `<path d="M0 0 L${Math.cos(j * 1.047 + i) * 22} ${Math.sin(j * 1.047 + i) * 22}" stroke="#fff" stroke-width="2"/>`).join("")}`;
+      fx.appendChild(sp);
+      sp.animate([{ opacity: 1, transform: `translate(${x}px, ${y}px) scale(0.4)` }, { opacity: 0, transform: `translate(${x}px, ${y}px) scale(1.6)` }], { duration: 380, easing: "ease-out" }).onfinish = () => sp.remove();
+      svg.animate([{ transform: "translate(0,0)" }, { transform: `translate(${(i % 2 ? 3 : -3)}px, 2px)` }, { transform: "translate(0,0)" }], { duration: 120 });
+    }, at + 510);
+  });
+  // 3. s'encén: el nucli esclata, els raigs giren i ix el nom
+  const T2 = T1 + news.length * step2 + 650;
+  box.querySelector(".fs-core").animate([{ r: 70, opacity: 0.9 }, { r: 420, opacity: 0.85, offset: 0.35 }, { r: 120, opacity: 0.25 }], { duration: 1100, delay: T2, fill: "both" });
+  box.timer = setTimeout(() => { if (!box.isConnected) return; box.classList.add("lit"); box.querySelector(".fs-new .fs-root").style.animation = ""; }, T2 + 300);
+  setTimeout(() => { if (box.isConnected && !box.classList.contains("done")) finish(); }, T2 + 1500);
+  toast(`✨ ${TD_DEFENDERS[k].name}: Matrícula d'Honor!`, "good");
 }
 function tdGachaHtml() {
   const tabs = `<div class="td-tabs td-altar-tabs"><button class="td-tab${tdAltarTab === "summon" ? " on" : ""}" data-atab="summon">🔮 Invocar</button>

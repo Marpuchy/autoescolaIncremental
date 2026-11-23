@@ -158,7 +158,7 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   se abre el mundo siguiente y hasta la 100 ×1,5 de saber. Balance: `python tools/td-progres.py [sala] [--mon=2] [--temps=s]` (onda
   máxima por etapa; el bot es simple y da resultados con ruido).
   **Matrícula d'Honor** (raresa `mh`, roja; nunca sale en el altar): en la oleada 100 de cada mundo se gana una receta o la piedra
-  (`TD_FORGE`, `td.forge`); en el altar, pestaña **Fusió** (`tdForgeHtml`, `tdForge`): la nueva en medio y las ingredientes (o la criatura y la pedra) a los lados; al fusionar, van girando al centro y la nueva se monta con un estallido rojo (`tdForgeAnim`). Fusión: las dos criaturas desaparecen y queda
+  (`TD_FORGE`, `td.forge`); en el altar, pestaña **Fusió** (`tdForgeHtml`, `tdForge`): la nueva en medio y las ingredientes (o la criatura y la pedra) a los lados; al fusionar, ceremonia a pantalla completa (`tdForgeAnim`, `#td-forge-show`; más grande que la de las míticas): las ingredientes se desmontan pieza a pieza (cada traço vuela a orbitar el núcleo) y la nueva se monta como un robot, de abajo arriba, encajando cada pieza con chispa y temblor; al final estalla el núcleo, giran los rayos y sale el nombre. Fusión: las dos criaturas desaparecen y queda
   la nueva con la media de estrellas y de nivel (hacia abajo) y las copias sumadas; para subirla de estrella pide el doble de
   copias (`tdCopyMult`), y las copias que salgan luego de las ingredientes van a ella (`tdForgedInto` en `tdGrant`). Evolución:
   If/else + pedra → Codi Spaghetti (se queda con todo). Las 4: **Dron de mostreig** (Brúixola + Prismàtics, Sendera; `drone`: sale de

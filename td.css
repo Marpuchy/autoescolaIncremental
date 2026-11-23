@@ -1266,3 +1266,23 @@
   .td-forge-in { min-width: 56px; } .td-forge-in svg { width: 46px; height: 46px; } .td-forge-gem { font-size: 1.8rem; line-height: 46px; }
   .td-forge-out svg { width: 76px; height: 76px; } .td-forge-out.hidden .tdbook-q { line-height: 76px; }
 }
+
+/* ---- cerimònia de la fusió (Matrícula d'Honor) */
+#td-forge-show { position: absolute; inset: 0; z-index: 7; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
+#td-forge-show .fs-bg { position: absolute; inset: 0; background: radial-gradient(circle at 50% 48%, #3a0a14 0%, #0a0508 70%); animation: tds-a-in 0.5s both; }
+#td-forge-show .fs-stage { position: relative; width: min(96vw, 1100px); height: auto; max-height: 62vh; overflow: visible; }
+#td-forge-show .fs-rays { opacity: 0; transition: opacity 0.6s; }
+#td-forge-show.lit .fs-rays, #td-forge-show.done .fs-rays { opacity: 1; animation: td-spin 18s linear infinite; transform-box: view-box; transform-origin: 690px 300px; }
+#td-forge-show .fs-src .fs-root { animation: fs-charge 0.7s ease-in-out both; transform-box: fill-box; transform-origin: center; }
+@keyframes fs-charge { 0% { opacity: 0; transform: scale(0.6); } 60% { opacity: 1; transform: scale(1.05); filter: drop-shadow(0 0 0 #ff3b4e); } 100% { transform: scale(1); filter: drop-shadow(0 0 12px #ff3b4e); } }
+#td-forge-show .fs-new .fs-root { filter: drop-shadow(0 0 0 #ff3b4e); transition: filter 0.6s; }
+#td-forge-show.lit .fs-new .fs-root, #td-forge-show.done .fs-new .fs-root { filter: drop-shadow(0 0 14px #ff3b4e); }
+#td-forge-show.done .fs-src { display: none; }
+#td-forge-show.done .fs-new .fs-p { opacity: 1 !important; transform: none !important; }
+#td-forge-show .fs-title { position: relative; text-align: center; opacity: 0; transform: translateY(14px); transition: opacity 0.5s, transform 0.5s; }
+#td-forge-show.lit .fs-title, #td-forge-show.done .fs-title { opacity: 1; transform: none; }
+#td-forge-show .fs-kicker { color: #ff3b4e; font-weight: 900; letter-spacing: 0.3em; text-transform: uppercase; font-size: 0.85rem; text-shadow: 0 0 12px #ff3b4e; }
+#td-forge-show .fs-name { font-size: clamp(1.8rem, 5vw, 3rem); font-weight: 900; color: #fff; text-shadow: 0 0 18px #ff3b4e, 0 0 4px #ff8a96; }
+#td-forge-show .fs-sub { color: #ffb0b8; font-size: 0.9rem; }
+#td-forge-show .fs-btns { position: relative; margin-top: 14px; display: flex; gap: 8px; }
+@media (max-width: 700px) { #td-forge-show .fs-stage { width: 150vw; max-width: none; max-height: 56vh; } }
