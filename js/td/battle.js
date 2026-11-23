@@ -68,7 +68,7 @@ function tdOpenBattle(worldId = 1) {
   requestAnimationFrame(tdbLoop);
 }
 function tdCloseBattle(toLobby = true) {
-  if (tdb && !tdb.over) tdbFinish(false, true);
+  if (tdb && (!tdb.over || (tdb.shattering && !tdb.ended))) { tdb.ended = true; tdbFinish(false, true); } // també si s'ix mentre es trenca el cristall
   tdb = null;
   $("td-battle").hidden = true;
   if (toLobby) tdOpenLobby(tdRoom);
@@ -1244,6 +1244,8 @@ function tdbUpdate(dt) {
     if (e.dist >= tdbP(e).total) {
       e.hp = 0;
       e.el.remove();
+      // un cap que arriba al cristall el trenca: es perd el món, siguen les vides que siguen
+      if (e.def.boss && !tdb.god) { tdb.lives = 0; tdbShatter(e); return; }
       if (!tdb.god) tdb.lives -= e.def.lives;
       $("tdb-student")?.classList.add("hurt");
       setTimeout(() => $("tdb-student")?.classList.remove("hurt"), 500);
@@ -1392,6 +1394,22 @@ function tdbBanner(text) {
   b.classList.add("show");
 }
 // Fi del combat: el saber guanyat es queda sempre (també si perds o ixes)
+// El cristall es trenca: tremola, esclata en trossos que salten i cauen, i després ix el final de la partida
+function tdbShatter(e) {
+  tdb.over = true; tdb.shattering = true; // ja no es mou res
+  tdbHud?.();
+  const cr = $("tdb-crystal"), [cx, cy] = tdbS(...tdb.world.crystal), forest = tdb.world.mode === "forestal";
+  const C = forest ? ["#1f6a3e", "#9ff07a"] : ["#0b2a3a", "#7fe8ff"];
+  cr.classList.add("shatter");
+  toast(`💥 ${e.def.name} ha trencat el cristall!`, "bad");
+  const g = el("g", { class: "tdb-shards", transform: `translate(${cx} ${cy})` }, $("tdb-fx"));
+  g.innerHTML = `<circle r="20" fill="#fff" class="tdb-shard-flash"/>` + Array.from({ length: 14 }, (_, i) => {
+    const a = i / 14 * Math.PI * 2 + Math.random() * 0.3, d = 90 + Math.random() * 110, r = 6 + Math.random() * 12;
+    return `<g class="tdb-shard" style="--dx:${(Math.cos(a) * d).toFixed(0)}px;--dy:${(Math.sin(a) * d - 30).toFixed(0)}px;--rot:${Math.round(Math.random() * 540 - 270)}deg;animation-delay:${(0.35 + Math.random() * 0.1).toFixed(2)}s">
+      <path d="M0 ${-r} L${r * 0.7} ${r * 0.2} L${-r * 0.4} ${r}" fill="${C[0]}" stroke="${C[1]}" stroke-width="2.5" stroke-linejoin="round"/></g>`; }).join("");
+  const B = tdb;
+  setTimeout(() => { if (tdb === B && !B.ended) { B.ended = true; tdbFinish(false); } }, 1500);
+}
 function tdbFinish(won, quiet = false) {
   tdb.over = true;
   if (won) {

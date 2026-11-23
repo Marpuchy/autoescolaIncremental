@@ -464,7 +464,7 @@ function tdBeastPages(id) {
   const e = tdEnemy(id), seen = td.seen.includes(id);
   if (!seen) return [`<div class="tdbook-art locked">${tdEnemySvg(id)}</div><h3 class="tdbook-name">???</h3>`, `<p class="tdbook-text">Encara no t'ha atacat.</p>`];
   return [`<div class="tdbook-art">${tdEnemySvg(id)}</div><h3 class="tdbook-name">${e.name}</h3>${e.look ? `<div class="tdbook-rar look">${e.look}</div>` : ""}${e.boss ? '<div class="tdbook-rar boss">CAP</div>' : ""}`,
-    `<p class="tdbook-text tdbook-lore">${e.lore || ""}</p><p class="tdbook-text"><strong>Habilitat:</strong> ${e.desc}</p><table class="tdbook-stats"><tr><th>Vida</th><td>${Math.round(e.hp * TD_DIFFICULTY.hp)} <span class="muted">(+${Math.round(TD_WAVE_HP * (e.boss ? 50 : 100))} % per onada)</span></td></tr>
+    `<p class="tdbook-text tdbook-lore">${e.lore || ""}</p><p class="tdbook-text"><strong>Habilitat:</strong> ${e.desc}${e.boss ? " <strong>Si arriba al cristall, el trenca.</strong>" : ""}</p><table class="tdbook-stats"><tr><th>Vida</th><td>${Math.round(e.hp * TD_DIFFICULTY.hp)} <span class="muted">(+${Math.round(TD_WAVE_HP * (e.boss ? 50 : 100))} % per onada)</span></td></tr>
       <tr><th>Velocitat</th><td>${e.speed}</td></tr><tr><th>Dany al cristall</th><td>${e.lives}</td></tr><tr><th>Maná en morir</th><td>🔮 ${e.mana}</td></tr>
       ${e.weak ? `<tr><th>Feble a</th><td>${tdElemTag(e.weak)} <span class="muted">×${String(TD_ELEM_WEAK).replace(".", ",")}</span></td></tr>` : ""}
       ${e.strong ? `<tr><th>Forta contra</th><td>${tdElemTag(e.strong)} <span class="muted">×${String(TD_ELEM_STRONG).replace(".", ",")}</span></td></tr>` : ""}</table>

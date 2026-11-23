@@ -132,6 +132,7 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   (`spawn`: deja pestañas/hormigas detrás) y jefe L'Algoritme / Papallona irisada (`shift`: cambia de debilidad cada 6 s,
   icono encima, color `--shift`). Artefactos: Pell bioluminescent (Marc, `biolum`, +15 % saber) y Banyes de cervatell (Alba, `banyes`, cap).
   Balance de mundos: `python tools/td-progres.py [--mon=2]`.
+  Un jefe que llega al cristal lo rompe (`tdbShatter`: se pierde el mundo con las vidas que queden, animación de trozos).
 - Botiga, tests, compendio e inventario viven en la DGT (`js/hub.js`): pantalla completa con el interior dibujado y
   4 puntos interactivos (caixer, instructor, llibre, espill). Ya no hay panel derecho.
 - Cada zona nueva trae un enemigo nuevo y temático (nunca una "versión más fuerte"); jefe con nombre cada 3 zonas,
