@@ -152,12 +152,21 @@ const TD_ENEMIES = {
                     lore: "Sempre hi ha un vídeo més. Quan creus que l'has acabat, se'n parteix en dos i continua baixant per la pantalla.",
                     desc: "En morir es dividix en dos scrolls menuts." },
   scrollet:       { name: "Scroll menut", hp: 15, speed: 85, lives: 1, mana: 2, saber: 1, size: 52, art: "scroll", hidden: true },
+  // Món 2: les pestanyes del navegador (al bosc, la formiga reina) en van obrint de noves mentre camina
+  pestanyes:      { name: "Pestanyes obertes", hp: 70, speed: 48, lives: 2, mana: 7, saber: 3, size: 88, spawn: { every: 4, max: 3, type: "pestanyeta" },
+                    lore: "«Ho mire després». Una pestanya, després una altra, i una altra… Mentre camina en va obrint de noves, i cada una et robarà cinc minuts que mai són cinc.",
+                    desc: "Cada 4 s obri una pestanya menuda que va darrere seu (fins a 3)." },
+  pestanyeta:     { name: "Pestanya", hp: 14, speed: 82, lives: 1, mana: 1, saber: 1, size: 50, art: "pestanyeta", hidden: true },
   meme:           { name: "Meme", hp: 45, speed: 70, lives: 1, mana: 6, saber: 2, size: 80, stealth: 0.4,
                     lore: "No el veus vindre: s'amaga entre les fotos del grup fins que és massa tard. Quan l'entens, ja t'ha robat mitja vesprada de riure.",
                     desc: "Invisible (no es pot atacar) durant el primer 40 % del camí." },
   series:         { name: "Marató de sèries", hp: 900, speed: 30, lives: 10, mana: 60, saber: 40, size: 150, boss: true, heal: { radius: 160, hps: 10 },
                     lore: "«L'últim capítol i a dormir». Porta les crispetes i la temporada sencera. Cura les distraccions que té a prop perquè sempre ve un capítol més.",
                     desc: "Cura 10 de vida per segon als enemics que té a prop." },
+  // Cap del món 2: l'Algoritme (al bosc, la papallona irisada) canvia del que és feble i fort cada pocs segons
+  algoritme:      { name: "L'Algoritme", hp: 1900, speed: 30, lives: 15, mana: 100, saber: 80, size: 158, boss: true, shift: { every: 6 },
+                    lore: "Sap què t'agrada abans que tu. Quan creus que l'has entés, canvia: el que el feia caure ja no li fa res, i el que no li feia res ara el tomba. Mira-li la icona del cap i canvia d'estratègia.",
+                    desc: "Cada 6 s canvia de debilitat i de fortalesa (la icona de damunt diu a què és feble ara)." },
   diumenge:       { name: "Diumenge a la nit", hp: 2200, speed: 28, lives: 20, mana: 120, saber: 100, size: 160, boss: true, rush: { every: 4, mult: 1.35, dur: 2 },
                     lore: "La nit que tot ho accelera: els deures que no has fet, l'examen de dilluns, l'agenda en blanc. Quan arriba, ja vas tard.",
                     desc: "Cada 4 s accelera tots els enemics un 35 % durant 2 s." },
@@ -197,6 +206,9 @@ const TD_ENEMY_ELEMENTS = {
   scrollet:       { weak: "buit", strong: "electric" },
   meme:           { weak: "natura", strong: "arca", why: "Eixir a tocar herba el desfà; la màgia només el fa més viral." },
   series:         { weak: "fisic", strong: "foc", why: "Tancar el portàtil d'un colp l'atura; ja té les crispetes calentes: el foc no li fa res." },
+  pestanyes:      { weak: "foc", strong: "fisic", why: "Quan el portàtil s'escalfa, es tanquen totes de colp; a colps, en canvi, només se n'obrin més." },
+  pestanyeta:     { weak: "foc", strong: "fisic" },
+  algoritme:      { why: "No té debilitat fixa: canvia cada pocs segons. Ara és feble a l'element que du damunt del cap." },
   diumenge:       { weak: "arca", strong: "natura", why: "Un encanteri de concentració l'escurça; ni eixir a passejar el salva." },
 };
 for (const [id, e] of Object.entries(TD_ENEMIES)) Object.assign(e, TD_ENEMY_ELEMENTS[id] || {});
@@ -223,6 +235,13 @@ const TD_ARTIFACTS = {
   capallop:   { name: "Bastó de la natura", icon: "🌿", slot: "ma", boss: "diumenge", world: 101, stat: "slowAll", value: 0.06,
                 desc: lvl => `Arrels i fulles responen a la granoteta: les distraccions van un ${Math.round(0.06 * tdArtMult(lvl) * 100)} % més lentes.` },
 };
+// Món 2 (l'Algoritme): la pell bioluminescent de l'ajolot i les banyes de cervatell de la granoteta
+Object.assign(TD_ARTIFACTS, {
+  biolum:     { name: "Pell bioluminescent", icon: "🟢", slot: "pell", boss: "algoritme", world: 2, stat: "saber", value: 0.15, skin: "biolum",
+                desc: lvl => `L'ajolot brilla en la foscor, verd neó. +${Math.round(0.15 * tdArtMult(lvl) * 100)} % de saber guanyat als mons.` },
+  banyes:     { name: "Banyes de cervatell", icon: "🦌", slot: "cap", boss: "algoritme", world: 102, stat: "slowAll", value: 0.06,
+                desc: lvl => `Dues banyetes de cervatell entre les flors del cap: les distraccions van un ${Math.round(0.06 * tdArtMult(lvl) * 100)} % més lentes.` },
+});
 const tdArtMult = lvl => 1 + 0.25 * (lvl - 1);
 const TD_ARTIFACT_SLOTS = 3;
 // Espais de l'estudiant (com a l'autoescola, sense la mascota): cada artefacte va en el seu; un per espai.
@@ -301,6 +320,11 @@ const TD_FOREST_ENEMIES = {
                     lore: "Es posa del color de les branques i no el veus fins que és massa tard. Quan l'enxampes, ja t'ha robat mitja vesprada rient-te'n amb la llengua fora." },
   series:         { look: "Corro de bolets",
                     lore: "Un bolet darrere l'altre, en rogle, com els capítols d'una temporada. Per davall de terra, el micel·li alimenta les distraccions que té a prop: sempre en naix un més." },
+  pestanyes:      { look: "Formiga reina",
+                    lore: "Grossa i lenta, amb l'abdomen ple: mentre camina pel sender va deixant formigues obreres darrere seu, i cada una s'emporta una molleta del teu temps." },
+  pestanyeta:     { look: "Formiga" },
+  algoritme:      { look: "Papallona irisada",
+                    lore: "Les ales li canvien de color segons com li dona la llum: ara blava, ara roja, ara verda. Cada color la fa feble a una cosa i forta contra una altra; mira quin porta abans de pegar." },
   diumenge:       { look: "Llop de la lluna",
                     lore: "Ix quan es fa fosc el diumenge i udola a la lluna: els deures que no has fet, l'examen de dilluns… Quan udola, tot el bosc arranca a córrer." },
 };
@@ -326,7 +350,28 @@ const TD_WORLDS = [
       [["notificacio", 12, 0.5], ["diumenge", 1, 1], ["son", 5, 1.4], ["procrastinacio", 5, 1.5]],
     ],
   },
-  { id: 2, mode: "informatic", name: "Laboratori de Circuits", layout: "Bifurcació", soon: true },
+  {
+    // Món 2: el camí es partix en dos i torna a ajuntar-se abans del cristall; les distraccions es reparteixen
+    id: 2, mode: "informatic", name: "Laboratori de Circuits", layout: "Bifurcació", hp: 1, mana: 80, needs: 1, // dos camins: més maná per a començar
+    paths: [
+      [[-60, 450], [300, 450], [300, 170], [1050, 170], [1050, 450], [1460, 450]],
+      [[-60, 450], [300, 450], [300, 730], [1050, 730], [1050, 450], [1460, 450]],
+    ],
+    slots: [[160, 300], [160, 600], [500, 330], [820, 330], [500, 570], [820, 570], [660, 450], [1220, 300], [1220, 600], [1380, 640]],
+    crystal: [1500, 450], student: [110, 800],
+    waves: [
+      [["notificacio", 10, 0.7]],
+      [["notificacio", 8, 0.6], ["pestanyes", 2, 3]],
+      [["procrastinacio", 4, 1.8], ["son", 4, 1.4]],
+      [["pestanyes", 3, 2.4], ["scroll", 6, 1]],
+      [["meme", 8, 0.9], ["series", 1, 1], ["pestanyes", 3, 2]],
+      [["pestanyes", 4, 2], ["procrastinacio", 5, 1.5], ["notificacio", 10, 0.4]],
+      [["son", 6, 1], ["scroll", 8, 0.8], ["pestanyes", 3, 2]],
+      [["meme", 10, 0.7], ["procrastinacio", 6, 1.3], ["pestanyes", 4, 1.8]],
+      [["series", 1, 1], ["pestanyes", 4, 1.6], ["scroll", 10, 0.7]],
+      [["notificacio", 14, 0.4], ["algoritme", 1, 1], ["pestanyes", 4, 1.6], ["procrastinacio", 6, 1.3]],
+    ],
+  },
   { id: 3, mode: "informatic", name: "Torre del Compilador", layout: "Espiral", soon: true },
   { id: 4, mode: "informatic", name: "El Núvol", layout: "Doble entrada", soon: true },
   { id: 5, mode: "informatic", name: "Servidor Abissal", layout: "Doble entrada", soon: true },
@@ -335,9 +380,11 @@ const TD_WORLDS = [
 // (fons a tdbBackground). Les distraccions són les mateixes, dibuixades com a coses del bosc (TD_FOREST_ENEMIES).
 TD_WORLDS.push(
   { ...TD_WORLDS[0], id: 101, mode: "forestal", name: "Sendera de les Arrels" },
-  { id: 102, mode: "forestal", name: "La Pineda", layout: "Bifurcació", soon: true },
+  { ...TD_WORLDS[1], id: 102, mode: "forestal", name: "La Pineda", needs: 101 },
   { id: 103, mode: "forestal", name: "El Barranc", layout: "Espiral", soon: true },
   { id: 104, mode: "forestal", name: "La Muntanya Cremada", layout: "Doble entrada", soon: true },
   { id: 105, mode: "forestal", name: "El Cor del Bosc", layout: "Doble entrada", soon: true },
 );
+// Un món s'obri quan s'ha superat el d'abans (needs)
+const tdWorldShut = w => !!w.needs && !(typeof td !== "undefined" && td.worlds?.[w.needs]?.clears > 0);
 const tdWorldNum = w => TD_WORLDS.filter(o => o.mode === w.mode).indexOf(w) + 1;

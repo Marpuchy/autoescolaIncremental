@@ -313,6 +313,28 @@ const TD_ENEMY_ART = {
     ${tube("M36 18 L48 30 M64 18 L52 30 M14 30 H86 Q90 30 90 34 V82 Q90 86 86 86 H14 Q10 86 10 82 V34 Q10 30 14 30 Z", TD_GLOW.bad, 4.6)}
     <path d="M42 46 L62 58 L42 70 Z" fill="#fff" stroke="${TD_GLOW.bad}" stroke-width="3" stroke-linejoin="round"/>
     <g class="badge">${glyphText(72, 80, 9, "EP 99", TD_GLOW.bad)}</g>`,
+  // Pestanyes obertes: finestra del navegador amb tres pestanyes dalt (la de davant encesa) i dues finestres més darrere
+  pestanyes: `<ellipse cx="50" cy="96" rx="34" ry="4" fill="#5ad8ff" opacity="0.22"/>
+    ${tube("M26 34 H82 V74 H26 Z", "#2a6a8a", 3)}${tube("M20 40 H76 V80 H20 Z", "#3a8aaa", 3)}
+    <path d="M14 46 H74 V88 H14 Z" fill="#0b1a24"/>
+    ${tube("M14 50 H74 V88 H14 Z", "#5ad8ff", 4)}
+    ${tube("M16 50 L19 40 H34 L37 50 M37 50 L40 42 H52 L55 50 M55 50 L58 42 H68 L71 50", "#5ad8ff", 3)}
+    <path d="M19 41 H34 L37 50 H16 Z" fill="#5ad8ff" opacity="0.35"/>
+    ${tube("M22 60 H62 M22 68 H52 M22 76 H58", "#bfeeff", 2.4, 'opacity="0.7"')}
+    <g class="badge">${tube("M80 38 V50 M74 44 H86", "#ffd84a", 3.2)}</g>`,
+  // Pestanya: una sola, menuda, amb la creueta de tancar
+  pestanyeta: `<ellipse cx="50" cy="96" rx="20" ry="3" fill="#5ad8ff" opacity="0.2"/>
+    <path d="M18 88 L26 56 H74 L82 88 Z" fill="#0b1a24"/>${tube("M18 88 L26 56 H74 L82 88 Z", "#5ad8ff", 4)}
+    ${tube("M40 66 L52 78 M52 66 L40 78", "#bfeeff", 3)}`,
+  // L'Algoritme: un ull gran dins d'un botó de «play», amb miniatures de vídeos que li giren al voltant. L'iris i
+  // les miniatures agafen el color de l'element a què és feble ara (--shift, el posa el combat)
+  algoritme: `<ellipse cx="50" cy="96" rx="36" ry="4.5" fill="#ff5ab0" opacity="0.28"/>
+    <g class="ring" style="transform-origin:50px 52px">${[0, 1, 2, 3, 4, 5].map(i => { const a = i / 6 * Math.PI * 2, x = 50 + Math.cos(a) * 40, y = 52 + Math.sin(a) * 40;
+      return `<rect x="${(x - 7).toFixed(1)}" y="${(y - 5).toFixed(1)}" width="14" height="10" rx="2" fill="#141024" style="stroke:var(--shift,#ff5ab0)" stroke-width="2"/><path d="M${(x - 2).toFixed(1)} ${(y - 3).toFixed(1)} L${(x + 3).toFixed(1)} ${y.toFixed(1)} L${(x - 2).toFixed(1)} ${(y + 3).toFixed(1)} Z" fill="#fff" opacity="0.8"/>`; }).join("")}</g>
+    <path d="M30 24 L80 52 L30 80 Z" fill="none" stroke="#ff5ab0" stroke-width="11" stroke-linejoin="round" opacity="0.18"/>
+    <path d="M30 24 L80 52 L30 80 Z" fill="#141024" stroke="#ff5ab0" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M30 52 Q44 38 58 52 Q44 66 30 52 Z" fill="#fff"/>
+    <circle cx="44" cy="52" r="8" style="fill:var(--shift,#ff5ab0)"/><circle cx="44" cy="52" r="3.4" fill="#000"/><circle cx="41.5" cy="49.5" r="1.6" fill="#fff"/>`,
   diumenge: `<ellipse cx="50" cy="96" rx="34" ry="4.5" fill="#4a7fc8" opacity="0.3"/>
     ${tube("M60 10 C34 12 16 34 18 58 C20 82 44 96 68 90 C48 84 34 68 36 48 C38 30 50 16 60 10 Z", "#7fb8ff", 4.4)}
     ${tube("M54 34 H88 V74 H54 Z M54 44 H88", TD_GLOW.bad, 3.4)}
@@ -361,6 +383,31 @@ const TD_FOREST_ENEMY_ART = {
       <path d="M-24 -24 Q-22 -46 0 -48 Q22 -46 24 -24 Q0 -18 -24 -24 Z" fill="#c8321e" stroke="${TD_GLOW.bad}" stroke-width="3"/>
       ${[[-12, -36], [4, -42], [12, -30], [-2, -30]].map(([a, b]) => `<circle cx="${a}" cy="${b}" r="3" fill="#fff4e0"/>`).join("")}</g>`).join("")}`,
   // Llop de la lluna: assegut de perfil udolant, amb el musell amunt; darrere, la lluna creixent
+  // Formiga reina: de perfil, mirant a l'esquerra: cap amb mandíbules i antenes, tòrax i abdomen enorme (ple d'ous),
+  // sis potes i restes d'ales al llom
+  pestanyes: `<ellipse cx="50" cy="96" rx="36" ry="4" fill="#ff8a3a" opacity="0.22"/>
+    <path d="M44 50 Q56 32 72 42" fill="#ffd8a8" opacity="0.25"/>
+    ${tube("M32 66 L22 88 M40 68 L38 90 M48 68 L58 90", "#ff9a4a", 2.4)}
+    <ellipse cx="70" cy="64" rx="24" ry="17" fill="#3a1a0c" stroke="#ff8a3a" stroke-width="3.4"/>
+    ${tube("M58 56 Q70 52 84 58 M56 66 Q70 64 88 68", "#ff8a3a", 1.6, 'opacity="0.6"')}
+    <ellipse cx="42" cy="62" rx="10" ry="8" fill="#3a1a0c" stroke="#ff8a3a" stroke-width="3"/>
+    <circle cx="24" cy="58" r="9" fill="#3a1a0c" stroke="#ff8a3a" stroke-width="3"/><circle cx="20" cy="55" r="2" fill="#ffd8a8"/>
+    ${tube("M17 63 L9 67 M17 61 L11 59", "#ff9a4a", 2)}${tube("M24 50 Q20 36 10 32 M27 50 Q30 38 24 28", "#ff9a4a", 1.8)}`,
+  // Formiga obrera: la mateixa, menuda i prima
+  pestanyeta: `<ellipse cx="50" cy="96" rx="20" ry="3" fill="#ff8a3a" opacity="0.2"/>
+    ${tube("M38 76 L30 90 M46 76 L46 90 M56 76 L64 90", "#ff9a4a", 2.4)}
+    <ellipse cx="64" cy="72" rx="14" ry="10" fill="#3a1a0c" stroke="#ff8a3a" stroke-width="3"/>
+    <ellipse cx="46" cy="72" rx="7" ry="6" fill="#3a1a0c" stroke="#ff8a3a" stroke-width="2.6"/>
+    <circle cx="31" cy="68" r="7.5" fill="#3a1a0c" stroke="#ff8a3a" stroke-width="2.6"/>${tube("M31 61 Q27 50 19 46 M34 61 Q37 50 31 42", "#ff9a4a", 1.6)}`,
+  // Papallona irisada: vista de cara, ales grans de dalt i menudes de baix del color de l'element a què és feble ara
+  // (--shift), amb ulls a les ales i el cos fosc al mig
+  algoritme: `<ellipse cx="50" cy="96" rx="34" ry="4.5" fill="#ff5ab0" opacity="0.25"/>
+    <g class="wings" style="transform-origin:50px 50px">
+    <path d="M48 46 C34 18 6 14 8 34 C10 50 30 56 48 52 Z M52 46 C66 18 94 14 92 34 C90 50 70 56 52 52 Z" style="fill:var(--shift,#ff5ab0)" opacity="0.85" stroke="#fff" stroke-width="2"/>
+    <path d="M48 56 C34 60 16 76 26 86 C34 92 46 76 49 62 Z M52 56 C66 60 84 76 74 86 C66 92 54 76 51 62 Z" style="fill:var(--shift,#ff5ab0)" opacity="0.6" stroke="#fff" stroke-width="2"/>
+    <circle cx="26" cy="34" r="7" fill="#141024"/><circle cx="26" cy="34" r="3" fill="#fff"/><circle cx="74" cy="34" r="7" fill="#141024"/><circle cx="74" cy="34" r="3" fill="#fff"/></g>
+    <ellipse cx="50" cy="56" rx="4.5" ry="22" fill="#141024" stroke="#ffd8f0" stroke-width="2"/>
+    ${tube("M48 36 Q42 22 36 18 M52 36 Q58 22 64 18", "#ffd8f0", 1.8)}`,
   diumenge: `<ellipse cx="50" cy="96" rx="34" ry="4.5" fill="#4a7fc8" opacity="0.3"/>
     ${tube("M84 6 C70 8 62 20 64 32 C66 44 78 50 90 46 C80 44 72 36 74 26 C75 16 80 10 84 6 Z", "#ffe8a0", 2.8)}
     <path d="M30 94 C26 76 30 60 36 50 L30 34 L22 22 L30 24 L34 16 L40 26 C44 30 48 34 50 40 C58 48 72 56 74 74 C76 86 70 94 60 94 Z" fill="#2a3450" stroke="#7fb8ff" stroke-width="3.4" stroke-linejoin="round"/>
@@ -412,6 +459,8 @@ const TD_STUDENT_FRONT = `<g class="td-book">
 // espais són branquies, mà i pell (TD_EQUIP_SLOTS_AXO). P = paleta de la pell (TD_AXO_SKINS); %BACK% i %FRONT%, artefactes.
 const TD_AXO_SKINS = {
   leucistic: { body: "#fde6ee", body2: "#f6cddb", shade: "#f2c3d3", belly: "#fff6f9", line: "#2e1d26", gill: "#f59ab0", gillL: "#cf5a7c", mouth: "#e96a8e", tongue: "#f7a6c0" },
+  // Pell bioluminescent (món 2): verd neó, com els ajolots que brillen amb llum ultraviolada; a més, una aura verda (CSS)
+  biolum:    { body: "#9affb8", body2: "#6af094", shade: "#4fd87c", belly: "#d8ffe4", line: "#0c3a1c", gill: "#2aff7a", gillL: "#10b850", mouth: "#18a04e", tongue: "#7aff9a" },
 };
 const tdAxoSvg = (() => {
   let P = TD_AXO_SKINS.leucistic; // paleta activa (la fan servir les peces de baix)
@@ -451,10 +500,10 @@ const tdAxoSvg = (() => {
     ${STAR5(63, -35, 5.5, "#ffe27a")}`;
   const cache = {};
   return (skin = "leucistic") => cache[skin] ||= (pal => { P = pal; return `<defs>
-    <linearGradient id="axo-fin" x1="0" x2="1" y1="0" y2="0.3"><stop offset="0" stop-color="#ffd8e4" stop-opacity="0.9"/><stop offset="1" stop-color="#f7a6c0" stop-opacity="0.72"/></linearGradient></defs>
+    <linearGradient id="axo-fin-${P.body.slice(1)}" x1="0" x2="1" y1="0" y2="0.3"><stop offset="0" stop-color="${P.belly}" stop-opacity="0.9"/><stop offset="1" stop-color="${P.tongue}" stop-opacity="0.72"/></linearGradient></defs>
   <ellipse cx="96" cy="152" rx="64" ry="5.5" fill="#000" opacity="0.28"/>
   <!-- aleta de la cua: transparent per dalt i per baix, acaba en punta -->
-  <g class="tail"><path d="M126 113 C138 109 147 104 155 99 C166 93 173 103 168 112 C160 127 144 140 126 149 Z" transform="rotate(-6 126 126) translate(126 130) scale(0.87 0.9) translate(-126 -130)" fill="#f7a6c0"/></g>
+  <g class="tail"><path d="M126 113 C138 109 147 104 155 99 C166 93 173 103 168 112 C160 127 144 140 126 149 Z" transform="rotate(-6 126 126) translate(126 130) scale(0.87 0.9) translate(-126 -130)" fill="${P.tongue}"/></g>
   <g class="branquies">${gill(40, 66, -4, true)}${gill(152, 66, -4)}</g>
   %BACK%
   <g class="silueta">
@@ -498,6 +547,12 @@ const TD_AXO_WEAR = {
 // Peces dels artefactes: `back` es pinta davall del barret (diadema), `front` damunt de tot.
 // `hides`: parts de la granoteta que deixen de veure's (la mà dreta, si l'artefacte la fa servir: només en té dues)
 const TD_ARTIFACT_WEAR = {
+  // Banyes de cervatell (món 2 del bosc): dues banyetes curtes amb una forqueta, de vellut, que ixen d'entre les fulles
+  // de la corona; van darrere de la corona perquè la base quede tapada per les fulles
+  banyes: { back: `<g class="banyes">${[-1, 1].map(k => { const x = 70 + k * 18;
+    return `<path d="M${x} 44 Q${x + k * 2} 30 ${x + k * 8} 18 M${x + k * 3} 30 Q${x + k * 10} 28 ${x + k * 15} 22" stroke="#8a5a32" stroke-width="7" fill="none" stroke-linecap="round"/>
+      <path d="M${x} 44 Q${x + k * 2} 30 ${x + k * 8} 18 M${x + k * 3} 30 Q${x + k * 10} 28 ${x + k * 15} 22" stroke="#c8925a" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <circle cx="${x + k * 8}" cy="18" r="2.6" fill="#f0d0a8"/><circle cx="${x + k * 15}" cy="22" r="2.2" fill="#f0d0a8"/>`; }).join("")}</g>` },
   // Bastó de la natura (id capallop): dret davant seu (pot tapar-li la cara), branca torta amb fulles i una llavor que
   // brilla a dalt; la mà dreta es torna a pintar damunt i l'agafa (com l'ajolot)
   capallop: { front: `<g class="basto-natura"><path d="M104 158 Q108 120 102 84 Q98 60 104 40" stroke="#6b4a2a" stroke-width="5.5" fill="none" stroke-linecap="round"/>
@@ -522,10 +577,12 @@ function tdStudentSvg(equipped = [], attrs = "") {
     const part = x => typeof x === "function" ? x() : x || "";
     let art = tdAxoSvg(skin).replace("%BACK%", w.map(x => part(x.back)).join("")).replace("%FRONT%", w.map(x => part(x.front)).join(""));
     for (const cls of w.flatMap(x => x.hides || [])) art = art.replace(new RegExp(`<path class="${cls}"[^>]*/>`), "");
+    // les peces pintades amb el color de l'ajolot (la mà que agafa el bastó) agafen el de la pell que porta
+    if (skin && TD_AXO_SKINS[skin]) for (const k of ["body", "body2", "shade"]) art = art.split(TD_AXO_SKINS.leucistic[k]).join(TD_AXO_SKINS[skin][k]);
     // ids únics per dibuix: si n'hi ha dos a la pàgina (la sala, amagada, i el combat), el retall de la boca no es perd
     const uid = `a${++tdAxoUid}`;
     art = art.replace(/(id="|url\(#)axo-/g, `$1${uid}-axo-`);
-    return `<svg viewBox="2 -32 196 196" preserveAspectRatio="xMidYMax meet" class="td-student-svg axolot" aria-label="Estudiant (ajolot)" overflow="visible" ${attrs}>${art}</svg>`;
+    return `<svg viewBox="2 -32 196 196" preserveAspectRatio="xMidYMax meet" class="td-student-svg axolot${skin ? ` skin-${skin}` : ""}" aria-label="Estudiant (ajolot)" overflow="visible" ${attrs}>${art}</svg>`;
   }
   const w = equipped.map(id => TD_ARTIFACT_WEAR[id]).filter(Boolean);
   const skin = equipped.map(id => TD_FROG_SKINS[id]).find(Boolean) || {}; // pell: canvia els colors de la granoteta

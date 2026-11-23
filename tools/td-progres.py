@@ -4,7 +4,8 @@ no en cap cap, millora (◆) les que té. Diu fins a quina onada arriba, les vid
 
 Serveix per a vore si el món és un mur o massa fàcil, i si pujar de nivell les criatures fa un salt exagerat.
 
-Ús: python tools/td-progres.py            (les dues sales)
+Ús: python tools/td-progres.py            (les dues sales, món 1)
+    python tools/td-progres.py --mon=2    (el món 2 de cada sala)
     python tools/td-progres.py forestal   (només una)
 No toca cap partida real: navegador nou i local (versió de proves), no escriu al núvol.
 """
@@ -14,6 +15,7 @@ from playwright.sync_api import sync_playwright
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 URL = (ROOT / "index.html").as_uri()
 ROOMS = [a for a in sys.argv[1:] if not a.startswith("--")] or ["informatic", "forestal"]
+WORLD = next((int(a.split("=")[1]) for a in sys.argv[1:] if a.startswith("--mon=")), 1)  # quin món de la sala (1, 2…)
 # (nom, nivell, estrelles, quines raresas té l'equip)
 STAGES = [
     ("Principi (Nv1 ★1, comunes i rares)", 1, 1, ["comu", "rar"]),
@@ -23,8 +25,9 @@ STAGES = [
     ("Final (Nv25 ★5, totes)", 25, 5, ["comu", "rar", "epic", "llegendari", "mitic"]),
 ]
 
-RUN_JS = """([mode, level, stars, rars]) => {
-  const world = TD_WORLDS.find(w => w.mode === mode && !w.soon);
+RUN_JS = """([mode, level, stars, rars, nth]) => {
+  const world = TD_WORLDS.filter(w => w.mode === mode && !w.soon)[nth - 1];
+  for (const w of TD_WORLDS) if (w.mode === mode) td.worlds[w.id] = { best: 10, clears: 1 }; // tots oberts
   // equip: les millors de cada raresa permesa (com a molt 6), de la sala
   const order = ["mitic", "llegendari", "epic", "rar", "comu"];
   // equip: les 2 més barates (per a obrir) i les 4 de més raresa
@@ -44,8 +47,10 @@ RUN_JS = """([mode, level, stars, rars]) => {
   for (let t = 0; t < 1500 && !tdb.over; t += 0.05) {
     if (!tdb.waveRunning && !tdb.spawnQueue.length && !tdb.enemies.length) tdbStartWave();
     const free = slots.find(i => !tdb.towers[i]);
-    const next = byCost[k % byCost.length];
-    if (free !== undefined) { if (tdb.mana >= TD_DEFENDERS[next].cost) { tdbPlace(free, next); k++; } } // si no es pot posar ací, la següent
+    // la següent de la rotació; si no hi ha maná per a ella i el camí s'omple, la més barata que es puga pagar
+    const next = byCost[k % byCost.length], busy = tdb.enemies.length > 6;
+    const pick = tdb.mana >= TD_DEFENDERS[next].cost ? next : busy ? byCost.find(id => tdb.mana >= TD_DEFENDERS[id].cost) : null;
+    if (free !== undefined) { if (pick) { tdbPlace(free, pick); if (pick === next) k++; } }
     else {
       const up = Object.values(tdb.towers).filter(o => tdbUpCost(o) != null).sort((a, b) => tdbUpCost(a) - tdbUpCost(b))[0];
       if (up && tdb.mana >= tdbUpCost(up)) tdbUpgrade(up);
@@ -72,10 +77,10 @@ def main():
         pg.wait_for_timeout(1200)
         pg.evaluate("closeRoom && closeRoom()")
         for mode in ROOMS:
-            print(f"\n== {mode} ==")
+            print(f"\n== {mode} · món {WORLD} ==")
             print(f"{'moment':40} {'onada':>9} {'vides':>6} {'saber':>6}")
             for name, lvl, st, rars in STAGES:
-                runs = [pg.evaluate(RUN_JS, [mode, lvl, st, rars]) for _ in range(2)]
+                runs = [pg.evaluate(RUN_JS, [mode, lvl, st, rars, WORLD]) for _ in range(2)]
                 r = min(runs, key=lambda x: (x["wave"], x["lives"]))
                 print(f"{name:40} {r['wave']:>4} / {r['of']:<3} {r['lives']:>6} {r['saber']:>6}")
         if errs:

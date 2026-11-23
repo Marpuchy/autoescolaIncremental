@@ -1080,3 +1080,14 @@
 .td-mail-item p { margin: 0; line-height: 1.45; }
 .td-mail-gift { font-weight: 700; color: #ffd97a; }
 .td-mail-item button { align-self: flex-start; }
+.tdb-led { animation: tdb-led 2.8s ease-in-out infinite; }
+@keyframes tdb-led { 50% { opacity: 0.5; } }
+/* l'Algoritme: les miniatures giren; la papallona bat les ales; en canviar d'element, un esclat del seu color */
+.tde-algoritme .ring { animation: td-spin 6s linear infinite; }
+.tde-algoritme .wings { animation: tde-flap 0.5s ease-in-out infinite alternate; }
+@keyframes tde-flap { to { transform: scaleX(0.72); } }
+.tdb-enemy.shifted .tde { animation: tde-shift 0.6s ease-out; }
+@keyframes tde-shift { 30% { filter: drop-shadow(0 0 18px var(--shift)) brightness(1.6); } }
+.tdb-shift { animation: tde-shift-pop 0.5s ease-out; transform-box: fill-box; transform-origin: center; }
+@keyframes tde-shift-pop { from { transform: scale(0.3); opacity: 0; } }
+.td-student-svg.skin-biolum { filter: drop-shadow(0 0 5px #4aff8a) drop-shadow(0 0 12px #2aff7a88); }

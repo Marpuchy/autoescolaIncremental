@@ -125,6 +125,12 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   una zona futura siguen en su campo actual hasta que la zona tenga criaturas. En el
   bosque los enemigos son los mismos (mismo nombre y truco) con otro aspecto (`TD_FOREST_ENEMIES`, `TD_FOREST_ENEMY_ART`,
   `tdEnemy`), y el mundo 1 es el mismo trazado con fondo de bosque (`tdbForestBackground`).
+  Mundo 2 de cada sala (Laboratori de Circuits, id 2 · La Pineda, id 102; se abren al superar el 1, `needs`/`tdWorldShut`):
+  camino en bifurcación (`world.paths`, cada distracción lleva el suyo, `e.P`/`tdbP`), fondos `tdbLabBackground` y pinar
+  (`tdbForestBackground` con `pine`), `hp`/`mana` propios del mundo. Distracción nueva Pestanyes obertes / Formiga reina
+  (`spawn`: deja pestañas/hormigas detrás) y jefe L'Algoritme / Papallona irisada (`shift`: cambia de debilidad cada 6 s,
+  icono encima, color `--shift`). Artefactos: Pell bioluminescent (Marc, `biolum`, +15 % saber) y Banyes de cervatell (Alba, `banyes`, cap).
+  Balance de mundos: `python tools/td-progres.py [--mon=2]`.
 - Botiga, tests, compendio e inventario viven en la DGT (`js/hub.js`): pantalla completa con el interior dibujado y
   4 puntos interactivos (caixer, instructor, llibre, espill). Ya no hay panel derecho.
 - Cada zona nueva trae un enemigo nuevo y temático (nunca una "versión más fuerte"); jefe con nombre cada 3 zonas,

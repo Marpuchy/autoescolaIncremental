@@ -33,7 +33,7 @@ DPS_JS = """(id) => {
   for (const e of tdb.enemies) { e.hp = e.maxHp = 1e9; e.def = { ...e.def, speed: 60, sleep: null }; }
   const T = 30;
   for (let t = 0; t < T; t += 0.05) {
-    for (const e of tdb.enemies) if (e.dist > tdb.path.total - 30) e.dist = 0;
+    for (const e of tdb.enemies) if (e.dist > tdbP(e).total - 30) e.dist = 0;
     tdbUpdate(0.05);
   }
   const dmg = tdb.enemies.reduce((s, e) => s + (1e9 - Math.max(0, e.hp)), 0);

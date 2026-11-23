@@ -467,7 +467,7 @@ function tdBeastPages(id) {
   const e = tdEnemy(id), seen = td.seen.includes(id);
   if (!seen) return [`<div class="tdbook-art locked">${tdEnemySvg(id)}</div><h3 class="tdbook-name">???</h3>`, `<p class="tdbook-text">Encara no t'ha atacat.</p>`];
   return [`<div class="tdbook-art">${tdEnemySvg(id)}</div><h3 class="tdbook-name">${e.name}</h3>${e.look ? `<div class="tdbook-rar look">${e.look}</div>` : ""}${e.boss ? '<div class="tdbook-rar boss">CAP</div>' : ""}`,
-    `<p class="tdbook-text tdbook-lore">${e.lore || ""}</p><p class="tdbook-text"><strong>Habilitat:</strong> ${e.desc}</p><table class="tdbook-stats"><tr><th>Vida</th><td>${e.hp} <span class="muted">(+${TD_WAVE_HP * 100} % per onada)</span></td></tr>
+    `<p class="tdbook-text tdbook-lore">${e.lore || ""}</p><p class="tdbook-text"><strong>Habilitat:</strong> ${e.desc}</p><table class="tdbook-stats"><tr><th>Vida</th><td>${Math.round(e.hp * TD_DIFFICULTY.hp)} <span class="muted">(+${Math.round(TD_WAVE_HP * (e.boss ? 50 : 100))} % per onada)</span></td></tr>
       <tr><th>Velocitat</th><td>${e.speed}</td></tr><tr><th>Dany al cristall</th><td>${e.lives}</td></tr><tr><th>Maná en morir</th><td>🔮 ${e.mana}</td></tr>
       ${e.weak ? `<tr><th>Feble a</th><td>${tdElemTag(e.weak)} <span class="muted">×${String(TD_ELEM_WEAK).replace(".", ",")}</span></td></tr>` : ""}
       ${e.strong ? `<tr><th>Forta contra</th><td>${tdElemTag(e.strong)} <span class="muted">×${String(TD_ELEM_STRONG).replace(".", ",")}</span></td></tr>` : ""}</table>
@@ -538,10 +538,10 @@ const tdGrimoriHtml = () => tdBookHtml("grimori");
 function tdWorldsHtml() {
   return `<p class="td-hint">Cada món té 10 onades i dos caps, que deixen artefactes per a l'estudiant. El saber que guanyes es queda sempre, encara que perdes.</p>
     <div class="td-worlds">${TD_WORLDS.filter(w => w.mode === tdRoom).map(w => {
-      const p = td.worlds[w.id] || { best: 0, clears: 0 };
-      return `<div class="td-world${w.soon ? " locked" : ""}"><div><strong>${tdWorldNum(w)}. ${w.name}</strong> <span class="muted">· ${w.layout}</span>
-        <div class="muted">${w.soon ? "Pròximament" : `Millor onada: ${p.best} / ${w.waves.length}${p.clears ? ` · superat ${p.clears}×` : ""}`}</div></div>
-        ${w.soon ? "<span>🔒</span>" : `<button data-play="${w.id}">▶ Jugar</button>`}</div>`;
+      const p = td.worlds[w.id] || { best: 0, clears: 0 }, shut = tdWorldShut(w), prev = shut && TD_WORLDS.find(o => o.id === w.needs);
+      return `<div class="td-world${w.soon || shut ? " locked" : ""}"><div><strong>${tdWorldNum(w)}. ${w.name}</strong> <span class="muted">· ${w.layout}</span>
+        <div class="muted">${w.soon ? "Pròximament" : shut ? `Supera «${prev.name}» per a obrir-lo` : `Millor onada: ${p.best} / ${w.waves.length}${p.clears ? ` · superat ${p.clears}×` : ""}`}</div></div>
+        ${w.soon || shut ? "<span>🔒</span>" : `<button data-play="${w.id}">▶ Jugar</button>`}</div>`;
     }).join("")}</div>
     <p class="td-hint">Equip: ${tdTeam(tdRoom).map(id => `<span class="td-chip rar-${TD_DEFENDERS[id].rar}">${TD_DEFENDERS[id].name}</span>`).join(" ")}</p>`;
 }

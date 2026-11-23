@@ -29,6 +29,7 @@ const tdDev = {
       o.copies = Math.max(o.copies, TD_STAR_COPIES[TD_STAR_COPIES.length - 1]);
       o.stars = TD_STAR_COPIES.length; o.level = TD_LEVEL_MAX;
     }
+    for (const m of Object.keys(TD_POINTS)) for (const id of Object.keys(TD_DEFENDERS)) if (tdModeOf(id) === m && tdTeam(m).length < 6 && !td.team.includes(id)) td.team.push(id);
     for (const id of Object.keys(TD_ARTIFACTS)) td.artifacts[id] = 5;
     tdSortRoomArtifacts();
     const equip = arts => Object.keys(arts).filter((id, i, a) => a.findIndex(o => tdArtSlot(o) === tdArtSlot(id)) === i);
