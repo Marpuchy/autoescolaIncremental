@@ -160,7 +160,7 @@ const TD_ENEMIES = {
   meme:           { name: "Meme", hp: 45, speed: 70, lives: 1, mana: 6, saber: 2, size: 80, stealth: 0.4,
                     lore: "No el veus vindre: s'amaga entre les fotos del grup fins que és massa tard. Quan l'entens, ja t'ha robat mitja vesprada de riure.",
                     desc: "Invisible (no es pot atacar) durant el primer 40 % del camí." },
-  series:         { name: "Marató de sèries", hp: 900, speed: 30, lives: 10, mana: 60, saber: 40, size: 150, boss: true, heal: { radius: 160, hps: 10 },
+  series:         { name: "Marató de sèries", hp: 500, speed: 30, lives: 10, mana: 60, saber: 40, size: 150, boss: true, heal: { radius: 160, hps: 10 },
                     lore: "«L'últim capítol i a dormir». Porta les crispetes i la temporada sencera. Cura les distraccions que té a prop perquè sempre ve un capítol més.",
                     desc: "Cura 10 de vida per segon als enemics que té a prop." },
   // Cap del món 2: l'Algoritme (al bosc, la papallona irisada) canvia del que és feble i fort cada pocs segons
@@ -175,8 +175,8 @@ const TD_WAVE_HP = 0.3; // cada onada, +30 % de vida als enemics
 // Dificultat dels mons: vida de totes les distraccions (×) i saber que donen (×). Ajustat amb tools/td-progres.py
 const TD_DIFFICULTY = { hp: 1.5, saber: 2 };
 
-// ---- Elements: el tipus de dany de cada criatura (segons com pega). Cada distracció és feble a un (×1,5) i forta contra
-// un altre (×0,5). La llum i l'ombra peguen sempre amb avantatge (encara no les té cap criatura).
+// ---- Elements: el tipus de dany de cada criatura (segons com pega). Cada distracció és feble a un (×2) i forta contra
+// un altre (×0,3). La llum i l'ombra peguen sempre amb avantatge (encara no les té cap criatura).
 const TD_ELEMENTS = {
   fisic:    { name: "Físic",    icon: "🪨", color: "#e0c8a0" },
   electric: { name: "Elèctric", icon: "⚡", color: "#ffe14a" },
@@ -187,7 +187,7 @@ const TD_ELEMENTS = {
   llum:     { name: "Llum",     icon: "☀️", color: "#fff4b0", always: true },
   ombra:    { name: "Ombra",    icon: "🌑", color: "#8e7dff", always: true },
 };
-const TD_ELEM_WEAK = 1.5, TD_ELEM_STRONG = 0.5;
+const TD_ELEM_WEAK = 2, TD_ELEM_STRONG = 0.3; // feble: el doble de dany; forta: menys d'un terç
 const TD_DEFENDER_ELEMENT = {
   sumador: "buit", vector: "buit", determinant: "buit", lambda: "buit",
   puntcoma: "arca", ifelse: "arca", compilador: "buit", stack: "arca",
@@ -352,7 +352,7 @@ const TD_WORLDS = [
   },
   {
     // Món 2: el camí es partix en dos i torna a ajuntar-se abans del cristall; les distraccions es reparteixen
-    id: 2, mode: "informatic", name: "Laboratori de Circuits", layout: "Bifurcació", hp: 1, mana: 80, needs: 1, // dos camins: més maná per a començar
+    id: 2, mode: "informatic", name: "Laboratori de Circuits", layout: "Bifurcació", hp: 1.25, mana: 80, needs: 1, // dos camins: més maná per a començar
     paths: [
       [[-60, 450], [300, 450], [300, 170], [1050, 170], [1050, 450], [1460, 450]],
       [[-60, 450], [300, 450], [300, 730], [1050, 730], [1050, 450], [1460, 450]],
@@ -380,7 +380,7 @@ const TD_WORLDS = [
 // (fons a tdbBackground). Les distraccions són les mateixes, dibuixades com a coses del bosc (TD_FOREST_ENEMIES).
 TD_WORLDS.push(
   { ...TD_WORLDS[0], id: 101, mode: "forestal", name: "Sendera de les Arrels" },
-  { ...TD_WORLDS[1], id: 102, mode: "forestal", name: "La Pineda", needs: 101 },
+  { ...TD_WORLDS[1], id: 102, mode: "forestal", name: "La Pineda", needs: 101, hp: 0.95 }, // al bosc hi ha més criatures físiques, que les formigues resistixen
   { id: 103, mode: "forestal", name: "El Barranc", layout: "Espiral", soon: true },
   { id: 104, mode: "forestal", name: "La Muntanya Cremada", layout: "Doble entrada", soon: true },
   { id: 105, mode: "forestal", name: "El Cor del Bosc", layout: "Doble entrada", soon: true },

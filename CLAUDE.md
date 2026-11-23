@@ -98,7 +98,7 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   bramit del cérvol) van en `t.boostShot`/`p.sp`; el Projecte las hace desde su sitio. Zonas de suelo: `tdbZone`. La Canya y el
   Contrafoc se quedan como están (decisión del usuario).
   **Elementos** (`TD_ELEMENTS`, `d.el` por criatura en `TD_DEFENDER_ELEMENT`): físic, elèctric, foc, natura, arcà, buit (∅: las matemáticas y el Compilador), y
-  llum/ombra (siempre con ventaja; aún ninguna criatura). Cada distracción es débil a uno (×1,5) y fuerte contra otro (×0,5)
+  llum/ombra (siempre con ventaja; aún ninguna criatura). Cada distracción es débil a uno (×2) y fuerte contra otro (×0,3)
   (`TD_ENEMY_ELEMENTS`, `tdElemMult`); el número de daño sale del color del elemento (grande si es débil, pequeño si resiste).
   `tdbDamage(e, n, src)`: src es la criatura (o el elemento; null = daño puro, p. ej. la pesca). Se ve en el bestiario, el
   grimorio, el equipo y al elegir criatura en combate (`tdElemTag`, `tdElemDot`). En el grimorio solo el elemento, no contra qué.
@@ -128,7 +128,7 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   `tdEnemy`), y el mundo 1 es el mismo trazado con fondo de bosque (`tdbForestBackground`).
   Mundo 2 de cada sala (Laboratori de Circuits, id 2 · La Pineda, id 102; se abren al superar el 1, `needs`/`tdWorldShut`):
   camino en bifurcación (`world.paths`, cada distracción lleva el suyo, `e.P`/`tdbP`), fondos `tdbLabBackground` y pinar
-  (`tdbForestBackground` con `pine`), `hp`/`mana` propios del mundo. Distracción nueva Pestanyes obertes / Formiga reina
+  (`tdbForestBackground` con `pine`), `hp`/`mana` propios del mundo (vida ×1,25 en el Laboratori; ×0,95 en la Pineda, porque las formigues resisten lo físico y el bosque tiene muchas físicas). Distracción nueva Pestanyes obertes / Formiga reina
   (`spawn`: deja pestañas/hormigas detrás) y jefe L'Algoritme / Papallona irisada (`shift`: cambia de debilidad cada 6 s,
   icono encima, color `--shift`). Artefactos: Pell bioluminescent (Marc, `biolum`, +15 % saber) y Banyes de cervatell (Alba, `banyes`, cap).
   Balance de mundos: `python tools/td-progres.py [--mon=2]`.

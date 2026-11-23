@@ -353,7 +353,7 @@ const tdbPos = e => {
 };
 const tdbVisible = e => !(e.def.stealth && e.dist < e.def.stealth * tdbP(e).total) && !e.convertT && e.hp > 0;
 
-// src: la criatura que pega (o directament l'element). L'element decidix el multiplicador (feble ×1,5, forta ×0,5) i
+// src: la criatura que pega (o directament l'element). L'element decidix el multiplicador (feble ×2, forta ×0,3) i
 // el color del número; si és feble, el número ix gran, i si és forta, menut i apagat. Sense element (null): dany pur.
 const tdbElOf = src => typeof src === "string" ? src : src ? TD_DEFENDERS[src.id]?.el : null;
 function tdbDamage(e, amount, src = null, big = false, tick = 0) { // tick: segons d'un dany continu
