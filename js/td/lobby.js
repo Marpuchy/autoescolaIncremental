@@ -172,12 +172,35 @@ function tdForgeHtml() {
   return `<p class="td-hint">A l'onada ${TD_IDLE.waves} de cada món guanyes una recepta o una pedra. Les criatures que fusiones desapareixen i queda la nova, de <strong style="color:${TD_RARITIES.mh.color}">Matrícula d'Honor</strong> (amb la mitjana de les estrelles; per a pujar-la, les còpies de les dues).</p>
     <div class="td-forge">${list.map(k => { const F = TD_FORGE[k], have = td.forge.includes(k), own = !!td.owned[k], parts = tdForgeParts(k);
       const d = TD_DEFENDERS[k], w = TD_WORLDS.find(o => o.id === F.world);
-      return `<div class="td-forge-row${own ? " done" : have ? "" : " locked"}">
-        <div class="td-forge-parts">${parts.map(id => mini(id, !!td.owned[id] || own)).join(`<b>${F.from ? "+" : ""}</b>`)}${F.evolve ? `<div class="td-forge-key${have ? "" : " missing"}" title="${F.key}">💎<span>Pedra</span></div>` : ""}</div>
-        <b class="td-forge-arrow">→</b>
+      // la nova al mig i les ingredients (o la criatura i la pedra) als costats
+      const left = mini(parts[0], !!td.owned[parts[0]] || own), right = F.evolve ? `<div class="td-forge-in td-forge-key${have ? "" : " missing"}" title="${F.key}"><span class="td-forge-gem">💎</span><span>Pedra</span></div>` : mini(parts[1], !!td.owned[parts[1]] || own);
+      return `<div class="td-forge-row${own ? " done" : have ? "" : " locked"}" data-forgerow="${k}">
+        <div class="td-forge-trio"><div class="td-forge-side l">${left}</div><b class="td-forge-arrow">→</b>
         <div class="td-forge-out rar-mh${own || have ? "" : " hidden"}">${own || have ? tdCreatureSvg(k) : `<span class="tdbook-q">?</span>`}<span>${own || have ? d.name : "???"}</span></div>
+        <b class="td-forge-arrow">←</b><div class="td-forge-side r">${right}</div></div>
         <div class="td-forge-act">${own ? `<span class="muted">✔ Ja la tens</span>` : !have ? `<span class="muted">🔒 Onada ${TD_IDLE.waves} de «${w?.name}»</span>`
           : `<button data-forge="${k}" ${tdCanForge(k) ? "" : "disabled"}>${F.from ? "⚗️ Fusionar" : "✨ Evolucionar"}</button>${tdCanForge(k) ? "" : `<span class="muted">Et falta alguna criatura</span>`}`}</div></div>`; }).join("")}</div>`;
+}
+// Animació de la fusió: les dues peces (o la criatura i la pedra) van girant cap al mig i s'hi fonen; la nova es munta
+// amb un esclat roig. Al final, la pantalla d'invocació la presenta
+function tdForgeAnim(k) {
+  const row = document.querySelector(`[data-forgerow="${k}"]`), out = row?.querySelector(".td-forge-out");
+  const done = () => { if (tdForge(k)) { tdClosePanel(); tdReveal([{ id: k, isNew: true, stars: tdStars(k) }]); toast(`✨ ${TD_DEFENDERS[k].name}: Matrícula d'Honor!`, "good"); } };
+  if (!row || !out || matchMedia("(prefers-reduced-motion: reduce)").matches) { done(); return; }
+  row.classList.add("forging");
+  row.querySelectorAll("button").forEach(b => b.disabled = true);
+  const c = out.getBoundingClientRect(), cx = c.x + c.width / 2, cy = c.y + c.height / 2;
+  out.innerHTML = `${tdCreatureSvg(k)}<span>${TD_DEFENDERS[k].name}</span>`; // es munta a poc a poc (td.css: .forging .td-forge-out)
+  for (const side of row.querySelectorAll(".td-forge-side")) {
+    const r = side.getBoundingClientRect(), dx = cx - (r.x + r.width / 2), dy = cy - (r.y + r.height / 2), sg = side.classList.contains("l") ? 1 : -1;
+    side.animate([
+      { transform: "translate(0, 0) rotate(0) scale(1)", opacity: 1, filter: "none" },
+      { transform: `translate(${dx * 0.35}px, ${dy * 0.35 - 30}px) rotate(${sg * 120}deg) scale(0.9)`, opacity: 1, filter: "drop-shadow(0 0 8px #ff3b4e)", offset: 0.45 },
+      { transform: `translate(${dx}px, ${dy}px) rotate(${sg * 360}deg) scale(0.2)`, opacity: 0, filter: "drop-shadow(0 0 18px #ff3b4e)" },
+    ], { duration: 1400, easing: "cubic-bezier(.5,0,.6,1)", fill: "forwards" });
+  }
+  setTimeout(() => row.classList.add("forged"), 1300);
+  setTimeout(done, 2600);
 }
 function tdGachaHtml() {
   const tabs = `<div class="td-tabs td-altar-tabs"><button class="td-tab${tdAltarTab === "summon" ? " on" : ""}" data-atab="summon">🔮 Invocar</button>
@@ -767,7 +790,7 @@ function initTdLobby() {
     else if (ds.forge) {
       const F = TD_FORGE[ds.forge], parts = tdForgeParts(ds.forge).map(id => TD_DEFENDERS[id].name).join(" i ");
       if (!confirm(F.from ? `Fusionar ${parts}? Les dues desapareixen i et queda ${TD_DEFENDERS[ds.forge].name}.` : `Evolucionar ${parts} amb la pedra? Es convertix en ${TD_DEFENDERS[ds.forge].name} (amb el seu nivell, estrelles i còpies).`)) return;
-      if (tdForge(ds.forge)) { tdClosePanel(); tdReveal([{ id: ds.forge, isNew: true, stars: tdStars(ds.forge) }]); toast(`✨ ${TD_DEFENDERS[ds.forge].name}: Matrícula d'Honor!`, "good"); }
+      tdForgeAnim(ds.forge);
     }
     else if (ds.mtab) { tdShareTab = ds.mtab; tdRenderPanel(); }
     else if (ds.subj) { tdSubj = ds.subj; tdRenderPanel(); }
