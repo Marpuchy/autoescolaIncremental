@@ -57,6 +57,10 @@ const TD_RARITIES = {
   // Matrícula d'Honor: no ix mai a l'altar; s'aconseguix a l'onada 100 d'un món (fusió o evolució, TD_FORGE)
   mh:         { name: "Matrícula d'Honor", chance: 0, color: "#ff3b4e", value: 200 },
 };
+// Quantes criatures iguals es poden posar alhora en un mapa, segons la raresa (perquè no s'omplin tots els buits de la
+// mateixa). Pagant 10.000 de maná en el combat, el límit es dobla per a aquella partida del món (es guarda amb l'onada).
+const TD_PLACE_LIMIT = { comu: 4, rar: 3, epic: 3, llegendari: 2, mitic: 1, mh: 1 };
+const TD_LIMIT_DOUBLE_COST = 10000;
 const TD_PITY = { epic: 30, llegendari: 50, mitic: 200 }; // garantia per camp: èpic a la tirada 30, llegendari a la 50, mític a la 200
 // Còpies totals per a cada estrela (★1 en traure-la; ★5 amb 11 còpies). Les que sobren es tornen saber.
 // Pujar d'estrella costa saber (a més de les còpies): base × √(valor de la raresa) × multiplicador de l'estrella
@@ -131,8 +135,8 @@ const TD_DEFENDERS = {
   samara:      { subj: "pin", rar: "epic", name: "Disàmara", dmg: 24, rate: 0.45, range: 1900, cost: 85, role: "single", alt: true, projSpeed: 0.25, regrow: 1.2, fall: true,
                  special: { every: 8, type: "sprout", radius: 90, slow: 0.5, dur: 5 },
                  desc: "Una disàmara d'auró: deixa anar les seues dues sàmares (les llavors alades), una i després l'altra: volen a poc a poc per tot el mapa, girant com quan cauen dels arbres, fins a la distracció més avançada. Cada 8 llavors, la que cau arrela: hi naix un plançó que frena el que passa pel costat." },
-  anellador:   { subj: "pin", rar: "llegendari", name: "Anellador", dmg: 30, rate: 0.6, range: 300, cost: 120, role: "mark", mark: 0.4, alt: true,
-                 desc: "Posa una anella a la distracció més forta: totes les criatures li fan un 40 % més de dany. Si mor, l'anella salta a la més pròxima." },
+  anellador:   { subj: "pin", rar: "llegendari", name: "Anellador", dmg: 30, rate: 0.75, range: 300, cost: 120, role: "mark", mark: 0.6, alt: true,
+                 desc: "Posa una anella a la distracció més forta: totes les criatures li fan un 60 % més de dany. Si mor, l'anella salta a la més pròxima." },
   projecte:    { subj: "pin", rar: "mitic", name: "Projecte integrador", dmg: 22, rate: 1.0, range: 320, cost: 150, role: "single",
                  special: { every: 3, type: "echo", boost: 1.5 },
                  desc: "Com el projecte, que ajunta tots els mòduls: cada 3 atacs fa l'habilitat especial d'una altra criatura del mapa, un 50 % més forta." },
@@ -220,7 +224,9 @@ const TD_DEFENDER_ELEMENT = {
   bruixola: "fisic", samara: "fisic", anellador: "fisic", projecte: "arca",
   dron: "fisic", pimare: "natura", quantic: "electric", spaghetti: "arca",
 };
-for (const [id, d] of Object.entries(TD_DEFENDERS)) d.el = TD_DEFENDER_ELEMENT[id] || "fisic";
+// Les Matrícules d'Honor tenen dos elements: cada colp fa la meitat del dany amb cadascun
+const TD_DEFENDER_ELEMENT2 = { dron: "electric", pimare: "arca", quantic: "buit", spaghetti: "foc" };
+for (const [id, d] of Object.entries(TD_DEFENDERS)) { d.el = TD_DEFENDER_ELEMENT[id] || "fisic"; if (TD_DEFENDER_ELEMENT2[id]) d.el2 = TD_DEFENDER_ELEMENT2[id]; }
 // weak: feble a; strong: forta contra; why: per què (al bestiari)
 const TD_ENEMY_ELEMENTS = {
   notificacio:    { weak: "electric", why: "Un curtcircuit i el mòbil s'apaga. És tan feble que no és forta contra res." },
@@ -332,7 +338,7 @@ const TD_BATTLE = {
 // sol), a la 70 junts i a la 100 junts i gegants. A partir de la 50: ×4, el mapa s'amplia i s'obri el món següent; fins a la
 // 100, més saber.
 const TD_IDLE = {
-  waves: 100, waveMana: [45, 2.5], waveHp: 0.12, waveHp2: 0.0006, countGrow: 0.015, giantEvery: 10, giant: { size: 1.7, hp: 10, lives: 8, saber: 8 },
+  waves: 100, waveMana: [30, 1.2], waveHp: 0.11, waveHp2: 0.0006, countGrow: 0.04, bossLives: 10, giantEvery: 10, giant: { size: 1.7, hp: 10, lives: 10, saber: 8 },
   bossWaves: { 30: [0], 50: [1], 70: [0, 1], 100: [0, 1] }, bigBoss: { size: 1.25, hp: 2 }, // a la 100, els caps encara més grans
   bossScrolls: { 30: 5, 50: 8, 70: 10, 100: 15 },  // pergamins de cada camp la primera vegada que cauen (per món i onada)
   fastAt: 50, extAt: 50, openAt: 50, lateSaber: 1.5, offlineMax: 2 * 3600, offlineBoost: 4,

@@ -576,7 +576,7 @@ function tdCreaturePages(id) {
     `<p class="tdbook-text">${d.desc}</p>${d.rar === "mh" ? `<p class="tdbook-text muted">Matrícula d'Honor: ${tdForgeHow(id)}.</p>` : ""}
      <table class="tdbook-stats"><tr><th>Nivell</th><td>${o.level} / ${cap}${cap < TD_LEVEL_MAX ? ` <span class="muted">(més amb ★${st.stars + 1})</span>` : ""}</td></tr><tr><th>Dany</th><td>${fmtNum(st.dmg)}</td></tr>
        <tr><th>Velocitat</th><td>${st.rate.toFixed(2)} / s</td></tr><tr><th>Abast</th><td>${Math.round(st.range)}</td></tr><tr><th>Cost</th><td>🔮 ${d.cost}</td></tr>
-       <tr><th>Element</th><td>${tdElemTag(d.el)}</td></tr>
+       <tr><th>Element</th><td>${tdElemTag(d.el, d.el2)}</td></tr>
        ${d.special?.type === "align" ? `<tr><th>Paràlisi</th><td>${String(+(d.special.dur * st.ability).toFixed(1)).replace(".", ",")} s <span class="muted">(puja amb l'habilitat)</span></td></tr>` : ""}
        <tr><th>Habilitat</th><td>×${st.ability.toFixed(2).replace(".", ",")} <span class="tdbook-steps">${steps.map(([t, on]) => `<span class="${on ? "on" : ""}">${t}</span>`).join("")}</span></td></tr></table>
      <div class="tdbook-btns">${lvlBtn}
@@ -602,8 +602,8 @@ function tdBeastPages(id) {
   const e = tdEnemy(id), seen = td.seen.includes(id);
   if (!seen) return [`<div class="tdbook-art locked">${tdEnemySvg(id)}</div><h3 class="tdbook-name">???</h3>`, `<p class="tdbook-text">Encara no t'ha atacat.</p>`];
   return [`<div class="tdbook-art">${tdEnemySvg(id)}</div><h3 class="tdbook-name">${e.name}</h3>${e.look ? `<div class="tdbook-rar look">${e.look}</div>` : ""}${e.boss ? '<div class="tdbook-rar boss">CAP</div>' : ""}`,
-    `<p class="tdbook-text tdbook-lore">${e.lore || ""}</p><p class="tdbook-text"><strong>Habilitat:</strong> ${e.desc}${e.boss ? " <strong>Si arriba al cristall, el trenca.</strong>" : ""}</p><table class="tdbook-stats"><tr><th>Vida</th><td>${Math.round(e.hp * TD_DIFFICULTY.hp)} <span class="muted">(+${Math.round(TD_WAVE_HP * (e.boss ? 50 : 100))} % per onada)</span></td></tr>
-      <tr><th>Velocitat</th><td>${e.speed}</td></tr><tr><th>Dany al cristall</th><td>${e.lives}</td></tr><tr><th>Maná en morir</th><td>🔮 ${e.mana}</td></tr>
+    `<p class="tdbook-text tdbook-lore">${e.lore || ""}</p><p class="tdbook-text"><strong>Habilitat:</strong> ${e.desc}${e.boss ? ` <strong>Si arriba al cristall, en lleva ${TD_IDLE.bossLives}.</strong>` : ""}</p><table class="tdbook-stats"><tr><th>Vida</th><td>${Math.round(e.hp * TD_DIFFICULTY.hp)} <span class="muted">(+${Math.round(TD_WAVE_HP * (e.boss ? 50 : 100))} % per onada)</span></td></tr>
+      <tr><th>Velocitat</th><td>${e.speed}</td></tr><tr><th>Dany al cristall</th><td>${e.boss ? TD_IDLE.bossLives : e.lives}</td></tr>
       ${e.weak ? `<tr><th>Feble a</th><td>${tdElemTag(e.weak)} <span class="muted">×${String(TD_ELEM_WEAK).replace(".", ",")}</span></td></tr>` : ""}
       ${e.strong ? `<tr><th>Forta contra</th><td>${tdElemTag(e.strong)} <span class="muted">×${String(TD_ELEM_STRONG).replace(".", ",")}</span></td></tr>` : ""}</table>
       ${e.why ? `<p class="tdbook-text muted">${e.why}</p>` : ""}`];
@@ -699,7 +699,7 @@ const tdGrimoriHtml = () => tdBookHtml("grimori");
 function tdWorldsHtml() {
   return `<div class="td-portal"><aside class="td-portal-team" aria-label="El teu equip"><h4>Equip</h4>
       ${tdDeck(tdRoom).map(id => { const d = TD_DEFENDERS[id], s = tdStats(id), lent = !td.owned[id];
-        return `<div class="td-portal-mon rar-${d.rar}${lent ? " lent" : ""}" title="${d.name} · ${TD_ELEMENTS[d.el].name}${lent ? " · prestada" : ""}">${tdElemDot(id)}<span class="td-portal-art">${tdCreatureSvg(id)}</span>
+        return `<div class="td-portal-mon rar-${d.rar}${lent ? " lent" : ""}" title="${d.name} · ${TD_ELEMENTS[d.el].name}${d.el2 ? " + " + TD_ELEMENTS[d.el2].name : ""}${lent ? " · prestada" : ""}">${tdElemDot(id)}<span class="td-portal-art">${tdCreatureSvg(id)}</span>
           <span class="td-portal-name">${d.name}${lent ? " 🤝" : ""}</span><span class="muted">Nv. ${s.level} ${"★".repeat(s.stars)} · 🔮 ${d.cost}</span></div>`; }).join("")}
       <button class="secondary small" data-go="grimori">📖 Canviar l'equip</button></aside>
     <div class="td-portal-main"><p class="td-hint">${TD_IDLE.waves} onades per món, i no es perd mai el que has fet: si una onada va mal, es torna a fer. El combat continua sol encara que te'n vages. A la 50, ×4, mapa més gran i el món següent.</p>

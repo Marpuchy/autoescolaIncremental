@@ -89,7 +89,7 @@ function tdbBank() {
 // Com comença l'onada: per a repetir-la si es perd (i, després de cada múltiple de 10, per a poder-hi tornar)
 function tdbSnap() {
   const run = tdRun(tdb.world.id), snap = { wave: tdb.wave, mana: Math.floor(tdb.mana),
-    towers: Object.values(tdb.towers).map(t => [t.slot, t.id, t.up, t.spent]) };
+    towers: Object.values(tdb.towers).map(t => [t.slot, t.id, t.up, t.spent]), ...(tdb.dbl ? { dbl: true } : {}) };
   run.run = { ...(run.run || {}), snap, speed: tdb.speed };
   if (tdb.wave > 1 && (tdb.wave - 1) % 10 === 0) run.run.tens = snap;
   td.idle = { world: tdb.world.id, at: Date.now() };
@@ -106,6 +106,7 @@ function tdbRestore(snap) {
   tdb.paths = tdbWorldPaths(tdb.world).map(tdbPath);
   tdb.wave = snap.wave - 1;
   tdb.mana = snap.mana;
+  tdb.dbl = !!snap.dbl;
   tdb.lives = tdbMaxLives();
   tdbBuildView();
   for (const [slot, id, up, spent] of snap.towers) tdbPut(slot, id, up, spent);
@@ -197,6 +198,7 @@ function tdbShow() {
   tdbHud();
   tdbSpeedBtn();
   $("tdb-end").hidden = !(tdb.over && tdb.won);
+  if ($("tdb-bestiary")) $("tdb-bestiary").hidden = true;
 }
 // Eixir del combat: als mons de 100 onades continua en segon pla (el portal de la sala el deixa veure)
 function tdCloseBattle(toLobby = true) {
@@ -274,6 +276,10 @@ function tdbBuildView() {
     `<title>Estudiant${td.equipped.length ? ": " + td.equipped.map(id => TD_ARTIFACTS[id].name).join(", ") : ""}</title>`;
   // tornar a pintar les criatures que ja hi havia (canvi d'orientació)
   for (const t of Object.values(tdb.towers)) tdbDrawTower(t);
+  // i les distraccions, els projectils i les zones que ja hi havia (en tornar a mirar un combat en marxa)
+  for (const e of tdb.enemies) if (e.el && e.hp > 0) $("tdb-enemies").append(e.el);
+  for (const p of tdb.projs) if (p.el) $("tdb-proj").append(p.el);
+  for (const z of tdb.zones || []) if (z.el) $("tdb-lines").append(z.el);
   tdbAuraMarks(true); // en tornar a pintar el mapa (girar la pantalla), les arrels ja estan crescudes
 }
 const tdbWorldPaths = world => world.paths || [world.path];
@@ -427,9 +433,13 @@ function tdbThrowFrom(t, side) {
   const k = 124 / 132;
   return tdbM(sx - 62 + (ax + 6) * k, sy + TDB_TOWER_Y + (ay + 10) * k);
 }
+// Límit de criatures iguals al mapa (TD_PLACE_LIMIT, el doble si s'ha pagat); la demostració del grimori no en té
+const tdbLimit = id => (TD_PLACE_LIMIT[TD_DEFENDERS[id].rar] || 1) * (tdb.dbl ? 2 : 1);
+const tdbPlaced = id => Object.values(tdb.towers).filter(t => t.id === id).length;
+const tdbFull = id => !tdb.demo && tdbPlaced(id) >= tdbLimit(id);
 function tdbPlace(slot, id) {
   const cost = TD_DEFENDERS[id].cost;
-  if (tdb.towers[slot] || tdb.mana < cost) return false;
+  if (tdb.towers[slot] || tdb.mana < cost || tdbFull(id)) return false;
   tdb.mana -= cost;
   const t = { uid: ++tdb.uid, slot, id, up: 0, cd: 0.3, shots: 0, stacks: 0, sleepT: 0, side: 0, spent: cost, burst: 0 };
   t.stats = tdStats(id, 0);
@@ -455,6 +465,7 @@ function tdbUpgrade(t) {
   t.stats = tdStats(t.id, t.up);
   tdbDrawTower(t);
   tdbAuraMarks();
+  if (TD_DEFENDERS[t.id].role === "line") tdbRelines(); // més abast: potser arriba a més trams
   tdbFx("summon", ...tdbS(...tdb.world.slots[t.slot]), "#ffe27a");
 }
 function tdbSell(t) {
@@ -500,9 +511,20 @@ const tdbVisible = e => !(e.def.stealth && e.dist < e.def.stealth * tdbP(e).tota
 // src: la criatura que pega (o directament l'element). L'element decidix el multiplicador (feble ×2, forta ×0,3) i
 // el color del número; si és feble, el número ix gran, i si és forta, menut i apagat. Sense element (null): dany pur.
 const tdbElOf = src => typeof src === "string" ? src : src ? TD_DEFENDERS[src.id]?.el : null;
+// Color del número d'un element doble: meitat i meitat en diagonal (un degradat amb el tall al mig)
+function tdbDualFill(a, b) {
+  const id = `tdb-dual-${a}-${b}`;
+  if (!document.getElementById(id)) {
+    const defs = $("tdb-svg").querySelector("defs.tdb-duals") || el("defs", { class: "tdb-duals" }, $("tdb-svg"));
+    defs.insertAdjacentHTML("beforeend", `<linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0.5" stop-color="${TD_ELEMENTS[a].color}"/><stop offset="0.5" stop-color="${TD_ELEMENTS[b].color}"/></linearGradient>`);
+  }
+  return `url(#${id})`;
+}
 function tdbDamage(e, amount, src = null, big = false, tick = 0) { // tick: segons d'un dany continu
   if (e.hp <= 0) return;
-  const elem = tdbElOf(src), k = tdElemMult(e.def, elem), color = TD_ELEMENTS[elem]?.color || "#fff";
+  const elem = tdbElOf(src), el2 = src && typeof src === "object" ? TD_DEFENDERS[src.id]?.el2 : null;
+  const k = el2 ? (tdElemMult(e.def, elem) + tdElemMult(e.def, el2)) / 2 : tdElemMult(e.def, elem);
+  const color = el2 ? tdbDualFill(elem, el2) : TD_ELEMENTS[elem]?.color || "#fff";
   amount *= (1 + e.vuln) * (1 + (e.mark || 0)) * k;
   e.hp -= amount;
   const [x, y] = tdbS(...tdbPos(e)), cls = k > 1 ? "weak" : k < 1 ? "strong" : "";
@@ -1091,22 +1113,28 @@ function tdbDrawLine(l, layer) {
 }
 // En posar-lo: busca els trams de camí dins de l'abast i, de cada un, el punt més pròxim; hi va una línia que travessa
 // el camí (perpendicular)
+// On posa les línies el Contrafoc: una a cada tram recte de camí que entra dins del seu abast, al mig del tros que hi queda
+// dins (abans era una per tros seguit, i en un revolt dins de l'abast només posava la del tram més pròxim)
 function tdbFireSpots(slot, range) {
   const [x, y] = tdb.world.slots[slot], out = [];
-  for (const P of tdb.paths) { // a cada camí; on comparteixen tram, la línia només una vegada
-    const spots = [];
-    let run = null;
-    for (let d = 0; d <= P.total + 8; d += 8) {
-      const [px, py] = P.at(d), r = Math.hypot(px - x, py - y), inside = d <= P.total && r <= range;
-      if (inside) { if (!run || r < run.r) run = { r, best: d }; }
-      else if (run) { spots.push(run.best); run = null; }
-    }
-    for (const d of spots) {
-      const [px, py] = P.at(d), [qx, qy] = P.at(d + 2);
-      if (!out.some(o => Math.hypot(o.x - px, o.y - py) < 30)) out.push({ x: px, y: py, ang: Math.atan2(qy - py, qx - px) + Math.PI / 2 });
-    }
+  for (const P of tdb.paths) for (const s of P.segs) { // a cada camí; on comparteixen tram, la línia només una vegada
+    const dx = (s.x1 - s.x0) / s.len, dy = (s.y1 - s.y0) / s.len;
+    const t0 = (x - s.x0) * dx + (y - s.y0) * dy, h2 = range * range - ((x - s.x0) * dy - (y - s.y0) * dx) ** 2;
+    if (h2 <= 0) continue;
+    const a = Math.max(0, t0 - Math.sqrt(h2)), b = Math.min(s.len, t0 + Math.sqrt(h2));
+    if (b - a < 24) continue; // només hi toca una punta
+    const m = (a + b) / 2, px = s.x0 + dx * m, py = s.y0 + dy * m;
+    if (!out.some(o => Math.hypot(o.x - px, o.y - py) < 60)) out.push({ x: px, y: py, ang: Math.atan2(dy, dx) + Math.PI / 2 });
   }
   return out;
+}
+// Quan el camí canvia (el mapa s'amplia), el Contrafoc torna a posar les línies
+function tdbRelines() {
+  for (const t of Object.values(tdb.towers)) if (TD_DEFENDERS[t.id].role === "line") {
+    (t.lines || []).forEach(l => l.el?.remove());
+    tdb.lines = tdb.lines.filter(l => !t.lines?.includes(l));
+    tdbPlaceLine(t);
+  }
 }
 function tdbPlaceLine(t) {
   const L = TD_DEFENDERS.contrafoc.line;
@@ -1395,7 +1423,7 @@ function tdbLoop(now) {
   if (!B || (!B.idle && $("td-battle").hidden)) return; // els mons de 100 onades continuen encara que no es miren
   const dt = Math.min((now - B.last) / 1000, 0.1);
   B.last = now;
-  if (!B.over && !tdbViewing() && (B.started || B.wave > 0 || !B.idle || B.demo)) {
+  if (!B.over && !tdbViewing() && !document.hidden && (B.started || B.wave > 0 || !B.idle || B.demo)) { // (amagat, l'avança el rellotge de visibilitychange)
     let speed = B.speed * tdDevSpeed;
     if (B.bank > 0) { const extra = dt * speed * (TD_IDLE.offlineBoost - 1); B.bank = Math.max(0, B.bank - extra); speed *= TD_IDLE.offlineBoost; } // temps guardat
     let left = dt * speed;
@@ -1411,7 +1439,7 @@ function tdbLoop(now) {
 function tdbUpdate(dt) {
   tdb.time += dt;
   // pausa entre onades (als mons de 100 onades, la següent comença sola)
-  if (!tdb.waveRunning && (tdb.wave > 0 || tdb.started) && tdb.pause > 0) {
+  if (!tdb.waveRunning && (tdb.wave > 0 || tdb.started) && tdb.pause > 0 && !tdb.hold) { // (parat per a reorganitzar: espera a «Continuar»)
     tdb.pause -= dt;
     if (tdb.pause <= 0) tdbStartWave();
   }
@@ -1459,8 +1487,9 @@ function tdbUpdate(dt) {
       e.hp = 0;
       e.el.remove();
       // un cap que arriba al cristall el trenca: es perd el món, siguen les vides que siguen
-      if (e.def.boss && !tdb.god) { tdb.lives = 0; tdbShatter(e); return; }
-      if (!tdb.god) tdb.lives -= e.def.lives;
+      // (als mons de 100 onades, els caps i els gegants lleven 10 vides, com abans: no el trenquen de colp)
+      if (e.def.boss && !tdb.idle && !tdb.god) { tdb.lives = 0; tdbShatter(e); return; }
+      if (!tdb.god) tdb.lives -= tdb.idle && (e.def.boss || e.def.giant) ? TD_IDLE.bossLives : e.def.lives;
       $("tdb-student")?.classList.add("hurt");
       setTimeout(() => $("tdb-student")?.classList.remove("hurt"), 500);
       if (tdb.lives <= 0) { tdb.lives = 0; if (tdb.idle) tdbWaveLost(); else tdbFinish(false); return; }
@@ -1588,6 +1617,7 @@ function tdbStartWave() {
     tdb.world = tdWorldExtended(tdb.world);
     tdb.paths = tdbWorldPaths(tdb.world).map(tdbPath);
     tdbBuildView();
+    tdbRelines();
     if (!$("td-battle").hidden) toast("🗺️ El mapa s'amplia: camí més llarg i 4 buits nous", "good");
   }
   tdb.wave++;
@@ -1741,10 +1771,19 @@ function tdbHud() {
   const next = $("tdb-next");
   if (tdb.over) next.hidden = true;
   else if (tdb.wave === 0 && !tdb.started) { next.hidden = false; next.textContent = "▶ Començar"; }
+  else if (!tdb.waveRunning && tdb.hold) { next.hidden = false; next.textContent = "▶ Continuar"; }
   else if (!tdb.waveRunning && tdb.pause > 0) { next.hidden = false; next.textContent = `▶ Ja! (${Math.ceil(tdb.pause)})`; }
   else next.hidden = true;
+  const hold = $("tdb-hold");
+  if (hold) { // parar en acabar l'onada: per a tornar a muntar l'equip amb calma
+    hold.hidden = tdb.over || !tdb.idle || !tdb.started || (!tdb.waveRunning && tdb.hold);
+    hold.classList.toggle("on", !!tdb.hold);
+    hold.textContent = tdb.hold ? "⏸ Pararà en acabar" : "⏸ Parar a la següent";
+    hold.setAttribute("aria-pressed", !!tdb.hold);
+  }
   // cartes: les que no et pots permetre, apagades
   document.querySelectorAll("#tdb-deck [data-card]").forEach(c => c.classList.toggle("poor", tdb.mana < TD_DEFENDERS[c.dataset.card].cost));
+  const dblBtn = document.querySelector('#tdb-deck [data-pick="dbl"]'); if (dblBtn) dblBtn.disabled = tdb.mana < TD_LIMIT_DOUBLE_COST;
   const pb = document.querySelector("#tdb-deck [data-place]");
   if (pb && tdb.pickId && pb.disabled !== tdb.mana < TD_DEFENDERS[tdb.pickId].cost) $("tdb-deck").querySelector(".tdb-pick-info").outerHTML = tdbPickInfo();
   if (tdb.selectedTower) tdbTowerPanel();
@@ -1754,21 +1793,23 @@ function tdbHud() {
 // L'equip no està sempre a la vista: ix quan toques un buit buit. En passar per damunt d'una criatura (o enfocar-la),
 // el buit mostra el seu abast; en tocar-la, es posa.
 function tdbRenderDeck() {
-  $("tdb-deck").innerHTML = `<div class="tdb-pick-head"><span>Tria una criatura per al buit</span><button class="secondary small" data-pick="close" aria-label="Tancar">✕</button></div>
+  const dbl = !tdb.dbl && tdb.idle ? `<button class="secondary small tdb-dbl" data-pick="dbl" ${tdb.mana < TD_LIMIT_DOUBLE_COST ? "disabled" : ""} title="Dobla quantes criatures iguals es poden posar en aquest món">×2 límit · 🔮 ${fmtNum(TD_LIMIT_DOUBLE_COST)}</button>` : "";
+  $("tdb-deck").innerHTML = `<div class="tdb-pick-head"><span>Tria una criatura per al buit</span><span class="tdb-pick-tools">${dbl}<button class="secondary small tdb-peek-btn" data-pick="peek" aria-label="Veure el mapa" title="Veure el mapa">👁</button><button class="secondary small" data-pick="close" aria-label="Tancar">✕</button></span></div>
     <div class="tdb-pick-cards">${tdDeck(tdb.world.mode).map(id => {
       const d = TD_DEFENDERS[id], lent = !td.owned[id] && td.loan?.def === id;
-      return `<button class="tdb-card rar-${d.rar}${tdb.pickId === id ? " sel" : ""}${tdb.mana < d.cost ? " poor" : ""}${lent ? " lent" : ""}" data-card="${id}" aria-pressed="${tdb.pickId === id}" title="${d.name} · ${TD_ELEMENTS[d.el].name}${lent ? ` · prestada per ${PLAYERS[td.loan.from].name}` : ""}">
-        ${lent ? `<span class="tdb-card-lent" aria-hidden="true">🤝</span>` : ""}${tdElemDot(id)}<span class="tdb-card-art">${tdCreatureSvg(id)}</span><span class="tdb-card-name">${d.name}</span><span class="tdb-card-cost">🔮 ${d.cost}</span></button>`;
+      const n = tdbPlaced(id), lim = tdbLimit(id), full = n >= lim;
+      return `<button class="tdb-card rar-${d.rar}${tdb.pickId === id ? " sel" : ""}${tdb.mana < d.cost ? " poor" : ""}${lent ? " lent" : ""}${full ? " full" : ""}" data-card="${id}" aria-pressed="${tdb.pickId === id}" title="${d.name} · ${TD_ELEMENTS[d.el].name}${d.el2 ? " + " + TD_ELEMENTS[d.el2].name : ""}${lent ? ` · prestada per ${PLAYERS[td.loan.from].name}` : ""}">
+        ${lent ? `<span class="tdb-card-lent" aria-hidden="true">🤝</span>` : ""}${tdElemDot(id)}<span class="tdb-card-art">${tdCreatureSvg(id)}</span><span class="tdb-card-name">${d.name}</span><span class="tdb-card-cost">🔮 ${d.cost}</span><span class="tdb-card-lim" title="Posades / màxim al mapa">${n}/${lim}</span></button>`;
     }).join("")}</div>${tdbPickInfo()}`;
 }
 // Fitxa de la criatura triada: el que fa i les dades, abans d'invocar-la
 function tdbPickInfo() {
   const id = tdb.pickId;
   if (!id) return "";
-  const d = TD_DEFENDERS[id], s = tdStats(id), can = tdb.mana >= d.cost;
-  return `<div class="tdb-pick-info"><div class="tdb-panel-info"><strong>${d.name}</strong> ${tdElemTag(d.el)} <span class="td-stars">${"★".repeat(s.stars)}</span> · Nv. ${s.level}
+  const d = TD_DEFENDERS[id], s = tdStats(id), full = tdbFull(id), can = tdb.mana >= d.cost && !full;
+  return `<div class="tdb-pick-info"><div class="tdb-panel-info"><strong>${d.name}</strong> ${tdElemTag(d.el, d.el2)} <span class="td-stars">${"★".repeat(s.stars)}</span> · Nv. ${s.level}
       <div class="muted">⚔️ ${fmtNum(s.dmg)} · ⏱ ${s.rate.toFixed(1)}/s · 🎯 ${Math.round(s.range)} · ${fmtNum(s.dmg * s.rate)} de dany/s</div><div class="tdb-panel-desc">${d.desc}</div></div>
-    <button data-place="${id}" ${can ? "" : "disabled"}>${can ? `✨ Invocar · 🔮 ${d.cost}` : `🔮 Et falten ${Math.ceil(d.cost - tdb.mana)}`}</button></div>`;
+    <button data-place="${id}" ${can ? "" : "disabled"}>${full ? `Màxim al mapa (${tdbLimit(id)})` : can ? `✨ Invocar · 🔮 ${d.cost}` : `🔮 Et falten ${Math.ceil(d.cost - tdb.mana)}`}</button></div>`;
 }
 function tdbOpenPicker(slot) {
   tdbCloseBottom();
@@ -1800,6 +1841,7 @@ function tdbPreview(id) {
   g.innerHTML = tdCreatureSvg(id).replace("<svg ", `<svg x="-62" y="${TDB_TOWER_Y}" width="124" height="124" `);
 }
 function tdbCloseBottom() {
+  document.querySelector(".tdb-bottom")?.classList.remove("peek");
   tdb.pickSlot = null;
   tdb.pickId = null;
   tdb.selectedTower = null;
@@ -1846,15 +1888,46 @@ function tdbClickMap(ev) {
   tdbOpenPicker(slot);
 }
 
+// Bestiari dins del combat: les distraccions d'aquest món (les que ja has vist), amb a què són febles i contra què són fortes
+function tdbBestiary() {
+  const box = $("tdb-bestiary");
+  if (!box.hidden) { box.hidden = true; return; }
+  const src = tdb.world.base || tdb.world, ids = [];
+  for (const t of [...tdWorldTypes(src), ...tdWorldBosses(src)]) {
+    ids.push(t);
+    const kid = TD_ENEMIES[t].splitInto || TD_ENEMIES[t].spawn?.type;
+    if (kid) ids.push(kid);
+  }
+  const tag = (el, k) => el ? `${tdElemTag(el)} <span class="muted">×${String(k).replace(".", ",")}</span>` : `<span class="muted">—</span>`;
+  box.innerHTML = `<div class="td-card tdb-best-card" role="dialog" aria-label="Bestiari del món"><button class="small secondary hub-card-close" data-best="close" aria-label="Tancar">✕</button>
+    <h2>📖 Distraccions de ${src.name}</h2><div class="tdb-best-grid">${[...new Set(ids)].map(id => {
+      const e = tdEnemy(id);
+      if (!td.seen.includes(id)) return `<div class="tdb-best-item locked"><div class="tdb-best-art">${tdEnemySvg(TD_ENEMIES[id].art || id)}</div><strong>???</strong><span class="muted">Encara no l'has vista</span></div>`;
+      return `<div class="tdb-best-item${e.boss ? " boss" : ""}"><div class="tdb-best-art">${tdEnemySvg(e.art || id)}</div><strong>${e.name}${e.boss ? ' <span class="tdb-best-boss">CAP</span>' : ""}</strong>
+        <div><span class="tdb-best-k">Feble a</span> ${id === "algoritme" ? '<span class="muted">canvia (la icona de damunt)</span>' : tag(e.weak, TD_ELEM_WEAK)}</div>
+        <div><span class="tdb-best-k">Forta contra</span> ${tag(e.strong, TD_ELEM_STRONG)}</div><p class="muted">${e.desc || ""}</p></div>`;
+    }).join("")}</div></div>`;
+  box.hidden = false;
+}
 function initTdBattle() {
+  $("tdb-bestiary").addEventListener("click", ev => { if (ev.target === ev.currentTarget || ev.target.closest('[data-best="close"]')) $("tdb-bestiary").hidden = true; });
   $("tdb-svg").addEventListener("click", tdbClickMap);
   $("tdb-deck").addEventListener("click", ev => {
+    const sheet = ev.currentTarget.closest(".tdb-bottom");
+    if (sheet.classList.contains("peek") && !ev.target.closest('[data-pick="close"]')) { sheet.classList.remove("peek"); return; } // amagat: el toc el torna a obrir
     if (ev.target.closest('[data-pick="close"]')) { tdbCloseBottom(); return; }
+    if (ev.target.closest('[data-pick="peek"]')) { ev.currentTarget.closest(".tdb-bottom").classList.add("peek"); return; }
+    if (ev.target.closest('[data-pick="dbl"]')) {
+      if (tdb.dbl || tdb.mana < TD_LIMIT_DOUBLE_COST) return;
+      tdb.mana -= TD_LIMIT_DOUBLE_COST; tdb.dbl = true;
+      toast("✨ Límit de criatures iguals doblat en aquest món", "good"); tdbRenderDeck(); tdbHud(); return;
+    }
     const c = ev.target.closest("[data-card], [data-place]");
     if (!c || tdb.pickSlot == null) return;
     const id = c.dataset.card || c.dataset.place;
     // primer toc: fitxa i previsualització; segon toc a la mateixa carta (o el botó): invocar
     if (c.dataset.card && tdb.pickId !== id) { tdbSelectCard(id); return; }
+    if (tdbFull(id)) { toast(`Ja n'hi ha ${tdbLimit(id)} al mapa (el màxim de ${TD_RARITIES[TD_DEFENDERS[id].rar].name.toLowerCase()})`, "bad"); return; }
     if (tdb.mana < TD_DEFENDERS[id].cost) { toast("🔮 No tens prou maná", "bad"); return; }
     const slot = tdb.pickSlot;
     tdbCloseBottom();
@@ -1869,8 +1942,15 @@ function initTdBattle() {
     else if (tdb.selectedTower) tdbShowRange(tdb.selectedTower);
   });
   $("tdb-next").addEventListener("click", () => {
+    tdb.hold = false;
     tdbStartWave();
   });
+  $("tdb-hold").addEventListener("click", () => { tdb.hold = !tdb.hold; tdbHud(); });
+  $("tdb-best").addEventListener("click", tdbBestiary);
+  // mentre es tria on posar una criatura, el full de baix s'amaga quan el ratolí passa pel mapa (o amb l'ull, al mòbil)
+  const bottom = document.querySelector(".tdb-bottom");
+  $("tdb-map").addEventListener("pointermove", ev => { if (ev.pointerType === "mouse" && !$("tdb-deck").hidden && !bottom.contains(ev.target)) bottom.classList.add("peek"); });
+  bottom.addEventListener("pointerenter", () => bottom.classList.remove("peek"));
   $("tdb-speed").addEventListener("click", () => {
     const sp = tdbSpeeds();
     tdb.speed = sp[(sp.indexOf(tdb.speed) + 1) % sp.length] || 1;
@@ -1881,11 +1961,32 @@ function initTdBattle() {
   $("tdb-exit").addEventListener("click", () => tdCloseBattle());
   $("tdb-end-lobby").addEventListener("click", () => { if (tdb?.idle) { tdStopBattle(); tdOpenLobby(tdRoom); } else tdCloseBattle(); });
   $("tdb-end-retry").addEventListener("click", () => { const w = (tdb.world.base || tdb.world).id; if (tdb.idle) tdStopBattle(); else tdCloseBattle(false); tdOpenBattle(w); });
-  // amb el joc amagat (una altra pestanya, el mòbil bloquejat) el combat no avança: el temps es guarda i després va més ràpid
+  // amb el joc amagat (una altra pestanya o finestra) el combat continua: el navegador para els fotogrames, així que
+  // un rellotge el fa avançar a trossos (el temps real que ha passat). Si el navegador el congela del tot (mòbil
+  // bloquejat), el temps que falta es guarda i després va més ràpid, com amb el joc tancat
+  let hiddenTimer = 0;
+  const hiddenTick = () => {
+    const B = tdb;
+    if (!B?.idle) return;
+    const now = Date.now(), dt = Math.min(120, (now - (B.hiddenAt || now)) / 1000);
+    B.hiddenAt = now;
+    if (!B.over && !tdbViewing() && (B.started || B.wave > 0)) {
+      let left = dt * B.speed * tdDevSpeed;
+      while (left > 0 && tdb === B && !B.over) { const step = Math.min(left, 0.05); tdbUpdate(step); left -= step; }
+    }
+    if ((B.savedAt || 0) < now - 60000) { B.savedAt = now; td.idle = { world: (B.world.base || B.world).id, at: now }; tdSave(); }
+  };
   document.addEventListener("visibilitychange", () => {
+    clearInterval(hiddenTimer);
     if (!tdb?.idle) return;
-    if (document.hidden) { tdb.hiddenAt = Date.now(); td.idle = { world: (tdb.world.base || tdb.world).id, at: Date.now() }; tdSave(); }
-    else if (tdb.hiddenAt) { tdb.last = performance.now(); tdbOffline(tdb.hiddenAt); tdb.hiddenAt = 0; }
+    if (document.hidden) {
+      tdb.hiddenAt = Date.now(); tdb.savedAt = Date.now();
+      td.idle = { world: (tdb.world.base || tdb.world).id, at: Date.now() }; tdSave();
+      hiddenTimer = setInterval(hiddenTick, 1000);
+    } else if (tdb.hiddenAt) {
+      if (Date.now() - tdb.hiddenAt > 5000) tdbOffline(tdb.hiddenAt); // congelat: el que falta, guardat
+      tdb.last = performance.now(); tdb.hiddenAt = 0;
+    }
   });
   addEventListener("pagehide", () => { if (tdb?.idle) { tdbBank(); td.idle = { world: (tdb.world.base || tdb.world).id, at: Date.now() }; tdSave(); } });
   setTimeout(() => { if (typeof tdResumeActive === "function") tdResumeActive(); }, 1200); // el món que estava en marxa continua

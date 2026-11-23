@@ -132,7 +132,7 @@ function tdShareAction(btn) {
 function tdShareCard(id, lv, st, extra = "") {
   const d = TD_DEFENDERS[id];
   return `<span class="td-share-card rar-${d.rar}"><span class="td-share-art">${tdCreatureSvg(id)}</span>
-    <span><strong>${d.name}</strong> ${tdElemTag(d.el)}<span class="muted"> · Nv. ${lv} ${"★".repeat(st)}</span>${extra}</span></span>`;
+    <span><strong>${d.name}</strong> ${tdElemTag(d.el, d.el2)}<span class="muted"> · Nv. ${lv} ${"★".repeat(st)}</span>${extra}</span></span>`;
 }
 function tdShareHtml() {
   if (!tdShareOn()) return `<p class="muted">${tdViewingOf ? "Els préstecs es fan des de la teua sala." : "Tria qui eres (als ajustos de la vitrina) per a poder prestar-vos criatures."}</p>`;
@@ -156,7 +156,7 @@ function tdShareHtml() {
   return `<div class="td-share">
     <div class="td-share-slot"><span class="td-share-label">🤝 Buit de préstec</span>
       ${tdShareAltar(loan?.def)}
-      ${loan ? `<div><strong>${D[loan.def].name}</strong> ${tdElemTag(D[loan.def].el)}<span class="muted"> · Nv. ${loan.level} ${"★".repeat(loan.stars)}</span></div>
+      ${loan ? `<div><strong>${D[loan.def].name}</strong> ${tdElemTag(D[loan.def].el, D[loan.def].el2)}<span class="muted"> · Nv. ${loan.level} ${"★".repeat(loan.stars)}</span></div>
         <span class="td-share-what">De ${PLAYERS[loan.from].name}. La pots posar als teus mons fins que la canvies per una altra.</span>`
         : `<span class="muted">L'altar està buit. Demana-li una criatura a ${other} o accepta la que et deixe.</span>`}</div>
     ${tdShareOther.ok ? "" : `<p class="muted">⚠️ Sense connexió: no es pot veure el que t'ha enviat ${other}.</p>`}

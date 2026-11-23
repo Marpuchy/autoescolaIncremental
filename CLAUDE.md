@@ -148,7 +148,11 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   (`spawn`: deja pestañas/hormigas detrás) y jefe L'Algoritme / Papallona irisada (`shift`: cambia de debilidad cada 6 s,
   icono encima, color `--shift`). Artefactos: Pell bioluminescent (Marc, `biolum`, +15 % saber) y Banyes de cervatell (Alba, `banyes`, cap).
   Balance de mundos: `python tools/td-progres.py [--mon=2]`.
-  Un jefe que llega al cristal lo rompe (`tdbShatter`: se pierde la oleada, animación de trozos).
+  Fuera de los mundos de 100 oleadas, un jefe que llega al cristal lo rompe (`tdbShatter`); en los de 100, jefes y gigantes quitan 10 vidas (`TD_IDLE.bossLives`).
+  **Límite de criaturas iguales en el mapa** (`TD_PLACE_LIMIT`: común 4, rara 3, épica 3, legendaria 2, mítica y MH 1; `tdbFull`); pagando 10.000 de maná (`TD_LIMIT_DOUBLE_COST`, botón en el selector) se dobla en ese mundo (`tdb.dbl`, va en el snapshot). La demo no tiene límite.
+  Combate: «⏸ Parar a la següent» (`tdb.hold`: al acabar la oleada espera a «Continuar»), 📖 bestiario del mundo (`tdbBestiary`, debilidades y resistencias), el selector de abajo se esconde al pasar el ratón por el mapa (`.tdb-bottom.peek`; 👁 en táctil). Las MH tienen dos elementos (`TD_DEFENDER_ELEMENT2`, `d.el2`): la mitad del daño con cada uno y el número partido en diagonal (`tdbDualFill`). Contrafoc: una línea por tramo recto dentro del alcance (`tdbFireSpots`), se recalcula al ampliar el mapa o mejorarlo (`tdbRelines`). Al volver a un combate en marcha, `tdbBuildView` vuelve a meter las distracciones y proyectiles. Con la pestaña oculta, el combate sigue con un `setInterval` (tiempo real); si el navegador lo congela, lo que falta va al banco ×4.
+  Distracciones: pasos al caminar (`td-walk`) y partes animadas (`.legs-a/.legs-b`, `.ant`, `.tail`, `.petals`, `.shroom`); los destellos (quemar, cambiar, warp) van en el grupo `.tdb-enemy`, no en el dibujo, para no parar el paso.
+  General: en PC con pantalla pequeña todo se encoge con `zoom` (`fitZoom` en main.js, no en táctil); botón ⛶ de pantalla completa en las barras de arriba; favicon de la placa L dentro de index.html.
   **Mundos idle de 100 oleadas** (`TD_IDLE` en data.js, lógica al principio de battle.js): como la autoescola, nunca se pierde el
   progreso. Las 10 oleadas de cada mundo son la plantilla (sin jefes) y crecen (`tdWaveSpec`, vida `tdIdleHp`); cada 10, una
   distracción gigante (`giant`); los dos jefes con nombre en la 30 y la 50 (cada uno solo), la 70 (juntos) y la 100 (juntos y más

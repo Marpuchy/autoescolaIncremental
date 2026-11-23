@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Autoescola Incremental</title>
+  <!-- icona: la placa L de novell (dibuixada aquí mateix, sense fitxers de fora) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='3' y='3' width='58' height='58' rx='9' fill='%23009b48' stroke='%23fff' stroke-width='4'/%3E%3Cpath d='M23 14v34h20' fill='none' stroke='%23fff' stroke-width='9' stroke-linecap='square'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="td.css">
 </head>
@@ -190,12 +192,15 @@
       <span class="tdb-bank" id="tdb-bank" hidden title="Temps que el joc ha estat tancat: el combat va més ràpid fins que s'acaba"></span>
       <span class="tdb-lost" id="tdb-lost" hidden>↺ Es torna a fer l'onada</span>
       <button id="tdb-next" class="tdb-next"></button>
+      <button id="tdb-hold" class="secondary small tdb-hold" hidden title="Quan acabe aquesta onada, el combat s'espera fins que li dones a Continuar (per a reorganitzar les criatures)"></button>
+      <button id="tdb-best" class="secondary small" title="Bestiari: debilitats i resistències de les distraccions d'aquest món" aria-label="Bestiari">📖</button>
       <button id="tdb-speed" class="secondary small">▶ ×1</button>
       <button id="tdb-exit" class="secondary small" title="Tornar a la sala">🚪</button>
     </div>
     <div class="tdb-map" id="tdb-map"><svg id="tdb-svg" preserveAspectRatio="xMidYMid meet" aria-label="Mapa del combat"></svg>
       <div class="tdb-banner" id="tdb-banner"></div></div>
     <div class="tdb-bottom"><div class="tdb-deck" id="tdb-deck"></div><div class="tdb-panel" id="tdb-panel" hidden></div></div>
+    <div id="tdb-bestiary" hidden></div>
     <div id="tdb-end" hidden><div class="td-card tdb-end-card"><h2 id="tdb-end-title"></h2><div id="tdb-end-body"></div>
       <div class="tdb-end-btns"><button class="secondary" id="tdb-end-retry">↻ Tornar a jugar</button><button id="tdb-end-lobby">📚 Tornar a la sala</button></div></div></div>
   </div>

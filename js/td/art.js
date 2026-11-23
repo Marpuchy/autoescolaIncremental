@@ -310,7 +310,7 @@ const TD_ENEMY_ART = {
     ${tube("M50 22 A32 32 0 1 1 49.9 22", "#ffd23f", 4.4)}
     ${tube("M32 44 L42 50 L32 56 M68 44 L58 50 L68 56 M32 64 Q50 86 68 64 Z", "#ffd23f", 3.4)}`,
   series: `<ellipse cx="50" cy="96" rx="36" ry="4.5" fill="${TD_GLOW.bad}" opacity="0.3"/>
-    ${tube("M36 18 L48 30 M64 18 L52 30 M14 30 H86 Q90 30 90 34 V82 Q90 86 86 86 H14 Q10 86 10 82 V34 Q10 30 14 30 Z", TD_GLOW.bad, 4.6)}
+    <g class="ant">${tube("M36 18 L48 30 M64 18 L52 30", TD_GLOW.bad, 4.6)}</g>${tube("M14 30 H86 Q90 30 90 34 V82 Q90 86 86 86 H14 Q10 86 10 82 V34 Q10 30 14 30 Z", TD_GLOW.bad, 4.6)}
     <path d="M42 46 L62 58 L42 70 Z" fill="#fff" stroke="${TD_GLOW.bad}" stroke-width="3" stroke-linejoin="round"/>
     <g class="badge">${glyphText(72, 80, 9, "EP 99", TD_GLOW.bad)}</g>`,
   // Pestanyes obertes: finestra del navegador amb tres pestanyes dalt (la de davant encesa) i dues finestres més darrere
@@ -350,19 +350,19 @@ const TD_FOREST_ENEMY_ART = {
     <g class="badge"><ellipse cx="62" cy="62" rx="20" ry="16" fill="#d8ff6a" opacity="0.28"/><ellipse cx="62" cy="62" rx="12" ry="9" fill="#efffb0" stroke="#d8ff6a" stroke-width="3"/></g>
     <path d="M36 50 Q50 30 66 44" fill="#3a3a22" opacity="0.6"/>${tube("M40 54 Q54 26 70 46", "#c8d6a0", 2.4)}
     <ellipse cx="40" cy="58" rx="12" ry="9" fill="#2a2a1a" stroke="#ffb347" stroke-width="3"/><circle cx="30" cy="56" r="6" fill="#2a2a1a" stroke="#ffb347" stroke-width="2.6"/>
-    ${tube("M27 51 Q20 40 14 38 M30 50 Q28 38 22 32", "#ffb347", 1.6)}${tube("M36 66 L32 80 M44 66 L44 80 M52 66 L56 80", "#ffb347", 1.8)}`,
+    <g class="ant">${tube("M27 51 Q20 40 14 38 M30 50 Q28 38 22 32", "#ffb347", 1.6)}</g><g class="legs-a">${tube("M36 66 L32 80 M52 66 L56 80", "#ffb347", 1.8)}</g><g class="legs-b">${tube("M44 66 L44 80", "#ffb347", 1.8)}</g>`,
   // Caragol: closca d'espiral enorme i el cos que s'allarga, amb les dues banyes; la baba darrere
   procrastinacio: `<ellipse cx="50" cy="96" rx="40" ry="4" fill="#9b6cd6" opacity="0.25"/>${tube("M70 93 H94", "#c7a4ff", 2, 'opacity="0.5"')}
     <path d="M8 92 Q8 80 22 80 H74 Q86 80 88 92 Z" fill="#3a2f2a" stroke="#d6b48a" stroke-width="3.4"/>
-    ${tube("M18 82 Q14 68 10 58 M24 81 Q24 66 22 54", "#d6b48a", 2.4)}<circle cx="10" cy="57" r="2.6" fill="#fff"/><circle cx="22" cy="53" r="2.6" fill="#fff"/>
+    <g class="ant">${tube("M18 82 Q14 68 10 58 M24 81 Q24 66 22 54", "#d6b48a", 2.4)}<circle cx="10" cy="57" r="2.6" fill="#fff"/><circle cx="22" cy="53" r="2.6" fill="#fff"/></g>
     <path d="M60 30 C82 30 92 48 88 64 C84 80 64 86 50 82 C32 78 28 56 40 46 C50 38 66 42 68 54 C70 66 56 70 50 62" fill="#2a1f3d" stroke="#c7a4ff" stroke-width="4.4" stroke-linecap="round"/>
     ${tube("M60 30 C82 30 92 48 88 64 C84 80 64 86 50 82 C32 78 28 56 40 46 C50 38 66 42 68 54 C70 66 56 70 50 62", "#c7a4ff", 2, 'opacity="0.6"')}`,
   // Rosella: quatre pètals rojos, el centre fosc amb els estams, la tija peluda; el pol·len que llança són els Z
   son: `<ellipse cx="50" cy="96" rx="20" ry="3.5" fill="#ff5a4a" opacity="0.2"/>${tube("M50 94 Q46 72 52 50", "#7fbf5a", 3)}
     ${tube("M48 80 Q36 74 30 78 Q38 84 48 82", "#7fbf5a", 2.4)}
-    <g class="zz">${[[-34, 0], [34, 0], [0, -30], [0, 30]].map(([dx, dy], i) => `<ellipse cx="${52 + dx * 0.55}" cy="${36 + dy * 0.55}" rx="17" ry="14" fill="#e8322a" stroke="#ff8a7a" stroke-width="2" transform="rotate(${i * 45} ${52 + dx * 0.55} ${36 + dy * 0.55})"/>`).join("")}
+    <g class="petals">${[[-34, 0], [34, 0], [0, -30], [0, 30]].map(([dx, dy], i) => `<ellipse cx="${52 + dx * 0.55}" cy="${36 + dy * 0.55}" rx="17" ry="14" fill="#e8322a" stroke="#ff8a7a" stroke-width="2" transform="rotate(${i * 45} ${52 + dx * 0.55} ${36 + dy * 0.55})"/>`).join("")}
     <circle cx="52" cy="36" r="9" fill="#1a1a2a" stroke="#7fb8ff" stroke-width="2"/>${[0, 1, 2, 3, 4, 5].map(i => `<circle cx="${(52 + Math.cos(i) * 12).toFixed(1)}" cy="${(36 + Math.sin(i) * 12).toFixed(1)}" r="1.8" fill="#1a1a2a"/>`).join("")}</g>
-    ${glyphText(84, 20, 14, "z", "#7fb8ff")}`,
+    <g class="zz">${glyphText(84, 20, 14, "z", "#7fb8ff")}</g>`,
   // Brot de falguera: l'espiral que es desenrotlla (com el feed infinit), amb les fulletes als costats
   scroll: `<ellipse cx="50" cy="96" rx="18" ry="3.5" fill="#7fbf5a" opacity="0.25"/>
     <g class="feed-spin">${tube("M50 94 C50 70 70 60 70 40 C70 24 56 16 44 22 C34 28 36 42 46 44 C54 46 56 36 50 34", "#9fdc5a", 5)}</g>
@@ -374,31 +374,31 @@ const TD_FOREST_ENEMY_ART = {
     ${tube("M78 62 C90 62 94 50 86 46 C80 44 78 52 84 54", "#ffd23f", 3.4)}${tube("M30 50 L36 40 L42 46 L48 38 L54 44", "#ffd23f", 2.4)}
     <path d="M24 66 C14 66 8 58 12 50 C16 44 24 44 28 50 Z" fill="#4a7a2a" stroke="#ffd23f" stroke-width="3"/>
     <circle cx="20" cy="52" r="5" fill="#fff" stroke="#ffd23f" stroke-width="2"/><circle class="eye-roll" cx="19" cy="51" r="2.2" fill="#1a1a1a"/>
-    ${tube("M10 60 Q2 62 -2 58", "#ff7a9a", 2.2)}${tube("M34 66 L30 74 M52 66 L56 74 M66 64 L70 72", "#ffd23f", 2.2)}</g>`,
+    ${tube("M10 60 Q2 62 -2 58", "#ff7a9a", 2.2)}<g class="legs-a">${tube("M34 66 L30 74 M66 64 L70 72", "#ffd23f", 2.2)}</g><g class="legs-b">${tube("M52 66 L56 74", "#ffd23f", 2.2)}</g></g>`,
   // Corro de bolets: tres bolets en rogle (el del mig, gros) i el micel·li brillant per davall
   series: `<ellipse cx="50" cy="96" rx="40" ry="5" fill="${TD_GLOW.bad}" opacity="0.25"/>
     ${tube("M8 94 Q30 88 50 94 Q70 100 92 92 M22 92 Q30 98 40 94 M60 96 Q70 90 80 96", "#ffb3a0", 1.4, 'class="myc" opacity="0.7"')}
-    ${[[20, 94, 0.7], [80, 94, 0.75], [50, 96, 1.15]].map(([x, y, k]) => `<g transform="translate(${x} ${y}) scale(${k})">
+    ${[[20, 94, 0.7], [80, 94, 0.75], [50, 96, 1.15]].map(([x, y, k], i) => `<g transform="translate(${x} ${y}) scale(${k})"><g class="shroom" style="animation-delay:${-i * 0.45}s">
       <path d="M-7 0 Q-8 -18 -5 -26 H5 Q8 -18 7 0 Z" fill="#f2e2c8" stroke="#ffb3a0" stroke-width="2.4"/>
       <path d="M-24 -24 Q-22 -46 0 -48 Q22 -46 24 -24 Q0 -18 -24 -24 Z" fill="#c8321e" stroke="${TD_GLOW.bad}" stroke-width="3"/>
-      ${[[-12, -36], [4, -42], [12, -30], [-2, -30]].map(([a, b]) => `<circle cx="${a}" cy="${b}" r="3" fill="#fff4e0"/>`).join("")}</g>`).join("")}`,
+      ${[[-12, -36], [4, -42], [12, -30], [-2, -30]].map(([a, b]) => `<circle cx="${a}" cy="${b}" r="3" fill="#fff4e0"/>`).join("")}</g></g>`).join("")}`,
   // Llop de la lluna: assegut de perfil udolant, amb el musell amunt; darrere, la lluna creixent
   // Formiga reina: de perfil, mirant a l'esquerra: cap amb mandíbules i antenes, tòrax i abdomen enorme (ple d'ous),
   // sis potes i restes d'ales al llom
   pestanyes: `<ellipse cx="50" cy="96" rx="36" ry="4" fill="#ff8a3a" opacity="0.22"/>
     <path d="M44 50 Q56 32 72 42" fill="#ffd8a8" opacity="0.25"/>
-    ${tube("M32 66 L22 88 M40 68 L38 90 M48 68 L58 90", "#ff9a4a", 2.4)}
+    <g class="legs-a">${tube("M32 66 L22 88 M48 68 L58 90", "#ff9a4a", 2.4)}</g><g class="legs-b">${tube("M40 68 L38 90", "#ff9a4a", 2.4)}</g>
     <ellipse cx="70" cy="64" rx="24" ry="17" fill="#3a1a0c" stroke="#ff8a3a" stroke-width="3.4"/>
     ${tube("M58 56 Q70 52 84 58 M56 66 Q70 64 88 68", "#ff8a3a", 1.6, 'opacity="0.6"')}
     <ellipse cx="42" cy="62" rx="10" ry="8" fill="#3a1a0c" stroke="#ff8a3a" stroke-width="3"/>
     <circle cx="24" cy="58" r="9" fill="#3a1a0c" stroke="#ff8a3a" stroke-width="3"/><circle cx="20" cy="55" r="2" fill="#ffd8a8"/>
-    ${tube("M17 63 L9 67 M17 61 L11 59", "#ff9a4a", 2)}${tube("M24 50 Q20 36 10 32 M27 50 Q30 38 24 28", "#ff9a4a", 1.8)}`,
+    ${tube("M17 63 L9 67 M17 61 L11 59", "#ff9a4a", 2)}<g class="ant">${tube("M24 50 Q20 36 10 32 M27 50 Q30 38 24 28", "#ff9a4a", 1.8)}</g>`,
   // Formiga obrera: la mateixa, menuda i prima
   pestanyeta: `<ellipse cx="50" cy="96" rx="20" ry="3" fill="#ff8a3a" opacity="0.2"/>
-    ${tube("M38 76 L30 90 M46 76 L46 90 M56 76 L64 90", "#ff9a4a", 2.4)}
+    <g class="legs-a">${tube("M38 76 L30 90 M56 76 L64 90", "#ff9a4a", 2.4)}</g><g class="legs-b">${tube("M46 76 L46 90", "#ff9a4a", 2.4)}</g>
     <ellipse cx="64" cy="72" rx="14" ry="10" fill="#3a1a0c" stroke="#ff8a3a" stroke-width="3"/>
     <ellipse cx="46" cy="72" rx="7" ry="6" fill="#3a1a0c" stroke="#ff8a3a" stroke-width="2.6"/>
-    <circle cx="31" cy="68" r="7.5" fill="#3a1a0c" stroke="#ff8a3a" stroke-width="2.6"/>${tube("M31 61 Q27 50 19 46 M34 61 Q37 50 31 42", "#ff9a4a", 1.6)}`,
+    <circle cx="31" cy="68" r="7.5" fill="#3a1a0c" stroke="#ff8a3a" stroke-width="2.6"/><g class="ant">${tube("M31 61 Q27 50 19 46 M34 61 Q37 50 31 42", "#ff9a4a", 1.6)}</g>`,
   // Papallona irisada: vista de cara, ales grans de dalt i menudes de baix del color de l'element a què és feble ara
   // (--shift), amb ulls a les ales i el cos fosc al mig
   algoritme: `<ellipse cx="50" cy="96" rx="34" ry="4.5" fill="#ff5ab0" opacity="0.25"/>
@@ -411,7 +411,7 @@ const TD_FOREST_ENEMY_ART = {
   diumenge: `<ellipse cx="50" cy="96" rx="34" ry="4.5" fill="#4a7fc8" opacity="0.3"/>
     ${tube("M84 6 C70 8 62 20 64 32 C66 44 78 50 90 46 C80 44 72 36 74 26 C75 16 80 10 84 6 Z", "#ffe8a0", 2.8)}
     <path d="M30 94 C26 76 30 60 36 50 L30 34 L22 22 L30 24 L34 16 L40 26 C44 30 48 34 50 40 C58 48 72 56 74 74 C76 86 70 94 60 94 Z" fill="#2a3450" stroke="#7fb8ff" stroke-width="3.4" stroke-linejoin="round"/>
-    ${tube("M60 94 C74 92 86 90 90 80", "#7fb8ff", 4)}${tube("M38 64 V94 M50 70 V94", "#7fb8ff", 1.6, 'opacity="0.6"')}
+    <g class="tail">${tube("M60 94 C74 92 86 90 90 80", "#7fb8ff", 4)}</g>${tube("M38 64 V94 M50 70 V94", "#7fb8ff", 1.6, 'opacity="0.6"')}
     <circle cx="35" cy="30" r="2.2" fill="#ffe8a0"/>${tube("M20 18 Q14 10 16 4 M14 22 Q6 18 4 12", "#7fb8ff", 1.6, 'class="howl"')}`,
 };
 
@@ -595,9 +595,11 @@ const TD_STUDENT_SVG = tdStudentSvg();
 
 // Embolcalls
 // Icona de l'element al racó de les cartes (equip, triar criatura al combat)
-const tdElemDot = id => { const E = TD_ELEMENTS[TD_DEFENDERS[id].el]; return `<span class="td-elem-dot" style="--ec:${E.color}" aria-label="${E.name}">${E.icon}</span>`; };
+const tdElemDot = id => { const d = TD_DEFENDERS[id], E = TD_ELEMENTS[d.el], F = TD_ELEMENTS[d.el2];
+  return F ? `<span class="td-elem-dot dual" style="--ec:${E.color};--ec2:${F.color}" aria-label="${E.name} i ${F.name}">${E.icon}${F.icon}</span>`
+    : `<span class="td-elem-dot" style="--ec:${E.color}" aria-label="${E.name}">${E.icon}</span>`; };
 // L'element d'una criatura o d'una debilitat, amb la icona i el color
-const tdElemTag = el => TD_ELEMENTS[el] ? `<span class="td-elem" style="--ec:${TD_ELEMENTS[el].color}">${TD_ELEMENTS[el].icon} ${TD_ELEMENTS[el].name}</span>` : "";
+const tdElemTag = (el, el2) => (TD_ELEMENTS[el] ? `<span class="td-elem" style="--ec:${TD_ELEMENTS[el].color}">${TD_ELEMENTS[el].icon} ${TD_ELEMENTS[el].name}</span>` : "") + (el2 ? " " + tdElemTag(el2) : "");
 function tdCreatureSvg(id, extraClass = "") {
   return `<svg viewBox="-6 -10 132 132" class="tdc tdc-${id} ${extraClass}" aria-hidden="true" overflow="visible">${TD_ART[id].svg}</svg>`;
 }

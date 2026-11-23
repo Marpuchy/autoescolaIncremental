@@ -1032,7 +1032,11 @@ body.hub-open:has(#hub-dialog:not([hidden])) #toasts { top: auto; bottom: 16px; 
 .visit-banner { position: fixed; z-index: 70; left: 50%; bottom: 14px; transform: translateX(-50%); display: flex; gap: 10px; align-items: center;
   background: #1f2430; color: #ffe27a; border: 2px solid #ffc23f; border-radius: 12px; padding: 8px 12px; font-weight: 700; max-width: calc(100vw - 24px); }
 .visit-banner[hidden] { display: none; }
-body.proves::before { content: "🧪 PROVES"; position: fixed; z-index: 90; top: 6px; left: 50%; transform: translateX(-50%); background: #ff8a1f; color: #1a1a1a;
-  font-weight: 900; font-size: 0.72rem; padding: 2px 8px; border-radius: 8px; pointer-events: none; }
+/* (a baix a l'esquerra: dalt tapava els comptadors de les barres) */
+body.proves::before { content: "🧪 PROVES"; position: fixed; z-index: 90; bottom: 6px; left: 6px; background: #ff8a1f; color: #1a1a1a; opacity: 0.85;
+  font-weight: 900; font-size: 0.68rem; padding: 2px 7px; border-radius: 8px; pointer-events: none; }
+/* botó de pantalla completa (a les barres de dalt) */
+.fs-btn { flex-shrink: 0; }
+.fs-btn[hidden] { display: none; }
 
 /* ---- correu de l'habitació: el foradet de la paret amb la carta que trau el cap */

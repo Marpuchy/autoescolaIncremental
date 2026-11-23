@@ -63,6 +63,7 @@ function loop(now) {
   if (!examOpen()) update(dt * CONFIG.debug.speed * gameSpeed); // el combat es para mentre hi ha examen
   render();
   requestAnimationFrame(loop);
+
 }
 
 initInventory();
@@ -92,3 +93,24 @@ function restorePlace(place) {
   else if (place === "td-informatic" || place === "td-forestal") tdOpenLobby(place.slice(3));
 }
 requestAnimationFrame(loop);
+
+// Pantalles d'ordinador menudes: tot s'encongix a la vegada (zoom), com si es fera Ctrl − (el mòbil i la tauleta, no)
+function fitZoom() {
+  const desk = innerWidth > 700 && !matchMedia("(pointer: coarse)").matches;
+  const z = desk ? Math.max(0.62, Math.min(1, innerWidth / 1380, innerHeight / 820)) : 1;
+  document.documentElement.style.zoom = z < 0.99 ? z.toFixed(3) : "";
+}
+fitZoom();
+addEventListener("resize", fitZoom);
+// Pantalla completa (sense la barra del navegador): un botó a cada barra de dalt
+if (document.fullscreenEnabled) {
+  for (const bar of document.querySelectorAll(".hub-top, .tdb-top")) {
+    const b = document.createElement("button");
+    b.className = "secondary small fs-btn";
+    b.addEventListener("click", () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().catch(() => {}));
+    bar.append(b);
+  }
+  const fsLabel = () => document.querySelectorAll(".fs-btn").forEach(b => { const on = !!document.fullscreenElement; b.textContent = on ? "🗗" : "⛶"; b.title = on ? "Eixir de la pantalla completa" : "Pantalla completa"; b.setAttribute("aria-label", b.title); });
+  document.addEventListener("fullscreenchange", fsLabel);
+  fsLabel();
+}
