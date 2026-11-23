@@ -314,8 +314,8 @@
 .tdb-fx-dissolve rect { animation: td-dis 0.8s ease-out forwards; }
 @keyframes td-dis { 0% { opacity: 1; } 100% { opacity: 0; translate: var(--dx) var(--dy); scale: 0.3; } }
 .tdb-proj { pointer-events: none; }
-.tdb-num { font-size: 26px; font-weight: 900; text-anchor: middle; paint-order: stroke; stroke: #000; stroke-width: 5px; pointer-events: none; animation: td-num 0.8s ease-out forwards; }
-.tdb-num.big { font-size: 36px; }
+.tdb-num { font-size: 18px; font-weight: 900; text-anchor: middle; paint-order: stroke; stroke: #000; stroke-width: 4px; pointer-events: none; animation: td-num 0.8s ease-out forwards; }
+.tdb-num.big { font-size: 24px; }
 @keyframes td-num { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-40px); opacity: 0; } }
 :is(.tdb-fx-ring, .tdb-fx-freeze, .tdb-fx-blast, .tdb-fx-summon, .tdb-fx-pop) { pointer-events: none; animation: td-fx 0.5s ease-out forwards; transform-box: fill-box; transform-origin: center; }
 .tdb-fx-blast { animation-duration: 0.7s; }
@@ -1081,7 +1081,7 @@
 .tdb-proj.sp-overload .tdb-proj-in { filter: drop-shadow(0 0 10px #a64dff) drop-shadow(0 0 3px #fff); }
 /* ---- elements: etiqueta al grimori i al bestiari, i números de dany segons si és feble o forta */
 .td-elem { display: inline-block; padding: 0 7px; border-radius: 999px; font-weight: 800; color: var(--ec); background: color-mix(in srgb, var(--ec) 14%, #10141f); border: 1px solid color-mix(in srgb, var(--ec) 60%, #10141f); white-space: nowrap; } /* fons fosc: es llig igual sobre paper clar i fosc */
-.tdb-num.strong { opacity: 0.6; font-size: 19px; }
+.tdb-num.strong { opacity: 0.6; font-size: 14px; }
 .td-elem-dot { position: absolute; top: 3px; left: 3px; z-index: 2; width: 1.45em; height: 1.45em; display: grid; place-items: center; border-radius: 50%; font-size: 0.78rem;
   background: color-mix(in srgb, var(--ec) 28%, #0b0f17); border: 1.5px solid var(--ec); box-shadow: 0 0 6px color-mix(in srgb, var(--ec) 50%, transparent); pointer-events: none; }
 .tdb-card, .tdbook-tslot, .tdbook-mini { position: relative; }

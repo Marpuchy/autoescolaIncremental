@@ -1272,17 +1272,17 @@ function tdbSpecial(t, target) {
       tdbBolt([sx, sy - 50], tdbS(...tdbPos(e)).map((v, i) => v - (i ? e.size * 0.45 : 0)), "#ff3b4e");
     }
     tdbNumber(...tdbS(x, y - 120), "⟨ψ| col·lapse", "#ff3b4e", true);
-  } else if (s.type === "goto") { // GOTO: la més avançada torna enrere pel camí
+  } else if (s.type === "goto") { // GOTO: la més avançada salta a un lloc a l'atzar del seu camí (pot ser abans o després!)
     const e = tdb.enemies.filter(o => tdbVisible(o)).sort((a, b) => b.dist - a.dist)[0];
     if (e) {
-      // GOTO: es desfà en píxels on és, un fil de codi salta enrere pel camí i torna a aparéixer allà
-      const from = tdbPos(e), d0 = e.dist;
-      e.dist = Math.max(0, e.dist - s.back * Math.min(1.5, ab));
-      const P = tdbP(e), pts = Array.from({ length: 9 }, (_, i) => tdbS(...P.at(d0 - (d0 - e.dist) * i / 8)));
+      // GOTO: es desfà en píxels on és, un fil de codi fa un arc fins al lloc nou i torna a aparéixer allà
+      const P = tdbP(e), a = tdbS(...tdbPos(e));
+      e.dist = Math.random() * P.total * s.upTo;
+      const b = tdbS(...tdbPos(e)), pts = Array.from({ length: 9 }, (_, i) => [a[0] + (b[0] - a[0]) * i / 8, a[1] + (b[1] - a[1]) * i / 8]);
       const g = el("g", { class: "tdb-goto" }, $("tdb-fx"));
-      g.innerHTML = `<polyline points="${pts.map(([x, y], i) => `${x.toFixed(0)},${(y - 40 - Math.sin(i / 8 * Math.PI) * 70).toFixed(0)}`).join(" ")}" fill="none" stroke="#3fdc8a" stroke-width="4" stroke-dasharray="10 8" class="tdb-goto-line"/>
+      g.innerHTML = `<polyline points="${pts.map(([x, y], i) => `${x.toFixed(0)},${(y - 40 - Math.sin(i / 8 * Math.PI) * 120).toFixed(0)}`).join(" ")}" fill="none" stroke="#3fdc8a" stroke-width="4" stroke-dasharray="10 8" class="tdb-goto-line"/>
         ${[0, 1].map(j => { const [x, y] = j ? pts[8] : pts[0]; return `<g transform="translate(${x} ${y - 30})">${Array.from({ length: 10 }, (_, i) => `<rect class="tdb-goto-px" x="${(i % 4) * 9 - 18}" y="${Math.floor(i / 4) * 9 - 14}" width="7" height="7" fill="${j ? "#3fdc8a" : "#ff3b4e"}" style="animation-delay:${(i * 0.03 + j * 0.35).toFixed(2)}s"/>`).join("")}</g>`; }).join("")}
-        <text x="${pts[4][0]}" y="${pts[4][1] - 130}" text-anchor="middle" class="tdb-goto-txt">goto ${Math.round(s.back)};</text>`;
+        <text x="${pts[4][0]}" y="${pts[4][1] - 180}" text-anchor="middle" class="tdb-goto-txt">goto rand();</text>`;
       setTimeout(() => g.remove(), 1100);
       e.el?.classList.remove("warped"); void e.el?.getBoundingClientRect(); e.el?.classList.add("warped");
     }
@@ -1294,7 +1294,7 @@ function tdbSpecial(t, target) {
     }
     tdbNumber(...tdbS(tx, ty - 120), "λ · diagonalitzat", TD_GLOW.myth, true);
   } else if (s.type === "convert") {
-    const weak = tdbTargets(t, 20).filter(e => !e.def.boss).sort((a, b) => a.hp - b.hp)[0];
+    const weak = tdbTargets(t, 20).filter(e => !e.def.boss).sort((a, b) => a.hp - b.hp)[0]; // (els gegants, sí: ja no moren en acabar)
     if (weak) {
       // la roda dentada de dalt ix volant, colpeja l'enemic i el compila; després es torna a formar
       const gear = t.svg?.querySelector(".gear"), ctm = $("tdb-svg").getScreenCTM();
@@ -1471,10 +1471,11 @@ function tdbUpdate(dt) {
     // aliat compilat: torna enrere i fa mal als que toca
     if (e.convertT > 0) {
       e.convertT -= dt;
-      e.dist -= 70 * dt;
+      e.dist = Math.max(0, e.dist - 70 * dt);
       const [x, y] = tdbPos(e);
       for (const o of tdb.enemies) if (o !== e && o.hp > 0 && !o.convertT && Math.hypot(...tdbPos(o).map((v, i) => v - [x, y][i])) < 50) tdbDamage(o, 30 * dt, "arca"); // el compilat: dany de codi
-      if (e.convertT <= 0 || e.dist <= 0) tdbKill(e);
+      // en acabar, torna a ser una distracció (abans moria: els gegants queien d'un colp)
+      if (e.convertT <= 0) { e.convertT = 0; e.el.classList.remove("converted"); }
       continue;
     }
     tdbEnemyAbility(e, dt);

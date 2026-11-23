@@ -90,7 +90,7 @@ const TD_DEFENDERS = {
                  desc: "Si n'hi ha un de fort, li dispara a ell; si no, al més ràpid." },
   compilador:  { subj: "prg", rar: "llegendari", name: "Compilador", dmg: 28, rate: 0.6, range: 280, cost: 120, role: "aoe", aoe: 80,
                  special: { every: 12, type: "convert", dur: 4 },
-                 desc: "Dany en zona. Cada 12 atacs compila l'enemic més feble i el torna aliat 4 s." },
+                 desc: "Dany en zona. Cada 12 atacs compila l'enemic més feble i el torna aliat 4 s: camina cap enrere fent mal als altres i després torna a ser una distracció." },
   stack:       { subj: "prg", rar: "mitic", name: "Stack Overflow", dmg: 20, rate: 1.2, range: 300, cost: 150, role: "stacks", stacks: 20, blast: 18,
                  desc: "Cada atac apila. Amb 20 piles, el desbordament explota per tot el mapa (18 × el dany)." },
   // ---- Màquina (Informàtica: electrònica i fonaments de computadors)
@@ -152,8 +152,8 @@ const TD_DEFENDERS = {
                  chain: { jumps: 5, falloff: 0.85, radius: 220 }, special: { every: 10, type: "collapse", stun: 0.6 },
                  desc: "El rellotge i la Tesla, en un xip amb un qubit. Llança la bola de càrrega i el raig salta de distracció en distracció; cada 4 tics del rellotge, salta el doble de vegades. Cada 10, col·lapse: tot el que té a l'abast es queda parat mig segon." },
   spaghetti:   { subj: "prg", rar: "mh", name: "Codi Spaghetti", dmg: 20, rate: 1.1, range: 300, cost: 160, role: "bounce", bounces: 4, random: true, alt: true, projSpeed: 0.55,
-                 slow: 0.3, slowDur: 1.5, special: { every: 12, type: "goto", back: 300 },
-                 desc: "L'If/else, quan el codi se n'ix de mare. Llança els caps dels fideus, que reboten entre 4 distraccions a l'atzar i les deixen enredades (més lentes). Cada 12 tirs, GOTO: la distracció més avançada torna 300 passos enrere." },
+                 slow: 0.3, slowDur: 1.5, special: { every: 12, type: "goto", upTo: 0.85 },
+                 desc: "L'If/else, quan el codi se n'ix de mare. Llança els caps dels fideus, que reboten entre 4 distraccions a l'atzar i les deixen enredades (més lentes). Cada 12 tirs, GOTO: la distracció més avançada salta a un lloc a l'atzar del seu camí (pot tocar-li davant o darrere)." },
 };
 // Com s'aconseguixen les de Matrícula d'Honor: a l'onada 100 del món (world) es guanya la recepta o la pedra
 const TD_FORGE = {
