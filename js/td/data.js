@@ -96,8 +96,8 @@ const TD_DEFENDERS = {
   // ---- Màquina (Informàtica: electrònica i fonaments de computadors)
   rellotge:    { subj: "maq", rar: "epic", name: "Rellotge de CPU", dmg: 10, rate: 0.8, range: 210, cost: 80, role: "clock", regrow: 0.8, every: 10,
                  desc: "Un cristall de quars que marca el compàs. A cada tic, l'ona quadrada que du a la cara baixa al camí i recorre tot el tram al seu abast, i colpeja tot el que hi ha. Cada 10 tics, un tic doble (2 × el dany)." },
-  tesla:       { subj: "maq", rar: "llegendari", name: "Bobina de Tesla", dmg: 18, rate: 0.6, range: 300, cost: 120, role: "chain", projSpeed: 1.6,
-                 chain: { jumps: 4, falloff: 0.75, radius: 210 }, special: { every: 10, type: "overload", jumps: 8, stun: 0.5 },
+  tesla:       { subj: "maq", rar: "llegendari", name: "Bobina de Tesla", dmg: 24, rate: 0.6, range: 300, cost: 120, role: "chain", projSpeed: 1.6,
+                 chain: { jumps: 4, falloff: 0.82, radius: 210 }, special: { every: 10, type: "overload", jumps: 8, stun: 0.5 },
                  desc: "Llança la bola de càrrega que té dalt: en tocar, el raig salta d'una distracció a la més pròxima fins a 4 vegades, i perd força a cada salt. Cada 10 tirs, sobrecàrrega: salta 8 vegades sense perdre força i deixa cada distracció parada mig segon." },
   resistencia: { subj: "maq", rar: "rar", name: "Resistència", dmg: 9, rate: 1.2, range: 250, cost: 55, role: "slow", alt: true, regrow: 0.9,
                  slow: 0.35, slowDur: 2, band: { l: "#ff5a4a", r: "#c97a3a" },

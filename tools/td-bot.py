@@ -25,6 +25,8 @@ DPS_JS = """(id) => {
   td.owned[id] = td.owned[id] || { copies: 1, level: 1, stars: 1 };
   if (!tdTeam(mode).includes(id)) td.team.push(id);
   tdRoom = mode;
+  if (tdb) tdStopBattle();
+  td.worlds = {}; // un combat nou cada vegada (sense la partida guardada del món)
   tdOpenBattle(world.id);
   tdb.speed = 0; tdb.god = true; tdb.mana = 1e6;
   tdbPlace(1, id);
@@ -37,7 +39,7 @@ DPS_JS = """(id) => {
     tdbUpdate(0.05);
   }
   const dmg = tdb.enemies.reduce((s, e) => s + (1e9 - Math.max(0, e.hp)), 0);
-  tdCloseBattle(false);
+  tdStopBattle(); // (tancar-lo només el deixaria en marxa en segon pla: els mons són de 100 onades)
   return { id, name: d.name, rar: d.rar, cost: d.cost, dps: dmg / T };
 }"""
 
@@ -48,6 +50,8 @@ WORLD_JS = """(id) => {
   for (const k of team) td.owned[k] = td.owned[k] || { copies: 1, level: 1, stars: 1 };
   td.team = td.team.filter(k => tdModeOf(k) !== mode).concat(team);
   tdRoom = mode;
+  if (tdb) tdStopBattle();
+  td.worlds = {}; // un combat nou cada vegada (sense la partida guardada del món)
   tdOpenBattle(world.id);
   tdb.speed = 0;
   const slots = tdb.world.slots.map((_, i) => i);
@@ -64,7 +68,7 @@ WORLD_JS = """(id) => {
     if (tdb.wave >= tdb.world.waves.length && !tdb.spawnQueue.length && !tdb.enemies.some(e => e.hp > 0)) break;
   }
   const r = { id, wave: tdb.wave, of: tdb.world.waves.length, lives: Math.round(tdb.lives) };
-  tdCloseBattle(false);
+  tdStopBattle(); // (tancar-lo només el deixaria en marxa en segon pla: els mons són de 100 onades)
   return r;
 }"""
 
