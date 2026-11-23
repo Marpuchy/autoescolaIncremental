@@ -31,6 +31,9 @@ function tdNewState() {
     // Préstecs entre Marc i Alba (js/td/share.js). share.out: el que he enviat (demanar o prestar), share.done: els
     // missatges de l'altre que ja he contestat. loan: la criatura que tinc prestada (un buit: dura fins que la canvie)
     share: { out: [], done: [] },
+    // Registre de tot el que s'ha estudiat (el faristol del registre): quantes vegades cada activitat per camp,
+    // els exàmens amb la nota i els dies que s'ha estudiat. No es perd en reiniciar.
+    record: { acts: {}, exams: [], days: [] },
     loan: null,
   };
 }
@@ -43,6 +46,7 @@ function tdSave() {
   const json = JSON.stringify(td);
   try { localStorage.setItem(TD_SAVE_KEY, json); } catch {}
   if (typeof tdShareStore === "function") tdShareStore();
+  if (typeof tdbRefreshStats === "function") tdbRefreshStats(); // les criatures del combat en marxa, al dia
   if (typeof cloudSaved === "function") cloudSaved("estudi", json); // i al núvol (js/cloud.js)
 }
 function tdLoad(fromRaw = null) { // fromRaw: una partida que no és la d'este dispositiu (mode visita)
@@ -95,6 +99,7 @@ function tdLoad(fromRaw = null) { // fromRaw: una partida que no és la d'este d
     td.favs = td.favs.filter(id => TD_DEFENDERS[id]);
     td.mail = td.mail.filter(id => typeof id === "string");
     td.share = tdCleanShare(td.share);
+    td.record = tdCleanRecord(td.record, !data.record);
     td.loan = tdCleanLoan(td.loan);
     // un artefacte per espai
     td.equipped = td.equipped.filter((id, i, a) => td.artifacts[id] && a.findIndex(o => tdArtSlot(o) === tdArtSlot(id)) === i).slice(0, TD_ARTIFACT_SLOTS);
@@ -102,6 +107,26 @@ function tdLoad(fromRaw = null) { // fromRaw: una partida que no és la d'este d
   if (fromRaw == null && typeof tdShareRestore === "function") tdShareRestore(); // versió de proves: el correu de cada perfil
 }
 
+// Registre: només números i textos coneguts. first: partida d'abans del registre → s'omple amb el que hi ha a td.log
+function tdCleanRecord(r, first) {
+  const out = { acts: {}, exams: [], days: [] };
+  for (const [f, a] of Object.entries(r?.acts || {})) if (TD_SUBJECTS[f] && a && typeof a === "object")
+    for (const act of TD_ACTIVITIES) if (Number(a[act.id]) > 0) (out.acts[f] ||= {})[act.id] = Math.floor(Number(a[act.id]));
+  if (Array.isArray(r?.exams)) out.exams = r.exams.filter(e => e && TD_SUBJECTS[e.f] && Number(e.nota) >= 0 && Number(e.nota) <= 10)
+    .map(e => ({ t: Number(e.t) || 0, f: e.f, cls: TD_SUBJECTS[e.f].classes.includes(e.cls) ? e.cls : "", nota: Number(e.nota), final: !!e.final })).slice(-300);
+  if (Array.isArray(r?.days)) out.days = r.days.filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d)).slice(-1000);
+  if (first) for (const l of [...td.log].reverse()) {
+    if (!TD_SUBJECTS[l.subj] || typeof l.what !== "string") continue;
+    const act = TD_ACTIVITIES.find(a => l.what.startsWith(`${a.icon} ${a.name}`)), ex = l.what.match(/Examen (final|parcial): ([\d,]+)(?: · (.+))?/);
+    if (act) (out.acts[l.subj] ||= {})[act.id] = ((out.acts[l.subj] || {})[act.id] || 0) + 1;
+    else if (ex) out.exams.push({ t: Number(l.t) || 0, f: l.subj, cls: TD_SUBJECTS[l.subj].classes.includes(ex[3]) ? ex[3] : "", nota: Number(ex[2].replace(",", ".")), final: ex[1] === "final" });
+    const d = tdDayKey(l.t);
+    if (l.t && !out.days.includes(d)) out.days.push(d);
+  }
+  return out;
+}
+const tdDayKey = (t = Date.now()) => { const d = new Date(t); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
+function tdRecordDay() { const d = tdDayKey(); if (!td.record.days.includes(d)) td.record.days = [...td.record.days, d].slice(-1000); }
 const tdCleanShare = s => ({ out: Array.isArray(s?.out) ? s.out.filter(m => m && typeof m === "object" && Number.isFinite(m.n)).slice(-30) : [],
   done: Array.isArray(s?.done) ? s.done.filter(Number.isFinite).slice(-80) : [] });
 // Criatura prestada: només una de bona (una que existix, d'una persona coneguda, amb nivell i estrelles possibles)
@@ -335,6 +360,8 @@ function tdRegisterStudy(subj, actId, cls = "") {
   if (!act || !TD_SUBJECTS[subj]) return null;
   const rolls = Math.min(act.rolls, tdDailyLeft(subj));
   const missions = tdMissionProgress(subj, actId); // la missió compta encara que ja no queden pergamins per hui
+  (td.record.acts[subj] ||= {})[actId] = (td.record.acts[subj][actId] || 0) + 1; // al registre va sempre, amb pergamins o sense
+  tdRecordDay();
   if (rolls <= 0) { tdSave(); return { rolls: 0, capped: true, missions }; }
   td.daily[subj] = (td.daily[subj] || 0) + rolls;
   td.pergamins[subj] += rolls;
@@ -347,6 +374,8 @@ function tdRegisterExam(subj, nota, final, cls = "") {
   if (!TD_SUBJECTS[subj] || !(nota >= 0 && nota <= 10)) return null;
   const rolls = tdExamRolls(nota);
   td.pergamins[subj] += rolls;
+  td.record.exams = [...td.record.exams, { t: Date.now(), f: subj, cls: TD_SUBJECTS[subj].classes.includes(cls) ? cls : "", nota, final: !!final }].slice(-300);
+  tdRecordDay();
   let mythic = null;
   if (final && nota >= TD_MYTHIC_GRADE) {
     const id = Object.keys(TD_DEFENDERS).find(k => TD_DEFENDERS[k].subj === subj && TD_DEFENDERS[k].rar === "mitic");

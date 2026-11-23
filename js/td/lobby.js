@@ -66,17 +66,17 @@ function tdRenderLobby() {
 function tdLobbyHud() {
   $("td-saber").textContent = fmtNum(Math.floor(td.saber));
   const P = TD_POINTS[tdRoom], pts = td.stelles[tdRoom] || 0;
-  $("td-perg").innerHTML = tdFields().map(s => `<span title="Pergamins de ${TD_SUBJECTS[s].name}">📜 ${TD_SUBJECTS[s].short} <strong>${td.pergamins[s]}</strong></span>`).join("") +
+  $("td-perg").innerHTML = tdFields().map(s => `<span title="Pergamins de ${TD_SUBJECTS[s].name}">${tdScrollSvg(s)} <strong>${td.pergamins[s]}</strong></span>`).join("") +
     (pts ? `<span title="${P.name}: compren còpies al grimori">${P.icon} <strong>${pts}</strong></span>` : "");
 }
 
 // ---------------------------------------------------------------- finestretes
 const TD_PANELS = {
   gacha: "🔮 Altar d'invocació", study: "📚 Prestatgeria d'estudi", grimori: "📖 Grimori", bestiary: "👾 Bestiari",
-  worlds: "🌀 Portal dels mons", upgrades: "💎 Cristall", student: "🎓 Estudiant", mail: "✉️ Correu",
+  worlds: "🌀 Portal dels mons", upgrades: "💎 Cristall", student: "🎓 Estudiant", mail: "✉️ Correu", record: "📒 Registre d'estudi",
 };
 // al bosc, alguns punts tenen un altre nom
-const TD_PANELS_FOREST = { student: "🐸 Estudiant", upgrades: "🟢 Jade", gacha: "🌱 Altar d'invocació", worlds: "🌳 Portal dels mons" };
+const TD_PANELS_FOREST = { record: "📒 Quadern de camp", student: "🐸 Estudiant", upgrades: "🟢 Jade", gacha: "🌱 Altar d'invocació", worlds: "🌳 Portal dels mons" };
 function tdSpot(name) {
   if (name === "exit") { tdCloseLobby(); openRoom(); return; }
   if (name === "reset") { if (tdViewingOf) { toast("👀 És la partida de l'altra persona: no es pot reiniciar", "bad"); return; } tdAskRestart(); return; }
@@ -93,7 +93,7 @@ function tdRenderPanel() {
   const name = $("td-card").dataset.panel;
   const body = $("td-card-body");
   const html = ({ gacha: tdGachaHtml, study: tdStudyHtml, grimori: tdGrimoriHtml, bestiary: tdBestiaryHtml,
-    worlds: tdWorldsHtml, upgrades: tdUpgradesHtml, student: tdStudentHtml, mail: tdMailHtml })[name]();
+    worlds: tdWorldsHtml, upgrades: tdUpgradesHtml, student: tdStudentHtml, mail: tdMailHtml, record: tdRecordHtml })[name]();
   // si la pàgina continua sent la mateixa criatura (p. ex. en comprar una còpia o pujar de nivell), el combat de
   // demostració no es toca: es canvia tot lo altre i l'iframe segueix on estava, sense tornar a començar
   const live = body.querySelector("iframe.tdbook-arena"), src = live?.getAttribute("src");
@@ -170,9 +170,9 @@ function tdGachaHtml() {
       <div class="td-banner-feat n${feat.length}">${feat.map(card).join("")}</div>
     </div>
     <div class="td-summon-btns">
-      <button class="big td-summon" data-summon="1" ${n < 1 ? "disabled" : ""}>Invocar ×1 · 📜 1</button>
-      <button class="big td-summon" data-summon="10" ${n < 10 ? "disabled" : ""}>Invocar ×10 · 📜 10</button></div>
-    <div class="td-gacha-foot"><span>📜 <strong>${n}</strong> de ${F.short}</span>
+      <button class="big td-summon" data-summon="1" ${n < 1 ? "disabled" : ""}>Invocar ×1 · ${tdScrollSvg(s)} 1</button>
+      <button class="big td-summon" data-summon="10" ${n < 10 ? "disabled" : ""}>Invocar ×10 · ${tdScrollSvg(s)} 10</button></div>
+    <div class="td-gacha-foot"><span>${tdScrollSvg(s)} <strong>${n}</strong> pergamins de ${F.short}</span>
       <details class="td-gacha-det"><summary>Detalls</summary>
         <div class="td-rates">${ord.map(r => `<span style="color:${TD_RARITIES[r].color}">${TD_RARITIES[r].name} ${pct(R[r])}${tdPool(s, r).length ? "" : ` → ${P.icon} ${TD_POINT_GAIN[r] || 1}`}</span>`).join(" · ")}</div>
         <p class="td-hint">Garanties: èpic a la tirada ${TD_PITY.epic}, llegendari a la ${TD_PITY.llegendari} i mític a la ${TD_PITY.mitic}; en l'últim 15 % abans de cada una, la probabilitat va pujant.</p>
@@ -311,25 +311,26 @@ function tdMissionsHtml() {
     <ul>${tdMissions(tdRoom).map(m => { const a = TD_ACTIVITIES.find(x => x.id === m.a), F = TD_SUBJECTS[m.f];
       return `<li class="${m.done ? "done" : ""}"><span>${a.icon} ${a.short} ×${m.need} <small>${F.short}</small></span>
         <span class="td-mission-bar"><i style="width:${100 * Math.min(m.have, m.need) / m.need}%"></i><b>${Math.min(m.have, m.need)}/${m.need}</b></span>
-        <strong>${m.done ? "✔" : `+${m.bonus} 📜`}</strong></li>`; }).join("")}</ul>
+        <strong>${m.done ? "✔" : `+${m.bonus} ${tdScrollSvg(m.f)}`}</strong></li>`; }).join("")}</ul>
     <p class="td-missions-time">⏳ Queden ${Math.floor(mins / 60)} h ${mins % 60} min</p></div>`;
 }
 function tdStudyHtml() {
   const fields = tdFields();
-  const log = td.log.filter(l => fields.includes(l.subj)).slice(0, 4);
+  const log = td.log.filter(l => fields.includes(l.subj));
   const row = i => {
     const f = fields[i];
     if (!f) return `<div class="td-shelf empty"><div class="td-shelf-label">Pròximament</div><div class="td-shelf-books"></div></div>`;
     const F = TD_SUBJECTS[f], left = tdDailyLeft(f);
-    return `<div class="td-shelf s-${f}"><div class="td-shelf-label">${F.icon} ${F.name}<small>${left} 📜 hui</small></div>
+    return `<div class="td-shelf s-${f}"><div class="td-shelf-label">${F.icon} ${F.name}<small>${left} ${tdScrollSvg(f)} hui</small></div>
       <div class="td-shelf-books">${TD_ACTIVITIES.map((a, j) => `<button class="td-spine" data-act="${a.id}" data-field="${f}" style="--c:${tdSpineColor(f, j)};--h:${a.h}%" title="${a.name} · +${a.rolls} pergamins de ${F.name}" ${left <= 0 ? "disabled" : ""}>
           <span class="td-spine-i">${a.icon}</span><span class="td-spine-t">${a.short}</span><span class="td-spine-r">+${a.rolls}</span></button>`).join("")}
         <button class="td-tome" data-exambook="${f}" title="Exàmens de ${F.name}: obri'l per a apuntar una nota"><span>🎓</span><b>Exàmens</b></button></div></div>`;
   };
   return `<p class="td-hint">Cada lleixa és un camp: agafa el llibre del que has fet. Al final, el llibre d'exàmens.</p>
-    <div class="td-study">${tdMissionsHtml()}<div class="td-bookcase">${Array.from({ length: TD_SHELF_ROWS }, (_, i) => row(i)).join("")}</div>
+    <div class="td-study"><div class="td-study-side">${tdMissionsHtml()}
+        <div class="td-log-card"><h4>🗒️ Últim que has apuntat</h4>${log.length ? `<ul class="td-log">${log.map(l => `<li><span>${l.what}</span><span>+${l.rolls} ${tdScrollSvg(l.subj)}${l.mythic ? " ✨" : ""}</span></li>`).join("")}</ul>` : `<p class="muted">Encara res.</p>`}</div></div>
+      <div class="td-bookcase">${Array.from({ length: TD_SHELF_ROWS }, (_, i) => row(i)).join("")}</div>
       ${tdSubjectListHtml()}</div>
-    ${log.length ? `<ul class="td-log">${log.map(l => `<li>${l.what} <span>+${l.rolls} 📜${l.mythic ? " · ✨ mític" : ""}</span></li>`).join("")}</ul>` : ""}
     ${tdExamOpen ? tdExamBookHtml(tdExamOpen) : ""}`;
 }
 // Llibre d'exàmens obert al mig de la pantalla: a l'esquerra l'assignatura, a la dreta la nota
@@ -366,6 +367,14 @@ function tdDoExam(kind) {
 // Marcapàgines: una assignatura per marcapàgines (cada una amb el seu paper) i, al grimori, l'equip.
 let tdBook = { tab: "alg", page: 0 };
 let tdTeamFilter = "all"; // filtre de «Les teues criatures»: all · fav · alg · prg
+let tdTeamSort = "rar";   // ordre de «Les teues criatures»: raresa, cost, element, nivell, nom
+const TD_TEAM_SORTS = {
+  rar: ["💎 Raresa", (a, b) => TD_RAR_ORDER.indexOf(TD_DEFENDERS[b].rar) - TD_RAR_ORDER.indexOf(TD_DEFENDERS[a].rar)],
+  cost: ["🔮 Cost", (a, b) => TD_DEFENDERS[a].cost - TD_DEFENDERS[b].cost],
+  el: ["⚛️ Element", (a, b) => Object.keys(TD_ELEMENTS).indexOf(TD_DEFENDERS[a].el) - Object.keys(TD_ELEMENTS).indexOf(TD_DEFENDERS[b].el)],
+  lvl: ["⬆️ Nivell", (a, b) => (td.owned[b].level - td.owned[a].level) || (tdStars(b) - tdStars(a))],
+  role: ["🎯 Tipus", (a, b) => TD_DEFENDERS[a].role.localeCompare(TD_DEFENDERS[b].role)],
+};
 const TD_RAR_ORDER = ["comu", "rar", "epic", "llegendari", "mitic"];
 function tdBookList(kind, tab) {
   if (kind === "bestiary") return Object.keys(TD_ENEMIES).filter(id => !TD_ENEMIES[id].hidden);  // les mateixes a les dues sales (al bosc, amb una altra pell)
@@ -478,7 +487,7 @@ function tdTeamPages() {
   // les preferides, primer; després, per assignatura i raresa
   const owned = Object.keys(TD_DEFENDERS).filter(id => td.owned[id] && tdModeOf(id) === tdRoom)
     .filter(id => tdTeamFilter === "all" || (tdTeamFilter === "fav" ? td.favs.includes(id) : TD_DEFENDERS[id].subj === tdTeamFilter))
-    .sort((a, b) => (td.favs.includes(b) - td.favs.includes(a)) || 0);
+    .sort((a, b) => (td.favs.includes(b) - td.favs.includes(a)) || TD_TEAM_SORTS[tdTeamSort][1](a, b) || TD_DEFENDERS[a].name.localeCompare(TD_DEFENDERS[b].name));
   if (!["all", "fav", ...tdFields()].includes(tdTeamFilter)) tdTeamFilter = "all";
   const filters = [["all", "Totes"], ["fav", "★ Preferides"], ...tdFields().map(s => [s, `${TD_SUBJECTS[s].icon} ${TD_SUBJECTS[s].short}`])];
   return [`<h3 class="tdbook-name">Equip</h3><p class="tdbook-text muted">Les 6 criatures que portes al combat. Toca'n una per a traure-la.</p>
@@ -486,6 +495,7 @@ function tdTeamPages() {
         : `<div class="tdbook-tslot empty">+</div>`).join("")}</div>`,
     `<h3 class="tdbook-name">Les teues criatures</h3>
       <div class="tdbook-filters">${filters.map(([f, l]) => `<button class="tdbook-filter${tdTeamFilter === f ? " on" : ""}" data-filter="${f}">${l}</button>`).join("")}</div>
+      <div class="tdbook-filters tdbook-sorts"><span class="muted">Ordenar:</span>${Object.entries(TD_TEAM_SORTS).map(([k, [l]]) => `<button class="tdbook-filter${tdTeamSort === k ? " on" : ""}" data-tsort="${k}" aria-pressed="${tdTeamSort === k}">${l}</button>`).join("")}</div>
       ${owned.length ? "" : `<p class="tdbook-text muted">${tdTeamFilter === "fav" ? "Encara no tens preferides: marca-les amb ☆ a les pàgines del grimori." : "No en tens cap d'aquest camp."}</p>`}
       <div class="tdbook-owned">${owned.map(id => `<button class="tdbook-mini rar-${TD_DEFENDERS[id].rar}${td.team.includes(id) ? " inteam" : ""}${td.favs.includes(id) ? " fav" : ""}" data-team="${id}" title="${TD_DEFENDERS[id].name} · ${TD_ELEMENTS[TD_DEFENDERS[id].el].name} · ${TD_DEFENDERS[id].cost} de maná">${tdElemDot(id)}${tdCreatureSvg(id)}<span class="tdbook-cost">🔮 ${TD_DEFENDERS[id].cost}</span></button>`).join("")}</div>`];
 }
@@ -531,19 +541,48 @@ function tdToggleTeam(id) {
   tdSave();
   tdRenderPanel();
 }
+// ---- faristol del registre: tot el que s'ha apuntat per camp (activitats, pàgines, exàmens i notes)
+function tdRecordHtml() {
+  if (!tdFields().includes(tdSubj)) tdSubj = tdFields()[0];
+  const R = td.record, f = tdSubj, F = TD_SUBJECTS[f], acts = R.acts[f] || {};
+  const all = tdFields().reduce((n, s) => n + Object.values(R.acts[s] || {}).reduce((a, b) => a + b, 0), 0);
+  const ex = R.exams.filter(e => e.f === f), avg = l => l.length ? (l.reduce((a, e) => a + e.nota, 0) / l.length) : null;
+  const fmt = n => n == null ? "—" : n.toFixed(1).replace(".", ",");
+  const byCls = F.classes.map(c => [c, ex.filter(e => e.cls === c)]).filter(([, l]) => l.length);
+  const noCls = ex.filter(e => !e.cls);
+  const date = t => t ? new Date(t).toLocaleDateString("ca", { day: "numeric", month: "short" }) : "";
+  const grade = e => `<span class="td-rec-grade${e.nota >= 5 ? "" : " fail"}${e.final ? " final" : ""}" title="${e.final ? "Final" : "Parcial"} · ${date(e.t)}">${fmt(e.nota)}</span>`;
+  return `<div class="td-record">
+    <div class="td-rec-sum"><span>📅 <strong>${R.days.length}</strong> dies estudiant</span><span>📚 <strong>${all}</strong> coses apuntades</span>
+      <span>🎓 <strong>${R.exams.filter(e => tdFields().includes(e.f)).length}</strong> exàmens · mitjana <strong>${fmt(avg(R.exams.filter(e => tdFields().includes(e.f))))}</strong></span></div>
+    ${tdSubjTabs()}
+    <div class="td-rec-cols">
+      <section><h4>${F.icon} Què has fet de ${F.name}</h4>
+        <ul class="td-rec-acts">${TD_ACTIVITIES.map(a => `<li><span>${a.icon} ${a.name}</span><strong>${acts[a.id] || 0}</strong></li>`).join("")}</ul>
+        <p class="muted">${acts.resum ? `📝 ${acts.resum} ${acts.resum === 1 ? "pàgina" : "pàgines"} de resum · ` : ""}✏️ ${(acts.exercici || 0) + (acts.llarg || 0)} fulls i problemes · 🏫 ${acts.classe || 0} classes</p></section>
+      <section><h4>🎓 Notes</h4>
+        ${byCls.length || noCls.length ? `<ul class="td-rec-exams">${byCls.map(([c, l]) => `<li><span>${c}</span><span class="td-rec-grades">${l.map(grade).join("")}</span><small>mitjana ${fmt(avg(l))}</small></li>`).join("")}
+          ${noCls.length ? `<li><span>Sense assignatura</span><span class="td-rec-grades">${noCls.map(grade).join("")}</span><small>mitjana ${fmt(avg(noCls))}</small></li>` : ""}</ul>
+          <p class="muted">Vora daurada: examen final. En roig: suspés.</p>` : `<p class="muted">Encara no has apuntat cap examen de ${F.name}: es fa al llibre d'exàmens de la prestatgeria.</p>`}</section></div></div>`;
+}
+
 const tdBestiaryHtml = () => tdBookHtml("bestiary");
 const tdGrimoriHtml = () => tdBookHtml("grimori");
 
 // ---- portal (mons)
 function tdWorldsHtml() {
-  return `<p class="td-hint">Cada món té 10 onades i dos caps, que deixen artefactes per a l'estudiant. El saber que guanyes es queda sempre, encara que perdes.</p>
+  return `<div class="td-portal"><aside class="td-portal-team" aria-label="El teu equip"><h4>Equip</h4>
+      ${tdDeck(tdRoom).map(id => { const d = TD_DEFENDERS[id], s = tdStats(id), lent = !td.owned[id];
+        return `<div class="td-portal-mon rar-${d.rar}${lent ? " lent" : ""}" title="${d.name} · ${TD_ELEMENTS[d.el].name}${lent ? " · prestada" : ""}">${tdElemDot(id)}<span class="td-portal-art">${tdCreatureSvg(id)}</span>
+          <span class="td-portal-name">${d.name}${lent ? " 🤝" : ""}</span><span class="muted">Nv. ${s.level} ${"★".repeat(s.stars)} · 🔮 ${d.cost}</span></div>`; }).join("")}
+      <button class="secondary small" data-go="grimori">📖 Canviar l'equip</button></aside>
+    <div class="td-portal-main"><p class="td-hint">Cada món té 10 onades i dos caps, que deixen artefactes per a l'estudiant. El saber que guanyes es queda sempre, encara que perdes.</p>
     <div class="td-worlds">${TD_WORLDS.filter(w => w.mode === tdRoom).map(w => {
       const p = td.worlds[w.id] || { best: 0, clears: 0 }, shut = tdWorldShut(w), prev = shut && TD_WORLDS.find(o => o.id === w.needs);
       return `<div class="td-world${w.soon || shut ? " locked" : ""}"><div><strong>${tdWorldNum(w)}. ${w.name}</strong> <span class="muted">· ${w.layout}</span>
         <div class="muted">${w.soon ? "Pròximament" : shut ? `Supera «${prev.name}» per a obrir-lo` : `Millor onada: ${p.best} / ${w.waves.length}${p.clears ? ` · superat ${p.clears}×` : ""}`}</div></div>
         ${w.soon || shut ? "<span>🔒</span>" : `<button data-play="${w.id}">▶ Jugar</button>`}</div>`;
-    }).join("")}</div>
-    <p class="td-hint">Equip: ${tdTeam(tdRoom).map(id => `<span class="td-chip rar-${TD_DEFENDERS[id].rar}">${TD_DEFENDERS[id].name}</span>`).join(" ")}</p>`;
+    }).join("")}</div></div></div>`;
 }
 
 // ---- cristall (millores)
@@ -621,7 +660,7 @@ function tdTeamMailHtml() {
   return `<div class="td-mail">${TD_MAIL.map(m => { const got = td.mail.includes(m.id); return `<article class="td-mail-item${got ? " read" : ""}">
     <div class="td-mail-head"><span class="td-mail-ic">${got ? "📭" : "📬"}</span><div><strong>${m.title}</strong><div class="muted">${m.from} · ${m.date}</div></div></div>
     <p>${m.text}</p>
-    ${m.gift?.pergamins ? `<div class="td-mail-gift">🎁 ${fields.map(s => `📜 ${m.gift.pergamins} de ${TD_SUBJECTS[s].short}`).join(" · ")}</div>` : ""}
+    ${m.gift?.pergamins ? `<div class="td-mail-gift">🎁 ${fields.map(s => `${tdScrollSvg(s)} ${m.gift.pergamins} de ${TD_SUBJECTS[s].short}`).join(" · ")}</div>` : ""}
     ${got ? `<div class="muted">✔ Recollit</div>` : tdViewingOf ? `<div class="muted">És la partida de l'altra persona</div>` : `<button data-mail="${m.id}">Recollir</button>`}</article>`; }).join("") || `<p class="muted">No tens cap missatge.</p>`}</div>`;
 }
 
@@ -689,6 +728,7 @@ function initTdLobby() {
     else if (ds.bk) tdTurnPage(ds.bk === "next" ? 1 : -1);
     else if (ds.goto != null) tdTurnPage(0, Number(ds.goto));
     else if (ds.filter) { tdTeamFilter = ds.filter; tdRenderPanel(); }
+    else if (ds.tsort) { tdTeamSort = ds.tsort; tdRenderPanel(); }
     else if (ds.fav) { td.favs = td.favs.includes(ds.fav) ? td.favs.filter(f => f !== ds.fav) : [...td.favs, ds.fav]; tdSave(); tdRenderPanel(); }
     else if (ds.summon) tdDoSummon(Number(ds.summon));
     else if (ds.act) {
@@ -707,6 +747,7 @@ function initTdLobby() {
       }
     }
     else if (ds.team) tdToggleTeam(ds.team);
+    else if (ds.go) { tdSpot(ds.go); if (ds.go === "grimori") { tdBook = { tab: "team", page: 0 }; tdRenderPanel(); } }
     else if (ds.play) { tdClosePanel(); tdOpenBattle(Number(ds.play)); }
     else if (ds.up) { if (tdBuyUpgrade(ds.up)) { tdRenderPanel(); tdRenderLobby(); document.querySelector(".td-card .td-crys")?.classList.add("flash"); } }
     else if (ds.equip) tdToggleEquip(ds.equip);

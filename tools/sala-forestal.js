@@ -366,6 +366,20 @@ function openBook(plane, { cover, page, line: lc, lines = [7, 7], ink = [] }) {
   add(s, { spot: "student", title: "Estudiant: artefactes", hit: [r(sx - 60 * k), r(sy - 112 * k), r(120 * k), r(120 * k)] });
 }
 
+// ---------------------------------------------------------------- faristol del registre (dreta, al fons): el quadern de camp on queda tot el que has estudiat
+{
+  let s = "";
+  const rl = rootLectern(3.2, 4.8);
+  s += rl.svg;
+  s += openBook(rl.plane, { cover: "#6a4a1a", page: "#efe6d0", line: "#a09060", lines: [0, 3], ink: [
+    ["#5a3a12", 2.2, [[0.1, 0.3], [0.1, 0.5]]], ["#5a3a12", 2.2, [[0.16, 0.3], [0.16, 0.5]]], ["#5a3a12", 2.2, [[0.22, 0.3], [0.22, 0.5]]], ["#5a3a12", 2.2, [[0.28, 0.3], [0.28, 0.5]]], ["#a8321e", 2.2, [[0.06, 0.48], [0.32, 0.32]]],
+    ["#5a3a12", 2.2, [[0.1, 0.62], [0.1, 0.82]]], ["#5a3a12", 2.2, [[0.16, 0.62], [0.16, 0.82]]], ["#5a3a12", 2.2, [[0.22, 0.62], [0.22, 0.82]]],
+    ["#4f9a3a", 4, [[0.6, 0.85], [0.6, 0.6]]], ["#c9a040", 4, [[0.7, 0.85], [0.7, 0.45]]], ["#2f6a2a", 4, [[0.8, 0.85], [0.8, 0.3]]], ["#5a3a12", 1.6, [[0.55, 0.88], [0.88, 0.88]]]] });
+  const [gx, gy] = P(3.2, 1.62, 4.8), gk = cam.scale(4.8) / 100;
+  s += `<ellipse cx="${r(gx)}" cy="${r(gy)}" rx="${r(62 * gk)}" ry="${r(34 * gk)}" fill="${AMBER}" opacity="0.12"/>`;
+  add(s, { spot: "record", title: "Registre: tot el que has estudiat (pàgines, exercicis, notes)", hit: bbox([[2.85, 0, 4.6], [3.55, 0, 5.0], [3.2, 1.9, 4.8]]) });
+}
+
 // ---------------------------------------------------------------- vida del bosc: lianes del sostre, falgueres, bolets a les parets, fulles caigudes i cuques de llum
 {
   let s = "";

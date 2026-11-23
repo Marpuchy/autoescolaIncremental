@@ -116,6 +116,11 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   a la mitad (especial, tic doble, pilas, carga) y luego va al ritmo real; **antes de publicar, comprobar que sale** (`python tools/td-demo-check.py`).
 - Al recargar (F5) se vuelve a donde se estaba (DGT, carretera, sala de Informàtica o de Forestal): `setPlace`/`getPlace`
   en `sessionStorage` (`estudi-lloc`, `js/room.js`) y `restorePlace` en `main.js`; la autoescola del otro no se reabre sola.
+  Prestatgeria: lo último apuntado sale debajo de las misiones (con barra). **Faristol del registre** (punto `record`, a la derecha
+  al fondo en las dos salas; `td.record`: actividades por campo, exámenes con nota y días estudiados; se rellena con `td.log` la
+  primera vez, `tdCleanRecord`). Grimori → Equip: ordenar por raresa/cost/element/nivell/tipus (`TD_TEAM_SORTS`). Portal: el equipo a la
+  izquierda con sus dibujos animados. Pergamins dibujados distintos por campo (`TD_SCROLLS`, `tdScrollSvg`). Las criaturas ya
+  colocadas se ponen al día al subir nivel/estrellas/artefactos (`tdbRefreshStats`, desde `tdSave`).
   Invocación: pantalla propia; «Saltar» se para en legendarias y míticas; la mítica se monta pieza a pieza.
   Estilo de las criaturas: símbolos de energía en neón sobre fondo oscuro (referencia: «Animation vs. Math»), sin
   caras; cada una hecha con los símbolos de su asignatura y la pieza que lanza forma parte del cuerpo. Pocas y cuidadas.

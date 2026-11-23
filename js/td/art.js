@@ -605,3 +605,25 @@ function tdEnemySvg(id) {
   const forest = typeof tdRoom !== "undefined" && tdRoom === "forestal" && typeof TD_FOREST_ENEMY_ART !== "undefined" && TD_FOREST_ENEMY_ART[id];
   return `<svg viewBox="0 0 100 100" class="tde tde-${id}${forest ? " forest" : ""}" aria-hidden="true" overflow="visible">${forest || TD_ENEMY_ART[id]}</svg>`;
 }
+
+// ---- pergamins de cada camp: cada un és diferent (paper, corrons, cinta i segell amb el símbol del camp)
+// Matemàtiques: pergamí morat amb Σ · Programació: paper de terminal verd amb { } · Màquina: plànol blau amb un circuit
+// Monts: escorça amb una fulla · Quadern de camp: mapa amb la brúixola · Fauna: paper de riu amb una petjada
+const TD_SCROLLS = {
+  alg: { paper: "#efe2ff", edge: "#b8a4f0", roll: "#5a43d6", seal: "#7a5cff", glyph: `<text x="0" y="3.6" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">Σ</text>` },
+  prg: { paper: "#0f2a1c", edge: "#3fdc8a", roll: "#1f6a45", seal: "#3fdc8a", lines: "#3fdc8a", glyph: `<text x="0" y="3.2" text-anchor="middle" font-size="8" font-weight="800" fill="#0f2a1c">{}</text>` },
+  maq: { paper: "#1c4a7a", edge: "#7fe8ff", roll: "#12304f", seal: "#ffc23f", lines: "#7fe8ff", glyph: `<path d="M-3.5 2 L-1 -3 L0.5 0.5 L3.5 -2.5" stroke="#3a2a00" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>` },
+  mnt: { paper: "#e9dcc0", edge: "#8a6a3a", roll: "#6b4a2b", seal: "#4f9a3a", glyph: `<path d="M0 -4 C3 -2 3 2 0 4 C-3 2 -3 -2 0 -4 Z M0 -3 V4" fill="#bff7a0" stroke="#2f6a2a" stroke-width="0.8"/>` },
+  pin: { paper: "#f2e6c4", edge: "#c9a050", roll: "#8a5a2a", seal: "#e0703a", map: true, glyph: `<circle r="3.4" fill="none" stroke="#fff" stroke-width="1"/><path d="M0 -3 L1 0 L0 3 L-1 0 Z" fill="#fff"/>` },
+  fau: { paper: "#d8eef0", edge: "#4aa8b0", roll: "#2a6a70", seal: "#2a8a8e", glyph: `<circle cx="0" cy="1.4" r="1.8" fill="#fff"/><circle cx="-2.4" cy="-1.4" r="0.9" fill="#fff"/><circle cx="0" cy="-2.6" r="0.9" fill="#fff"/><circle cx="2.4" cy="-1.4" r="0.9" fill="#fff"/>` },
+};
+function tdScrollSvg(s, cls = "") {
+  const S = TD_SCROLLS[s] || TD_SCROLLS.alg;
+  const lines = [6, 10, 14].map(y => `<path d="M8 ${y} H${y === 14 ? 18 : 24}" stroke="${S.lines || S.edge}" stroke-width="1.2" opacity="${S.lines ? 0.9 : 0.6}" stroke-linecap="round"/>`).join("");
+  const map = S.map ? `<path d="M7 15 Q12 8 17 12 T25 6" stroke="#c0603a" stroke-width="1" stroke-dasharray="2 1.5" fill="none"/>` : lines;
+  return `<svg viewBox="0 0 32 24" class="td-scroll ${cls}" aria-hidden="true">
+    <rect x="4" y="3" width="24" height="17" fill="${S.paper}" stroke="${S.edge}" stroke-width="1"/>${map}
+    <rect x="1.5" y="1.5" width="4" height="20" rx="2" fill="${S.roll}"/><rect x="26.5" y="1.5" width="4" height="20" rx="2" fill="${S.roll}"/>
+    <path d="M22 19 l-1.5 4.5 l2.5 -1.4 l2.5 1.4 l-1.5 -4.5" fill="${S.seal}"/>
+    <g transform="translate(23.5 17)"><circle r="4.8" fill="${S.seal}" stroke="#00000044"/>${S.glyph}</g></svg>`;
+}

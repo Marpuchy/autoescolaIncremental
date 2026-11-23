@@ -344,6 +344,21 @@ add(rugSvg(-W + 0.02, -2.6, 6.75, 7.65, { base: "#1f2a4a", inner: "#2a3a66", lin
     { spot: "student", title: "Estudiant: artefactes", hit: [r(sx - 60 * k), r(sy - 112 * k), r(120 * k), r(120 * k)] });
 }
 
+// ---------------------------------------------------------------- faristol del registre (dreta, al fons, al costat del cristall): el llibre on queda tot el que has estudiat
+{
+  let s = "";
+  const rl = lectern({ x: 3.55, z: 6.1, top: 0.95 });
+  s += rl.svg;
+  const [rx, ry] = P(3.55, 1.2, 6.1), rk = cam.scale(6.1) / 100;
+  s += `<ellipse cx="${r(rx)}" cy="${r(ry)}" rx="${r(62 * rk)}" ry="${r(34 * rk)}" fill="${GOLD}" opacity="0.13"/>`;
+  // llibre de comptes: a l'esquerra, ratlles de recompte (||||/); a la dreta, una gràfica de barres i una nota
+  s += openBook(rl.plane, { cover: "#5a3a12", page: "#efe6d0", line: "#b09060", lines: [0, 3], ink: [
+    ["#7a4a12", 2.2, [[0.1, 0.3], [0.1, 0.5]]], ["#7a4a12", 2.2, [[0.16, 0.3], [0.16, 0.5]]], ["#7a4a12", 2.2, [[0.22, 0.3], [0.22, 0.5]]], ["#7a4a12", 2.2, [[0.28, 0.3], [0.28, 0.5]]], ["#a8321e", 2.2, [[0.06, 0.48], [0.32, 0.32]]],
+    ["#7a4a12", 2.2, [[0.1, 0.62], [0.1, 0.82]]], ["#7a4a12", 2.2, [[0.16, 0.62], [0.16, 0.82]]], ["#7a4a12", 2.2, [[0.22, 0.62], [0.22, 0.82]]],
+    ["#3a6ea8", 4, [[0.6, 0.85], [0.6, 0.6]]], ["#3a8a5a", 4, [[0.7, 0.85], [0.7, 0.45]]], ["#a8463a", 4, [[0.8, 0.85], [0.8, 0.3]]], ["#7a4a12", 1.6, [[0.55, 0.88], [0.88, 0.88]]]] });
+  add(s, { spot: "record", title: "Registre: tot el que has estudiat (pàgines, exercicis, notes)", hit: bbox([[3.25, 0, 5.9], [3.85, 0, 6.3], [3.55, 1.65, 6.1]]) });
+}
+
 // ---------------------------------------------------------------- definicions
 const defs = `${cam.defs}
   <linearGradient id="sl-wall-b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#121628"/><stop offset="1" stop-color="#1b1f36"/></linearGradient>

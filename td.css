@@ -1143,3 +1143,59 @@
 @keyframes td-altar-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
 @keyframes td-altar-light { 0%, 100% { transform: scale(1); opacity: 0.55; } 50% { transform: scale(0.8); opacity: 0.3; } }
 @media (prefers-reduced-motion: reduce) { .td-altar-float, .td-altar-light { animation: none; } }
+
+/* ---- prestatgeria: el registre recent, davall de les missions (amb barra si n'hi ha molts) */
+.td-study-side { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.td-log-card { background: #161b28; border: 1px solid #2c3448; border-radius: 8px; padding: 8px 10px; }
+.td-log-card h4 { margin: 0 0 4px; font-size: 0.85rem; }
+.td-log-card .td-log { margin: 0; max-height: 190px; overflow-y: auto; padding-right: 4px; }
+.td-log-card .td-log li { gap: 6px; font-size: 0.78rem; align-items: center; }
+.td-log-card .td-log li span:first-child { min-width: 0; }
+.td-log-card .td-log li span:last-child { white-space: nowrap; display: inline-flex; align-items: center; gap: 2px; }
+@media (max-width: 700px) { .td-log-card .td-log { max-height: 140px; } }
+
+/* ---- pergamins de cada camp */
+.td-scroll { width: 1.5em; height: 1.15em; vertical-align: -0.22em; display: inline-block; }
+#td-perg span { display: inline-flex; align-items: center; gap: 4px; }
+
+/* ---- faristol del registre */
+.td-record { display: flex; flex-direction: column; gap: 10px; }
+.td-rec-sum { display: flex; flex-wrap: wrap; gap: 8px 16px; justify-content: center; background: #efe6cc; color: #2a1a0c; border-radius: 8px; padding: 10px; box-shadow: inset 0 0 0 2px #c9b48e; }
+.td-rec-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.td-rec-cols section { background: #161b28; border: 1px solid #2c3448; border-radius: 10px; padding: 10px 12px; min-width: 0; }
+.td-rec-cols h4 { margin: 0 0 8px; }
+.td-rec-acts, .td-rec-exams { list-style: none; margin: 0 0 6px; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.td-rec-acts li { display: flex; justify-content: space-between; gap: 8px; border-bottom: 1px dashed #2c3448; padding-bottom: 3px; }
+.td-rec-exams li { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; align-items: center; border-bottom: 1px dashed #2c3448; padding-bottom: 4px; }
+.td-rec-exams small { grid-column: 1 / -1; color: #aab3c0; }
+.td-rec-grades { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; }
+.td-rec-grade { min-width: 2.2em; text-align: center; padding: 1px 5px; border-radius: 6px; background: #22304a; font-weight: 800; }
+.td-rec-grade.final { box-shadow: inset 0 0 0 2px #ffc23f; }
+.td-rec-grade.fail { background: #5a1f24; color: #ffb0b0; }
+@media (max-width: 700px) { .td-rec-cols { grid-template-columns: 1fr; } }
+
+/* ---- grimori: ordenar les criatures */
+.tdbook-sorts { align-items: center; }
+.tdbook-sorts .muted { font-size: 0.75rem; }
+
+/* ---- portal: l'equip a l'esquerra */
+.td-portal { display: grid; grid-template-columns: 210px 1fr; gap: 14px; align-items: start; }
+.td-portal-team { background: #161b28; border: 1px solid #2c3448; border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+.td-portal-team h4 { margin: 0; }
+.td-portal-mon { position: relative; display: grid; grid-template-columns: 52px 1fr; grid-template-rows: auto auto; column-gap: 8px; align-items: center; padding: 4px 6px; border-radius: 8px;
+  background: radial-gradient(circle at 20% 50%, color-mix(in srgb, var(--rc) 22%, transparent), #0b0e16 70%); border: 1px solid color-mix(in srgb, var(--rc) 45%, transparent); }
+.td-portal-mon.lent { border-style: dashed; }
+.td-portal-art { grid-row: 1 / 3; width: 52px; height: 52px; }
+.td-portal-art svg { width: 100%; height: 100%; }
+.td-portal-name { font-weight: 700; font-size: 0.85rem; }
+.td-portal-mon .muted { font-size: 0.72rem; }
+.td-portal-mon .td-edot, .td-portal-mon [class*="elem-dot"] { position: absolute; top: 2px; left: 2px; }
+.td-portal-main { min-width: 0; }
+@media (max-width: 700px) {
+  .td-portal { grid-template-columns: 1fr; }
+  .td-portal-team { display: grid; grid-template-columns: repeat(3, 1fr); }
+  .td-portal-team h4, .td-portal-team button { grid-column: 1 / -1; }
+  .td-portal-mon { grid-template-columns: 1fr; text-align: center; justify-items: center; }
+  .td-portal-art { grid-row: auto; width: 44px; height: 44px; }
+  .td-portal-mon .muted { display: none; }
+}

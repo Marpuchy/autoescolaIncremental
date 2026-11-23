@@ -304,6 +304,11 @@ function tdbPlace(slot, id) {
   if (TD_DEFENDERS[id].role === "line") tdbPlaceLine(t);
   return true;
 }
+// Les criatures ja posades es posen al dia quan canvia alguna cosa de fora (nivell, estrelles, artefactes): es crida en guardar
+function tdbRefreshStats() {
+  if (!tdb?.towers || tdb.demo) return;
+  for (const t of Object.values(tdb.towers)) t.stats = tdStats(t.id, t.up); // el dibuix no canvia: només dany, ritme, abast…
+}
 const tdbUpCost = t => t.up >= 2 ? null : Math.round(TD_DEFENDERS[t.id].cost * TD_BATTLE.upgradeCost[t.up]);
 function tdbUpgrade(t) {
   const cost = tdbUpCost(t);
