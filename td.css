@@ -1221,14 +1221,32 @@
 @keyframes td-needle { 0%, 100% { transform: scaleX(1); } 30% { transform: scaleX(0.85); } 60% { transform: scaleX(-0.9); } }
 .tdc-pimare .trunkrings { transform-box: fill-box; transform-origin: center; animation: td-rings 3s ease-in-out infinite; }
 @keyframes td-rings { 0%, 100% { opacity: 1; } 50% { opacity: 0.65; } }
-.tdc-quantic .ticks path { stroke-dasharray: 3 4; animation: td-ticks 1s steps(4) infinite; }
-@keyframes td-ticks { to { stroke-dashoffset: -28; } }
 .tdc-quantic .qubit { transform-box: view-box; transform-origin: 60px 72px; animation: td-qubit 3.2s steps(1) infinite; }
 @keyframes td-qubit { 0% { transform: rotate(0); } 25% { transform: rotate(110deg); } 50% { transform: rotate(-70deg); } 75% { transform: rotate(200deg); } }
-.tdc-quantic.tick .orbit path { stroke: #ff3b4e; transition: stroke 0.2s; }
+.tdc-quantic.tick .orbit path { stroke: #ff3b4e; }
 .tdb-chain.tick path { stroke: #ff3b4e !important; }
-.tdc-spaghetti .fork { transform-box: view-box; transform-origin: 63px 60px; animation: td-fork 4s linear infinite; }
-@keyframes td-fork { to { transform: rotate(360deg); } }
+/* la forquilla no gira: entra i ix punxant els fideus, a poc a poc (al llarg del seu mànec) */
+.tdc-spaghetti .fork { animation: td-fork 2.8s ease-in-out infinite; }
+@keyframes td-fork { 0%, 100% { transform: translate(0, 0); } 40% { transform: translate(-3px, 9px); } 55% { transform: translate(-3px, 9px) rotate(-6deg); } 70% { transform: translate(0, 0); } }
+/* els fideus que llança ondulen mentre volen */
+.pj-spaghetti .tdb-proj-in { transform-box: fill-box; transform-origin: center; animation: td-noodle 0.45s ease-in-out infinite alternate; }
+@keyframes td-noodle { 0% { transform: skewY(-18deg) scaleX(1.1); } 100% { transform: skewY(18deg) scaleX(0.9); } }
+/* la bola del processador gira sobre si mateixa */
+.pj-quantic .tdb-proj-in { transform-box: fill-box; transform-origin: center; animation: td-spin 0.5s linear infinite; }
+.tdc-quantic .orbit path { animation: td-orbit-dash 1.6s linear infinite; }
+@keyframes td-orbit-dash { to { stroke-dashoffset: -22; } }
+.tdc-quantic.collapse .b { animation: td-collapse-flash 0.6s ease-out; }
+@keyframes td-collapse-flash { 0% { filter: drop-shadow(0 0 0 #ff3b4e) brightness(2.2); } 100% { filter: none; } }
+.tdb-collapse-sq { transform-box: fill-box; transform-origin: center; animation: td-collapse-sq 0.8s ease-out both; }
+@keyframes td-collapse-sq { 0% { transform: scale(0.2) rotate(0); opacity: 1; } 100% { transform: scale(5) rotate(45deg); opacity: 0; } }
+.tdb-collapse-core { animation: td-collapse-core 0.5s ease-out both; }
+@keyframes td-collapse-core { 0% { opacity: 1; transform: scale(0.3); } 100% { opacity: 0; transform: scale(2); } }
+/* GOTO: píxels que es desfan i es tornen a fer, i el fil de codi que salta enrere */
+.tdb-goto-line { animation: td-goto-line 1s ease-out both; }
+@keyframes td-goto-line { 0% { stroke-dashoffset: 300; opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+.tdb-goto-px { animation: td-goto-px 0.45s ease-out both; }
+@keyframes td-goto-px { 0% { opacity: 1; transform: translate(0, 0); } 100% { opacity: 0; transform: translate(0, -18px); } }
+.tdb-goto-txt { font: 800 26px ui-monospace, Consolas, monospace; fill: #3fdc8a; stroke: #0b0e16; stroke-width: 5px; paint-order: stroke; animation: td-goto-px 1s ease-out both; }
 .tdb-enemy.tangled { filter: drop-shadow(0 0 4px #3fdc8a); }
 .tdb-enemy.scanned { filter: drop-shadow(0 0 6px #4fd1c5); }
 .tdb-enemy.collapsed { outline: none; filter: drop-shadow(0 0 0 #ff3b4e) drop-shadow(0 0 6px #ff3b4e); }
@@ -1236,7 +1254,7 @@
 @keyframes td-warp { 0% { opacity: 0; filter: blur(3px); } 100% { opacity: 1; filter: none; } }
 .tdb-fx-scan { pointer-events: none; animation: td-scan 0.5s ease-out forwards; }
 @keyframes td-scan { 0% { opacity: 0; } 30% { opacity: 1; } 100% { opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .tdc-dron .rotor, .tdc-dron .dneedle, .tdc-quantic .ticks path, .tdc-quantic .qubit, .tdc-spaghetti .fork { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .tdc-dron .rotor, .tdc-dron .dneedle, .tdc-quantic .orbit path, .tdc-quantic .qubit, .tdc-spaghetti .fork, .pj-spaghetti .tdb-proj-in, .pj-quantic .tdb-proj-in { animation: none; } }
 .td-altar-tabs { justify-content: center; margin-bottom: 10px; }
 .td-forge { display: flex; flex-direction: column; gap: 8px; }
 .td-forge-row { display: flex; flex-direction: column; align-items: center; gap: 6px; background: #161b28; border: 1px solid #2c3448; border-radius: 12px; padding: 8px 12px; overflow: hidden; }

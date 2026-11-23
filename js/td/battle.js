@@ -677,7 +677,7 @@ function tdbProjectile(t, target, dmg, opts = {}) {
     const len = Math.hypot(ex - sx, ey - sy) || 1;
     p.dir = [(ex - sx) / len, (ey - sy) / len];
   }
-  p.el = el("g", { class: "tdb-proj" }, $("tdb-proj"));
+  p.el = el("g", { class: `tdb-proj pj-${t.id}` }, $("tdb-proj"));
   const art = TD_ART[t.id];
   p.scale = (art.projScale || 1.25) * (p.sp === "scale" ? 2 : p.sp ? 1.35 : 1);
   if (p.sp) p.el.classList.add("sp-" + p.sp); // es veu que el tir porta l'habilitat
@@ -751,7 +751,7 @@ function tdbChain(t, first, dmg, over = false) {
   // sobrecàrrega: més salts, sense perdre força, i cada tocada queda parada un moment
   if (over) { first.stunT = Math.max(first.stunT, S.stun); tdbNumber(...tdbS(...tdbPos(first)).map((v, i) => v - (i ? first.size : 0)), "⚡ sobrecàrrega", TD_OVER_COLOR, true); }
   const tick = d.tick && t.shots % d.tick === 0; // el processador: cada 4 tics del rellotge, el raig salta el doble
-  if (tick) { g.classList.add("tick"); t.svg?.classList.remove("tick"); void t.svg?.getBoundingClientRect(); t.svg?.classList.add("tick"); }
+  if (tick) { g.classList.add("tick"); t.svg?.classList.remove("tick"); void t.svg?.getBoundingClientRect(); t.svg?.classList.add("tick"); const sv = t.svg; setTimeout(() => sv?.classList.remove("tick"), 450); }
   (tdb.chains ||= []).push({ t, cur: first, hit: new Set([first]), k: 0, jumps: ((over ? S.jumps : c.jumps) + (t.stats.ability > 1 ? 1 : 0)) * (tick ? 2 : 1), dmg, big: over,
     falloff: over ? 1 : c.falloff, wait: 0.06, links: [], zaps: [{ e: first, life: TD_CHAIN_ARC, p: tdbPos(first) }], g, flick: 0 });
 }
@@ -976,7 +976,9 @@ function tdbDischarge(t, e, dmg) {
 // Anells del tronc: un anell gran ix del centre de la criatura i s'eixampla fins a l'abast; fa mal (una vegada) a cada
 // distracció que travessa
 function tdbPulse(t) {
-  const [x, y] = tdbThrowFrom(t, "c"), max = t.stats.range, [sx, sy] = tdbS(x, y);
+  const pc = TD_ART[t.id].throw?.pulse; // d'on ix l'anell (el Pi Mare: del tronc tallat, al mig)
+  const [x, y] = pc ? (() => { const [sx0, sy0] = tdbS(...tdb.world.slots[t.slot]), k = 124 / 132; return tdbM(sx0 - 62 + (pc[0] + 6) * k, sy0 + TDB_TOWER_Y + (pc[1] + 10) * k); })() : tdbThrowFrom(t, "c");
+  const max = t.stats.range, [sx, sy] = tdbS(x, y);
   const g = el("g", { class: "tdb-pulse", transform: `translate(${sx} ${sy})` }, $("tdb-fx"));
   g.innerHTML = `<circle r="1" fill="none" stroke="${TD_GLOW.mnt}" stroke-width="10" opacity="0.25"/><circle r="1" fill="none" stroke="#e8ffb0" stroke-width="3.5"/>`;
   tdb.pulses.push({ t, x, y, r: 12, max, dmg: t.stats.dmg * tdbAuraMult(t), hit: new Set(), el: g });
@@ -1221,19 +1223,30 @@ function tdbSpecial(t, target) {
       e.el?.classList.add("scanned"); setTimeout(() => e.el?.classList.remove("scanned"), s.dur * ab * 1000 / Math.max(1, tdb.speed));
     }
     tdbNumber(...tdbS(x, y - 80), "📡 escaneig", "#4fd1c5", true);
-  } else if (s.type === "collapse") { // el qubit col·lapsa: tot el que té a l'abast es queda parat
-    const [x, y] = tdbTPos(t);
-    tdbFx("ring", ...tdbS(x, y), "#ff3b4e", t.stats.range);
+  } else if (s.type === "collapse") { // el qubit col·lapsa: un quadrat de llum ix del xip, un llamp a cada distracció i es queden parades
+    const [x, y] = tdbTPos(t), [sx, sy] = tdbS(x, y);
+    const g = el("g", { class: "tdb-collapse", transform: `translate(${sx} ${sy - 50})` }, $("tdb-fx"));
+    g.innerHTML = [0, 1, 2].map(i => `<rect class="tdb-collapse-sq" x="-40" y="-40" width="80" height="80" rx="6" fill="none" stroke="${i % 2 ? "#5ad8ff" : "#ff3b4e"}" stroke-width="5" style="animation-delay:${i * 0.12}s"/>`).join("")
+      + `<circle r="26" fill="#fff" class="tdb-collapse-core"/>`;
+    setTimeout(() => g.remove(), 900);
+    t.svg?.classList.remove("collapse"); void t.svg?.getBoundingClientRect(); t.svg?.classList.add("collapse");
     for (const e of tdb.enemies) if (tdbVisible(e) && Math.hypot(...tdbPos(e).map((v, i) => v - [x, y][i])) <= t.stats.range) {
       e.stunT = Math.max(e.stunT, s.stun * ab); e.el?.classList.add("collapsed"); setTimeout(() => e.el?.classList.remove("collapsed"), 700);
+      tdbBolt([sx, sy - 50], tdbS(...tdbPos(e)).map((v, i) => v - (i ? e.size * 0.45 : 0)), "#ff3b4e");
     }
     tdbNumber(...tdbS(x, y - 120), "⟨ψ| col·lapse", "#ff3b4e", true);
   } else if (s.type === "goto") { // GOTO: la més avançada torna enrere pel camí
     const e = tdb.enemies.filter(o => tdbVisible(o)).sort((a, b) => b.dist - a.dist)[0];
     if (e) {
-      tdbNumber(...tdbS(...tdbPos(e)).map((v, i) => v - (i ? e.size : 0)), "goto", "#ff3b4e", true);
-      tdbFx("ring", ...tdbS(...tdbPos(e)), "#3fdc8a", 50);
+      // GOTO: es desfà en píxels on és, un fil de codi salta enrere pel camí i torna a aparéixer allà
+      const from = tdbPos(e), d0 = e.dist;
       e.dist = Math.max(0, e.dist - s.back * Math.min(1.5, ab));
+      const P = tdbP(e), pts = Array.from({ length: 9 }, (_, i) => tdbS(...P.at(d0 - (d0 - e.dist) * i / 8)));
+      const g = el("g", { class: "tdb-goto" }, $("tdb-fx"));
+      g.innerHTML = `<polyline points="${pts.map(([x, y], i) => `${x.toFixed(0)},${(y - 40 - Math.sin(i / 8 * Math.PI) * 70).toFixed(0)}`).join(" ")}" fill="none" stroke="#3fdc8a" stroke-width="4" stroke-dasharray="10 8" class="tdb-goto-line"/>
+        ${[0, 1].map(j => { const [x, y] = j ? pts[8] : pts[0]; return `<g transform="translate(${x} ${y - 30})">${Array.from({ length: 10 }, (_, i) => `<rect class="tdb-goto-px" x="${(i % 4) * 9 - 18}" y="${Math.floor(i / 4) * 9 - 14}" width="7" height="7" fill="${j ? "#3fdc8a" : "#ff3b4e"}" style="animation-delay:${(i * 0.03 + j * 0.35).toFixed(2)}s"/>`).join("")}</g>`; }).join("")}
+        <text x="${pts[4][0]}" y="${pts[4][1] - 130}" text-anchor="middle" class="tdb-goto-txt">goto ${Math.round(s.back)};</text>`;
+      setTimeout(() => g.remove(), 1100);
       e.el?.classList.remove("warped"); void e.el?.getBoundingClientRect(); e.el?.classList.add("warped");
     }
   } else if (s.type === "align") {
@@ -1278,10 +1291,13 @@ function tdbDrone(t, dt) {
   const d = TD_DEFENDERS[t.id], home = tdb.world.slots[t.slot];
   if (t.fx == null) [t.fx, t.fy] = home;
   const e = tdb.enemies.filter(tdbVisible).sort((a, b) => b.dist - a.dist)[0];
-  const [gx, gy] = e ? tdbPos(e).map((v, i) => v - (i ? 30 : 0)) : home;
+  const [gx, gy] = e ? tdbPos(e) : home;
   const dx = gx - t.fx, dy = gy - t.fy, dd = Math.hypot(dx, dy), step = d.fly * dt;
   if (dd > 1) { const k = Math.min(1, step / dd); t.fx += dx * k; t.fy += dy * k; }
   t.tilt = dd > 4 ? Math.max(-14, Math.min(14, dx / Math.max(dd, 1) * 14)) : 0; // s'inclina cap on va
+  // alçada: s'enlaira quan ix a caçar i aterra a la plataforma quan torna; dispara des de dalt cap avall
+  const want = e || Math.hypot(t.fx - home[0], t.fy - home[1]) > 30 ? d.height : 0;
+  t.alt = (t.alt || 0) + Math.sign(want - (t.alt || 0)) * Math.min(Math.abs(want - (t.alt || 0)), 260 * dt);
 }
 // Stack Overflow: el desbordament explota per tot el mapa
 function tdbBlast(t) {
@@ -1683,7 +1699,15 @@ function tdbRender() {
     p.el.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${turn.toFixed(0)}) scale(${p.scale})`);
   }
   for (const t of Object.values(tdb.towers)) {
-    if (t.fx != null) { const [x, y] = tdbS(t.fx, t.fy); t.el.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${(t.tilt || 0).toFixed(1)})`); } // el dron, on vola
+    if (t.fx != null) { // el dron vola (el cercle de runes es queda al buit): es mou el grup .fly, en unitats del dibuix
+      const fly = t.fly || (t.fly = t.el.querySelector(".fly"));
+      if (fly) {
+        const [hx, hy] = tdbS(...tdb.world.slots[t.slot]), [x, y] = tdbS(t.fx, t.fy), k = 124 / 132;
+        const alt = tdb.portrait ? (t.alt || 0) : Math.min(t.alt || 0, Math.max(0, y - 90)); // que no se'n vaja per dalt de la pantalla
+        fly.setAttribute("transform", `translate(${((x - hx) / k).toFixed(1)} ${((y - hy - alt) / k).toFixed(1)}) rotate(${(t.tilt || 0).toFixed(1)} 60 60)`);
+        fly.querySelector(".fly-shadow")?.setAttribute("transform", `translate(0 ${(alt / k).toFixed(1)}) scale(${(1 - Math.min(0.5, alt / 400)).toFixed(2)})`);
+      }
+    }
     t.el.classList.toggle("asleep", t.sleepT > 0);
     if (TD_DEFENDERS[t.id].role === "stacks") t.el.style.setProperty("--stacks", t.stacks);
   }
@@ -1717,7 +1741,7 @@ function tdbHud() {
 function tdbRenderDeck() {
   $("tdb-deck").innerHTML = `<div class="tdb-pick-head"><span>Tria una criatura per al buit</span><button class="secondary small" data-pick="close" aria-label="Tancar">✕</button></div>
     <div class="tdb-pick-cards">${tdDeck(tdb.world.mode).map(id => {
-      const d = TD_DEFENDERS[id], lent = !td.owned[id];
+      const d = TD_DEFENDERS[id], lent = !td.owned[id] && td.loan?.def === id;
       return `<button class="tdb-card rar-${d.rar}${tdb.pickId === id ? " sel" : ""}${tdb.mana < d.cost ? " poor" : ""}${lent ? " lent" : ""}" data-card="${id}" aria-pressed="${tdb.pickId === id}" title="${d.name} · ${TD_ELEMENTS[d.el].name}${lent ? ` · prestada per ${PLAYERS[td.loan.from].name}` : ""}">
         ${lent ? `<span class="tdb-card-lent" aria-hidden="true">🤝</span>` : ""}${tdElemDot(id)}<span class="tdb-card-art">${tdCreatureSvg(id)}</span><span class="tdb-card-name">${d.name}</span><span class="tdb-card-cost">🔮 ${d.cost}</span></button>`;
     }).join("")}</div>${tdbPickInfo()}`;

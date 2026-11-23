@@ -102,6 +102,12 @@ function tdLoad(fromRaw = null) { // fromRaw: una partida que no és la d'este d
     td.mail = td.mail.filter(id => typeof id === "string");
     td.share = tdCleanShare(td.share);
     td.forge = td.forge.filter((id, i, a) => TD_FORGE[id] && a.indexOf(id) === i);
+    // fusionades: les originals ja no existixen (si n'hi ha alguna, les seues còpies passen a la nova)
+    for (const k of Object.keys(TD_FORGE)) if (td.owned[k]) for (const id of tdForgeParts(k)) if (td.owned[id]) {
+      td.owned[k].copies = Math.min(tdMaxCopies(k), (td.owned[k].copies || 0) + (td.owned[id].copies || 0));
+      delete td.owned[id];
+      td.team = td.team.filter(x => x !== id); td.favs = td.favs.filter(x => x !== id);
+    }
     // mons: només números i criatures que existixen (la partida pot vindre del núvol)
     const okSnap = s => s && Number.isInteger(s.wave) && s.wave >= 1 && s.wave <= TD_IDLE.waves && Array.isArray(s.towers)
       ? { wave: s.wave, mana: Math.max(0, Number(s.mana) || 0), towers: s.towers.filter(t => Array.isArray(t) && Number.isInteger(t[0]) && t[0] >= 0 && t[0] < 20 && TD_DEFENDERS[t[1]]).map(t => [t[0], t[1], Math.max(0, Math.min(2, t[2] | 0)), Math.max(0, Number(t[3]) || 0)]) } : null;

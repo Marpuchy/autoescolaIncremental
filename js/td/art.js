@@ -630,11 +630,15 @@ function tdScrollSvg(s, cls = "") {
 
 // ---- Matrícula d'Honor (vermelles): fusions i evolució de l'onada 100 (TD_FORGE)
 const GMH = "#ff3b4e";
+// els dos cristalls de quars que giren en òrbita al voltant del processador (darrere del xip i, a la meitat de davant, damunt)
+const QUARTZ = [0, 1].map(i => `<g class="quartz"><circle r="9" fill="${GQ}" opacity="0.25"/><rect x="-3.4" y="-5" width="6.8" height="10" rx="3" fill="#e8fbff" stroke="${GQ}" stroke-width="1.8"/>
+  <animateMotion dur="3.2s" begin="-${i * 1.6}s" repeatCount="indefinite" path="M14 74 A46 14 0 1 0 106 74 A46 14 0 1 0 14 74"/></g>`).join("");
 Object.assign(TD_ART, {
   // Dron de mostreig: quatre braços amb hèlices (en perspectiva), la brúixola digital al cos i la càmera amb dues lents
   // penjada davall (els flaixos de les lents són el que dispara). Vola: es dibuixa on és (tdbDrone)
   dron: {
-    svg: `${runeBase(GMH)}<ellipse cx="60" cy="108" rx="22" ry="5" fill="#000" opacity="0.35"/><g class="b">
+    // el cercle de runes es queda al buit (d'ací es millora); el dron (.fly) s'enlaira i va damunt de les distraccions
+    svg: `${runeBase(GMH)}<g class="fly"><ellipse class="fly-shadow" cx="60" cy="108" rx="22" ry="5" fill="#000" opacity="0.35"/><g class="b">
     ${tube("M40 46 L20 34 M80 46 L100 34 M42 56 L24 66 M78 56 L96 66", "#d8dde6", 3.4)}
     ${[[20, 32], [100, 32], [24, 64], [96, 64]].map(([x, y], i) => `<ellipse cx="${x}" cy="${y}" rx="17" ry="4.5" fill="${GF}" opacity="0.14"/>
       <g class="rotor" style="animation-delay:-${i * 0.05}s">${tube(`M${x - 16} ${y} H${x + 16}`, GF, 2, 'opacity="0.9"')}</g>${tube(`M${x} ${y} V${y + 4}`, "#d8dde6", 3)}`).join("")}
@@ -644,7 +648,7 @@ Object.assign(TD_ART, {
     ${tube("M44 60 L40 74 M76 60 L80 74 M36 74 H46 M74 74 H84", "#d8dde6", 2)}
     ${tube("M60 60 V66", "#d8dde6", 2.6)}<rect x="47" y="66" width="26" height="14" rx="6" fill="#0d2a2c"/>${tube("M53 66 H67 A6 6 0 0 1 73 72 V74 A6 6 0 0 1 67 80 H53 A6 6 0 0 1 47 74 V72 A6 6 0 0 1 53 66 Z", GF, 2.6)}
     ${core(60, 52, GMH, 1.6)}
-    <g class="al">${LENT(54, 73)}</g><g class="ar">${LENT(66, 73)}</g></g>${sparks(GMH)}`,
+    <g class="al">${LENT(54, 73)}</g><g class="ar">${LENT(66, 73)}</g></g></g>${sparks(GMH)}`,
     proj: LENT(0, 0), throw: { l: [54, 73], r: [66, 73] },
   },
   // Pi Mare: un pi vell que naix d'un tronc tallat amb els anells de creixement; les arrels ixen de la vora del tronc
@@ -659,7 +663,7 @@ Object.assign(TD_ART, {
     ${[[50, 40], [74, 56]].map(([x, y]) => `<g transform="translate(${x} ${y}) scale(0.75) translate(${-x} ${-y})">${pinya(x, y)}</g>`).join("")}</g>
     ${core(60, 97, GMH, 2.6)}</g>
     <g class="al">${pinya(32, 74)}</g><g class="ar">${pinya(88, 74)}</g>${sparks(GMH)}`,
-    proj: pinya(0, 0), throw: { l: [32, 74], r: [88, 74] },
+    proj: pinya(0, 0), throw: { l: [32, 74], r: [88, 74], pulse: [60, 97] }, // l'anell ix del tronc tallat
   },
   // Processador quàntic: el xip amb les potes, el quars del rellotge en òrbita i el qubit (esfera de Bloch) al centre;
   // dalt, la bola de càrrega de la Tesla (és el que llança)
@@ -669,8 +673,11 @@ Object.assign(TD_ART, {
     <rect x="34" y="48" width="52" height="48" rx="6" fill="#0c1a2a"/>${tube("M40 48 H80 A6 6 0 0 1 86 54 V90 A6 6 0 0 1 80 96 H40 A6 6 0 0 1 34 90 V54 A6 6 0 0 1 40 48 Z", GQ, 3.6)}
     <circle cx="60" cy="72" r="14" fill="none" stroke="#bff4ff" stroke-width="1.6"/><ellipse cx="60" cy="72" rx="14" ry="5" fill="none" stroke="#bff4ff" stroke-width="1.2" stroke-dasharray="3 2"/>
     <g class="qubit">${tube("M60 72 L69 62", GMH, 2.6)}<circle cx="69" cy="62" r="2.6" fill="#fff"/></g>
-    <g class="orbit">${tube("M14 74 A46 14 0 1 0 106 74 A46 14 0 1 0 14 74", GQ, 2.4, 'opacity="0.85"')}<g class="ticks">${tube("M18 70 l3 3 M60 60 v3 M102 70 l-3 3 M60 88 v-3", "#e8fbff", 1.4)}</g></g>
-    ${core(60, 72, GMH, 2.4)}</g>
+    <defs><clipPath id="tdq-front"><rect x="0" y="74" width="120" height="40"/></clipPath></defs>
+    <g class="orbit"><path class="orbit-back" d="M14 74 A46 14 0 0 1 106 74" fill="none" stroke="${GQ}" stroke-width="2.4" stroke-dasharray="6 5" opacity="0.6"/>${QUARTZ}</g>
+    ${core(60, 72, GMH, 2.4)}
+    <g class="orbit"><path class="orbit-front" d="M106 74 A46 14 0 0 1 14 74" fill="none" stroke="${GQ}" stroke-width="2.8" stroke-dasharray="6 5"/>
+      <g clip-path="url(#tdq-front)">${QUARTZ}</g></g></g>
     <g class="al">${bolaTesla(60, 22)}</g>${sparks(GMH)}`,
     proj: bolaTesla(0, 0), throw: { l: [60, 22] },
   },

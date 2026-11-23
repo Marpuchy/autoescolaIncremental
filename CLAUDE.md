@@ -161,11 +161,12 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   (`TD_FORGE`, `td.forge`); en el altar, pestaña **Fusió** (`tdForgeHtml`, `tdForge`): la nueva en medio y las ingredientes (o la criatura y la pedra) a los lados; al fusionar, ceremonia a pantalla completa (`tdForgeAnim`, `#td-forge-show`; más grande que la de las míticas): las ingredientes se desmontan pieza a pieza (cada traço vuela a orbitar el núcleo) y la nueva se monta como un robot, de abajo arriba, encajando cada pieza con chispa y temblor; al final estalla el núcleo, giran los rayos y sale el nombre. Fusión: las dos criaturas desaparecen y queda
   la nueva con la media de estrellas y de nivel (hacia abajo) y las copias sumadas; para subirla de estrella pide el doble de
   copias (`tdCopyMult`), y las copias que salgan luego de las ingredientes van a ella (`tdForgedInto` en `tdGrant`). Evolución:
-  If/else + pedra → Codi Spaghetti (se queda con todo). Las 4: **Dron de mostreig** (Brúixola + Prismàtics, Sendera; `drone`: sale de
-  su hueco y vuela sobre la distracción más avanzada, `tdbDrone`/`tdbTPos`; especial `scan`: marca y revela), **Pi Mare** (Pi + Anells,
-  Pineda; piñas y un anillo cada 3, aura +25 % solo a las de natura `aura.el`, especial `root`), **Processador quàntic** (Rellotge +
-  Tesla, Laboratori; cadena que salta el doble cada 4 tics `tick`, especial `collapse`) y **Codi Spaghetti** (Biblioteca; rebota a
-  l'atzar `random` y enreda `slow`, especial `goto`: la más avanzada vuelve 300 pasos).
+  If/else + pedra → Codi Spaghetti (se queda con todo). Las 4: **Dron de mostreig** (Brúixola + Prismàtics, Sendera; `drone`: el círculo de runas se queda en su hueco —desde ahí se
+  mejora— y el dron (`.fly`) despega y vuela a `height` sobre la distracción más avanzada, disparando hacia abajo, `tdbDrone`/`tdbTPos`; especial `scan`: marca y revela), **Pi Mare** (Pi + Anells,
+  Pineda; piñas y un anillo cada 3 que sale del tronco cortado `throw.pulse`, aura +25 % solo a las de natura `aura.el`, especial `root`), **Processador quàntic** (Rellotge +
+  Tesla, Laboratori; dos cuarzos en órbita (`animateMotion`, detrás del chip y delante por la mitad de abajo), la bola gira sobre sí misma, cadena que salta el doble cada 4 tics `tick`, especial `collapse` con cuadrados de luz y un rayo a cada una) y **Codi Spaghetti** (Biblioteca; el tenedor pincha los fideos —no gira—; los fideos que lanza ondulan y van lentos; rebota a
+  l'atzar `random` y enreda `slow`, especial `goto`: la más avanzada vuelve 300 pasos, con píxeles y un hilo de código).
+  Al fusionar, las originales desaparecen para siempre (`tdLoad` las quita si queda alguna; la consola dev no las da si ya están fusionadas).
 - Botiga, tests, compendio e inventario viven en la DGT (`js/hub.js`): pantalla completa con el interior dibujado y
   4 puntos interactivos (caixer, instructor, llibre, espill). Ya no hay panel derecho.
 - Cada zona nueva trae un enemigo nuevo y temático (nunca una "versión más fuerte"); jefe con nombre cada 3 zonas,

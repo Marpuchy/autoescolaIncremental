@@ -9,6 +9,7 @@ const tdDev = {
   // totes les criatures (també les mítiques), amb les còpies indicades (1 → ★1, 11 → ★5)
   allCreatures(copies = 1) {
     for (const id of Object.keys(TD_DEFENDERS)) {
+      if (TD_FORGE[id] ? !td.owned[id] : tdForgedInto(id)) continue; // Matrícula d'Honor: es fusionen a l'altar
       const o = td.owned[id] || (td.owned[id] = { copies: 0, level: 1 });
       o.copies = Math.max(o.copies, copies);
       o.stars = Math.max(o.stars || 1, tdStarsByCopies(o.copies)); // a la consola, les estrelles ja pagades
@@ -24,12 +25,14 @@ const tdDev = {
   // Desbloqueja tot el joc d'estudi (les dues sales): criatures a ★5 i nivell màxim, artefactes (i pells) de cada
   // sala a nivell 5 i posats, tots els mons superats, el bestiari sencer, els camps potenciats, pergamins i saber
   unlockAll() {
+    td.forge = Object.keys(TD_FORGE); // les de Matrícula d'Honor no: totes les receptes i pedres, per a fusionar-les a l'altar
     for (const id of Object.keys(TD_DEFENDERS)) {
+      if (TD_FORGE[id] || tdForgedInto(id)) continue; // (si ja estan fusionades, les originals no tornen)
       const o = td.owned[id] || (td.owned[id] = { copies: 0, level: 1 });
       o.copies = Math.max(o.copies, tdMaxCopies(id));
       o.stars = TD_STAR_COPIES.length; o.level = TD_LEVEL_MAX;
     }
-    for (const m of Object.keys(TD_POINTS)) for (const id of Object.keys(TD_DEFENDERS)) if (tdModeOf(id) === m && tdTeam(m).length < 6 && !td.team.includes(id)) td.team.push(id);
+    for (const m of Object.keys(TD_POINTS)) for (const id of Object.keys(TD_DEFENDERS)) if (td.owned[id] && tdModeOf(id) === m && tdTeam(m).length < 6 && !td.team.includes(id)) td.team.push(id);
     for (const id of Object.keys(TD_ARTIFACTS)) td.artifacts[id] = 5;
     tdSortRoomArtifacts();
     const equip = arts => Object.keys(arts).filter((id, i, a) => a.findIndex(o => tdArtSlot(o) === tdArtSlot(id)) === i);

@@ -138,7 +138,7 @@ const TD_DEFENDERS = {
                  desc: "Com el projecte, que ajunta tots els mòduls: cada 3 atacs fa l'habilitat especial d'una altra criatura del mapa, un 50 % més forta." },
   // ---- Matrícula d'Honor (vermelles): una per món, a l'onada 100. Les fusions ajunten dues criatures (desapareixen i
   // queda la nova); l'evolució en transforma una amb la pedra del món. No ixen a l'altar (TD_FORGE, js/td/state.js)
-  dron:        { subj: "pin", rar: "mh", name: "Dron de mostreig", dmg: 9, rate: 2.6, range: 170, cost: 160, role: "drone", fly: 240, alt: true,
+  dron:        { subj: "pin", rar: "mh", name: "Dron de mostreig", dmg: 9, rate: 2.6, range: 170, cost: 160, role: "drone", fly: 240, height: 150, alt: true,
                  special: { every: 10, type: "scan", radius: 200, vuln: 0.3, dur: 4 },
                  desc: "La brúixola i els prismàtics, junts en el dron que inventaria el bosc. Ix del seu buit i vola per tot el mapa damunt de la distracció més avançada; dispara de pressa els flaixos de les dues lents. Cada 10 tirs, escaneja: les del con queden marcades (reben un 30 % més de dany i es veuen encara que s'amaguen)." },
   pimare:      { subj: "mnt", rar: "mh", name: "Pi Mare", dmg: 18, rate: 1.2, range: 300, cost: 170, role: "single", alt: true, pulseEvery: 3, pulse: 620,
@@ -147,7 +147,7 @@ const TD_DEFENDERS = {
   quantic:     { subj: "maq", rar: "mh", name: "Processador quàntic", dmg: 24, rate: 0.95, range: 320, cost: 170, role: "chain", projSpeed: 1.6, tick: 4,
                  chain: { jumps: 5, falloff: 0.85, radius: 220 }, special: { every: 10, type: "collapse", stun: 0.6 },
                  desc: "El rellotge i la Tesla, en un xip amb un qubit. Llança la bola de càrrega i el raig salta de distracció en distracció; cada 4 tics del rellotge, salta el doble de vegades. Cada 10, col·lapse: tot el que té a l'abast es queda parat mig segon." },
-  spaghetti:   { subj: "prg", rar: "mh", name: "Codi Spaghetti", dmg: 20, rate: 1.1, range: 300, cost: 160, role: "bounce", bounces: 4, random: true, alt: true,
+  spaghetti:   { subj: "prg", rar: "mh", name: "Codi Spaghetti", dmg: 20, rate: 1.1, range: 300, cost: 160, role: "bounce", bounces: 4, random: true, alt: true, projSpeed: 0.55,
                  slow: 0.3, slowDur: 1.5, special: { every: 12, type: "goto", back: 300 },
                  desc: "L'If/else, quan el codi se n'ix de mare. Llança els caps dels fideus, que reboten entre 4 distraccions a l'atzar i les deixen enredades (més lentes). Cada 12 tirs, GOTO: la distracció més avançada torna 300 passos enrere." },
 };
