@@ -335,7 +335,7 @@ const TD_WORLDS = [
     id: 1, mode: "informatic", name: "Biblioteca Arcana", layout: "Serp",
     path: [[-60, 150], [1300, 150], [1300, 430], [300, 430], [300, 710], [1460, 710]],
     slots: [[420, 290], [720, 290], [1020, 290], [1450, 290], [160, 570], [600, 570], [900, 570], [1200, 570], [760, 840], [1120, 840]],
-    crystal: [1500, 700], student: [110, 790],
+    crystal: [1500, 710], student: [110, 790],
     // onades: [enemic, quantitat, interval en s] (en ordre)
     waves: [
       [["notificacio", 8, 0.9]],

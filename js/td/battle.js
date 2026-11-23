@@ -86,12 +86,12 @@ function tdbBuildView() {
   const [cx, cy] = tdbS(...tdb.world.crystal);
   const crystal = el("g", { id: "tdb-crystal", transform: `translate(${cx} ${cy})` }, svg);
   const forest = tdb.world.mode === "forestal";
-  crystal.innerHTML = forest ? `<circle r="70" fill="#9ff07a" opacity="0.12"/><circle r="70" class="tdb-crystal-glow"/><g class="tdb-crystal-gem">
+  crystal.innerHTML = forest ? `<circle r="70" fill="#9ff07a" opacity="0.12"/><circle r="70" class="tdb-crystal-glow"/><g class="tdb-crystal-gem"><g transform="translate(0 8)">
     <path d="M0 -60 C30 -60 38 -20 36 6 C34 34 18 44 0 44 C-18 44 -34 34 -36 6 C-38 -20 -30 -60 0 -60 Z" fill="#1f6a3e" stroke="#9ff07a" stroke-width="5"/>
-    <ellipse cx="-10" cy="-26" rx="8" ry="14" fill="#bff7a0" opacity="0.45"/></g>
-    <text y="74" text-anchor="middle" font-size="26" font-weight="800" fill="#d8ffc0" id="tdb-lives-map"></text>` : `<circle r="70" fill="#4ad8ff" opacity="0.12"/><circle r="70" class="tdb-crystal-glow"/><g class="tdb-crystal-gem">
+    <ellipse cx="-10" cy="-26" rx="8" ry="14" fill="#bff7a0" opacity="0.45"/></g></g>
+    <text y="74" text-anchor="middle" font-size="26" font-weight="800" fill="#d8ffc0" id="tdb-lives-map"></text>` : `<circle r="70" fill="#4ad8ff" opacity="0.12"/><circle r="70" class="tdb-crystal-glow"/><g class="tdb-crystal-gem"><g transform="translate(0 11)">
     <path d="M0 -62 L30 -14 L0 40 L-30 -14 Z" fill="#0b2a3a" stroke="#7fe8ff" stroke-width="5" stroke-linejoin="round"/>
-    <path d="M0 -62 L0 40 M-30 -14 H30" stroke="#bff4ff" stroke-width="2" opacity="0.8"/></g>
+    <path d="M0 -62 L0 40 M-30 -14 H30" stroke="#bff4ff" stroke-width="2" opacity="0.8"/></g></g>
     <text y="74" text-anchor="middle" font-size="26" font-weight="800" fill="#bff4ff" id="tdb-lives-map"></text>`;
   // buits
   const slots = el("g", { id: "tdb-slots" }, svg);
