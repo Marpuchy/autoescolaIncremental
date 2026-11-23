@@ -1356,7 +1356,7 @@ function tdbShift(e) {
   const E = TD_ELEMENTS[weak];
   let tag = e.el.querySelector(".tdb-shift");
   if (!tag) tag = el("g", { class: "tdb-shift" }, e.el);
-  tag.innerHTML = `<g transform="translate(${(e.size * 0.42).toFixed(0)} ${(-e.size * 0.82).toFixed(0)})"><circle r="21" fill="#0b0f17" stroke="${E.color}" stroke-width="3"/>
+  tag.innerHTML = `<g class="tdb-shift-in" transform="translate(${(e.size * 0.42).toFixed(0)} ${(-e.size * 0.82).toFixed(0)})"><circle r="21" fill="#0b0f17" stroke="${E.color}" stroke-width="3"/>
     <text y="7" text-anchor="middle" font-size="22">${E.icon}</text><title>Ara és feble a ${E.name} i forta contra ${TD_ELEMENTS[strong].name}</title></g>`;
   e.el.style.setProperty("--shift", E.color);
   e.el.classList.remove("shifted"); void e.el.getBoundingClientRect(); e.el.classList.add("shifted");
@@ -1416,6 +1416,13 @@ function tdbRender() {
     const [x, y] = tdbS(...tdbPos(e));
     e.el.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
     e.hpBar.setAttribute("width", Math.max(0, 50 * e.hp / e.maxHp).toFixed(1));
+    // si la barra de vida (i la icona de l'Algoritme) quedaria fora per dalt, va davall dels peus
+    const low = y - e.size - 16 < 0;
+    if (low !== e.barLow) {
+      e.barLow = low;
+      e.hpBar.parentNode.setAttribute("transform", `translate(0 ${low ? 14 : -e.size - 10})`);
+      e.el.classList.toggle("bar-low", low);
+    }
     e.el.classList.toggle("stealth", !!e.def.stealth && e.dist < e.def.stealth * tdbP(e).total);
     e.el.classList.toggle("stunned", e.stunT > 0);
     e.el.classList.toggle("poisoned", !!e.poison && e.dotT > 0);
