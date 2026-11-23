@@ -30,7 +30,7 @@ function tdOpenLobby(room = tdRoom) {
     if (tdStartRoom(tdRoom)) toast(`🎁 Benvinguda: dues criatures i 5 pergamins de cada camp`, "good");
   };
   settle();
-  cloudTdEnter(tdRoom).then(() => { settle(); cloudVisitBanner(); if (tdLobbyOpen()) tdRenderLobby(); });
+  cloudTdEnter(tdRoom).then(() => { settle(); cloudVisitBanner(); if (tdLobbyOpen()) tdRenderLobby(); return tdShareFetch(); }).then(() => tdMailboxFlag());
   $("td-lobby").hidden = false;
   $("td-lobby").classList.toggle("forest", tdRoom === "forestal");
   $("td-lobby-top").querySelector("h2").textContent = TD_ROOMS[tdRoom].title;
@@ -58,7 +58,9 @@ function tdRenderLobby() {
     spots.push([w * h, `<rect class="hub-hit" data-td="${l.spot}" tabindex="0" role="button" aria-label="${l.title}" x="${x}" y="${y}" width="${w}" height="${h}" fill="transparent"><title>${l.title}</title></rect>`]);
     return `<g class="hub-art td-art" id="td-art-${l.spot}">${svg}</g>`;
   }).join("");
-  $("td-lobby-scene").innerHTML = `<svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet" aria-label="${TD_ROOMS[tdRoom].label}"><defs>${ART.defs}</defs>${layers}${spots.sort((x, y) => y[0] - x[0]).map(x => x[1]).join("")}</svg>`; // les zones menudes, damunt
+  const mailbox = `<g class="hub-art td-art td-mailbox${tdMailNews() ? " has-news" : ""}" id="td-mailbox">${TD_MAILBOX_SVG[tdRoom]}</g>`;
+  spots.push([0, tdMailboxHit]);
+  $("td-lobby-scene").innerHTML = `<svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet" aria-label="${TD_ROOMS[tdRoom].label}"><defs>${ART.defs}</defs>${layers}${mailbox}${spots.sort((x, y) => y[0] - x[0]).map(x => x[1]).join("")}</svg>`; // les zones menudes, damunt
   tdLobbyHud();
 }
 function tdLobbyHud() {
@@ -604,8 +606,16 @@ function tdUpgradesHtml() {
     <div class="td-crystal-menu">${node(ids[0], 0)}<div class="td-crystal-core">${(tdRoom === "forestal" ? tdJadeSvg : tdCrystalSvg)(total / max)}<div class="td-crystal-pct">${Math.round(100 * total / max)} %</div></div>${ids.slice(1).map((id, i) => node(id, i + 1)).join("")}</div>`;
 }
 
-// ---- correu: missatges de l'equip amb regals (es recullen una vegada)
+// ---- correu (la bústia de cada sala): préstecs amb l'altra persona (js/td/share.js) i missatges de l'equip
 function tdMailHtml() {
+  const news = tdShareNews(), gifts = tdViewingOf ? 0 : tdMailNew().length;
+  const tab = tdShareTab || (gifts && !news ? "mail" : "loans");
+  const dot = n => n ? ` <span class="td-mail-dot">${n}</span>` : "";
+  return `<div class="td-tabs td-mail-tabs"><button class="td-tab${tab === "loans" ? " on" : ""}" data-mtab="loans">🤝 Préstecs${dot(news)}</button>
+    <button class="td-tab${tab === "mail" ? " on" : ""}" data-mtab="mail">✉️ Missatges${dot(gifts)}</button></div>${tab === "loans" ? tdShareHtml() : tdTeamMailHtml()}`;
+}
+// missatges de l'equip amb regals (es recullen una vegada)
+function tdTeamMailHtml() {
   const fields = Object.keys(TD_SUBJECTS).filter(s => tdFields().includes(s));
   return `<div class="td-mail">${TD_MAIL.map(m => { const got = td.mail.includes(m.id); return `<article class="td-mail-item${got ? " read" : ""}">
     <div class="td-mail-head"><span class="td-mail-ic">${got ? "📭" : "📬"}</span><div><strong>${m.title}</strong><div class="muted">${m.from} · ${m.date}</div></div></div>
@@ -670,7 +680,9 @@ function initTdLobby() {
     const b = ev.target.closest("button");
     if (!b || b.disabled) return;
     const ds = b.dataset;
-    if (ds.subj) { tdSubj = ds.subj; tdRenderPanel(); }
+    if (ds.share) tdShareAction(b);
+    else if (ds.mtab) { tdShareTab = ds.mtab; tdRenderPanel(); }
+    else if (ds.subj) { tdSubj = ds.subj; tdRenderPanel(); }
     else if (ds.cls && !ds.act) { tdClass[tdSubj] = ds.cls; tdRenderPanel(); }
     else if (ds.bktab) { tdBook = { tab: ds.bktab, page: 0 }; tdRenderPanel(); }
     else if (ds.bk) tdTurnPage(ds.bk === "next" ? 1 : -1);
@@ -698,7 +710,7 @@ function initTdLobby() {
     else if (ds.up) { if (tdBuyUpgrade(ds.up)) { tdRenderPanel(); tdRenderLobby(); document.querySelector(".td-card .td-crys")?.classList.add("flash"); } }
     else if (ds.equip) tdToggleEquip(ds.equip);
     else if (ds.buy) { const r = tdBuyCopy(ds.buy); if (r) { toast(`${TD_POINTS[tdModeOf(ds.buy)].icon} +1 còpia de ${TD_DEFENDERS[ds.buy].name}${r.saber ? ` (al màxim: +${r.saber} ✨)` : ""}`, "good"); tdRenderPanel(); } }
-    else if (ds.mail) { if (tdClaimMail(ds.mail)) { toast("🎁 Regal recollit: pergamins per a cada camp!", "good"); tdRenderPanel(); tdLobbyHud(); } }
+    else if (ds.mail) { if (tdClaimMail(ds.mail)) { toast("🎁 Regal recollit: pergamins per a cada camp!", "good"); tdRenderPanel(); tdLobbyHud(); tdMailboxFlag(); } }
     else if (ds.ascend) { if (tdAscend(ds.ascend)) { toast(`⭐ ${TD_DEFENDERS[ds.ascend].name} puja a ★${tdStars(ds.ascend)}!`, "good"); tdRenderPanel(); } }
     else if (ds.eslot) { tdEquipSlot = ds.eslot; tdRenderPanel(); }
   });

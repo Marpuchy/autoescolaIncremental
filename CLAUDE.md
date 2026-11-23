@@ -81,6 +81,12 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   (los jefes suben la mitad por oleada). Objetivo: al principio se pierde, con Nv5 se gana justo, desde Nv10 holgado.
   Correo (`TD_MAIL`, `td.mail` = recogidos): mensajes del equipo con regalos (p. ej. compensar errores). Se entra por un foradet
   en la pared de la habitación con una carta que asoma (`ROOM_MAIL_SVG`, `roomMail` en `js/room.js`); sin correo no se ve nada.
+  Además cada sala tiene su bústia dibujada (`TD_MAILBOX_SVG`, bandereta alzada si hay algo nuevo; botón «Correu» en móvil).
+  El correo tiene dos pestañas: Missatges (`TD_MAIL`) y **Préstecs** entre Marc y Alba (`js/td/share.js`): se pide una criatura
+  concreta del otro o se le deja una; quien la recibe la acepta (si la había pedido, entra sola). Va a un **buit de préstec**
+  (`td.loan`, uno solo, dura hasta cambiarlo por otra), sale en los combates de su sala (`tdDeck`, marca 🤝) con el nivel y las
+  estrellas del dueño (`tdStats`), y el dueño la sigue usando. Sin tablas nuevas: cada uno escribe sus mensajes en su partida
+  (`td.share.out`: ask/give/no) y lee los del otro de su partida en la nube; `td.share.done` = contestados. El comú no presta.
   Atención al detalle en todos los dibujos (lo pide el usuario): proporciones reales, mesas con 4 patas, nada de trazos
   sin sentido, cada proyectil es la pieza que la criatura lanza (desaparece del cuerpo mientras vuela y se vuelve a
   formar), los artefactos se llevan puestos en el estudiante (`TD_ARTIFACT_WEAR`), sin bandas en los lados de las escenas

@@ -1488,10 +1488,10 @@ function tdbHud() {
 // el buit mostra el seu abast; en tocar-la, es posa.
 function tdbRenderDeck() {
   $("tdb-deck").innerHTML = `<div class="tdb-pick-head"><span>Tria una criatura per al buit</span><button class="secondary small" data-pick="close" aria-label="Tancar">✕</button></div>
-    <div class="tdb-pick-cards">${tdTeam(tdb.world.mode).map(id => {
-      const d = TD_DEFENDERS[id];
-      return `<button class="tdb-card rar-${d.rar}${tdb.pickId === id ? " sel" : ""}${tdb.mana < d.cost ? " poor" : ""}" data-card="${id}" aria-pressed="${tdb.pickId === id}" title="${d.name} · ${TD_ELEMENTS[d.el].name}">
-        ${tdElemDot(id)}<span class="tdb-card-art">${tdCreatureSvg(id)}</span><span class="tdb-card-name">${d.name}</span><span class="tdb-card-cost">🔮 ${d.cost}</span></button>`;
+    <div class="tdb-pick-cards">${tdDeck(tdb.world.mode).map(id => {
+      const d = TD_DEFENDERS[id], lent = !td.owned[id];
+      return `<button class="tdb-card rar-${d.rar}${tdb.pickId === id ? " sel" : ""}${tdb.mana < d.cost ? " poor" : ""}${lent ? " lent" : ""}" data-card="${id}" aria-pressed="${tdb.pickId === id}" title="${d.name} · ${TD_ELEMENTS[d.el].name}${lent ? ` · prestada per ${PLAYERS[td.loan.from].name}` : ""}">
+        ${lent ? `<span class="tdb-card-lent" aria-hidden="true">🤝</span>` : ""}${tdElemDot(id)}<span class="tdb-card-art">${tdCreatureSvg(id)}</span><span class="tdb-card-name">${d.name}</span><span class="tdb-card-cost">🔮 ${d.cost}</span></button>`;
     }).join("")}</div>${tdbPickInfo()}`;
 }
 // Fitxa de la criatura triada: el que fa i les dades, abans d'invocar-la
@@ -1510,7 +1510,7 @@ function tdbOpenPicker(slot) {
   tdbRenderDeck();
   tdbHud();
   $("tdb-deck").hidden = false;
-  const team = tdTeam(tdb.world.mode);
+  const team = tdDeck(tdb.world.mode);
   tdbSelectCard(team.find(id => TD_DEFENDERS[id].cost <= tdb.mana) || team[0]);
 }
 // Triar una carta: es veu la fitxa, l'abast i la criatura en transparència al buit; s'invoca amb el botó

@@ -28,6 +28,10 @@ function tdNewState() {
     artBank: {},                                      // artefactes de les altres sales (no es compartixen entre carreres/mòduls)
     stelles: {},                                      // punts d'estrella per carrera (espores al bosc): mode → punts
     pulls: 0,
+    // Préstecs entre Marc i Alba (js/td/share.js). share.out: el que he enviat (demanar o prestar), share.done: els
+    // missatges de l'altre que ja he contestat. loan: la criatura que tinc prestada (un buit: dura fins que la canvie)
+    share: { out: [], done: [] },
+    loan: null,
   };
 }
 
@@ -89,10 +93,25 @@ function tdLoad(fromRaw = null) { // fromRaw: una partida que no és la d'este d
     for (const [m, n] of Object.entries(td.stelles)) if (!TD_POINTS[m] || !(n >= 0)) delete td.stelles[m];
     td.favs = td.favs.filter(id => TD_DEFENDERS[id]);
     td.mail = td.mail.filter(id => typeof id === "string");
+    td.share = { out: Array.isArray(td.share?.out) ? td.share.out.filter(m => m && typeof m === "object" && Number.isFinite(m.n)).slice(-30) : [],
+      done: Array.isArray(td.share?.done) ? td.share.done.filter(Number.isFinite).slice(-80) : [] };
+    td.loan = tdCleanLoan(td.loan);
     // un artefacte per espai
     td.equipped = td.equipped.filter((id, i, a) => td.artifacts[id] && a.findIndex(o => tdArtSlot(o) === tdArtSlot(id)) === i).slice(0, TD_ARTIFACT_SLOTS);
   } catch {}
 }
+
+// Criatura prestada: només una de bona (una que existix, d'una persona coneguda, amb nivell i estrelles possibles)
+function tdCleanLoan(l) {
+  if (!l || typeof l !== "object" || !TD_DEFENDERS[l.def] || !["marc", "parella"].includes(l.from)) return null;
+  const stars = Math.max(1, Math.min(TD_STAR_COPIES.length, Math.floor(Number(l.stars) || 1)));
+  return { def: l.def, from: l.from, stars, level: Math.max(1, Math.min(TD_LEVEL_PER_STAR * stars, TD_LEVEL_MAX, Math.floor(Number(l.level) || 1))), t: Number(l.t) || 0 };
+}
+// La prestada es pot fer servir als mons de la sala de qui la té (no és seua: no puja de nivell ni d'estrella)
+const tdLoanFor = mode => td.loan && !td.owned[td.loan.def] && mode === tdLoanRoom() ? td.loan.def : null;
+const tdLoanRoom = () => (typeof cloudWho === "function" && cloudWho() === "parella" ? "forestal" : "informatic");
+// Les criatures que es poden posar en un combat: l'equip de la carrera i, si n'hi ha, la prestada
+const tdDeck = mode => { const l = tdLoanFor(mode), t = tdTeam(mode); return l && !t.includes(l) ? [...t, l] : t; };
 
 // L'equip es guarda tot junt, però cada carrera porta les seues 6 criatures
 const tdTeam = mode => td.team.filter(id => tdModeOf(id) === mode);
@@ -145,8 +164,9 @@ const tdHasArtifact = id => td.equipped.includes(id);
 const tdLevelCap = id => Math.min(TD_LEVEL_MAX, TD_LEVEL_PER_STAR * Math.max(1, tdStars(id)));
 const tdAbility = (stars, level) => 1 + 0.3 * (stars >= 3) + 0.3 * (stars >= 5) + 0.15 * TD_ABILITY_LEVELS.filter(l => level >= l).length;
 function tdStats(id, up = 0) {
-  const d = TD_DEFENDERS[id], o = td.owned[id] || { level: 1 };
-  const stars = Math.max(1, tdStars(id));
+  const loan = !td.owned[id] && td.loan?.def === id ? td.loan : null; // la prestada va amb el nivell i les estrelles de l'amo
+  const d = TD_DEFENDERS[id], o = td.owned[id] || loan || { level: 1 };
+  const stars = loan ? loan.stars : Math.max(1, tdStars(id));
   // cada nivell +7 % de dany i cada estrela +15 % (+5 % de velocitat): a Nv25 ★5, uns 3,9 × el dany de Nv1 ★1
   const dmgMult = (1 + 0.07 * (o.level - 1)) * (1 + 0.15 * (stars - 1)) * TD_BATTLE.upgradeMult[up];
   return {

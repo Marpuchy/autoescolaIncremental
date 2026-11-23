@@ -16,6 +16,7 @@ function openRoom() {
   setPlace("room");
   renderRoom();
   roomMail();
+  tdShareFetch().then(roomMail); // l'altra persona t'ha demanat o deixat alguna criatura?
 }
 function closeRoom() {
   $("room").hidden = true;
@@ -67,7 +68,7 @@ const ROOM_MAIL_SVG = `<g id="room-mail" class="room-mail" data-room="mail" tabi
 // La sala on es llig el correu: la de qui juga (Alba, Forestal; Marc i el comú, Informàtica)
 const roomMailRoom = () => (cloudWho() === "parella" ? "forestal" : "informatic");
 function roomMail() {
-  const has = typeof tdMailNew === "function" && !!tdMailNew().length;
+  const has = typeof tdMailNew === "function" && (!!tdMailNew().length || tdShareNews() > 0); // regals o préstecs
   const g = $("room-mail");
   if (g) g.style.display = has ? "" : "none";
   $("room-mail-btn").hidden = !has;
