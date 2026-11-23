@@ -30,7 +30,7 @@ function tdOpenLobby(room = tdRoom) {
     if (tdStartRoom(tdRoom)) toast(`🎁 Benvinguda: dues criatures i 5 pergamins de cada camp`, "good");
   };
   settle();
-  cloudTdEnter(tdRoom).then(() => { settle(); cloudVisitBanner(); if (tdLobbyOpen()) tdRenderLobby(); return tdShareFetch(); }).then(() => tdMailboxFlag());
+  cloudTdEnter(tdRoom).then(() => { settle(); cloudVisitBanner(); if (tdLobbyOpen()) tdRenderLobby(); return Promise.all([tdShareFetch(), typeof cloudMail === "function" && cloudMail()]); }).then(() => tdMailboxFlag());
   $("td-lobby").hidden = false;
   $("td-lobby").classList.toggle("forest", tdRoom === "forestal");
   $("td-lobby-top").querySelector("h2").textContent = TD_ROOMS[tdRoom].title;
@@ -93,7 +93,7 @@ function tdSpot(name) {
   if (name === "exit") { tdCloseLobby(); openRoom(); return; }
   if (name === "reset") { if (tdViewingOf) { toast("👀 És la partida de l'altra persona: no es pot reiniciar", "bad"); return; } tdAskRestart(); return; }
   $("td-card").dataset.panel = name;
-  if (name === "mail") tdShareFetch(true).then(() => { if ($("td-card").dataset.panel === "mail" && !$("td-dialog").hidden) tdRenderPanel(); }); // el correu, sempre al dia
+  if (name === "mail") Promise.all([tdShareFetch(true), typeof cloudMail === "function" && cloudMail(true)]).then(() => { if ($("td-card").dataset.panel === "mail" && !$("td-dialog").hidden) tdRenderPanel(); }); // el correu, sempre al dia
   if (name === "grimori" || name === "bestiary") tdBook = { tab: name === "grimori" ? tdSubj : "best", page: 0 };
   $("td-card-title").textContent = (tdRoom === "forestal" && TD_PANELS_FOREST[name]) || TD_PANELS[name];
   $("td-dialog").hidden = false;
@@ -787,11 +787,12 @@ function tdMailHtml() {
 // missatges de l'equip amb regals (es recullen una vegada)
 function tdTeamMailHtml() {
   const fields = Object.keys(TD_SUBJECTS).filter(s => tdFields().includes(s));
-  return `<div class="td-mail">${TD_MAIL.map(m => { const got = td.mail.includes(m.id); return `<article class="td-mail-item${got ? " read" : ""}">
-    <div class="td-mail-head"><span class="td-mail-ic">${got ? "📭" : "📬"}</span><div><strong>${m.title}</strong><div class="muted">${m.from} · ${m.date}</div></div></div>
-    <p>${m.text}</p>
-    ${m.gift?.pergamins ? `<div class="td-mail-gift">🎁 ${fields.map(s => `${tdScrollSvg(s)} ${m.gift.pergamins} de ${TD_SUBJECTS[s].short}`).join(" · ")}</div>` : ""}
-    ${got ? `<div class="muted">✔ Recollit</div>` : tdViewingOf ? `<div class="muted">És la partida de l'altra persona</div>` : `<button data-mail="${m.id}">Recollir</button>`}</article>`; }).join("") || `<p class="muted">No tens cap missatge.</p>`}</div>`;
+  const E = tdMailEsc; // els del núvol venen de la base de dades: sempre escapats
+  return `<div class="td-mail">${tdMailList().map(m => { const got = td.mail.includes(m.id); return `<article class="td-mail-item${got ? " read" : ""}">
+    <div class="td-mail-head"><span class="td-mail-ic">${got ? "📭" : "📬"}</span><div><strong>${E(m.title)}</strong><div class="muted">${E(m.from)} · ${E(m.date)}</div></div></div>
+    <p>${E(m.text)}</p>
+    ${m.gift?.pergamins || m.gift?.saber ? `<div class="td-mail-gift">🎁 ${[...(m.gift.pergamins ? fields.map(s => `${tdScrollSvg(s)} ${m.gift.pergamins | 0} de ${TD_SUBJECTS[s].short}`) : []), ...(m.gift.saber ? [`✨ ${fmtNum(m.gift.saber | 0)} de saber`] : [])].join(" · ")}</div>` : ""}
+    ${got ? `<div class="muted">✔ Recollit</div>` : tdViewingOf ? `<div class="muted">És la partida de l'altra persona</div>` : `<button data-mail="${E(m.id)}">Recollir</button>`}</article>`; }).join("") || `<p class="muted">No tens cap missatge.</p>`}</div>`;
 }
 
 // ---- estudiant (artefactes)
@@ -894,7 +895,7 @@ function initTdLobby() {
     else if (ds.up) { if (tdBuyUpgrade(ds.up)) { tdRenderPanel(); tdRenderLobby(); document.querySelector(".td-card .td-crys")?.classList.add("flash"); } }
     else if (ds.equip) tdToggleEquip(ds.equip);
     else if (ds.buy) { const r = tdBuyCopy(ds.buy); if (r) { toast(`${TD_POINTS[tdModeOf(ds.buy)].icon} +1 còpia de ${TD_DEFENDERS[ds.buy].name}${r.saber ? ` (al màxim: +${r.saber} ✨)` : ""}`, "good"); tdRenderPanel(); } }
-    else if (ds.mail) { if (tdClaimMail(ds.mail)) { toast("🎁 Regal recollit: pergamins per a cada camp!", "good"); tdRenderPanel(); tdLobbyHud(); tdMailboxFlag(); } }
+    else if (ds.mail) { if (tdClaimMail(ds.mail)) { toast("🎁 Regal recollit!", "good"); tdRenderPanel(); tdLobbyHud(); tdMailboxFlag(); } }
     else if (ds.ascend) { if (tdAscend(ds.ascend)) { toast(`⭐ ${TD_DEFENDERS[ds.ascend].name} puja a ★${tdStars(ds.ascend)}!`, "good"); tdRenderPanel(); } }
     else if (ds.eslot) { tdEquipSlot = ds.eslot; tdRenderPanel(); }
   });

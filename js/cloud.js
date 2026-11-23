@@ -36,6 +36,21 @@ async function cloudGet(player, game) {
   return rows[0] || null;
 }
 
+// ---- correu del joc: la taula `mail` (només es llig; s'hi escriu des del panell de Supabase). Es baixa en entrar a una
+// sala i en obrir la bústia (com a molt cada minut). Cada missatge: per als dos o per a un (to_player)
+let cloudMailAt = 0;
+async function cloudMail(force = false) {
+  if (!force && Date.now() - cloudMailAt < 60000) return;
+  cloudMailAt = Date.now();
+  try {
+    const rows = await cloudFetch("/rest/v1/mail?select=id,title,sender,body,gift_pergamins,gift_saber,to_player,created_at&order=created_at.desc&limit=50");
+    const who = cloudWho();
+    tdCloudMail = (Array.isArray(rows) ? rows : []).filter(r => r && typeof r.id === "string" && (!r.to_player || r.to_player === who || PLAYERS[who]?.test))
+      .map(r => ({ id: `n:${r.id}`, title: String(r.title || ""), from: String(r.sender || ""), text: String(r.body || ""),
+        date: r.created_at ? new Date(r.created_at).toLocaleDateString("ca") : "", gift: { pergamins: Number(r.gift_pergamins) || 0, saber: Number(r.gift_saber) || 0 } }));
+  } catch { /* sense connexió: es queden els que hi havia */ }
+}
+
 // ---- pujar: cada vegada que es guarda en local (amb un poc d'espera per no pujar a cada fotograma)
 const cloudTimers = {};
 function cloudSaved(game, json) {

@@ -79,7 +79,11 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   Balance (`tools/td-progres.py`: equipo de 6 en el mundo 1 de cada sala, de Nv1 a Nv25 ★5): nivel +7 % de daño, estrella +15 % (+5 %
   de velocidad), mejoras en combate ×1,35/×1,75; dificultad de los mundos en `TD_DIFFICULTY` (vida ×1,5, saber ×2) y `TD_WAVE_HP`
   (los jefes suben la mitad por oleada). Objetivo: al principio se pierde, con Nv5 se gana justo, desde Nv10 holgado.
-  Correo (`TD_MAIL`, `td.mail` = recogidos): mensajes del equipo con regalos (p. ej. compensar errores). Solo se entra por la
+  Correo (`TD_MAIL`, `td.mail` = recogidos): mensajes del equipo con regalos (p. ej. compensar errores). **También desde la base de
+  datos, sin tocar el código**: tabla `mail` de Supabase (id, title, sender, body, gift_pergamins 0-100 de cada campo, gift_saber,
+  to_player marc/parella o vacío = los dos, active). El juego solo la lee (RLS: select de las activas; se escribe desde el panel de
+  Supabase); `cloudMail` en `js/cloud.js` la baja al entrar en una sala y al abrir la bústia (`tdCloudMail`, ids con «n:»). Los textos
+  van escapados (`tdMailEsc`). Solo se entra por la
   bústia dibujada de cada sala (`TD_MAILBOX_SVG`, bandereta alzada si hay algo nuevo; botón «Correu» en móvil); la habitación ya no tiene correo.
   El correo tiene dos pestañas: Missatges (`TD_MAIL`) y **Préstecs** entre Marc y Alba (`js/td/share.js`): se pide una criatura
   concreta del otro o se le deja una; quien la recibe la acepta (si la había pedido, entra sola). Va a un **buit de préstec**

@@ -327,11 +327,18 @@ function tdBuyCopy(id) {
 }
 
 // ---------------------------------------------------------------- correu
-const tdMailNew = () => TD_MAIL.filter(m => !td.mail.includes(m.id));
+// Correu: els missatges del codi (TD_MAIL) i els de la taula `mail` de la base de dades (es poden posar sense tocar el
+// codi; js/cloud.js els baixa a tdCloudMail). Els del núvol duen «n:» davant de l'id. Els seus textos són dades: es
+// posen a l'HTML escapats (tdMailEsc) i els regals, dins d'un límit.
+let tdCloudMail = [];
+const tdMailEsc = t => String(t ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+const tdMailList = () => [...tdCloudMail, ...TD_MAIL];
+const tdMailNew = () => tdMailList().filter(m => !td.mail.includes(m.id));
 function tdClaimMail(id) {
-  const m = TD_MAIL.find(x => x.id === id);
+  const m = tdMailList().find(x => x.id === id);
   if (!m || td.mail.includes(id)) return false;
-  if (m.gift?.pergamins) for (const s of Object.keys(TD_SUBJECTS)) td.pergamins[s] += m.gift.pergamins;
+  if (m.gift?.pergamins) for (const s of Object.keys(TD_SUBJECTS)) td.pergamins[s] += Math.max(0, Math.min(100, m.gift.pergamins | 0));
+  if (m.gift?.saber) td.saber += Math.max(0, Math.min(1e6, m.gift.saber | 0));
   td.mail.push(id);
   tdSave();
   return true;
