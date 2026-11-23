@@ -158,7 +158,7 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   (`run.tens`) o desde 0 (`tdResetWorld`). El combate sigue en segundo plano al salir (`tdb` vivo, `tdCloseBattle`); el portal de la
   sala lo enseña detrás, más transparente (`tdPortalLive`, `<use href="#tdb-root">`, `portal` en las capas de las salas). Con el
   juego cerrado u oculto, el tiempo se guarda (`td.idle`, máx. 2 h) y luego el combate va ×4 hasta gastarlo (`tdb.bank`). Al cargar
-  se reanuda solo (`tdResumeActive`). Desde la 50: ×4, mapa ampliado (`world.ext`: camino más largo y 4 huecos, `tdWorldExtended`),
+  se reanuda solo (`tdResumeActive`). Rendimiento cuando no se mira (`tdbSeen`, `tdbPortalSeen`): por el portal se pinta 6 veces/s y solo `#tdb-play` (sin el fondo, `tdPortalLive` dibuja el camino), con los números de daño y sin efectos (`tdbFxOn`); con una ventana encima o fuera de la sala no se pinta nada y `body.tdb-away` pausa las animaciones. Desde la 50: ×4, mapa ampliado (`world.ext`: camino más largo y 4 huecos, `tdWorldExtended`),
   se abre el mundo siguiente y hasta la 100 ×1,5 de saber. Balance: `python tools/td-progres.py [sala] [--mon=2] [--temps=s]` (onda
   máxima por etapa; el bot es simple y da resultados con ruido).
   **Matrícula d'Honor** (raresa `mh`, roja; nunca sale en el altar): en la oleada 100 de cada mundo se gana una receta o la piedra

@@ -49,6 +49,11 @@ function tdbSpeedBtn() {
 // El progrés de cada món (td.worlds[id]): best, clears i run = { snap: com començava l'onada en marxa (per a repetir-la),
 // tens: com començava l'última onada després d'un múltiple de 10 (per a tornar-hi) }. El combat continua encara que
 // ixques de la pantalla (tdb es queda viu) i, amb el joc tancat, el temps es guarda i després va més ràpid (tdb.bank).
+// Quan no es mira el combat (des de la sala o qualsevol altre lloc) es pinta el mínim: al portal, a poc a poc i només els
+// números de dany; sense espurnes, raigs ni ànimes; i si no es veu enlloc, res de res (td.css pausa les animacions: body.tdb-away)
+const tdbSeen = () => !$("td-battle").hidden;
+const tdbPortalSeen = () => typeof tdLobbyOpen === "function" && tdLobbyOpen() && $("td-dialog").hidden && !document.getElementById("td-forge-show") && !!document.querySelector("#td-lobby-scene.portal-live"); // amb una finestra damunt, el portal no es veu
+const tdbFxOn = () => tdbSeen(); // efectes (espurnes, raigs, ànimes, trossos): només amb el combat davant
 const tdbViewing = () => typeof tdViewingOf !== "undefined" && !!tdViewingOf; // mirant la partida de l'altra persona: el combat espera
 const tdIdleWorld = w => !w.demo && TD_WORLDS.includes(w) && w.id !== 999;
 const tdRun = id => td.worlds[id] || (td.worlds[id] = { best: 0, clears: 0 });
@@ -211,10 +216,11 @@ function tdbBuildView() {
   svg.innerHTML = "";
   const root = el("g", { id: "tdb-root" }, svg); // tot el combat (el portal de la sala el mostra amb un <use>)
   const bg = el("g", { id: "tdb-bg", transform: tdb.portrait ? "translate(900 0) rotate(90)" : "" }, root);
+  const play = el("g", { id: "tdb-play" }, root); // tot menys el fons (el portal de la sala només mostra açò)
   bg.innerHTML = tdbBackground(tdb.world);
   // cristall
   const [cx, cy] = tdbS(...tdb.world.crystal);
-  const crystal = el("g", { id: "tdb-crystal", transform: `translate(${cx} ${cy})` }, root);
+  const crystal = el("g", { id: "tdb-crystal", transform: `translate(${cx} ${cy})` }, play);
   const forest = tdb.world.mode === "forestal";
   crystal.innerHTML = forest ? `<circle r="70" fill="#9ff07a" opacity="0.12"/><circle r="70" class="tdb-crystal-glow"/><g class="tdb-crystal-gem"><g transform="translate(0 8)">
     <path d="M0 -60 C30 -60 38 -20 36 6 C34 34 18 44 0 44 C-18 44 -34 34 -36 6 C-38 -20 -30 -60 0 -60 Z" fill="#1f6a3e" stroke="#9ff07a" stroke-width="5"/>
@@ -224,24 +230,24 @@ function tdbBuildView() {
     <path d="M0 -62 L0 40 M-30 -14 H30" stroke="#bff4ff" stroke-width="2" opacity="0.8"/></g></g>
     <text y="74" text-anchor="middle" font-size="26" font-weight="800" fill="#bff4ff" id="tdb-lives-map"></text>`;
   // buits
-  const slots = el("g", { id: "tdb-slots" }, root);
+  const slots = el("g", { id: "tdb-slots" }, play);
   tdb.world.slots.forEach(([x, y], i) => {
     const [sx, sy] = tdbS(x, y);
     const g = el("g", { class: "tdb-slot", "data-slot": i, transform: `translate(${sx} ${sy})` }, slots);
     g.innerHTML = `<ellipse rx="62" ry="22" cy="34" class="tdb-slot-ring"/><ellipse rx="44" ry="15" cy="34" class="tdb-slot-ring2"/>
       <circle r="70" fill="transparent" class="tdb-slot-hit"/>`;
   });
-  el("g", { id: "tdb-range" }, root);
-  const lines = el("g", { id: "tdb-lines" }, root); // línies de foc del Contrafoc (davall de tot)
+  el("g", { id: "tdb-range" }, play);
+  const lines = el("g", { id: "tdb-lines" }, play); // línies de foc del Contrafoc (davall de tot)
   for (const l of tdb.lines) { l.el = null; tdbDrawLine(l, lines); }
-  el("g", { id: "tdb-towers" }, root);
-  el("g", { id: "tdb-enemies" }, root);
-  el("g", { id: "tdb-proj" }, root);
-  el("g", { id: "tdb-fx" }, root);
+  el("g", { id: "tdb-towers" }, play);
+  el("g", { id: "tdb-enemies" }, play);
+  el("g", { id: "tdb-proj" }, play);
+  el("g", { id: "tdb-fx" }, play);
   // estudiant a la cantonada, amb els artefactes que porta
   const [stx, sty] = tdbS(...tdb.world.student);
   // torre arcana on està l'estudiant: plataforma rúnica i cos de pedra que es perd cap avall
-  const perch = el("g", { class: "tdb-perch", transform: `translate(${stx} ${sty})` }, root);
+  const perch = el("g", { class: "tdb-perch", transform: `translate(${stx} ${sty})` }, play);
   if (forest) { // al bosc, l'estudiant està dalt d'una soca tallada (anells de dalt i escorça)
     perch.innerHTML = `<defs><linearGradient id="tdb-stump-fade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a2a1a"/><stop offset="0.75" stop-color="#22180e"/><stop offset="1" stop-color="#22180e" stop-opacity="0"/></linearGradient></defs>
       <path d="M-62 58 V168 H62 V58 Z" fill="url(#tdb-stump-fade)"/>${[-40, -14, 12, 38].map(x => `<path d="M${x} 74 Q${x + 4} 110 ${x - 2} 160" stroke="#14100a" stroke-width="3" fill="none" opacity="0.7"/>`).join("")}
@@ -263,7 +269,7 @@ function tdbBuildView() {
     <ellipse cx="0" cy="58" rx="52" ry="11" fill="none" stroke="#b39dff" stroke-width="1.4" stroke-dasharray="4 6" opacity="0.8"/>
     ${[-1, 1].map(sx => `<circle cx="${sx * 60}" cy="54" r="5" fill="#ffc23f" opacity="0.9"/><circle cx="${sx * 60}" cy="54" r="11" fill="#ffc23f" opacity="0.18"/>`).join("")}`;
   }
-  const st = el("g", { id: "tdb-student", transform: `translate(${stx} ${sty})` }, root);
+  const st = el("g", { id: "tdb-student", transform: `translate(${stx} ${sty})` }, play);
   st.innerHTML = tdStudentSvg(td.equipped, `x="-76" y="-84" width="152" height="160"`) +
     `<title>Estudiant${td.equipped.length ? ": " + td.equipped.map(id => TD_ARTIFACTS[id].name).join(", ") : ""}</title>`;
   // tornar a pintar les criatures que ja hi havia (canvi d'orientació)
@@ -530,6 +536,7 @@ function tdbSummonFromStudent(t) {
 }
 // L'ànima de l'enemic vola fins al cristall, que s'il·lumina en rebre-la
 function tdbSoul(e) {
+  if (!tdbFxOn()) return;
   const fx = $("tdb-fx");
   if (fx.querySelectorAll(".tdb-soul").length > 24) return;
   const [x0, y0] = tdbS(...tdbPos(e)), [x1, y1] = tdbS(...tdb.world.crystal);
@@ -787,6 +794,7 @@ function tdbChainEnd(e, keep) {
   return tdbS(keep[0], keep[1] - e.size * 0.45);
 }
 function tdbChainDraw(ch) {
+  if (!tdbFxOn()) { ch.g.innerHTML = ""; return; }
   ch.g.innerHTML = ch.links.map(l => {
     const [x0, y0] = tdbChainEnd(l.a, l.pa), [x1, y1] = tdbChainEnd(l.b, l.pb), k = l.life / TD_CHAIN_ARC;
     const L = Math.hypot(x1 - x0, y1 - y0), main = tdbZig(x0, y0, x1, y1, Math.max(3, Math.round(L / 14)), Math.min(30, L * 0.3)),
@@ -1340,6 +1348,7 @@ const tdbPartReady = (t, part) => { const P = t.parts?.[part]; return !P || (!P.
 // La distracció es dissol: el dibuix s'apaga i en surten partícules del seu color
 function tdbDissolve(e) {
   const el = e.el;
+  if (!tdbFxOn()) { el.remove(); return; }
   el.classList.add("dying");
   setTimeout(() => el.remove(), 420);
   const [x, y] = tdbS(...tdbPos(e));
@@ -1352,6 +1361,7 @@ function tdbDissolve(e) {
 }
 function tdbNumber(x, y, text, color, big = false, cls = "") {
   if (!Number.isFinite(x) || !Number.isFinite(y)) return;
+  if (!tdbSeen() && !tdbPortalSeen()) return; // el dany sí que es veu pel portal; si no es mira enlloc, res
   const fx = $("tdb-fx");
   if (fx.childElementCount > 60) return;
   const t = el("text", { x, y, class: `tdb-num${big ? " big" : ""}${cls ? " " + cls : ""}`, fill: color }, fx);
@@ -1360,6 +1370,7 @@ function tdbNumber(x, y, text, color, big = false, cls = "") {
 }
 // Rajolí en zig-zag entre dos punts (pantalla) que s'esvaïx
 function tdbBolt([x0, y0], [x1, y1], color) {
+  if (!tdbFxOn()) return;
   const n = 6, dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L;
   const pts = Array.from({ length: n + 1 }, (_, i) => { const t = i / n, j = i && i < n ? (Math.random() - 0.5) * 26 : 0; return `${(x0 + dx * t + nx * j).toFixed(1)},${(y0 + dy * t + ny * j).toFixed(1)}`; }).join(" ");
   const g = el("g", { class: "tdb-bolt" }, $("tdb-fx"));
@@ -1367,7 +1378,7 @@ function tdbBolt([x0, y0], [x1, y1], color) {
   setTimeout(() => g.remove(), 320);
 }
 function tdbFx(kind, x, y, color, r = 60) {
-  if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+  if (!Number.isFinite(x) || !Number.isFinite(y) || !tdbFxOn()) return null;
   // el translate va en un grup de fora: si anara en el mateix, l'escala de l'animació (td-fx) també el multiplicaria
   // i l'efecte naixeria lluny i viatjaria fins al seu lloc
   const at = el("g", { transform: `translate(${x} ${y})` }, $("tdb-fx")), g = el("g", { class: `tdb-fx-${kind}` }, at);
@@ -1391,7 +1402,10 @@ function tdbLoop(now) {
     while (left > 0 && tdb === B && !B.over) { const step = Math.min(left, 0.05); tdbUpdate(step); left -= step; }
   }
   if (tdb !== B) return;
-  tdbRender();
+  // pintar: cada fotograma si es mira el combat; pel portal, 6 vegades per segon; si no es veu, gens
+  const seen = tdbSeen();
+  document.body.classList.toggle("tdb-away", !seen);
+  if (seen || (tdbPortalSeen() && now - (B.drawn || 0) > 160)) { B.drawn = now; tdbRender(); }
   requestAnimationFrame(tdbLoop);
 }
 function tdbUpdate(dt) {
@@ -1700,7 +1714,8 @@ function tdbRender() {
   }
   for (const t of Object.values(tdb.towers)) {
     if (t.fx != null) { // el dron vola (el cercle de runes es queda al buit): es mou el grup .fly, en unitats del dibuix
-      const fly = t.fly || (t.fly = t.el.querySelector(".fly"));
+      if (!t.fly?.isConnected || !t.el.contains(t.fly)) t.fly = t.el.querySelector(".fly"); // si el dibuix s'ha refet (en tornar a la sala, millores…), el grup antic ja no està
+      const fly = t.fly;
       if (fly) {
         const [hx, hy] = tdbS(...tdb.world.slots[t.slot]), [x, y] = tdbS(t.fx, t.fy), k = 124 / 132;
         const alt = tdb.portrait ? (t.alt || 0) : Math.min(t.alt || 0, Math.max(0, y - 90)); // que no se'n vaja per dalt de la pantalla

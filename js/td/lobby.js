@@ -71,9 +71,11 @@ function tdPortalLive([cx, cy, rx, ry]) {
   if (!on) return "";
   const vb = $("tdb-svg").getAttribute("viewBox").split(" ").map(Number);
   const k = Math.max(2 * rx / vb[2], 2 * ry / vb[3]) * 1.05; // omplir l'el·lipse
+  // sense el fons del combat (pesa molt): només el camí, i damunt el joc (#tdb-play), que es pinta poques vegades per segon
+  const paths = tdbWorldPaths(tdb.world).map(p => `<polyline points="${p.map(q => (tdb.portrait ? [900 - q[1], q[0]] : q).join(",")).join(" ")}" fill="none" stroke="${tdRoom === "forestal" ? "#4a3824" : "#24304e"}" stroke-width="80" stroke-linejoin="round" stroke-linecap="round"/>`).join("");
   return `<defs><clipPath id="td-portal-clip"><ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"/></clipPath></defs>
-    <g class="td-portal-live" clip-path="url(#td-portal-clip)"><rect x="${cx - rx}" y="${cy - ry}" width="${2 * rx}" height="${2 * ry}" fill="#05060a"/>
-      <g transform="translate(${cx} ${cy}) scale(${k.toFixed(4)}) translate(${-(vb[0] + vb[2] / 2)} ${-(vb[1] + vb[3] / 2)})"><use href="#tdb-root"/></g></g>`;
+    <g class="td-portal-live" clip-path="url(#td-portal-clip)"><rect x="${cx - rx}" y="${cy - ry}" width="${2 * rx}" height="${2 * ry}" fill="${tdRoom === "forestal" ? "#0c140c" : "#0b0e14"}"/>
+      <g transform="translate(${cx} ${cy}) scale(${k.toFixed(4)}) translate(${-(vb[0] + vb[2] / 2)} ${-(vb[1] + vb[3] / 2)})">${paths}<use href="#tdb-play"/></g></g>`;
 }
 function tdLobbyHud() {
   $("td-saber").textContent = fmtNum(Math.floor(td.saber));

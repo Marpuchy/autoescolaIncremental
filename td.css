@@ -1304,3 +1304,7 @@
 #td-forge-show .fs-sub { color: #ffb0b8; font-size: 0.9rem; }
 #td-forge-show .fs-btns { position: relative; margin-top: 14px; display: flex; gap: 8px; }
 @media (max-width: 700px) { #td-forge-show .fs-stage { width: 150vw; max-width: none; max-height: 56vh; } }
+
+/* ---- combat en segon pla: sense animacions (es veu pel portal a poc a poc, o no es veu) */
+body.tdb-away #tdb-svg *, body.tdb-away #tdb-svg *::before { animation-play-state: paused !important; }
+body.tdb-away #tdb-svg .tdb-num { animation: none !important; }
