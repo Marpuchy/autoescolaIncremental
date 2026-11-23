@@ -514,6 +514,7 @@ const TD_ARTIFACT_WEAR = {
 const TD_FROG_SKINS = { setes: { "#6cc96a": "#cf4a34", "#4fa64d": "#a3342a", "#d4f5b5": "#f6e6c8", "#2c5e2c": "#5a1a10" } };
 
 // Estudiant amb els artefactes posats. attrs: atributs extra de l'<svg> (posició i mida dins d'un altre SVG)
+let tdAxoUid = 0;
 function tdStudentSvg(equipped = [], attrs = "") {
   const druid = typeof tdRoom !== "undefined" && tdRoom === "forestal"; // al bosc, l'Alba (granoteta druida)
   if (!druid) { // a Informàtica, en Marc (ajolot)
@@ -521,6 +522,9 @@ function tdStudentSvg(equipped = [], attrs = "") {
     const part = x => typeof x === "function" ? x() : x || "";
     let art = tdAxoSvg(skin).replace("%BACK%", w.map(x => part(x.back)).join("")).replace("%FRONT%", w.map(x => part(x.front)).join(""));
     for (const cls of w.flatMap(x => x.hides || [])) art = art.replace(new RegExp(`<path class="${cls}"[^>]*/>`), "");
+    // ids únics per dibuix: si n'hi ha dos a la pàgina (la sala, amagada, i el combat), el retall de la boca no es perd
+    const uid = `a${++tdAxoUid}`;
+    art = art.replace(/(id="|url\(#)axo-/g, `$1${uid}-axo-`);
     return `<svg viewBox="2 -32 196 196" preserveAspectRatio="xMidYMax meet" class="td-student-svg axolot" aria-label="Estudiant (ajolot)" overflow="visible" ${attrs}>${art}</svg>`;
   }
   const w = equipped.map(id => TD_ARTIFACT_WEAR[id]).filter(Boolean);
