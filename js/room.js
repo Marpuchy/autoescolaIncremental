@@ -15,6 +15,7 @@ function openRoom() {
   document.body.classList.add("room-open");
   setPlace("room");
   renderRoom();
+  roomMail();
 }
 function closeRoom() {
   $("room").hidden = true;
@@ -32,6 +33,7 @@ function goRoomSpot(name) {
     closeRoom(); openHub(); return;
   }
   if (name === "settings") { openSettings(); return; }                // la vitrina: ajustos
+  if (name === "mail") { closeRoom(); tdOpenLobby(roomMailRoom()); tdSpot("mail"); return; } // el forat de la paret: correu
   if (name === "study") { closeRoom(); tdOpenLobby("informatic"); }     // l'ordinador: sala d'estudi d'Informàtica
   if (name === "forestal") { closeRoom(); tdOpenLobby("forestal"); }  // la motxilla: sala del bosc de Forestal
 }
@@ -47,7 +49,28 @@ function renderRoom() {
       x="${x}" y="${y}" width="${w}" height="${h}" fill="transparent"><title>${l.title}</title></rect>`);
     return `<g class="hub-art" id="room-art-${l.spot}">${l.svg}</g>`;
   }).join("");
-  $("room-scene").innerHTML = `<svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet" aria-label="La meua habitació"><defs>${ROOM_ART.defs}</defs>${layers}${spots.join("")}</svg>`;
+  $("room-scene").innerHTML = `<svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet" aria-label="La meua habitació"><defs>${ROOM_ART.defs}</defs>${layers}${ROOM_MAIL_SVG}${spots.join("")}</svg>`;
+}
+
+// Correu: un foradet a la paret del fons, al costat del llum. Quan hi ha correu, se'n veu el forat amb una carta que
+// trau el cap i es mou una mica; quan no n'hi ha, no es veu res (ni el forat). Porta al correu de la sala de qui juga.
+const ROOM_MAIL_SVG = `<g id="room-mail" class="room-mail" data-room="mail" tabindex="0" role="button" aria-label="Tens correu" style="display:none">
+  <title>Tens correu!</title>
+  <ellipse cx="822" cy="268" rx="17" ry="11" fill="#c9ccd2"/><ellipse cx="822" cy="269" rx="14" ry="8.5" fill="#2a2420"/>
+  <ellipse cx="822" cy="272" rx="11" ry="4" fill="#120e0c"/>
+  <clipPath id="room-mail-clip"><rect x="790" y="226" width="64" height="44"/><ellipse cx="822" cy="269" rx="14" ry="8.5"/></clipPath>
+  <g clip-path="url(#room-mail-clip)"><g class="room-mail-letter"><g transform="translate(822 274) rotate(-14)">
+    <rect x="-9" y="-13" width="18" height="12" rx="1.5" fill="#fffaf0" stroke="#c9b48a" stroke-width="1"/>
+    <path d="M-9 -13 L0 -6 L9 -13" fill="none" stroke="#c9b48a" stroke-width="1"/><circle cx="0" cy="-6" r="2.2" fill="#d43a3a"/></g></g></g>
+  <path d="M808 269 A14 8.5 0 0 0 836 269" fill="none" stroke="#120e0c" stroke-width="1.5" opacity="0.6"/>
+  <rect x="796" y="244" width="52" height="40" fill="transparent"/></g>`;
+// La sala on es llig el correu: la de qui juga (Alba, Forestal; Marc i el comú, Informàtica)
+const roomMailRoom = () => (cloudWho() === "parella" ? "forestal" : "informatic");
+function roomMail() {
+  const has = typeof tdMailNew === "function" && !!tdMailNew().length;
+  const g = $("room-mail");
+  if (g) g.style.display = has ? "" : "none";
+  $("room-mail-btn").hidden = !has;
 }
 
 function initRoom() {

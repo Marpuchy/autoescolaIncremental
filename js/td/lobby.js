@@ -64,9 +64,6 @@ function tdRenderLobby() {
 function tdLobbyHud() {
   $("td-saber").textContent = fmtNum(Math.floor(td.saber));
   const P = TD_POINTS[tdRoom], pts = td.stelles[tdRoom] || 0;
-  const unread = tdMailNew().length;
-  $("td-mail-badge").hidden = !unread || !!tdViewingOf;
-  $("td-mail-badge").textContent = unread;
   $("td-perg").innerHTML = tdFields().map(s => `<span title="Pergamins de ${TD_SUBJECTS[s].name}">📜 ${TD_SUBJECTS[s].short} <strong>${td.pergamins[s]}</strong></span>`).join("") +
     (pts ? `<span title="${P.name}: compren còpies al grimori">${P.icon} <strong>${pts}</strong></span>` : "");
 }
@@ -664,7 +661,6 @@ function initTdLobby() {
   const highlight = (ev, on) => { const s = ev.target.closest?.(".hub-hit"); if (s) $(`td-art-${s.dataset.td}`)?.classList.toggle("hot", on); };
   for (const [type, on] of [["pointerover", true], ["pointerout", false], ["focusin", true], ["focusout", false]]) scene.addEventListener(type, ev => highlight(ev, on));
   $("btn-td-home").addEventListener("click", () => { tdCloseLobby(); openRoom(); });
-  $("btn-td-mail").addEventListener("click", () => tdSpot("mail"));
   $("td-card-close").addEventListener("click", tdClosePanel);
   $("td-dialog").addEventListener("click", ev => { if (ev.target === $("td-dialog")) tdClosePanel(); });
   $("td-summon").addEventListener("click", tdsTap);

@@ -79,7 +79,8 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   Balance (`tools/td-progres.py`: equipo de 6 en el mundo 1 de cada sala, de Nv1 a Nv25 ★5): nivel +7 % de daño, estrella +15 % (+5 %
   de velocidad), mejoras en combate ×1,35/×1,75; dificultad de los mundos en `TD_DIFFICULTY` (vida ×1,5, saber ×2) y `TD_WAVE_HP`
   (los jefes suben la mitad por oleada). Objetivo: al principio se pierde, con Nv5 se gana justo, desde Nv10 holgado.
-  Correo (`TD_MAIL`, botón ✉️ de la sala, `td.mail` = recogidos): mensajes del equipo con regalos (p. ej. compensar errores).
+  Correo (`TD_MAIL`, `td.mail` = recogidos): mensajes del equipo con regalos (p. ej. compensar errores). Se entra por un foradet
+  en la pared de la habitación con una carta que asoma (`ROOM_MAIL_SVG`, `roomMail` en `js/room.js`); sin correo no se ve nada.
   Atención al detalle en todos los dibujos (lo pide el usuario): proporciones reales, mesas con 4 patas, nada de trazos
   sin sentido, cada proyectil es la pieza que la criatura lanza (desaparece del cuerpo mientras vuela y se vuelve a
   formar), los artefactos se llevan puestos en el estudiante (`TD_ARTIFACT_WEAR`), sin bandas en los lados de las escenas

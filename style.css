@@ -1034,3 +1034,10 @@ body.hub-open:has(#hub-dialog:not([hidden])) #toasts { top: auto; bottom: 16px; 
 .visit-banner[hidden] { display: none; }
 body.proves::before { content: "🧪 PROVES"; position: fixed; z-index: 90; top: 6px; left: 50%; transform: translateX(-50%); background: #ff8a1f; color: #1a1a1a;
   font-weight: 900; font-size: 0.72rem; padding: 2px 8px; border-radius: 8px; pointer-events: none; }
+
+/* ---- correu de l'habitació: el foradet de la paret amb la carta que trau el cap */
+.room-mail { cursor: pointer; }
+.room-mail-letter { animation: room-mail-peek 2.4s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes room-mail-peek { 0%, 60%, 100% { transform: translateY(0) rotate(0); } 70% { transform: translateY(-3px) rotate(-6deg); } 80% { transform: translateY(-1px) rotate(5deg); } }
+.room-mail:hover .room-mail-letter, .room-mail:focus .room-mail-letter { animation-duration: 0.8s; }
+.room-mail:focus { outline: none; }
