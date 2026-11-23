@@ -188,8 +188,8 @@ const fern = (x, y, s, flip = 1) => { // falguera: fulles corbades amb folíols
   s += floorEllipse(x, z, 0.75, 0.6, `fill="#000" opacity="0.25"`);
   s += stump(x, z, 0.45, h, { side: "#553a26" });
   const [cx, cy] = P(x, 1.45, z), k = cam.scale(z) / 110;
-  s += `<ellipse cx="${r(cx)}" cy="${r(cy + 10)}" rx="${r(60 * k)}" ry="${r(70 * k)}" fill="${GLOW}" opacity="0.1"/>`;
-  s += `<g class="sl-crystal" transform="translate(${r(cx)} ${r(cy)}) scale(${k.toFixed(3)})"><g class="sl-bob">%CRYSTAL%</g></g>`;
+  // la llum, centrada en l'ou de jade (el centre del dibuix de %CRYSTAL% queda 6 unitats amunt) i surant amb ell
+  s += `<g class="sl-crystal" transform="translate(${r(cx)} ${r(cy)}) scale(${k.toFixed(3)})"><g class="sl-bob"><ellipse cx="0" cy="-6" rx="56" ry="66" fill="${GLOW}" opacity="0.1"/>%CRYSTAL%</g></g>`;
   // arrels que pugen de la soca i abracen la base del cristall
   for (const sx of [-1, 1]) s += ribbon(curve([[x + sx * 0.3, h, z - 0.1], [x + sx * 0.32, h + 0.25, z - 0.1], [x + sx * 0.12, h + 0.42, z - 0.12], [x - sx * 0.05, h + 0.5, z - 0.12]], 6), 0.08, 0.02, BARK_L);
   add(s, { spot: "upgrades", title: "Cristall de la soca: millores (vida, maná, saber)", hit: bbox([[x - 0.5, 0, z], [x + 0.5, 2.2, z]]) });
