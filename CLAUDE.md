@@ -79,14 +79,15 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   Balance (`tools/td-progres.py`: equipo de 6 en el mundo 1 de cada sala, de Nv1 a Nv25 ★5): nivel +7 % de daño, estrella +15 % (+5 %
   de velocidad), mejoras en combate ×1,35/×1,75; dificultad de los mundos en `TD_DIFFICULTY` (vida ×1,5, saber ×2) y `TD_WAVE_HP`
   (los jefes suben la mitad por oleada). Objetivo: al principio se pierde, con Nv5 se gana justo, desde Nv10 holgado.
-  Correo (`TD_MAIL`, `td.mail` = recogidos): mensajes del equipo con regalos (p. ej. compensar errores). Se entra por un foradet
-  en la pared de la habitación con una carta que asoma (`ROOM_MAIL_SVG`, `roomMail` en `js/room.js`); sin correo no se ve nada.
-  Además cada sala tiene su bústia dibujada (`TD_MAILBOX_SVG`, bandereta alzada si hay algo nuevo; botón «Correu» en móvil).
+  Correo (`TD_MAIL`, `td.mail` = recogidos): mensajes del equipo con regalos (p. ej. compensar errores). Solo se entra por la
+  bústia dibujada de cada sala (`TD_MAILBOX_SVG`, bandereta alzada si hay algo nuevo; botón «Correu» en móvil); la habitación ya no tiene correo.
   El correo tiene dos pestañas: Missatges (`TD_MAIL`) y **Préstecs** entre Marc y Alba (`js/td/share.js`): se pide una criatura
   concreta del otro o se le deja una; quien la recibe la acepta (si la había pedido, entra sola). Va a un **buit de préstec**
   (`td.loan`, uno solo, dura hasta cambiarlo por otra), sale en los combates de su sala (`tdDeck`, marca 🤝) con el nivel y las
   estrellas del dueño (`tdStats`), y el dueño la sigue usando. Sin tablas nuevas: cada uno escribe sus mensajes en su partida
   (`td.share.out`: ask/give/no) y lee los del otro de su partida en la nube; `td.share.done` = contestados. El comú no presta.
+  La prestada se ve sobre un altar con la criatura flotando (`tdShareAltar`). En pruebas nada llega a la nube: cada perfil guarda su
+  correo en local (`estudi-proves-correu-<qui>`, `tdShareStore`/`tdShareRestore`) y el otro perfil del mismo navegador lo lee de ahí.
   Atención al detalle en todos los dibujos (lo pide el usuario): proporciones reales, mesas con 4 patas, nada de trazos
   sin sentido, cada proyectil es la pieza que la criatura lanza (desaparece del cuerpo mientras vuela y se vuelve a
   formar), los artefactos se llevan puestos en el estudiante (`TD_ARTIFACT_WEAR`), sin bandas en los lados de las escenas

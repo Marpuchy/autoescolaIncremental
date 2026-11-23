@@ -42,6 +42,7 @@ function tdSave() {
   if (tdSavingSuspended) return;
   const json = JSON.stringify(td);
   try { localStorage.setItem(TD_SAVE_KEY, json); } catch {}
+  if (typeof tdShareStore === "function") tdShareStore();
   if (typeof cloudSaved === "function") cloudSaved("estudi", json); // i al núvol (js/cloud.js)
 }
 function tdLoad(fromRaw = null) { // fromRaw: una partida que no és la d'este dispositiu (mode visita)
@@ -93,14 +94,16 @@ function tdLoad(fromRaw = null) { // fromRaw: una partida que no és la d'este d
     for (const [m, n] of Object.entries(td.stelles)) if (!TD_POINTS[m] || !(n >= 0)) delete td.stelles[m];
     td.favs = td.favs.filter(id => TD_DEFENDERS[id]);
     td.mail = td.mail.filter(id => typeof id === "string");
-    td.share = { out: Array.isArray(td.share?.out) ? td.share.out.filter(m => m && typeof m === "object" && Number.isFinite(m.n)).slice(-30) : [],
-      done: Array.isArray(td.share?.done) ? td.share.done.filter(Number.isFinite).slice(-80) : [] };
+    td.share = tdCleanShare(td.share);
     td.loan = tdCleanLoan(td.loan);
     // un artefacte per espai
     td.equipped = td.equipped.filter((id, i, a) => td.artifacts[id] && a.findIndex(o => tdArtSlot(o) === tdArtSlot(id)) === i).slice(0, TD_ARTIFACT_SLOTS);
   } catch {}
+  if (fromRaw == null && typeof tdShareRestore === "function") tdShareRestore(); // versió de proves: el correu de cada perfil
 }
 
+const tdCleanShare = s => ({ out: Array.isArray(s?.out) ? s.out.filter(m => m && typeof m === "object" && Number.isFinite(m.n)).slice(-30) : [],
+  done: Array.isArray(s?.done) ? s.done.filter(Number.isFinite).slice(-80) : [] });
 // Criatura prestada: només una de bona (una que existix, d'una persona coneguda, amb nivell i estrelles possibles)
 function tdCleanLoan(l) {
   if (!l || typeof l !== "object" || !TD_DEFENDERS[l.def] || !["marc", "parella"].includes(l.from)) return null;

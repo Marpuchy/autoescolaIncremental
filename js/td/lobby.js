@@ -81,6 +81,7 @@ function tdSpot(name) {
   if (name === "exit") { tdCloseLobby(); openRoom(); return; }
   if (name === "reset") { if (tdViewingOf) { toast("👀 És la partida de l'altra persona: no es pot reiniciar", "bad"); return; } tdAskRestart(); return; }
   $("td-card").dataset.panel = name;
+  if (name === "mail") tdShareFetch(true).then(() => { if ($("td-card").dataset.panel === "mail" && !$("td-dialog").hidden) tdRenderPanel(); }); // el correu, sempre al dia
   if (name === "grimori" || name === "bestiary") tdBook = { tab: name === "grimori" ? tdSubj : "best", page: 0 };
   $("td-card-title").textContent = (tdRoom === "forestal" && TD_PANELS_FOREST[name]) || TD_PANELS[name];
   $("td-dialog").hidden = false;
