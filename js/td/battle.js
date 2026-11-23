@@ -1113,8 +1113,9 @@ function tdbDrawLine(l, layer) {
 }
 // En posar-lo: busca els trams de camí dins de l'abast i, de cada un, el punt més pròxim; hi va una línia que travessa
 // el camí (perpendicular)
-// On posa les línies el Contrafoc: una a cada tram recte de camí que entra dins del seu abast, al mig del tros que hi queda
-// dins (abans era una per tros seguit, i en un revolt dins de l'abast només posava la del tram més pròxim)
+// On posa les línies el Contrafoc: als trams rectes de camí que entren dins del seu abast, al mig del tros que hi queda dins.
+// Com a molt 2 (TD_DEFENDERS.contrafoc.line.max), als trams que més camí li deixen dins (abans, en un revolt dins de
+// l'abast, només posava la del tram més pròxim i en deixava un de llarg sense)
 function tdbFireSpots(slot, range) {
   const [x, y] = tdb.world.slots[slot], out = [];
   for (const P of tdb.paths) for (const s of P.segs) { // a cada camí; on comparteixen tram, la línia només una vegada
@@ -1122,11 +1123,11 @@ function tdbFireSpots(slot, range) {
     const t0 = (x - s.x0) * dx + (y - s.y0) * dy, h2 = range * range - ((x - s.x0) * dy - (y - s.y0) * dx) ** 2;
     if (h2 <= 0) continue;
     const a = Math.max(0, t0 - Math.sqrt(h2)), b = Math.min(s.len, t0 + Math.sqrt(h2));
-    if (b - a < 24) continue; // només hi toca una punta
+    if (b - a < 60) continue; // només hi toca una punta
     const m = (a + b) / 2, px = s.x0 + dx * m, py = s.y0 + dy * m;
-    if (!out.some(o => Math.hypot(o.x - px, o.y - py) < 60)) out.push({ x: px, y: py, ang: Math.atan2(dy, dx) + Math.PI / 2 });
+    if (!out.some(o => Math.hypot(o.x - px, o.y - py) < 60)) out.push({ x: px, y: py, ang: Math.atan2(dy, dx) + Math.PI / 2, len: b - a });
   }
-  return out;
+  return out.sort((p, q) => q.len - p.len).slice(0, TD_DEFENDERS.contrafoc.line.max || 2);
 }
 // Quan el camí canvia (el mapa s'amplia), el Contrafoc torna a posar les línies
 function tdbRelines() {
