@@ -1212,3 +1212,48 @@
 .tdb-bank { background: #3a2a00; color: #ffd97a; border-radius: 999px; padding: 2px 8px; font-size: 0.8rem; font-weight: 800; }
 .tdb-lost { background: #5a1f24; color: #ffd0d0; border-radius: 999px; padding: 2px 8px; font-size: 0.8rem; font-weight: 800; }
 .tdb-enemy.giant .tdb-hp-bar { fill: #ff9a3a; }
+
+/* ---- Matrícula d'Honor */
+.rar-mh { --rc: #ff3b4e; }
+.tdc-dron .rotor { transform-box: fill-box; transform-origin: center; animation: td-rotor 0.18s linear infinite; }
+@keyframes td-rotor { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(0.15); } }
+.tdc-dron .dneedle { transform-box: view-box; transform-origin: 60px 47px; animation: td-needle 2.4s ease-in-out infinite; }
+@keyframes td-needle { 0%, 100% { transform: scaleX(1); } 30% { transform: scaleX(0.85); } 60% { transform: scaleX(-0.9); } }
+.tdc-pimare .trunkrings { transform-box: fill-box; transform-origin: center; animation: td-rings 3s ease-in-out infinite; }
+@keyframes td-rings { 0%, 100% { opacity: 1; } 50% { opacity: 0.65; } }
+.tdc-quantic .ticks path { stroke-dasharray: 3 4; animation: td-ticks 1s steps(4) infinite; }
+@keyframes td-ticks { to { stroke-dashoffset: -28; } }
+.tdc-quantic .qubit { transform-box: view-box; transform-origin: 60px 72px; animation: td-qubit 3.2s steps(1) infinite; }
+@keyframes td-qubit { 0% { transform: rotate(0); } 25% { transform: rotate(110deg); } 50% { transform: rotate(-70deg); } 75% { transform: rotate(200deg); } }
+.tdc-quantic.tick .orbit path { stroke: #ff3b4e; transition: stroke 0.2s; }
+.tdb-chain.tick path { stroke: #ff3b4e !important; }
+.tdc-spaghetti .fork { transform-box: view-box; transform-origin: 63px 60px; animation: td-fork 4s linear infinite; }
+@keyframes td-fork { to { transform: rotate(360deg); } }
+.tdb-enemy.tangled { filter: drop-shadow(0 0 4px #3fdc8a); }
+.tdb-enemy.scanned { filter: drop-shadow(0 0 6px #4fd1c5); }
+.tdb-enemy.collapsed { outline: none; filter: drop-shadow(0 0 0 #ff3b4e) drop-shadow(0 0 6px #ff3b4e); }
+.tdb-enemy.warped > svg { animation: td-warp 0.5s ease-out; }
+@keyframes td-warp { 0% { opacity: 0; filter: blur(3px); } 100% { opacity: 1; filter: none; } }
+.tdb-fx-scan { pointer-events: none; animation: td-scan 0.5s ease-out forwards; }
+@keyframes td-scan { 0% { opacity: 0; } 30% { opacity: 1; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .tdc-dron .rotor, .tdc-dron .dneedle, .tdc-quantic .ticks path, .tdc-quantic .qubit, .tdc-spaghetti .fork { animation: none; } }
+.td-altar-tabs { justify-content: center; margin-bottom: 10px; }
+.td-forge { display: flex; flex-direction: column; gap: 8px; }
+.td-forge-row { display: grid; grid-template-columns: auto auto 120px minmax(150px, 1fr); justify-content: center; align-items: center; gap: 10px; background: #161b28; border: 1px solid #2c3448; border-radius: 12px; padding: 8px 12px; }
+.td-forge-row.done { border-color: #ff3b4e66; }
+.td-forge-row.locked { opacity: 0.6; }
+.td-forge-parts { display: flex; align-items: center; gap: 6px; justify-content: flex-end; }
+.td-forge-parts > b, .td-forge-arrow { font-size: 1.3rem; color: #ff8a96; }
+.td-forge-in, .td-forge-key, .td-forge-out { display: flex; flex-direction: column; align-items: center; font-size: 0.72rem; font-weight: 700; text-align: center; }
+.td-forge-in svg { width: 62px; height: 62px; }
+.td-forge-in.missing, .td-forge-key.missing { opacity: 0.35; filter: grayscale(1); }
+.td-forge-key { font-size: 1.8rem; } .td-forge-key span { font-size: 0.72rem; }
+.td-forge-out { color: #ff8a96; background: radial-gradient(circle, #ff3b4e33, transparent 70%); border-radius: 12px; }
+.td-forge-out svg { width: 96px; height: 96px; filter: drop-shadow(0 0 10px #ff3b4e88); }
+.td-forge-out.hidden .tdbook-q { font-size: 2.6rem; line-height: 96px; }
+.td-forge-act { display: flex; flex-direction: column; gap: 4px; align-items: stretch; font-size: 0.8rem; }
+@media (max-width: 700px) {
+  .td-forge-row { grid-template-columns: 1fr auto 1fr; }
+  .td-forge-act { grid-column: 1 / -1; }
+  .td-forge-in svg { width: 46px; height: 46px; } .td-forge-out svg { width: 70px; height: 70px; }
+}

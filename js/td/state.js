@@ -35,6 +35,7 @@ function tdNewState() {
     // Registre de tot el que s'ha estudiat (el faristol del registre): quantes vegades cada activitat per camp,
     // els exàmens amb la nota i els dies que s'ha estudiat. No es perd en reiniciar.
     record: { acts: {}, exams: [], days: [] },
+    forge: [],                                        // receptes i pedres de Matrícula d'Honor guanyades (id de TD_FORGE)
     loan: null,
   };
 }
@@ -100,6 +101,7 @@ function tdLoad(fromRaw = null) { // fromRaw: una partida que no és la d'este d
     td.favs = td.favs.filter(id => TD_DEFENDERS[id]);
     td.mail = td.mail.filter(id => typeof id === "string");
     td.share = tdCleanShare(td.share);
+    td.forge = td.forge.filter((id, i, a) => TD_FORGE[id] && a.indexOf(id) === i);
     // mons: només números i criatures que existixen (la partida pot vindre del núvol)
     const okSnap = s => s && Number.isInteger(s.wave) && s.wave >= 1 && s.wave <= TD_IDLE.waves && Array.isArray(s.towers)
       ? { wave: s.wave, mana: Math.max(0, Number(s.mana) || 0), towers: s.towers.filter(t => Array.isArray(t) && Number.isInteger(t[0]) && t[0] >= 0 && t[0] < 20 && TD_DEFENDERS[t[1]]).map(t => [t[0], t[1], Math.max(0, Math.min(2, t[2] | 0)), Math.max(0, Number(t[3]) || 0)]) } : null;
@@ -170,15 +172,18 @@ function tdStartRoom(mode) {
 
 // ---------------------------------------------------------------- criatures: estrelles i estadístiques
 // Estrelles: les copies només ho permeten; per a pujar-la cal pagar (tdAscend). o.stars guarda les pagades.
-function tdStarsByCopies(c) {
+function tdStarsByCopies(c, k = 1) {
   let s = 0;
-  for (const need of TD_STAR_COPIES) if (c >= need) s++;
+  for (const need of TD_STAR_COPIES) if (c >= need * k) s++;
   return s;
 }
+// Les fusionades gasten els dos arbres de còpies: cada estrela en demana el doble (les còpies de les dues se sumen)
+const tdCopyMult = id => TD_FORGE[id]?.from ? 2 : 1;
+const tdMaxCopies = id => TD_STAR_COPIES[TD_STAR_COPIES.length - 1] * tdCopyMult(id);
 function tdStars(id) {
   const o = td.owned[id];
   if (!o) return 0;
-  return Math.max(1, Math.min(o.stars || 1, tdStarsByCopies(o.copies || 0)));
+  return Math.max(1, Math.min(o.stars || 1, tdStarsByCopies(o.copies || 0, tdCopyMult(id))));
 }
 const tdAscendCost = id => Math.round(100 * TD_RARITIES[TD_DEFENDERS[id].rar].value ** 0.5 * TD_STAR_COST[tdStars(id) - 1]);
 const tdCanAscend = id => { const n = tdNextStar(id); return !!n && n.have >= n.need; };
@@ -195,7 +200,7 @@ function tdAscend(id) {
 function tdNextStar(id) {
   const s = tdStars(id);
   if (s >= TD_STAR_COPIES.length) return null;
-  return { have: td.owned[id]?.copies || 0, need: TD_STAR_COPIES[s] };
+  return { have: td.owned[id]?.copies || 0, need: TD_STAR_COPIES[s] * tdCopyMult(id) };
 }
 const tdArtBonus = stat => td.equipped.reduce((sum, id) => sum + (TD_ARTIFACTS[id].stat === stat ? TD_ARTIFACTS[id].value * tdArtMult(td.artifacts[id]) : 0), 0);
 const tdHasArtifact = id => td.equipped.includes(id);
@@ -245,11 +250,12 @@ function tdPool(subj, rar) {
 }
 // Dona una còpia d'una criatura. Torna què ha passat (nova, puja d'estrela, saber per les sobrants)
 function tdGrant(id) {
+  id = tdForgedInto(id) || id; // si ja s'ha fusionat o evolucionat, les còpies van a la nova
   const before = tdStars(id);
   if (!td.owned[id]) td.owned[id] = { copies: 0, level: 1 };
   const o = td.owned[id];
   let saber = 0;
-  if (o.copies >= TD_STAR_COPIES[TD_STAR_COPIES.length - 1]) {
+  if (o.copies >= tdMaxCopies(id)) {
     saber = 20 * TD_RARITIES[TD_DEFENDERS[id].rar].value;
     td.saber += saber;
   } else o.copies++;
@@ -280,7 +286,31 @@ function tdSummon(subj, n = 1) {
 
 // Comprar una còpia amb punts d'estrella (o espores): qualsevol criatura de la carrera menys la mítica
 const tdCopyPrice = id => TD_RARITIES[TD_DEFENDERS[id].rar].value * TD_POINT_COPY;
-const tdCanBuyCopy = id => TD_DEFENDERS[id].rar !== "mitic" && td.owned[id]?.copies < TD_STAR_COPIES[TD_STAR_COPIES.length - 1];
+const tdCanBuyCopy = id => !["mitic", "mh"].includes(TD_DEFENDERS[id].rar) && td.owned[id]?.copies < TD_STAR_COPIES[TD_STAR_COPIES.length - 1];
+
+// ---------------------------------------------------------------- Matrícula d'Honor: fusions i evolució (TD_FORGE)
+// La criatura de Matrícula d'Honor en què s'ha convertit una altra (si la tens): les còpies d'esta van a aquella
+const tdForgedInto = id => Object.keys(TD_FORGE).find(k => td.owned[k] && (TD_FORGE[k].from?.includes(id) || TD_FORGE[k].evolve === id)) || null;
+const tdForgeParts = k => TD_FORGE[k].from || [TD_FORGE[k].evolve];
+// Es pot fer si tens la recepta o la pedra (onada 100 del món) i totes les criatures que demana
+const tdCanForge = k => td.forge.includes(k) && !td.owned[k] && tdForgeParts(k).every(id => td.owned[id]);
+// Les ingredients desapareixen i queda la nova: estrelles = la mitjana arredonida cap avall, nivell també; les còpies
+// se sumen (i les estrelles de la fusionada en demanen el doble). L'evolució es queda amb tot el de l'If/else.
+function tdForge(k) {
+  if (!tdCanForge(k)) return null;
+  const parts = tdForgeParts(k), os = parts.map(id => td.owned[id]);
+  const avg = f => Math.max(1, Math.floor(os.reduce((a, o) => a + f(o), 0) / os.length));
+  const stars = avg(o => Math.max(1, Math.min(o.stars || 1, tdStarsByCopies(o.copies || 0)))), level = Math.min(avg(o => o.level || 1), TD_LEVEL_PER_STAR * stars);
+  td.owned[k] = { copies: os.reduce((a, o) => a + (o.copies || 0), 0), level, stars };
+  const wasInTeam = parts.some(id => td.team.includes(id));
+  for (const id of parts) delete td.owned[id];
+  td.team = td.team.filter(id => !parts.includes(id));
+  if (wasInTeam || tdTeam(tdModeOf(k)).length < 6) td.team.push(k);
+  td.favs = td.favs.filter(id => !parts.includes(id));
+  if (td.loan && parts.includes(td.loan.def)) td.loan = null;
+  tdSave();
+  return td.owned[k];
+}
 function tdBuyCopy(id) {
   const mode = tdModeOf(id), price = tdCopyPrice(id);
   if (!tdCanBuyCopy(id) || (td.stelles[mode] || 0) < price) return null;

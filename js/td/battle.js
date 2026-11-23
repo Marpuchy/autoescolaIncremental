@@ -489,7 +489,7 @@ const tdbPos = e => {
   const h = e.hooked, k = 1 - Math.max(0, h.left) / h.total, q = k * k * (3 - 2 * k); // suau al principi i al final
   return [h.from[0] + (h.to[0] - h.from[0]) * q, h.from[1] + (h.to[1] - h.from[1]) * q];
 };
-const tdbVisible = e => !(e.def.stealth && e.dist < e.def.stealth * tdbP(e).total) && !e.convertT && e.hp > 0;
+const tdbVisible = e => !(e.def.stealth && e.dist < e.def.stealth * tdbP(e).total && !(e.revealT > 0)) && !e.convertT && e.hp > 0; // l'escaneig del dron les fa visibles
 
 // src: la criatura que pega (o directament l'element). L'element decidix el multiplicador (feble ×2, forta ×0,3) i
 // el color del número; si és feble, el número ix gran, i si és forta, menut i apagat. Sense element (null): dany pur.
@@ -580,8 +580,10 @@ function tdbBossDown(type) {
 }
 
 // ---------------------------------------------------------------- atacs
+// On és una criatura: al seu buit, o (el dron) on vola
+const tdbTPos = t => t.fx != null ? [t.fx, t.fy] : tdb.world.slots[t.slot];
 function tdbTargets(t, n = 1, mode = "first") {
-  const [tx, ty] = tdb.world.slots[t.slot];
+  const [tx, ty] = tdbTPos(t);
   const inRange = tdb.enemies.filter(e => tdbVisible(e) && Math.hypot(...tdbPos(e).map((v, i) => v - [tx, ty][i])) <= t.stats.range);
   if (mode === "smart") {
     const strong = inRange.filter(e => e.def.boss || e.maxHp >= 100);
@@ -627,6 +629,7 @@ function tdbFire0(t) {
   }
   const part = (TD_ART[t.id].throw || {}).c ? "c" : t.side ? "r" : "l";
   if (d.role === "pulse") { tdbPulse(t); return true; }
+  if (d.pulseEvery && t.shots % d.pulseEvery === 0) tdbPulse(t); // el Pi Mare: un anell del tronc, a més de la pinya
   if (d.role === "line") return true; // ja crema sempre; el tir només fa l'animació d'abocar
   if (d.role === "clock") { tdbClock(t); return true; }
   if (d.role === "bellow") { tdbBellow(t, t.boostShot === "roar"); return true; }
@@ -710,6 +713,7 @@ function tdbHit(p, e) {
     return;
   }
   if (d.role === "slow") { tdbSlow(e, d.slow, d.slowDur * ab); if (d.band) tdbBand(e, d.band[p.part === "r" ? "r" : "l"]); }
+  if (d.role === "bounce" && d.slow) { tdbSlow(e, d.slow, d.slowDur * ab); e.el?.classList.add("tangled"); setTimeout(() => e.el?.classList.remove("tangled"), d.slowDur * 1000); } // enredada en un fideu
   if (d.role === "vuln") { e.vuln = Math.max(e.vuln, d.vuln); e.vulnT = d.vulnDur * ab; }
   if (d.role === "lasso") { e.stunT = Math.max(e.stunT, d.stun * ab); e.dot = d.dot; e.dotT = d.stun * ab; e.dotEl = d.el; }
   const willDie = e.hp - dmg * (1 + e.vuln) <= 0;
@@ -722,9 +726,10 @@ function tdbHit(p, e) {
   // rebot: el raig salta a l'enemic més pròxim que encara no ha tocat
   if (p.bounces > 0) {
     const [x, y] = tdbPos(e);
-    const next = tdb.enemies.filter(o => tdbVisible(o) && o !== e && !p.hit.has(o.uid))
-      .map(o => [o, Math.hypot(...tdbPos(o).map((v, i) => v - [x, y][i]))]).filter(([, dd]) => dd < 180).sort((a, b) => a[1] - b[1])[0];
-    if (next) { p.hit.add(e.uid); tdbProjectile(p.t, next[0], dmg * 0.85, { from: [x, y], bounces: p.bounces - 1, hit: p.hit }); }
+    const near = tdb.enemies.filter(o => tdbVisible(o) && o !== e && !p.hit.has(o.uid))
+      .map(o => [o, Math.hypot(...tdbPos(o).map((v, i) => v - [x, y][i]))]).filter(([, dd]) => dd < (d.random ? 280 : 180)).sort((a, b) => a[1] - b[1]);
+    const next = d.random ? near[Math.floor(Math.random() * near.length)] : near[0]; // el spaghetti: a qualsevol (a l'atzar)
+    if (next) { p.hit.add(e.uid); tdbProjectile(p.t, next[0], dmg * 0.85, { from: [x, y], bounces: p.bounces - 1, hit: p.hit, part: p.part }); }
   }
   // recursió: es dividix en dos projectils més menuts
   if (d.role === "split" && p.depth > 0) {
@@ -745,7 +750,9 @@ function tdbChain(t, first, dmg, over = false) {
   const g = el("g", { class: `tdb-chain${over ? " over" : ""}` }, $("tdb-fx"));
   // sobrecàrrega: més salts, sense perdre força, i cada tocada queda parada un moment
   if (over) { first.stunT = Math.max(first.stunT, S.stun); tdbNumber(...tdbS(...tdbPos(first)).map((v, i) => v - (i ? first.size : 0)), "⚡ sobrecàrrega", TD_OVER_COLOR, true); }
-  (tdb.chains ||= []).push({ t, cur: first, hit: new Set([first]), k: 0, jumps: (over ? S.jumps : c.jumps) + (t.stats.ability > 1 ? 1 : 0), dmg, big: over,
+  const tick = d.tick && t.shots % d.tick === 0; // el processador: cada 4 tics del rellotge, el raig salta el doble
+  if (tick) { g.classList.add("tick"); t.svg?.classList.remove("tick"); void t.svg?.getBoundingClientRect(); t.svg?.classList.add("tick"); }
+  (tdb.chains ||= []).push({ t, cur: first, hit: new Set([first]), k: 0, jumps: ((over ? S.jumps : c.jumps) + (t.stats.ability > 1 ? 1 : 0)) * (tick ? 2 : 1), dmg, big: over,
     falloff: over ? 1 : c.falloff, wait: 0.06, links: [], zaps: [{ e: first, life: TD_CHAIN_ARC, p: tdbPos(first) }], g, flick: 0 });
 }
 function tdbChains(dt) {
@@ -1017,7 +1024,7 @@ function tdbAuraMult(t) {
   const [x, y] = tdb.world.slots[t.slot];
   for (const o of Object.values(tdb.towers)) {
     const a = TD_DEFENDERS[o.id].aura;
-    if (a && o !== t && Math.hypot(tdb.world.slots[o.slot][0] - x, tdb.world.slots[o.slot][1] - y) <= a.radius) m += a.dmg * Math.min(1.5, o.stats.ability);
+    if (a && o !== t && (!a.el || TD_DEFENDERS[t.id].el === a.el) && Math.hypot(tdb.world.slots[o.slot][0] - x, tdb.world.slots[o.slot][1] - y) <= a.radius) m += a.dmg * Math.min(1.5, o.stats.ability);
   }
   return m;
 }
@@ -1038,7 +1045,7 @@ function tdbAuraMarks(instant = false) {
     if (!a) continue;
     const [cx, cy] = tdbS(...tdb.world.slots[c.slot]);
     for (const o of Object.values(tdb.towers)) {
-      if (o === c || Math.hypot(...tdb.world.slots[o.slot].map((v, i) => v - tdb.world.slots[c.slot][i])) > a.radius) continue;
+      if (o === c || (a.el && TD_DEFENDERS[o.id].el !== a.el) || Math.hypot(...tdb.world.slots[o.slot].map((v, i) => v - tdb.world.slots[c.slot][i])) > a.radius) continue;
       const key = `${c.uid}-${o.uid}`;
       keep.add(key);
       if (layer.querySelector(`[data-roots="${key}"]`)) continue;
@@ -1205,6 +1212,30 @@ function tdbSpecial(t, target) {
     }
     else if (od.role === "mark") tdbMark(target, od.mark * s.boost);
     else if (od.role === "stacks") tdbBlast({ ...fake, stats: { ...fake.stats, dmg: o.stats.dmg * s.boost / od.blast * 4 } });
+  } else if (s.type === "scan") { // el dron escaneja: les del con queden marcades (més dany i visibles)
+    const [x, y] = tdbTPos(t), r = s.radius * Math.min(1.5, ab);
+    const g = tdbFx("scan", ...tdbS(x, y), "#4fd1c5", r);
+    if (g) g.innerHTML = `<path d="M0 -40 L${-r * 0.7} ${r * 0.55} L${r * 0.7} ${r * 0.55} Z" fill="#4fd1c5" opacity="0.16"/>${[0.2, 0.4, 0.6, 0.8].map(k => `<path d="M${-r * 0.7 * k} ${-40 + (r * 0.55 + 40) * k} H${r * 0.7 * k}" stroke="#bff7f0" stroke-width="2" opacity="0.6"/>`).join("")}`;
+    for (const e of tdb.enemies) if (e.hp > 0 && Math.hypot(...tdbPos(e).map((v, i) => v - [x, y][i])) <= r) {
+      e.vuln = Math.max(e.vuln, s.vuln); e.vulnT = Math.max(e.vulnT, s.dur * ab); e.revealT = s.dur * ab;
+      e.el?.classList.add("scanned"); setTimeout(() => e.el?.classList.remove("scanned"), s.dur * ab * 1000 / Math.max(1, tdb.speed));
+    }
+    tdbNumber(...tdbS(x, y - 80), "📡 escaneig", "#4fd1c5", true);
+  } else if (s.type === "collapse") { // el qubit col·lapsa: tot el que té a l'abast es queda parat
+    const [x, y] = tdbTPos(t);
+    tdbFx("ring", ...tdbS(x, y), "#ff3b4e", t.stats.range);
+    for (const e of tdb.enemies) if (tdbVisible(e) && Math.hypot(...tdbPos(e).map((v, i) => v - [x, y][i])) <= t.stats.range) {
+      e.stunT = Math.max(e.stunT, s.stun * ab); e.el?.classList.add("collapsed"); setTimeout(() => e.el?.classList.remove("collapsed"), 700);
+    }
+    tdbNumber(...tdbS(x, y - 120), "⟨ψ| col·lapse", "#ff3b4e", true);
+  } else if (s.type === "goto") { // GOTO: la més avançada torna enrere pel camí
+    const e = tdb.enemies.filter(o => tdbVisible(o)).sort((a, b) => b.dist - a.dist)[0];
+    if (e) {
+      tdbNumber(...tdbS(...tdbPos(e)).map((v, i) => v - (i ? e.size : 0)), "goto", "#ff3b4e", true);
+      tdbFx("ring", ...tdbS(...tdbPos(e)), "#3fdc8a", 50);
+      e.dist = Math.max(0, e.dist - s.back * Math.min(1.5, ab));
+      e.el?.classList.remove("warped"); void e.el?.getBoundingClientRect(); e.el?.classList.add("warped");
+    }
   } else if (s.type === "align") {
     const R = t.stats.range * (s.area || 1); // la paràlisi arriba molt més lluny que el seu tir
     tdbFx("ring", ...tdbS(tx, ty), TD_GLOW.myth, R);
@@ -1240,6 +1271,17 @@ function tdbSpecial(t, target) {
       a.onfinish = () => { fly.remove(); hitIt(); gear.classList.remove("gone"); gear.classList.add("regrow"); setTimeout(() => gear.classList.remove("regrow"), 600); };
     }
   }
+}
+// Dron de mostreig: ix del seu buit i vola per tot el mapa fins a posar-se damunt de la distracció més avançada (la
+// segueix); si no n'hi ha cap, torna a la seua plataforma. Dispara des d'on és (tdbTPos)
+function tdbDrone(t, dt) {
+  const d = TD_DEFENDERS[t.id], home = tdb.world.slots[t.slot];
+  if (t.fx == null) [t.fx, t.fy] = home;
+  const e = tdb.enemies.filter(tdbVisible).sort((a, b) => b.dist - a.dist)[0];
+  const [gx, gy] = e ? tdbPos(e).map((v, i) => v - (i ? 30 : 0)) : home;
+  const dx = gx - t.fx, dy = gy - t.fy, dd = Math.hypot(dx, dy), step = d.fly * dt;
+  if (dd > 1) { const k = Math.min(1, step / dd); t.fx += dx * k; t.fy += dy * k; }
+  t.tilt = dd > 4 ? Math.max(-14, Math.min(14, dx / Math.max(dd, 1) * 14)) : 0; // s'inclina cap on va
 }
 // Stack Overflow: el desbordament explota per tot el mapa
 function tdbBlast(t) {
@@ -1361,7 +1403,7 @@ function tdbUpdate(dt) {
   // enemics
   for (const e of tdb.enemies) {
     if (e.hp <= 0) continue;
-    for (const k of ["slowT", "vulnT", "dotT", "stunT"]) if (e[k] > 0) e[k] -= dt;
+    for (const k of ["slowT", "vulnT", "dotT", "stunT", "revealT"]) if (e[k] > 0) e[k] -= dt;
     if (e.slowT <= 0) { e.slowMult = 1; if (e.band) { e.band.remove(); e.band = null; } }
     if (e.vulnT <= 0) e.vuln = 0;
     if (e.dotT > 0) tdbDamage(e, e.dot * dt, e.dotEl || null, false, dt);
@@ -1423,6 +1465,7 @@ function tdbUpdate(dt) {
       if (aim) aim.style.transform = "rotate(0deg)";
     }
     tdbParts(t, dt);
+    if (TD_DEFENDERS[t.id].role === "drone") tdbDrone(t, dt);
     if (TD_DEFENDERS[t.id].role === "capacitor") { tdbCapacitor(t, dt); continue; } // no dispara: es carrega
     t.cd -= dt;
     if (t.cd <= 0 && tdbFire(t)) t.cd = 1 / t.stats.rate;
@@ -1591,6 +1634,8 @@ function tdbFinish(won, quiet = false) {
   if (won) {
     tdb.saber += TD_BATTLE.worldBonusSaber;
     tdRun(id).clears++;
+    // onada 100: la recepta (o la pedra) de Matrícula d'Honor del món
+    if (tdb.idle) for (const [k, F] of Object.entries(TD_FORGE)) if (F.world === id && !td.forge.includes(k)) { td.forge.push(k); toast(`${F.key}! Ves a l'altar → Fusió`, "good"); }
   }
   const saber = Math.round(tdb.saber) + (tdb.saberTotal || 0);
   td.saber += Math.round(tdb.saber);
@@ -1638,6 +1683,7 @@ function tdbRender() {
     p.el.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${turn.toFixed(0)}) scale(${p.scale})`);
   }
   for (const t of Object.values(tdb.towers)) {
+    if (t.fx != null) { const [x, y] = tdbS(t.fx, t.fy); t.el.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${(t.tilt || 0).toFixed(1)})`); } // el dron, on vola
     t.el.classList.toggle("asleep", t.sleepT > 0);
     if (TD_DEFENDERS[t.id].role === "stacks") t.el.style.setProperty("--stacks", t.stacks);
   }

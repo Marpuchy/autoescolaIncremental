@@ -627,3 +627,65 @@ function tdScrollSvg(s, cls = "") {
     <path d="M22 19 l-1.5 4.5 l2.5 -1.4 l2.5 1.4 l-1.5 -4.5" fill="${S.seal}"/>
     <g transform="translate(23.5 17)"><circle r="4.8" fill="${S.seal}" stroke="#00000044"/>${S.glyph}</g></svg>`;
 }
+
+// ---- Matrícula d'Honor (vermelles): fusions i evolució de l'onada 100 (TD_FORGE)
+const GMH = "#ff3b4e";
+Object.assign(TD_ART, {
+  // Dron de mostreig: quatre braços amb hèlices (en perspectiva), la brúixola digital al cos i la càmera amb dues lents
+  // penjada davall (els flaixos de les lents són el que dispara). Vola: es dibuixa on és (tdbDrone)
+  dron: {
+    svg: `${runeBase(GMH)}<ellipse cx="60" cy="108" rx="22" ry="5" fill="#000" opacity="0.35"/><g class="b">
+    ${tube("M40 46 L20 34 M80 46 L100 34 M42 56 L24 66 M78 56 L96 66", "#d8dde6", 3.4)}
+    ${[[20, 32], [100, 32], [24, 64], [96, 64]].map(([x, y], i) => `<ellipse cx="${x}" cy="${y}" rx="17" ry="4.5" fill="${GF}" opacity="0.14"/>
+      <g class="rotor" style="animation-delay:-${i * 0.05}s">${tube(`M${x - 16} ${y} H${x + 16}`, GF, 2, 'opacity="0.9"')}</g>${tube(`M${x} ${y} V${y + 4}`, "#d8dde6", 3)}`).join("")}
+    <path d="M40 44 Q60 36 80 44 L84 56 Q60 64 36 56 Z" fill="#1a2028"/>${tube("M40 44 Q60 36 80 44 L84 56 Q60 64 36 56 Z", "#e9eef5", 2.6)}
+    <ellipse cx="60" cy="47" rx="10" ry="3.6" fill="#2a1a0e"/>${tube("M50 47 A10 3.6 0 1 0 70 47 A10 3.6 0 1 0 50 47", GN, 1.8)}
+    <g class="dneedle"><path d="M60 47 L68 46.2 L68 47.8 Z" fill="#ff5a4a"/><path d="M60 47 L52 46.2 L52 47.8 Z" fill="#e9eef5"/></g>
+    ${tube("M44 60 L40 74 M76 60 L80 74 M36 74 H46 M74 74 H84", "#d8dde6", 2)}
+    ${tube("M60 60 V66", "#d8dde6", 2.6)}<rect x="47" y="66" width="26" height="14" rx="6" fill="#0d2a2c"/>${tube("M53 66 H67 A6 6 0 0 1 73 72 V74 A6 6 0 0 1 67 80 H53 A6 6 0 0 1 47 74 V72 A6 6 0 0 1 53 66 Z", GF, 2.6)}
+    ${core(60, 52, GMH, 1.6)}
+    <g class="al">${LENT(54, 73)}</g><g class="ar">${LENT(66, 73)}</g></g>${sparks(GMH)}`,
+    proj: LENT(0, 0), throw: { l: [54, 73], r: [66, 73] },
+  },
+  // Pi Mare: un pi vell que naix d'un tronc tallat amb els anells de creixement; les arrels ixen de la vora del tronc
+  pimare: {
+    svg: `${runeBase(GMH)}<g class="b">
+    <ellipse cx="60" cy="97" rx="27" ry="8" fill="#3a2410"/>
+    <g class="trunkrings">${[27, 20, 13, 7].map((r, i) => tube(`M${60 - r} 97 A${r} ${r * 0.3} 0 1 0 ${60 + r} 97 A${r} ${r * 0.3} 0 1 0 ${60 - r} 97`, i % 2 ? "#ffd9a0" : GM, i ? 1.6 : 2.8, i ? 'opacity="0.85"' : "")).join("")}</g>
+    ${tube("M34 100 Q24 104 16 101 M86 100 Q96 104 104 101 M44 104 Q38 110 30 111 M76 104 Q82 110 90 111", GB, 3)}
+    ${tube("M53 80 V96 M67 80 V96", GB, 6)}
+    <g class="sway">${tube("M60 6 L74 24 H67 L82 42 H73 L90 62 H80 L98 80 H22 L40 62 H30 L47 42 H38 L53 24 H46 Z", GM, 6)}
+    ${tube("M50 34 L60 28 L70 34 M44 54 L60 46 L76 54 M38 72 L60 64 L82 72", GM, 2.4, 'opacity="0.7"')}
+    ${[[50, 40], [74, 56]].map(([x, y]) => `<g transform="translate(${x} ${y}) scale(0.75) translate(${-x} ${-y})">${pinya(x, y)}</g>`).join("")}</g>
+    ${core(60, 97, GMH, 2.6)}</g>
+    <g class="al">${pinya(32, 74)}</g><g class="ar">${pinya(88, 74)}</g>${sparks(GMH)}`,
+    proj: pinya(0, 0), throw: { l: [32, 74], r: [88, 74] },
+  },
+  // Processador quàntic: el xip amb les potes, el quars del rellotge en òrbita i el qubit (esfera de Bloch) al centre;
+  // dalt, la bola de càrrega de la Tesla (és el que llança)
+  quantic: {
+    svg: `${runeBase(GMH)}<g class="b">
+    ${[0, 1, 2, 3, 4].map(i => tube(`M${40 + i * 10} 48 V42 M${40 + i * 10} 96 V102 M34 ${54 + i * 9} H28 M86 ${54 + i * 9} H92`, "#d8dde6", 2)).join("")}
+    <rect x="34" y="48" width="52" height="48" rx="6" fill="#0c1a2a"/>${tube("M40 48 H80 A6 6 0 0 1 86 54 V90 A6 6 0 0 1 80 96 H40 A6 6 0 0 1 34 90 V54 A6 6 0 0 1 40 48 Z", GQ, 3.6)}
+    <circle cx="60" cy="72" r="14" fill="none" stroke="#bff4ff" stroke-width="1.6"/><ellipse cx="60" cy="72" rx="14" ry="5" fill="none" stroke="#bff4ff" stroke-width="1.2" stroke-dasharray="3 2"/>
+    <g class="qubit">${tube("M60 72 L69 62", GMH, 2.6)}<circle cx="69" cy="62" r="2.6" fill="#fff"/></g>
+    <g class="orbit">${tube("M14 74 A46 14 0 1 0 106 74 A46 14 0 1 0 14 74", GQ, 2.4, 'opacity="0.85"')}<g class="ticks">${tube("M18 70 l3 3 M60 60 v3 M102 70 l-3 3 M60 88 v-3", "#e8fbff", 1.4)}</g></g>
+    ${core(60, 72, GMH, 2.4)}</g>
+    <g class="al">${bolaTesla(60, 22)}</g>${sparks(GMH)}`,
+    proj: bolaTesla(0, 0), throw: { l: [60, 22] },
+  },
+  // Codi Spaghetti: el rombe de l'If/else desfet en fideus de codi (if, else, goto), una forquilla que els enrotlla i
+  // dos caps de fideu que ixen de l'embolic (és el que llança)
+  spaghetti: {
+    svg: `${runeBase(GMH)}<g class="b">
+    ${tube("M30 92 C18 70 50 62 40 48 C30 34 62 30 66 44 C70 58 96 50 88 70 C80 90 52 70 46 86 C42 98 70 104 82 92", GP, 4, 'class="noodle"')}
+    ${tube("M36 80 C48 66 70 80 74 62 C78 44 52 46 56 60 C60 74 88 82 84 98", "#7fd49c", 3, 'opacity="0.9"')}
+    ${tube("M44 58 C56 52 62 70 76 64", "#ff8a8a", 2.6, 'opacity="0.9"')}
+    ${glyphText(30, 60, 9, "if", GP)}${glyphText(92, 84, 9, "else", "#ff8a8a")}${glyphText(62, 100, 8, "goto", GMH)}
+    <g class="fork">${tube("M78 14 L64 58 M74 12 L71 22 M78 13 L75 23 M82 14 L79 24", "#d8dde6", 2.6)}${tube("M58 60 C52 54 72 50 68 60 C64 68 52 64 58 60", GP, 2.4)}</g>
+    ${core(62, 60, GMH, 2.6)}</g>
+    <g class="al">${tube("M40 48 C34 40 28 46 22 38 C18 32 24 26 20 20", GP, 4)}</g>
+    <g class="ar">${tube("M88 70 C96 64 100 72 106 64 C110 58 104 52 108 46", "#7fd49c", 3)}</g>${sparks(GMH)}`,
+    proj: tube("M-13 6 C-9 -3 -3 9 1 0 C5 -9 10 3 13 -6", GP, 3), projR: tube("M-13 6 C-9 -3 -3 9 1 0 C5 -9 10 3 13 -6", "#7fd49c", 3), throw: { l: [22, 32], r: [104, 58] },
+  },
+});

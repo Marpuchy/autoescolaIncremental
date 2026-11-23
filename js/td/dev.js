@@ -26,7 +26,7 @@ const tdDev = {
   unlockAll() {
     for (const id of Object.keys(TD_DEFENDERS)) {
       const o = td.owned[id] || (td.owned[id] = { copies: 0, level: 1 });
-      o.copies = Math.max(o.copies, TD_STAR_COPIES[TD_STAR_COPIES.length - 1]);
+      o.copies = Math.max(o.copies, tdMaxCopies(id));
       o.stars = TD_STAR_COPIES.length; o.level = TD_LEVEL_MAX;
     }
     for (const m of Object.keys(TD_POINTS)) for (const id of Object.keys(TD_DEFENDERS)) if (tdModeOf(id) === m && tdTeam(m).length < 6 && !td.team.includes(id)) td.team.push(id);

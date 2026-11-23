@@ -157,6 +157,15 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   se reanuda solo (`tdResumeActive`). Desde la 50: ×4, mapa ampliado (`world.ext`: camino más largo y 4 huecos, `tdWorldExtended`),
   se abre el mundo siguiente y hasta la 100 ×1,5 de saber. Balance: `python tools/td-progres.py [sala] [--mon=2] [--temps=s]` (onda
   máxima por etapa; el bot es simple y da resultados con ruido).
+  **Matrícula d'Honor** (raresa `mh`, roja; nunca sale en el altar): en la oleada 100 de cada mundo se gana una receta o la piedra
+  (`TD_FORGE`, `td.forge`); en el altar, pestaña **Fusió** (`tdForgeHtml`, `tdForge`). Fusión: las dos criaturas desaparecen y queda
+  la nueva con la media de estrellas y de nivel (hacia abajo) y las copias sumadas; para subirla de estrella pide el doble de
+  copias (`tdCopyMult`), y las copias que salgan luego de las ingredientes van a ella (`tdForgedInto` en `tdGrant`). Evolución:
+  If/else + pedra → Codi Spaghetti (se queda con todo). Las 4: **Dron de mostreig** (Brúixola + Prismàtics, Sendera; `drone`: sale de
+  su hueco y vuela sobre la distracción más avanzada, `tdbDrone`/`tdbTPos`; especial `scan`: marca y revela), **Pi Mare** (Pi + Anells,
+  Pineda; piñas y un anillo cada 3, aura +25 % solo a las de natura `aura.el`, especial `root`), **Processador quàntic** (Rellotge +
+  Tesla, Laboratori; cadena que salta el doble cada 4 tics `tick`, especial `collapse`) y **Codi Spaghetti** (Biblioteca; rebota a
+  l'atzar `random` y enreda `slow`, especial `goto`: la más avanzada vuelve 300 pasos).
 - Botiga, tests, compendio e inventario viven en la DGT (`js/hub.js`): pantalla completa con el interior dibujado y
   4 puntos interactivos (caixer, instructor, llibre, espill). Ya no hay panel derecho.
 - Cada zona nueva trae un enemigo nuevo y temático (nunca una "versión más fuerte"); jefe con nombre cada 3 zonas,

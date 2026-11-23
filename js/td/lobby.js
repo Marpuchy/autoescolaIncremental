@@ -162,10 +162,33 @@ function tdBannerBg(s) {
     ${[0, 1, 2, 3].map(i => `<path d="M${620 + i * 30} -10 L${380 + i * 70} 310 L${430 + i * 70} 310 Z" fill="#fff" opacity="0.04"/>`).join("")}
     ${stars}${glyphs}${land}</svg>`;
 }
+let tdAltarTab = "summon"; // altar: invocar o Fusió (Matrícula d'Honor)
+const tdForgeHow = k => { const F = TD_FORGE[k], w = TD_WORLDS.find(o => o.id === F.world);
+  return `${F.from ? F.from.map(id => TD_DEFENDERS[id].name).join(" + ") : `${TD_DEFENDERS[F.evolve].name} + pedra`} · onada ${TD_IDLE.waves} de «${w?.name}»`; };
+// Fusió: les receptes de la sala (Matrícula d'Honor). Cada una s'obri a l'onada 100 d'un món
+function tdForgeHtml() {
+  const list = Object.keys(TD_FORGE).filter(k => tdModeOf(k) === tdRoom);
+  const mini = (id, ok) => `<div class="td-forge-in rar-${TD_DEFENDERS[id].rar}${ok ? "" : " missing"}" title="${TD_DEFENDERS[id].name}${ok ? "" : " (no la tens)"}">${tdCreatureSvg(id)}<span>${TD_DEFENDERS[id].name}</span></div>`;
+  return `<p class="td-hint">A l'onada ${TD_IDLE.waves} de cada món guanyes una recepta o una pedra. Les criatures que fusiones desapareixen i queda la nova, de <strong style="color:${TD_RARITIES.mh.color}">Matrícula d'Honor</strong> (amb la mitjana de les estrelles; per a pujar-la, les còpies de les dues).</p>
+    <div class="td-forge">${list.map(k => { const F = TD_FORGE[k], have = td.forge.includes(k), own = !!td.owned[k], parts = tdForgeParts(k);
+      const d = TD_DEFENDERS[k], w = TD_WORLDS.find(o => o.id === F.world);
+      return `<div class="td-forge-row${own ? " done" : have ? "" : " locked"}">
+        <div class="td-forge-parts">${parts.map(id => mini(id, !!td.owned[id] || own)).join(`<b>${F.from ? "+" : ""}</b>`)}${F.evolve ? `<div class="td-forge-key${have ? "" : " missing"}" title="${F.key}">💎<span>Pedra</span></div>` : ""}</div>
+        <b class="td-forge-arrow">→</b>
+        <div class="td-forge-out rar-mh${own || have ? "" : " hidden"}">${own || have ? tdCreatureSvg(k) : `<span class="tdbook-q">?</span>`}<span>${own || have ? d.name : "???"}</span></div>
+        <div class="td-forge-act">${own ? `<span class="muted">✔ Ja la tens</span>` : !have ? `<span class="muted">🔒 Onada ${TD_IDLE.waves} de «${w?.name}»</span>`
+          : `<button data-forge="${k}" ${tdCanForge(k) ? "" : "disabled"}>${F.from ? "⚗️ Fusionar" : "✨ Evolucionar"}</button>${tdCanForge(k) ? "" : `<span class="muted">Et falta alguna criatura</span>`}`}</div></div>`; }).join("")}</div>`;
+}
 function tdGachaHtml() {
+  const tabs = `<div class="td-tabs td-altar-tabs"><button class="td-tab${tdAltarTab === "summon" ? " on" : ""}" data-atab="summon">🔮 Invocar</button>
+    <button class="td-tab${tdAltarTab === "forge" ? " on" : ""}" data-atab="forge" style="--fc:${TD_RARITIES.mh.color}">⚗️ Fusió${Object.keys(TD_FORGE).some(k => tdModeOf(k) === tdRoom && tdCanForge(k)) ? ' <span class="td-mail-dot">!</span>' : ""}</button></div>`;
+  if (tdAltarTab === "forge") return tabs + tdForgeHtml();
+  return tabs + tdSummonHtml();
+}
+function tdSummonHtml() {
   const s = tdSubj, F = TD_SUBJECTS[s], p = td.pity[s] || { epic: 0, llegendari: 0, mitic: 0 }, n = td.pergamins[s] || 0, P = TD_POINTS[tdRoom];
   const ord = ["comu", "rar", "epic", "llegendari", "mitic"]; // el que pot eixir, de menys a més rar
-  const pool = Object.entries(TD_DEFENDERS).filter(([, d]) => d.subj === s).sort((a, b) => ord.indexOf(a[1].rar) - ord.indexOf(b[1].rar));
+  const pool = Object.entries(TD_DEFENDERS).filter(([, d]) => d.subj === s && d.rar !== "mh").sort((a, b) => ord.indexOf(a[1].rar) - ord.indexOf(b[1].rar));
   const R = tdRates(s), boost = !!td.boost[s], pct = x => String(+(x * 100).toFixed(1)).replace(".", ",") + " %";
   const small = pool.filter(([, d]) => !["llegendari", "mitic"].includes(d.rar)), feat = pool.filter(([, d]) => ["llegendari", "mitic"].includes(d.rar));
   const card = ([id, d]) => `<div class="td-banner-c rar-${d.rar}" title="${d.name} · ${TD_RARITIES[d.rar].name} · ${pct(R[d.rar])}${d.rar === "mitic" ? ` (segura amb un ${TD_MYTHIC_GRADE} o més a l'examen final)` : ""}">
@@ -387,7 +410,7 @@ const TD_TEAM_SORTS = {
   lvl: ["⬆️ Nivell", (a, b) => (td.owned[b].level - td.owned[a].level) || (tdStars(b) - tdStars(a))],
   role: ["🎯 Tipus", (a, b) => TD_DEFENDERS[a].role.localeCompare(TD_DEFENDERS[b].role)],
 };
-const TD_RAR_ORDER = ["comu", "rar", "epic", "llegendari", "mitic"];
+const TD_RAR_ORDER = ["comu", "rar", "epic", "llegendari", "mitic", "mh"];
 function tdBookList(kind, tab) {
   if (kind === "bestiary") return Object.keys(TD_ENEMIES).filter(id => !TD_ENEMIES[id].hidden);  // les mateixes a les dues sales (al bosc, amb una altra pell)
   return Object.keys(TD_DEFENDERS).filter(id => TD_DEFENDERS[id].subj === tab).sort((a, b) => TD_RAR_ORDER.indexOf(TD_DEFENDERS[a].rar) - TD_RAR_ORDER.indexOf(TD_DEFENDERS[b].rar));
@@ -442,7 +465,7 @@ function tdIndexPages(tab, list) {
 function tdCreaturePages(id) {
   const d = TD_DEFENDERS[id], o = td.owned[id], r = TD_RARITIES[d.rar];
   if (!o) return [`<div class="tdbook-art locked" style="--rc:${r.color}"><span class="tdbook-q">?</span></div><h3 class="tdbook-name">???</h3><div class="tdbook-rar" style="color:${r.color}">${r.name}</div>`,
-    `<p class="tdbook-text">Encara no has invocat aquesta criatura.</p><p class="tdbook-text muted">${d.rar === "mitic" ? `És raríssima a l'altar; segura traent un ${TD_MYTHIC_GRADE} o més a l'examen final d'una assignatura de ${TD_SUBJECTS[d.subj].name} (${TD_SUBJECTS[d.subj].classes.join(", ")}).` : `Pot eixir a l'altar, amb pergamins de ${TD_SUBJECTS[d.subj].name}.`}</p>`];
+    `<p class="tdbook-text">${d.rar === "mh" ? "Encara no la tens." : tdForgedInto(id) ? `L'has convertida en ${TD_DEFENDERS[tdForgedInto(id)].name}: les còpies que en traus van a ella.` : "Encara no has invocat aquesta criatura."}</p><p class="tdbook-text muted">${d.rar === "mh" ? `Matrícula d'Honor: ${tdForgeHow(id)} (altar → Fusió).` : d.rar === "mitic" ? `És raríssima a l'altar; segura traent un ${TD_MYTHIC_GRADE} o més a l'examen final d'una assignatura de ${TD_SUBJECTS[d.subj].name} (${TD_SUBJECTS[d.subj].classes.join(", ")}).` : `Pot eixir a l'altar, amb pergamins de ${TD_SUBJECTS[d.subj].name}.`}</p>`];
   const st = tdStats(id), next = tdNextStar(id), cap = tdLevelCap(id);
   const cost = o.level < cap ? tdLevelCost(d.rar, o.level) : null;
   // millores de l'habilitat: per estreles i per nivell
@@ -459,7 +482,7 @@ function tdCreaturePages(id) {
         ${tdCanBuyCopy(id) ? `<button class="secondary small tdbook-buy" data-buy="${id}" ${(td.stelles[tdModeOf(id)] || 0) < tdCopyPrice(id) ? "disabled" : ""} title="Tens ${td.stelles[tdModeOf(id)] || 0} ${TD_POINTS[tdModeOf(id)].name}">+1 còpia · ${TD_POINTS[tdModeOf(id)].icon} ${tdCopyPrice(id)}</button>` : ""}
         ${next && next.have >= next.need ? `<button class="tdbook-ascend" data-ascend="${id}" ${td.saber < tdAscendCost(id) ? "disabled" : ""}>⭐ Pujar a ★${st.stars + 1} · ✨ ${fmtNum(tdAscendCost(id))}</button>` : ""}</div></div>
       <iframe class="tdbook-arena" src="tddemo.html?d=${id}" title="Demostració: ${d.name} en combat" tabindex="-1" loading="lazy"></iframe></div>`,
-    `<p class="tdbook-text">${d.desc}</p>
+    `<p class="tdbook-text">${d.desc}</p>${d.rar === "mh" ? `<p class="tdbook-text muted">Matrícula d'Honor: ${tdForgeHow(id)}.</p>` : ""}
      <table class="tdbook-stats"><tr><th>Nivell</th><td>${o.level} / ${cap}${cap < TD_LEVEL_MAX ? ` <span class="muted">(més amb ★${st.stars + 1})</span>` : ""}</td></tr><tr><th>Dany</th><td>${fmtNum(st.dmg)}</td></tr>
        <tr><th>Velocitat</th><td>${st.rate.toFixed(2)} / s</td></tr><tr><th>Abast</th><td>${Math.round(st.range)}</td></tr><tr><th>Cost</th><td>🔮 ${d.cost}</td></tr>
        <tr><th>Element</th><td>${tdElemTag(d.el)}</td></tr>
@@ -740,6 +763,12 @@ function initTdLobby() {
     if (!b || b.disabled) return;
     const ds = b.dataset;
     if (ds.share) tdShareAction(b);
+    else if (ds.atab) { tdAltarTab = ds.atab; tdRenderPanel(); }
+    else if (ds.forge) {
+      const F = TD_FORGE[ds.forge], parts = tdForgeParts(ds.forge).map(id => TD_DEFENDERS[id].name).join(" i ");
+      if (!confirm(F.from ? `Fusionar ${parts}? Les dues desapareixen i et queda ${TD_DEFENDERS[ds.forge].name}.` : `Evolucionar ${parts} amb la pedra? Es convertix en ${TD_DEFENDERS[ds.forge].name} (amb el seu nivell, estrelles i còpies).`)) return;
+      if (tdForge(ds.forge)) { tdClosePanel(); tdReveal([{ id: ds.forge, isNew: true, stars: tdStars(ds.forge) }]); toast(`✨ ${TD_DEFENDERS[ds.forge].name}: Matrícula d'Honor!`, "good"); }
+    }
     else if (ds.mtab) { tdShareTab = ds.mtab; tdRenderPanel(); }
     else if (ds.subj) { tdSubj = ds.subj; tdRenderPanel(); }
     else if (ds.cls && !ds.act) { tdClass[tdSubj] = ds.cls; tdRenderPanel(); }

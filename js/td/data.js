@@ -54,6 +54,8 @@ const TD_RARITIES = {
   epic:       { name: "Èpic",       chance: 0.06,  color: "#b48cff", value: 10 },
   llegendari: { name: "Llegendari", chance: 0.01,  color: "#ffc23f", value: 40 },
   mitic:      { name: "Mític",      chance: 0,     color: "#ff5ab0", value: 100 },
+  // Matrícula d'Honor: no ix mai a l'altar; s'aconseguix a l'onada 100 d'un món (fusió o evolució, TD_FORGE)
+  mh:         { name: "Matrícula d'Honor", chance: 0, color: "#ff3b4e", value: 200 },
 };
 const TD_PITY = { epic: 30, llegendari: 50, mitic: 200 }; // garantia per camp: èpic a la tirada 30, llegendari a la 50, mític a la 200
 // Còpies totals per a cada estrela (★1 en traure-la; ★5 amb 11 còpies). Les que sobren es tornen saber.
@@ -134,6 +136,27 @@ const TD_DEFENDERS = {
   projecte:    { subj: "pin", rar: "mitic", name: "Projecte integrador", dmg: 22, rate: 1.0, range: 320, cost: 150, role: "single",
                  special: { every: 3, type: "echo", boost: 1.5 },
                  desc: "Com el projecte, que ajunta tots els mòduls: cada 3 atacs fa l'habilitat especial d'una altra criatura del mapa, un 50 % més forta." },
+  // ---- Matrícula d'Honor (vermelles): una per món, a l'onada 100. Les fusions ajunten dues criatures (desapareixen i
+  // queda la nova); l'evolució en transforma una amb la pedra del món. No ixen a l'altar (TD_FORGE, js/td/state.js)
+  dron:        { subj: "pin", rar: "mh", name: "Dron de mostreig", dmg: 9, rate: 2.6, range: 170, cost: 160, role: "drone", fly: 240, alt: true,
+                 special: { every: 10, type: "scan", radius: 200, vuln: 0.3, dur: 4 },
+                 desc: "La brúixola i els prismàtics, junts en el dron que inventaria el bosc. Ix del seu buit i vola per tot el mapa damunt de la distracció més avançada; dispara de pressa els flaixos de les dues lents. Cada 10 tirs, escaneja: les del con queden marcades (reben un 30 % més de dany i es veuen encara que s'amaguen)." },
+  pimare:      { subj: "mnt", rar: "mh", name: "Pi Mare", dmg: 18, rate: 1.2, range: 300, cost: 170, role: "single", alt: true, pulseEvery: 3, pulse: 620,
+                 aura: { radius: 360, dmg: 0.25, el: "natura" }, special: { every: 12, type: "root", radius: 220, dur: 1.6 },
+                 desc: "El pi i els anells, en un pi vell que naix d'un tronc tallat. Llança pinyes i, cada 3 atacs, del tronc ix un anell que s'eixampla per terra. Les seues arrels arriben a les criatures de natura del voltant (+25 % de dany). Cada 12 atacs, les arrels atrapen tot el que hi ha al voltant de la distracció tocada." },
+  quantic:     { subj: "maq", rar: "mh", name: "Processador quàntic", dmg: 24, rate: 0.95, range: 320, cost: 170, role: "chain", projSpeed: 1.6, tick: 4,
+                 chain: { jumps: 5, falloff: 0.85, radius: 220 }, special: { every: 10, type: "collapse", stun: 0.6 },
+                 desc: "El rellotge i la Tesla, en un xip amb un qubit. Llança la bola de càrrega i el raig salta de distracció en distracció; cada 4 tics del rellotge, salta el doble de vegades. Cada 10, col·lapse: tot el que té a l'abast es queda parat mig segon." },
+  spaghetti:   { subj: "prg", rar: "mh", name: "Codi Spaghetti", dmg: 20, rate: 1.1, range: 300, cost: 160, role: "bounce", bounces: 4, random: true, alt: true,
+                 slow: 0.3, slowDur: 1.5, special: { every: 12, type: "goto", back: 300 },
+                 desc: "L'If/else, quan el codi se n'ix de mare. Llança els caps dels fideus, que reboten entre 4 distraccions a l'atzar i les deixen enredades (més lentes). Cada 12 tirs, GOTO: la distracció més avançada torna 300 passos enrere." },
+};
+// Com s'aconseguixen les de Matrícula d'Honor: a l'onada 100 del món (world) es guanya la recepta o la pedra
+const TD_FORGE = {
+  dron:      { world: 101, from: ["bruixola", "prismatics"], key: "📜 Recepta del dron" },
+  pimare:    { world: 102, from: ["pi", "anells"], key: "📜 Recepta del Pi Mare" },
+  quantic:   { world: 2, from: ["rellotge", "tesla"], key: "📜 Recepta del processador" },
+  spaghetti: { world: 1, evolve: "ifelse", key: "💎 Pedra del spaghetti" },
 };
 
 // Distraccions (enemics). lore: la descripció del bestiari (amb gràcia, com al compendi de l'autoescola); desc: què fa.
@@ -195,6 +218,7 @@ const TD_DEFENDER_ELEMENT = {
   prismatics: "fisic", canya: "fisic", rusc: "natura", cervol: "arca",
   pi: "natura", anells: "natura", contrafoc: "foc", carrasca: "natura",
   bruixola: "fisic", samara: "fisic", anellador: "fisic", projecte: "arca",
+  dron: "fisic", pimare: "natura", quantic: "electric", spaghetti: "arca",
 };
 for (const [id, d] of Object.entries(TD_DEFENDERS)) d.el = TD_DEFENDER_ELEMENT[id] || "fisic";
 // weak: feble a; strong: forta contra; why: per què (al bestiari)

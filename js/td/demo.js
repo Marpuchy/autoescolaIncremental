@@ -36,6 +36,12 @@ const TD_DEMO_SCENES = {
   capacitor: { view: [420, 150, 720, 500], path: TD_DEMO_ROAD, slots: [[640, 320]], spawn: [["notificacio", "notificacio", "notificacio", "notificacio"], 5], gap: 0.3 },
   samara:    { view: [40, 120, 1000, 700], path: TD_DEMO_ROAD, slots: [[180, 320]], spawn: [["notificacio"], 1.6] },
   carrasca:  { view: [400, 150, 720, 500], path: TD_DEMO_ROAD, slots: [[560, 320], [880, 320]], allies: ["pi"], spawn: [["notificacio", "notificacio", "notificacio"], 3], gap: 0.25 },
+  // Matrícula d'Honor: el dron ix a volar damunt de les distraccions; el Pi Mare amb una Carrasca i un Contrafoc al costat
+  // (les arrels arriben a la Carrasca, que és de natura); el processador i el spaghetti, amb grups per a saltar i rebotar
+  dron:      { view: [320, 150, 860, 600], path: TD_DEMO_ROAD, slots: [[640, 300]], spawn: [["notificacio", "notificacio", "procrastinacio"], 3.2], gap: 0.6 },
+  pimare:    { view: [440, 170, 760, 530], path: TD_DEMO_ROAD, slots: [[640, 320], [960, 320]], allies: ["carrasca"], spawn: [["notificacio", "notificacio", "notificacio", "notificacio"], 3.2], gap: 0.3 },
+  quantic:   { view: [420, 170, 720, 500], path: TD_DEMO_ROAD, slots: [[620, 320]], spawn: [["notificacio", "notificacio", "notificacio", "notificacio", "notificacio"], 4], gap: 0.35 },
+  spaghetti: { view: [420, 170, 720, 500], path: TD_DEMO_ROAD, slots: [[620, 320]], spawn: [["notificacio", "procrastinacio", "notificacio", "notificacio"], 3.6], gap: 0.45 },
   projecte:  { view: [260, 110, 1060, 740], path: TD_DEMO_ROAD, slots: [[640, 320], [380, 320], [900, 320], [1160, 320]], allies: ["carrasca", "contrafoc", "anells"],
                spawn: [["notificacio", "notificacio", "procrastinacio", "notificacio"], 3.2], gap: 0.35 },
 };
