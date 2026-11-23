@@ -64,6 +64,9 @@ function tdRenderLobby() {
 function tdLobbyHud() {
   $("td-saber").textContent = fmtNum(Math.floor(td.saber));
   const P = TD_POINTS[tdRoom], pts = td.stelles[tdRoom] || 0;
+  const unread = tdMailNew().length;
+  $("td-mail-badge").hidden = !unread || !!tdViewingOf;
+  $("td-mail-badge").textContent = unread;
   $("td-perg").innerHTML = tdFields().map(s => `<span title="Pergamins de ${TD_SUBJECTS[s].name}">📜 ${TD_SUBJECTS[s].short} <strong>${td.pergamins[s]}</strong></span>`).join("") +
     (pts ? `<span title="${P.name}: compren còpies al grimori">${P.icon} <strong>${pts}</strong></span>` : "");
 }
@@ -71,7 +74,7 @@ function tdLobbyHud() {
 // ---------------------------------------------------------------- finestretes
 const TD_PANELS = {
   gacha: "🔮 Altar d'invocació", study: "📚 Prestatgeria d'estudi", grimori: "📖 Grimori", bestiary: "👾 Bestiari",
-  worlds: "🌀 Portal dels mons", upgrades: "💎 Cristall", student: "🎓 Estudiant",
+  worlds: "🌀 Portal dels mons", upgrades: "💎 Cristall", student: "🎓 Estudiant", mail: "✉️ Correu",
 };
 // al bosc, alguns punts tenen un altre nom
 const TD_PANELS_FOREST = { student: "🐸 Estudiant", upgrades: "🟢 Jade", gacha: "🌱 Altar d'invocació", worlds: "🌳 Portal dels mons" };
@@ -90,7 +93,7 @@ function tdRenderPanel() {
   const name = $("td-card").dataset.panel;
   const body = $("td-card-body");
   const html = ({ gacha: tdGachaHtml, study: tdStudyHtml, grimori: tdGrimoriHtml, bestiary: tdBestiaryHtml,
-    worlds: tdWorldsHtml, upgrades: tdUpgradesHtml, student: tdStudentHtml })[name]();
+    worlds: tdWorldsHtml, upgrades: tdUpgradesHtml, student: tdStudentHtml, mail: tdMailHtml })[name]();
   // si la pàgina continua sent la mateixa criatura (p. ex. en comprar una còpia o pujar de nivell), el combat de
   // demostració no es toca: es canvia tot lo altre i l'iframe segueix on estava, sense tornar a començar
   const live = body.querySelector("iframe.tdbook-arena"), src = live?.getAttribute("src");
@@ -276,7 +279,7 @@ function tdsSummary() {
   box.querySelector(".tds-cards").innerHTML = tdsRun.res.map((r, i) => {
     const d = tdsInfo(r);
     return `<div class="td-rcard rar-${d.rar}" style="animation-delay:${i * 0.06}s"><div class="td-rcard-art">${d.art}</div>
-      <div class="td-rcard-name">${r.points ? TD_POINTS[r.mode].name : d.name}</div><div class="td-rcard-tag">${r.points ? `+${r.points} ${TD_POINTS[r.mode].icon}` : r.isNew ? "NOVA!" : r.ready ? `⬆ ★${r.stars + 1}` : r.saber ? `+${r.saber} ✨` : tdStarStr(r.stars)}</div></div>`;
+      <div class="td-rcard-name">${r.points ? TD_POINTS[r.mode].name : d.name}</div><div class="td-rcard-tag">${r.points ? `+${r.points} ${TD_POINTS[r.mode].icon}` : r.isNew ? "NOVA!" : r.ready ? `Pot pujar a ★${r.stars + 1}` : r.saber ? `+${r.saber} ✨` : tdStarStr(r.stars)}</div></div>`;
   }).join("");
   box.querySelector(".tds-summary").hidden = false;
   tdsRun.phase = "summary";
@@ -582,6 +585,12 @@ function tdJadeSvg(frac) {
     <path d="${egg}" fill="none" stroke="#9fe8b0" stroke-width="3"/>
     <ellipse cx="-26" cy="-58" rx="14" ry="26" fill="#fff" opacity="0.22" transform="rotate(-18 -26 -58)"/></svg>`;
 }
+// Quant millora el pròxim nivell respecte del total que ja dona el cristall (el saber, sobre el 100 % de base; la vida i
+// el maná, sobre la vida i el maná inicials): cada nivell suma el mateix, però cada vegada es nota menys
+function tdUpGain(id, lvl) {
+  const base = { vida: TD_BATTLE.lives, mana: TD_BATTLE.startMana, saber: 100 }[id], step = { vida: 3, mana: 20, saber: 10 }[id];
+  return String(+(100 * step / (base + step * lvl)).toFixed(1)).replace(".", ",");
+}
 function tdUpgradesHtml() {
   const ids = Object.keys(TD_UPGRADES);
   const total = ids.reduce((s, id) => s + td.upgrades[id], 0), max = ids.reduce((s, id) => s + TD_UPGRADES[id].max, 0);
@@ -591,10 +600,21 @@ function tdUpgradesHtml() {
     return `<div class="td-cnode td-cnode-${i}"><div class="td-cnode-head"><span class="td-up-icon">${tdRoom === "forestal" && u.icon === "💎" ? "🟢" : u.icon}</span><strong>${jade(u.name)}</strong></div>
       <div class="td-cnode-bar"><div style="width:${100 * lvl / u.max}%"></div><span>${lvl} / ${u.max}</span></div>
       <div class="muted">${jade(u.desc)}${lvl ? ` · ara ${jade(u.per(lvl))}` : ""}</div>
+      ${full ? "" : `<div class="td-cnode-next">Següent: ${jade(u.per(lvl + 1))} <span title="Quant puja respecte del que ja tens: cada nivell suma el mateix, però com més en tens, menys es nota">(${lvl ? `+${tdUpGain(id, lvl)} % més` : "el primer"})</span></div>`}
       <button data-up="${id}" ${full || td.saber < cost ? "disabled" : ""}>${full ? "Màxim" : `✨ ${fmtNum(cost)}`}</button></div>`;
   };
   return `<p class="td-hint">Millores permanents amb el saber dels mons: cada una encén ${tdRoom === "forestal" ? "el jade" : "el cristall"}. Tens ✨ <strong>${fmtNum(Math.floor(td.saber))}</strong>.</p>
     <div class="td-crystal-menu">${node(ids[0], 0)}<div class="td-crystal-core">${(tdRoom === "forestal" ? tdJadeSvg : tdCrystalSvg)(total / max)}<div class="td-crystal-pct">${Math.round(100 * total / max)} %</div></div>${ids.slice(1).map((id, i) => node(id, i + 1)).join("")}</div>`;
+}
+
+// ---- correu: missatges de l'equip amb regals (es recullen una vegada)
+function tdMailHtml() {
+  const fields = Object.keys(TD_SUBJECTS).filter(s => tdFields().includes(s));
+  return `<div class="td-mail">${TD_MAIL.map(m => { const got = td.mail.includes(m.id); return `<article class="td-mail-item${got ? " read" : ""}">
+    <div class="td-mail-head"><span class="td-mail-ic">${got ? "📭" : "📬"}</span><div><strong>${m.title}</strong><div class="muted">${m.from} · ${m.date}</div></div></div>
+    <p>${m.text}</p>
+    ${m.gift?.pergamins ? `<div class="td-mail-gift">🎁 ${fields.map(s => `📜 ${m.gift.pergamins} de ${TD_SUBJECTS[s].short}`).join(" · ")}</div>` : ""}
+    ${got ? `<div class="muted">✔ Recollit</div>` : tdViewingOf ? `<div class="muted">És la partida de l'altra persona</div>` : `<button data-mail="${m.id}">Recollir</button>`}</article>`; }).join("") || `<p class="muted">No tens cap missatge.</p>`}</div>`;
 }
 
 // ---- estudiant (artefactes)
@@ -644,6 +664,7 @@ function initTdLobby() {
   const highlight = (ev, on) => { const s = ev.target.closest?.(".hub-hit"); if (s) $(`td-art-${s.dataset.td}`)?.classList.toggle("hot", on); };
   for (const [type, on] of [["pointerover", true], ["pointerout", false], ["focusin", true], ["focusout", false]]) scene.addEventListener(type, ev => highlight(ev, on));
   $("btn-td-home").addEventListener("click", () => { tdCloseLobby(); openRoom(); });
+  $("btn-td-mail").addEventListener("click", () => tdSpot("mail"));
   $("td-card-close").addEventListener("click", tdClosePanel);
   $("td-dialog").addEventListener("click", ev => { if (ev.target === $("td-dialog")) tdClosePanel(); });
   $("td-summon").addEventListener("click", tdsTap);
@@ -681,6 +702,7 @@ function initTdLobby() {
     else if (ds.up) { if (tdBuyUpgrade(ds.up)) { tdRenderPanel(); tdRenderLobby(); document.querySelector(".td-card .td-crys")?.classList.add("flash"); } }
     else if (ds.equip) tdToggleEquip(ds.equip);
     else if (ds.buy) { const r = tdBuyCopy(ds.buy); if (r) { toast(`${TD_POINTS[tdModeOf(ds.buy)].icon} +1 còpia de ${TD_DEFENDERS[ds.buy].name}${r.saber ? ` (al màxim: +${r.saber} ✨)` : ""}`, "good"); tdRenderPanel(); } }
+    else if (ds.mail) { if (tdClaimMail(ds.mail)) { toast("🎁 Regal recollit: pergamins per a cada camp!", "good"); tdRenderPanel(); tdLobbyHud(); } }
     else if (ds.ascend) { if (tdAscend(ds.ascend)) { toast(`⭐ ${TD_DEFENDERS[ds.ascend].name} puja a ★${tdStars(ds.ascend)}!`, "good"); tdRenderPanel(); } }
     else if (ds.eslot) { tdEquipSlot = ds.eslot; tdRenderPanel(); }
   });

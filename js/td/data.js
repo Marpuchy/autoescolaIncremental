@@ -31,13 +31,21 @@ const tdModeOf = id => TD_SUBJECTS[TD_DEFENDERS[id].subj].mode;
 // Punts d'estrella (espores al bosc): els dona una tirada quan el camp no té criatura d'aquella raresa (no tots tenen
 // les cinc) i, a vegades (TD_POINT_SWAP), una tirada per davall de llegendari en lloc de la còpia. Quants: TD_POINT_GAIN.
 // Amb punts es compren còpies de qualsevol criatura de la carrera (menys la mítica): valor de la raresa × TD_POINT_COPY.
-const TD_POINT_GAIN = { comu: 1, rar: 1, epic: 3 };
+const TD_POINT_GAIN = { comu: 1, rar: 3, epic: 8 }; // com més rara la tirada, més punts
 const TD_POINT_SWAP = 0.15;
 const TD_POINTS = {
   informatic: { name: "punts d'estrella", one: "punt d'estrella", icon: "⭐" },
   forestal:   { name: "espores", one: "espora", icon: "🍄" },
 };
 const TD_POINT_COPY = 5;
+
+// Correu de la sala: missatges de l'equip, sobretot per a compensar errors del joc. Cada un es recull una vegada per
+// partida (td.mail guarda els recollits). gift.pergamins: tants de cada camp (de les dues sales). Els nous, a dalt.
+const TD_MAIL = [
+  { id: "perdo-2026-11", date: "23/11/2026", from: "L'equip de l'estudi", title: "Perdó pels errors",
+    text: "Hi ha hagut uns quants errors (estrelles que pujaven soles, el ×2 que no anava, el llibre que botava i armes massa fortes). Ja estan arreglats. Ací tens uns pergamins per les molèsties!",
+    gift: { pergamins: 10 } },
+];
 
 // Raresa: probabilitat de la invocació (el mític no ix mai: només amb un 8 o més a l'examen final)
 const TD_RARITIES = {
@@ -154,7 +162,9 @@ const TD_ENEMIES = {
                     lore: "La nit que tot ho accelera: els deures que no has fet, l'examen de dilluns, l'agenda en blanc. Quan arriba, ja vas tard.",
                     desc: "Cada 4 s accelera tots els enemics un 35 % durant 2 s." },
 };
-const TD_WAVE_HP = 0.2; // cada onada, +20 % de vida als enemics
+const TD_WAVE_HP = 0.3; // cada onada, +30 % de vida als enemics
+// Dificultat dels mons: vida de totes les distraccions (×) i saber que donen (×). Ajustat amb tools/td-progres.py
+const TD_DIFFICULTY = { hp: 1.5, saber: 2 };
 
 // ---- Elements: el tipus de dany de cada criatura (segons com pega). Cada distracció és feble a un (×1,5) i forta contra
 // un altre (×0,5). La llum i l'ombra peguen sempre amb avantatge (encara no les té cap criatura).
@@ -270,8 +280,8 @@ const TD_RATES = {
 
 // Combat
 const TD_BATTLE = {
-  lives: 20, startMana: 100, upgradeCost: [0.8, 1.2], upgradeMult: [1, 1.5, 2.1], sellBack: 0.6,
-  wavePause: 5, waveBonusSaber: 4, worldBonusSaber: 120, projSpeed: 950,
+  lives: 20, startMana: 100, upgradeCost: [0.8, 1.2], upgradeMult: [1, 1.35, 1.75], sellBack: 0.6,
+  wavePause: 5, waveBonusSaber: 8, worldBonusSaber: 300, projSpeed: 950,
 };
 
 // Mons. path: punts del camí (del començament al cristall). slots: buits on es posen les criatures.

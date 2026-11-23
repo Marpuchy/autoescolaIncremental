@@ -12,6 +12,7 @@ function tdNewState() {
     owned: { sumador: { copies: 1, level: 1 }, puntcoma: { copies: 1, level: 1 } }, // les dues primeres criatures
     team: ["sumador", "puntcoma"],
     favs: [],                                         // criatures preferides (grimori)
+    mail: [],                                         // missatges del correu ja recollits (id de TD_MAIL)
     saber: 0,
     upgrades: { vida: 0, mana: 0, saber: 0 },          // millores del cristall de la sala on s'està (upRoom)
     upRoom: "informatic",                             // cada sala té el seu cristall: les millores no es compartixen
@@ -65,8 +66,9 @@ function tdLoad(fromRaw = null) { // fromRaw: una partida que no és la d'este d
       td.favs = td.favs.map(id => id === old ? to : id).filter((id, i, a) => a.indexOf(id) === i);
       delete td.owned[old];
     }
-    // partides d'abans: les estrelles que ja tenien per còpies queden pagades
-    for (const o of Object.values(td.owned)) if (o && typeof o === "object" && !o.stars) o.stars = tdStarsByCopies(Number(o.copies) || 0) || 1;
+    // estrelles pagades: si en falta el número (partida rara o d'una versió antiga), es queda a ★1. Abans es donaven les
+    // de les còpies, i això pujava estrelles sense pagar-les
+    for (const o of Object.values(td.owned)) if (o && typeof o === "object") o.stars = Math.max(1, Math.min(TD_STAR_COPIES.length, Math.floor(Number(o.stars) || 1)));
     // criatures o artefactes que ja no existixen: fora
     for (const id of Object.keys(td.owned)) if (!TD_DEFENDERS[id]) delete td.owned[id];
     for (const id of Object.keys(td.artifacts)) if (!TD_ARTIFACTS[id]) delete td.artifacts[id];
@@ -86,6 +88,7 @@ function tdLoad(fromRaw = null) { // fromRaw: una partida que no és la d'este d
     for (const k of Object.keys(td.upBank)) { if (k === td.upRoom || !["informatic", "forestal"].includes(k)) delete td.upBank[k]; else td.upBank[k] = okUps(td.upBank[k]); }
     for (const [m, n] of Object.entries(td.stelles)) if (!TD_POINTS[m] || !(n >= 0)) delete td.stelles[m];
     td.favs = td.favs.filter(id => TD_DEFENDERS[id]);
+    td.mail = td.mail.filter(id => typeof id === "string");
     // un artefacte per espai
     td.equipped = td.equipped.filter((id, i, a) => td.artifacts[id] && a.findIndex(o => tdArtSlot(o) === tdArtSlot(id)) === i).slice(0, TD_ARTIFACT_SLOTS);
   } catch {}
@@ -144,10 +147,11 @@ const tdAbility = (stars, level) => 1 + 0.3 * (stars >= 3) + 0.3 * (stars >= 5) 
 function tdStats(id, up = 0) {
   const d = TD_DEFENDERS[id], o = td.owned[id] || { level: 1 };
   const stars = Math.max(1, tdStars(id));
-  const dmgMult = (1 + 0.12 * (o.level - 1)) * (1 + 0.3 * (stars - 1)) * TD_BATTLE.upgradeMult[up];
+  // cada nivell +7 % de dany i cada estrela +15 % (+5 % de velocitat): a Nv25 ★5, uns 3,9 × el dany de Nv1 ★1
+  const dmgMult = (1 + 0.07 * (o.level - 1)) * (1 + 0.15 * (stars - 1)) * TD_BATTLE.upgradeMult[up];
   return {
     dmg: d.dmg * dmgMult,
-    rate: d.rate * (1 + 0.1 * (stars - 1)) * (1 + tdArtBonus("rate")),
+    rate: d.rate * (1 + 0.05 * (stars - 1)) * (1 + tdArtBonus("rate")),
     range: d.range * (1 + tdArtBonus("range")),
     ability: tdAbility(stars, o.level), // ★3, ★5 i els nivells 10 i 20 milloren l'habilitat (durades, zones, objectius)
     stars, level: o.level,
@@ -224,6 +228,17 @@ function tdBuyCopy(id) {
   const r = tdGrant(id);
   tdSave();
   return r;
+}
+
+// ---------------------------------------------------------------- correu
+const tdMailNew = () => TD_MAIL.filter(m => !td.mail.includes(m.id));
+function tdClaimMail(id) {
+  const m = TD_MAIL.find(x => x.id === id);
+  if (!m || td.mail.includes(id)) return false;
+  if (m.gift?.pergamins) for (const s of Object.keys(TD_SUBJECTS)) td.pergamins[s] += m.gift.pergamins;
+  td.mail.push(id);
+  tdSave();
+  return true;
 }
 
 // ---------------------------------------------------------------- estudi registrat → pergamins

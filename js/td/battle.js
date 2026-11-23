@@ -35,6 +35,14 @@ const el = (tag, attrs = {}, parent) => {
 };
 
 // ---------------------------------------------------------------- obrir i tancar
+// Botó de velocitat: ×1 / ×2, amb la que va marcada. Cada combat comença a ×1 (també el botó)
+function tdbSpeedBtn() {
+  const b = $("tdb-speed"), on = tdb?.speed === 2;
+  b.innerHTML = `<span class="${on ? "" : "sel"}">▶ ×1</span><span class="${on ? "sel" : ""}">⏩ ×2</span>`;
+  b.classList.toggle("on", on);
+  b.setAttribute("aria-pressed", on);
+  b.title = on ? "Velocitat ×2 (toca per a tornar a ×1)" : "Velocitat ×1 (toca per a anar el doble de ràpid)";
+}
 function tdOpenBattle(worldId = 1) {
   const world = TD_WORLDS.find(w => w.id === worldId && !w.soon);
   if (!world) return;
@@ -53,6 +61,7 @@ function tdOpenBattle(worldId = 1) {
   tdbRenderDeck();
   tdbCloseBottom();
   tdbHud();
+  tdbSpeedBtn();
   $("tdb-end").hidden = true;
   tdb.last = performance.now();
   requestAnimationFrame(tdbLoop);
@@ -258,7 +267,7 @@ function tdbSell(t) {
 // ---------------------------------------------------------------- distraccions
 function tdbSpawn(type, dist = 0, small = false) {
   const def = tdEnemy(type);
-  const hp = def.hp * (1 + TD_WAVE_HP * (tdb.wave - 1));
+  const hp = def.hp * TD_DIFFICULTY.hp * (1 + TD_WAVE_HP * (def.boss ? 0.5 : 1) * (tdb.wave - 1)); // els caps ja són durs: pugen la meitat per onada
   const e = { uid: ++tdb.uid, type, def, hp, maxHp: hp, dist, slowT: 0, slowMult: 1, stunT: 0, vuln: 0, vulnT: 0,
     dotT: 0, dot: 0, abilityT: 0, convertT: 0, size: def.size };
   e.el = el("g", { class: `tdb-enemy${def.boss ? " boss" : ""}` }, $("tdb-enemies"));
@@ -346,7 +355,7 @@ function tdbKill(e, byTower) {
   tdbSoul(e);
   tdb.kills++;
   tdb.mana += e.def.mana + (byTower ? TD_DEFENDERS[byTower.id].manaOnKill || 0 : 0);
-  tdb.saber += e.def.saber * (1 + 0.1 * td.upgrades.saber);
+  tdb.saber += e.def.saber * TD_DIFFICULTY.saber * (1 + 0.1 * td.upgrades.saber);
   if (e.def.splitInto) for (const off of [-18, 18]) tdbSpawn(e.def.splitInto, Math.max(0, e.dist + off));
   if (e.mark) tdbMarkJump(e);
   if (e.def.boss) tdbBossDown(e.type);
@@ -1473,8 +1482,7 @@ function initTdBattle() {
   });
   $("tdb-speed").addEventListener("click", () => {
     tdb.speed = tdb.speed === 2 ? 1 : 2;
-    $("tdb-speed").innerHTML = tdb.speed === 2 ? "⏩ ×2" : "▶ ×1";
-    $("tdb-speed").classList.toggle("on", tdb.speed === 2);
+    tdbSpeedBtn();
   });
   $("tdb-exit").addEventListener("click", () => {
     if (!tdb.over && tdb.wave > 0 && !confirm("Eixir del combat? Et quedes el saber que has guanyat fins ara.")) return;
