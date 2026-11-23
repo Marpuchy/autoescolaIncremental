@@ -178,7 +178,7 @@ add(rugSvg(-W + 0.02, -2.6, 6.75, 7.65, { base: "#1f2a4a", inner: "#2a3a66", lin
   const [cx, cy] = P(0, 2.05, BACK), sc = cam.scale(BACK);
   const rx = sc * 1.05, ry = sc * 1.35;
   s += `<ellipse cx="${r(cx)}" cy="${r(cy)}" rx="${r(rx * 1.5)}" ry="${r(ry * 1.3)}" fill="url(#sl-portal-glow)"/>`;
-  s += `<ellipse cx="${r(cx)}" cy="${r(cy)}" rx="${r(rx)}" ry="${r(ry)}" fill="url(#sl-portal)"/>`;
+  s += `<ellipse class="sl-portal-fill" cx="${r(cx)}" cy="${r(cy)}" rx="${r(rx)}" ry="${r(ry)}" fill="url(#sl-portal)"/>`; // es torna transparent quan hi ha un combat en marxa (es veu darrere)
   s += `<g class="sl-swirl" style="transform-origin:${r(cx)}px ${r(cy)}px">${[0.82, 0.62, 0.42].map((k, i) =>
     `<ellipse cx="${r(cx)}" cy="${r(cy)}" rx="${r(rx * k)}" ry="${r(ry * k)}" fill="none" stroke="${i % 2 ? CYAN : V}" stroke-width="3" stroke-dasharray="${18 + i * 8} ${12 + i * 6}" opacity="0.8"/>`).join("")}</g>`;
   s += neon(`M${r(cx - rx)} ${r(cy)} A${r(rx)} ${r(ry)} 0 1 1 ${r(cx + rx)} ${r(cy)} A${r(rx)} ${r(ry)} 0 1 1 ${r(cx - rx)} ${r(cy)}`, V, 5);
@@ -187,7 +187,7 @@ add(rugSvg(-W + 0.02, -2.6, 6.75, 7.65, { base: "#1f2a4a", inner: "#2a3a66", lin
   s += box({ x0: -1.4, x1: 1.4, y0: 0, y1: 0.18, z0: BACK - 0.6, z1: BACK }, { front: "#241d3a", top: "#30285a", side: "#1c1630" });
   s += `<g font-family="serif" font-size="22" fill="${V}" opacity="0.8" text-anchor="middle">${["∫", "Σ", "λ", "π", "∞", "∂"].map((t, i) => {
     const a = Math.PI * (0.85 + i * 0.26); return `<text x="${r(cx + Math.cos(a) * rx * 1.18)}" y="${r(cy + Math.sin(a) * ry * 1.12 + 7)}">${t}</text>`; }).join("")}</g>`;
-  add(s, { spot: "worlds", title: "Portal: anar a un món (combat)", hit: [r(cx - rx * 1.2), r(cy - ry * 1.2), r(rx * 2.4), r(ry * 2.4 + 20)] });
+  add(s, { spot: "worlds", title: "Portal: anar a un món (combat)", hit: [r(cx - rx * 1.2), r(cy - ry * 1.2), r(rx * 2.4), r(ry * 2.4 + 20)], portal: [r(cx), r(cy), r(rx), r(ry)] });
 }
 
 // ---------------------------------------------------------------- cristall de les millores (dreta, al fons)

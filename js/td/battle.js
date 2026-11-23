@@ -36,25 +36,153 @@ const el = (tag, attrs = {}, parent) => {
 
 // ---------------------------------------------------------------- obrir i tancar
 // Botó de velocitat: ×1 / ×2, amb la que va marcada. Cada combat comença a ×1 (també el botó)
+// ×4 quan el món ja ha arribat a l'onada 50
+const tdbSpeeds = () => tdb?.idle && (td.worlds[tdb.world.id]?.best || 0) >= TD_IDLE.fastAt ? [1, 2, 4] : [1, 2];
 function tdbSpeedBtn() {
-  const b = $("tdb-speed"), on = tdb?.speed === 2;
-  b.innerHTML = `<span class="${on ? "" : "sel"}">▶ ×1</span><span class="${on ? "sel" : ""}">⏩ ×2</span>`;
-  b.classList.toggle("on", on);
-  b.setAttribute("aria-pressed", on);
-  b.title = on ? "Velocitat ×2 (toca per a tornar a ×1)" : "Velocitat ×1 (toca per a anar el doble de ràpid)";
+  const b = $("tdb-speed"), sp = tdbSpeeds(), cur = tdb?.speed || 1;
+  b.innerHTML = sp.map(v => `<span class="${v === cur ? "sel" : ""}">${v === 1 ? "▶" : v === 2 ? "⏩" : "⏭"} ×${v}</span>`).join("");
+  b.classList.toggle("on", cur > 1);
+  b.setAttribute("aria-pressed", cur > 1);
+  b.title = `Velocitat ×${cur} (toca per a canviar-la)`;
 }
-function tdOpenBattle(worldId = 1) {
+// ---------------------------------------------------------------- mons idle (TD_IDLE): 100 onades que no es perden
+// El progrés de cada món (td.worlds[id]): best, clears i run = { snap: com començava l'onada en marxa (per a repetir-la),
+// tens: com començava l'última onada després d'un múltiple de 10 (per a tornar-hi) }. El combat continua encara que
+// ixques de la pantalla (tdb es queda viu) i, amb el joc tancat, el temps es guarda i després va més ràpid (tdb.bank).
+const tdbViewing = () => typeof tdViewingOf !== "undefined" && !!tdViewingOf; // mirant la partida de l'altra persona: el combat espera
+const tdIdleWorld = w => !w.demo && TD_WORLDS.includes(w) && w.id !== 999;
+const tdRun = id => td.worlds[id] || (td.worlds[id] = { best: 0, clears: 0 });
+function tdWorldExtended(world) {
+  if (!world.ext || world.extended) return world;
+  const pre = world.ext.pre;
+  return { ...world, path: world.path && [...pre, ...world.path], paths: world.paths?.map(p => [...pre, ...p]), slots: [...world.slots, ...world.ext.slots], extended: true, base: world };
+}
+const tdWorldBosses = world => [...new Set(world.waves.flat().map(x => x[0]).filter(t => TD_ENEMIES[t]?.boss))];
+const tdWorldTypes = world => [...new Set(world.waves.flat().map(x => x[0]).filter(t => TD_ENEMIES[t] && !TD_ENEMIES[t].boss && !TD_ENEMIES[t].hidden))];
+// Onada n d'un món: la plantilla de les 10 onades del món (sense els caps), cada vegada amb més distraccions; cada 10, una
+// gegant; a la 30, 50, 70 i 100, els caps amb nom
+function tdWaveSpec(world, n) {
+  const I = TD_IDLE, src = world.base || world, T = src.waves[(n - 1) % src.waves.length].filter(([t]) => !TD_ENEMIES[t].boss);
+  const grow = 1 + I.countGrow * (n - 1);
+  const spec = (T.length ? T : src.waves[0]).map(([t, c, g]) => [t, Math.max(1, Math.round(c * grow)), +(g / Math.sqrt(grow)).toFixed(2), ""]);
+  const bosses = tdWorldBosses(src);
+  if (I.bossWaves[n]) for (const i of I.bossWaves[n]) spec.push([bosses[i] || bosses[0], 1, 3, n === I.waves ? "big" : ""]);
+  else if (n % I.giantEvery === 0) { const types = tdWorldTypes(src); spec.push([types[(n / I.giantEvery) % types.length], 1, 1, "giant"]); }
+  return spec;
+}
+// Vida de les distraccions a l'onada n: puja de pressa al principi i encara més al final (els caps, la meitat)
+const tdIdleHp = (n, boss) => 1 + (boss ? 0.5 : 1) * (TD_IDLE.waveHp * (n - 1) + TD_IDLE.waveHp2 * (n - 1) ** 2);
+const tdbWaveCount = () => tdb.idle ? TD_IDLE.waves : tdb.world.waves.length;
+const tdbMaxLives = () => TD_BATTLE.lives + 3 * td.upgrades.vida;
+const tdbWaveMana = n => Math.round((TD_IDLE.waveMana[0] + TD_IDLE.waveMana[1] * n) * (1 + 0.08 * td.upgrades.mana));
+// El saber guanyat passa a la partida (a cada onada, en perdre-la i en eixir)
+function tdbBank() {
+  if (!tdb?.idle || tdbViewing()) return;
+  const s = Math.floor(tdb.saber);
+  if (s > 0) { td.saber += s; tdb.saberTotal = (tdb.saberTotal || 0) + s; tdb.saber -= s; }
+}
+// Com comença l'onada: per a repetir-la si es perd (i, després de cada múltiple de 10, per a poder-hi tornar)
+function tdbSnap() {
+  const run = tdRun(tdb.world.id), snap = { wave: tdb.wave, mana: Math.floor(tdb.mana),
+    towers: Object.values(tdb.towers).map(t => [t.slot, t.id, t.up, t.spent]) };
+  run.run = { ...(run.run || {}), snap, speed: tdb.speed };
+  if (tdb.wave > 1 && (tdb.wave - 1) % 10 === 0) run.run.tens = snap;
+  td.idle = { world: tdb.world.id, at: Date.now() };
+  tdSave();
+}
+// Torna a posar el combat tal com estava a l'inici d'una onada (sense pagar res) i la torna a començar
+function tdbRestore(snap) {
+  for (const e of tdb.enemies) e.el?.remove();
+  for (const p of tdb.projs) p.el?.remove();
+  Object.assign(tdb, { enemies: [], projs: [], lines: [], pulses: [], zones: [], chains: [], waves: [], hooks: [], spawnQueue: [], towers: {},
+    over: false, lost: false, won: false, shattering: false, ended: false, rushT: 0, waveRunning: false });
+  const base = tdb.world.base || tdb.world;
+  tdb.world = snap.wave > TD_IDLE.extAt ? tdWorldExtended(base) : base;
+  tdb.paths = tdbWorldPaths(tdb.world).map(tdbPath);
+  tdb.wave = snap.wave - 1;
+  tdb.mana = snap.mana;
+  tdb.lives = tdbMaxLives();
+  tdbBuildView();
+  for (const [slot, id, up, spent] of snap.towers) tdbPut(slot, id, up, spent);
+  tdb.started = true;
+  tdb.pause = 3;
+  if (!$("td-battle").hidden) { tdbRenderDeck(); tdbCloseBottom(); }
+  tdbHud();
+}
+function tdbPut(slot, id, up = 0, spent = 0) { // una criatura, sense pagar-la ni animació (en tornar a una onada)
+  if (!TD_DEFENDERS[id] || !tdb.world.slots[slot] || tdb.towers[slot]) return;
+  const t = { uid: ++tdb.uid, slot, id, up: Math.max(0, Math.min(2, up | 0)), cd: 0.3, shots: 0, stacks: 0, sleepT: 0, side: 0, spent: spent || TD_DEFENDERS[id].cost, burst: 0 };
+  t.stats = tdStats(id, t.up);
+  tdb.towers[slot] = t;
+  tdbDrawTower(t);
+  if (TD_DEFENDERS[id].role === "line") tdbPlaceLine(t);
+  tdbAuraMarks(true);
+}
+// L'onada s'ha perdut: el saber es queda, i es torna a fer tal com havia començat
+function tdbWaveLost() {
+  tdbBank();
+  tdb.over = true; tdb.lost = true;
+  tdbBanner(`Onada ${tdb.wave} perduda · es torna a fer`);
+  const B = tdb, snap = tdRun(tdb.world.id).run?.snap;
+  setTimeout(() => { if (tdb === B && B.lost && snap) tdbRestore(snap); }, 1800);
+}
+// Para del tot el combat (en obrir-ne un altre, reiniciar o tornar a començar la sala)
+function tdStopBattle() {
+  if (!tdb) return;
+  tdbBank();
+  if (tdb.idle) { td.idle = { world: 0, at: 0 }; tdSave(); }
+  tdb = null;
+  $("td-battle").hidden = true;
+}
+// Torna a començar un món: des de l'última onada després d'un múltiple de 10, o des de zero
+function tdResetWorld(id, tens) {
+  const w = tdRun(id), run = w.run || {};
+  if (tdb?.world.id === id) tdStopBattle();
+  if (tens && run.tens) w.run = { ...run, snap: run.tens }; else delete w.run;
+  tdSave();
+}
+// Temps amb el joc tancat: es guarda i després el combat va més ràpid fins que s'acaba (com si haguera seguit)
+function tdbOffline(at) {
+  if (!tdb?.idle || !at) return;
+  const away = Math.min(TD_IDLE.offlineMax, Math.max(0, (Date.now() - at) / 1000));
+  if (away > 60) { tdb.bank = Math.min(TD_IDLE.offlineMax, (tdb.bank || 0) + away); toast(`⏳ Mentre no hi eres: ${Math.round(away / 60)} min de combat que ara van ×${TD_IDLE.offlineBoost}`, "good"); }
+}
+// En carregar: el món que estava en marxa continua sol, en segon pla (i recupera el temps que el joc ha estat tancat)
+function tdResumeActive() {
+  if (tdb || tdbViewing() || !td.idle?.world) return;
+  const w = TD_WORLDS.find(o => o.id === td.idle.world);
+  if (!w || w.soon || !tdRun(w.id).run?.snap) return;
+  const at = td.idle.at;
+  tdOpenBattle(w.id, true);
+  tdbOffline(at);
+}
+
+function tdOpenBattle(worldId = 1, background = false) {
   const world = TD_WORLDS.find(w => w.id === worldId && !w.soon);
   if (!world || tdWorldShut(world)) return;
+  if (tdb && (tdb.world.base || tdb.world).id === worldId && tdb.idle) { if (!background) tdbShow(); return; } // ja està en marxa: només es mira
   if (!tdTeam(world.mode).length) { toast("Tria almenys una criatura per a l'equip (al grimori)", "bad"); return; }
+  if (tdb) tdStopBattle(); // un món en marxa cada vegada
   tdb = {
+
     // camins: un, o diversos que es bifurquen i tornen a ajuntar-se (world.paths). Les distraccions es reparteixen.
     world, paths: (world.paths || [world.path]).map(tdbPath), wave: 0, waveRunning: false, pause: 0, spawnQueue: [], spawnT: 0,
     lives: TD_BATTLE.lives + 3 * td.upgrades.vida, mana: TD_BATTLE.startMana + (world.mana || 0) + 20 * td.upgrades.mana,
     saber: 0, kills: 0, enemies: [], towers: {}, projs: [], selected: null, selectedTower: null,
     speed: 1, over: false, time: 0, rushT: 0, uid: 0, artifactsWon: [], bossesSeen: new Set(),
-    god: false, lines: [], pulses: [], zones: [],
+    god: false, lines: [], pulses: [], zones: [], idle: tdIdleWorld(world), bank: 0,
   };
+  const run = tdb.idle && tdRun(world.id).run;
+  if (run?.snap) { tdb.speed = tdbSpeeds().includes(run.speed) ? run.speed : 1; tdbRestore(run.snap); }
+  else tdbBuildView();
+  tdb.last = performance.now();
+  requestAnimationFrame(tdbLoop);
+  if (tdb.idle) { td.idle = { world: world.id, at: Date.now() }; tdSave(); }
+  if (!background) tdbShow();
+}
+// Mostra la pantalla del combat (el combat ja pot estar en marxa)
+function tdbShow() {
+  if (typeof roomOpen === "function" && roomOpen()) closeRoom();
   $("td-lobby").hidden = true;
   $("td-battle").hidden = false;
   document.body.classList.add("td-open");
@@ -63,28 +191,30 @@ function tdOpenBattle(worldId = 1) {
   tdbCloseBottom();
   tdbHud();
   tdbSpeedBtn();
-  $("tdb-end").hidden = true;
-  tdb.last = performance.now();
-  requestAnimationFrame(tdbLoop);
+  $("tdb-end").hidden = !(tdb.over && tdb.won);
 }
+// Eixir del combat: als mons de 100 onades continua en segon pla (el portal de la sala el deixa veure)
 function tdCloseBattle(toLobby = true) {
-  if (tdb && (!tdb.over || (tdb.shattering && !tdb.ended))) { tdb.ended = true; tdbFinish(false, true); } // també si s'ix mentre es trenca el cristall
-  tdb = null;
+  if (tdb && !tdb.idle) { if (!tdb.over || (tdb.shattering && !tdb.ended)) { tdb.ended = true; tdbFinish(false, true); } tdb = null; }
+  else if (tdb) { tdbBank(); tdbCloseBottom(); tdSave(); }
   $("td-battle").hidden = true;
   if (toLobby) tdOpenLobby(tdRoom);
 }
+
 
 // ---------------------------------------------------------------- vista
 function tdbBuildView() {
   tdb.portrait = innerWidth < innerHeight * 0.9;
   const svg = $("tdb-svg");
-  svg.setAttribute("viewBox", tdb.portrait ? "0 0 900 1600" : "0 0 1600 900");
+  const V = tdb.world.extended ? tdb.world.ext.view : [0, 0, 1600, 900]; // el mapa ampliat (onada 51+) es veu més lluny
+  svg.setAttribute("viewBox", (tdb.portrait ? [900 - V[1] - V[3], V[0], V[3], V[2]] : V).join(" "));
   svg.innerHTML = "";
-  const bg = el("g", { id: "tdb-bg", transform: tdb.portrait ? "translate(900 0) rotate(90)" : "" }, svg);
+  const root = el("g", { id: "tdb-root" }, svg); // tot el combat (el portal de la sala el mostra amb un <use>)
+  const bg = el("g", { id: "tdb-bg", transform: tdb.portrait ? "translate(900 0) rotate(90)" : "" }, root);
   bg.innerHTML = tdbBackground(tdb.world);
   // cristall
   const [cx, cy] = tdbS(...tdb.world.crystal);
-  const crystal = el("g", { id: "tdb-crystal", transform: `translate(${cx} ${cy})` }, svg);
+  const crystal = el("g", { id: "tdb-crystal", transform: `translate(${cx} ${cy})` }, root);
   const forest = tdb.world.mode === "forestal";
   crystal.innerHTML = forest ? `<circle r="70" fill="#9ff07a" opacity="0.12"/><circle r="70" class="tdb-crystal-glow"/><g class="tdb-crystal-gem"><g transform="translate(0 8)">
     <path d="M0 -60 C30 -60 38 -20 36 6 C34 34 18 44 0 44 C-18 44 -34 34 -36 6 C-38 -20 -30 -60 0 -60 Z" fill="#1f6a3e" stroke="#9ff07a" stroke-width="5"/>
@@ -94,24 +224,24 @@ function tdbBuildView() {
     <path d="M0 -62 L0 40 M-30 -14 H30" stroke="#bff4ff" stroke-width="2" opacity="0.8"/></g></g>
     <text y="74" text-anchor="middle" font-size="26" font-weight="800" fill="#bff4ff" id="tdb-lives-map"></text>`;
   // buits
-  const slots = el("g", { id: "tdb-slots" }, svg);
+  const slots = el("g", { id: "tdb-slots" }, root);
   tdb.world.slots.forEach(([x, y], i) => {
     const [sx, sy] = tdbS(x, y);
     const g = el("g", { class: "tdb-slot", "data-slot": i, transform: `translate(${sx} ${sy})` }, slots);
     g.innerHTML = `<ellipse rx="62" ry="22" cy="34" class="tdb-slot-ring"/><ellipse rx="44" ry="15" cy="34" class="tdb-slot-ring2"/>
       <circle r="70" fill="transparent" class="tdb-slot-hit"/>`;
   });
-  el("g", { id: "tdb-range" }, svg);
-  const lines = el("g", { id: "tdb-lines" }, svg); // línies de foc del Contrafoc (davall de tot)
+  el("g", { id: "tdb-range" }, root);
+  const lines = el("g", { id: "tdb-lines" }, root); // línies de foc del Contrafoc (davall de tot)
   for (const l of tdb.lines) { l.el = null; tdbDrawLine(l, lines); }
-  el("g", { id: "tdb-towers" }, svg);
-  el("g", { id: "tdb-enemies" }, svg);
-  el("g", { id: "tdb-proj" }, svg);
-  el("g", { id: "tdb-fx" }, svg);
+  el("g", { id: "tdb-towers" }, root);
+  el("g", { id: "tdb-enemies" }, root);
+  el("g", { id: "tdb-proj" }, root);
+  el("g", { id: "tdb-fx" }, root);
   // estudiant a la cantonada, amb els artefactes que porta
   const [stx, sty] = tdbS(...tdb.world.student);
   // torre arcana on està l'estudiant: plataforma rúnica i cos de pedra que es perd cap avall
-  const perch = el("g", { class: "tdb-perch", transform: `translate(${stx} ${sty})` }, svg);
+  const perch = el("g", { class: "tdb-perch", transform: `translate(${stx} ${sty})` }, root);
   if (forest) { // al bosc, l'estudiant està dalt d'una soca tallada (anells de dalt i escorça)
     perch.innerHTML = `<defs><linearGradient id="tdb-stump-fade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a2a1a"/><stop offset="0.75" stop-color="#22180e"/><stop offset="1" stop-color="#22180e" stop-opacity="0"/></linearGradient></defs>
       <path d="M-62 58 V168 H62 V58 Z" fill="url(#tdb-stump-fade)"/>${[-40, -14, 12, 38].map(x => `<path d="M${x} 74 Q${x + 4} 110 ${x - 2} 160" stroke="#14100a" stroke-width="3" fill="none" opacity="0.7"/>`).join("")}
@@ -133,7 +263,7 @@ function tdbBuildView() {
     <ellipse cx="0" cy="58" rx="52" ry="11" fill="none" stroke="#b39dff" stroke-width="1.4" stroke-dasharray="4 6" opacity="0.8"/>
     ${[-1, 1].map(sx => `<circle cx="${sx * 60}" cy="54" r="5" fill="#ffc23f" opacity="0.9"/><circle cx="${sx * 60}" cy="54" r="11" fill="#ffc23f" opacity="0.18"/>`).join("")}`;
   }
-  const st = el("g", { id: "tdb-student", transform: `translate(${stx} ${sty})` }, svg);
+  const st = el("g", { id: "tdb-student", transform: `translate(${stx} ${sty})` }, root);
   st.innerHTML = tdStudentSvg(td.equipped, `x="-76" y="-84" width="152" height="160"`) +
     `<title>Estudiant${td.equipped.length ? ": " + td.equipped.map(id => TD_ARTIFACTS[id].name).join(", ") : ""}</title>`;
   // tornar a pintar les criatures que ja hi havia (canvi d'orientació)
@@ -331,21 +461,24 @@ function tdbSell(t) {
 }
 
 // ---------------------------------------------------------------- distraccions
-function tdbSpawn(type, dist = 0, small = false, P = null) {
-  const def = tdEnemy(type);
+function tdbSpawn(type, dist = 0, small = false, P = null, kind = "") {
+  let def = tdEnemy(type);
+  // gegant (cada 10 onades): la mateixa distracció, més gran, amb molta més vida i el seu truc; a la 100, els caps encara més grans
+  if (kind === "giant") { const G = TD_IDLE.giant; def = { ...def, size: def.size * G.size, hp: def.hp * G.hp, lives: G.lives, saber: def.saber * G.saber, giant: true, name: `${def.name} gegant` }; }
+  if (kind === "big") { const G = TD_IDLE.bigBoss; def = { ...def, size: def.size * G.size, hp: def.hp * G.hp }; }
   // camí: el que se li diu (les que naixen d'una altra van pel mateix) o, si n'hi ha diversos, un per torns
   P ||= tdb.paths[(tdb.pathTurn = ((tdb.pathTurn ?? -1) + 1) % tdb.paths.length)];
-  const hp = def.hp * TD_DIFFICULTY.hp * (tdb.world.hp || 1) * (1 + TD_WAVE_HP * (def.boss ? 0.5 : 1) * (tdb.wave - 1)); // els caps ja són durs: pugen la meitat per onada
+  const hp = def.hp * TD_DIFFICULTY.hp * (tdb.world.hp || 1) * (tdb.idle ? tdIdleHp(tdb.wave, def.boss) : 1 + TD_WAVE_HP * (def.boss ? 0.5 : 1) * (tdb.wave - 1)); // els caps ja són durs: pugen la meitat per onada
   const e = { uid: ++tdb.uid, type, def, P, hp, maxHp: hp, dist, slowT: 0, slowMult: 1, stunT: 0, vuln: 0, vulnT: 0,
     dotT: 0, dot: 0, abilityT: 0, convertT: 0, size: def.size };
-  e.el = el("g", { class: `tdb-enemy${def.boss ? " boss" : ""}` }, $("tdb-enemies"));
+  e.el = el("g", { class: `tdb-enemy${def.boss || def.giant ? " boss" : ""}${def.giant ? " giant" : ""}` }, $("tdb-enemies"));
   const s = def.size;
   e.el.innerHTML = tdEnemySvg(def.art || type).replace("<svg ", `<svg x="${-s / 2}" y="${-s * 0.96}" width="${s}" height="${s}" `) +
     `<g class="tdb-hp" transform="translate(0 ${-s - 10})"><rect x="-26" y="-4" width="52" height="7" rx="3" fill="#000" opacity="0.6"/><rect class="tdb-hp-bar" x="-25" y="-3" width="50" height="5" rx="2.5" fill="#ff5a4a"/></g>`;
   e.hpBar = e.el.querySelector(".tdb-hp-bar");
   tdb.enemies.push(e);
   if (!td.seen.includes(type) && !def.hidden) td.seen.push(type);
-  if (def.boss && !tdb.bossesSeen.has(type)) { tdb.bossesSeen.add(type); toast(`⚠️ Cap: ${def.name}`, "bad"); }
+  if ((def.boss || def.giant) && !tdb.bossesSeen.has(`${type}${kind}${tdb.wave}`)) { tdb.bossesSeen.add(`${type}${kind}${tdb.wave}`); if (!$("td-battle").hidden) toast(`⚠️ ${def.giant ? "Gegant" : "Cap"}: ${def.name}`, "bad"); }
   return e;
 }
 // Camí de cada distracció (tdb.path: el primer, per a les coses que no depenen d'una distracció)
@@ -424,15 +557,16 @@ function tdbKill(e, byTower) {
   tdbDissolve(e);
   tdbSoul(e);
   tdb.kills++;
-  tdb.mana += e.def.mana + (byTower ? TD_DEFENDERS[byTower.id].manaOnKill || 0 : 0);
-  tdb.saber += e.def.saber * TD_DIFFICULTY.saber * (1 + 0.1 * td.upgrades.saber + tdArtBonus("saber"));
+  // als mons de 100 onades les distraccions no donen maná (es guanya en passar l'onada); el de les criatures, sí
+  tdb.mana += (tdb.idle ? 0 : e.def.mana) + (byTower ? TD_DEFENDERS[byTower.id].manaOnKill || 0 : 0);
+  tdb.saber += e.def.saber * TD_DIFFICULTY.saber * (1 + 0.1 * td.upgrades.saber + tdArtBonus("saber")) * (tdb.idle && tdb.wave > TD_IDLE.extAt ? TD_IDLE.lateSaber : 1);
   if (e.def.splitInto) for (const off of [-18, 18]) tdbSpawn(e.def.splitInto, Math.max(0, e.dist + off), false, tdbP(e));
   if (e.mark) tdbMarkJump(e);
   if (e.def.boss) tdbBossDown(e.type);
 }
 // Un cap derrotat dona el seu artefacte (o el puja de nivell si ja el tens)
 function tdbBossDown(type) {
-  const id = Object.keys(TD_ARTIFACTS).find(k => TD_ARTIFACTS[k].boss === type && (TD_ARTIFACTS[k].world || 1) === tdb.world.id);
+  const id = Object.keys(TD_ARTIFACTS).find(k => TD_ARTIFACTS[k].boss === type && (TD_ARTIFACTS[k].world || 1) === (tdb.world.base || tdb.world).id);
   if (!id) return;
   const had = td.artifacts[id] || 0;
   if (had >= 5) return;
@@ -1188,21 +1322,24 @@ function tdbFx(kind, x, y, color, r = 60) {
 
 // ---------------------------------------------------------------- bucle
 function tdbLoop(now) {
-  if (!tdb || $("td-battle").hidden) return;
-  const dt = Math.min((now - tdb.last) / 1000, 0.1);
-  tdb.last = now;
-  if (!tdb.over) {
-    const speed = tdb.speed * tdDevSpeed;
+  const B = tdb;
+  if (!B || (!B.idle && $("td-battle").hidden)) return; // els mons de 100 onades continuen encara que no es miren
+  const dt = Math.min((now - B.last) / 1000, 0.1);
+  B.last = now;
+  if (!B.over && !tdbViewing() && (B.started || B.wave > 0 || !B.idle || B.demo)) {
+    let speed = B.speed * tdDevSpeed;
+    if (B.bank > 0) { const extra = dt * speed * (TD_IDLE.offlineBoost - 1); B.bank = Math.max(0, B.bank - extra); speed *= TD_IDLE.offlineBoost; } // temps guardat
     let left = dt * speed;
-    while (left > 0) { const step = Math.min(left, 0.05); tdbUpdate(step); left -= step; }
+    while (left > 0 && tdb === B && !B.over) { const step = Math.min(left, 0.05); tdbUpdate(step); left -= step; }
   }
+  if (tdb !== B) return;
   tdbRender();
   requestAnimationFrame(tdbLoop);
 }
 function tdbUpdate(dt) {
   tdb.time += dt;
-  // pausa entre onades
-  if (!tdb.waveRunning && tdb.wave > 0 && tdb.pause > 0) {
+  // pausa entre onades (als mons de 100 onades, la següent comença sola)
+  if (!tdb.waveRunning && (tdb.wave > 0 || tdb.started) && tdb.pause > 0) {
     tdb.pause -= dt;
     if (tdb.pause <= 0) tdbStartWave();
   }
@@ -1210,8 +1347,8 @@ function tdbUpdate(dt) {
   if (tdb.spawnQueue.length) {
     tdb.spawnT -= dt;
     while (tdb.spawnQueue.length && tdb.spawnT <= 0) {
-      const [type, gap] = tdb.spawnQueue.shift();
-      tdbSpawn(type);
+      const [type, gap, kind] = tdb.spawnQueue.shift();
+      tdbSpawn(type, 0, false, null, kind);
       tdb.spawnT += gap;
     }
   }
@@ -1254,7 +1391,7 @@ function tdbUpdate(dt) {
       if (!tdb.god) tdb.lives -= e.def.lives;
       $("tdb-student")?.classList.add("hurt");
       setTimeout(() => $("tdb-student")?.classList.remove("hurt"), 500);
-      if (tdb.lives <= 0) { tdb.lives = 0; tdbFinish(false); return; }
+      if (tdb.lives <= 0) { tdb.lives = 0; if (tdb.idle) tdbWaveLost(); else tdbFinish(false); return; }
     }
   }
   tdb.enemies = tdb.enemies.filter(e => e.hp > 0);
@@ -1371,25 +1508,57 @@ function tdbShift(e) {
 
 // ---------------------------------------------------------------- onades
 function tdbStartWave() {
-  if (tdb.over || tdb.waveRunning || tdb.wave >= tdb.world.waves.length) return;
+  if (tdb.over || tdb.waveRunning || tdb.wave >= tdbWaveCount()) return;
+  const id = (tdb.world.base || tdb.world).id;
+  // passada l'onada 50, el mapa s'amplia: un tros de camí nou i 4 buits més (les criatures es queden on eren)
+  if (tdb.idle && tdb.wave >= TD_IDLE.extAt && tdb.world.ext && !tdb.world.extended) {
+    tdb.world = tdWorldExtended(tdb.world);
+    tdb.paths = tdbWorldPaths(tdb.world).map(tdbPath);
+    tdbBuildView();
+    if (!$("td-battle").hidden) toast("🗺️ El mapa s'amplia: camí més llarg i 4 buits nous", "good");
+  }
   tdb.wave++;
+  tdb.started = true;
   tdb.waveRunning = true;
   tdb.pause = 0;
   tdb.spawnQueue = [];
-  for (const [type, count, gap] of tdb.world.waves[tdb.wave - 1]) for (let i = 0; i < count; i++) tdb.spawnQueue.push([type, gap]);
+  if (tdb.idle) {
+    tdb.lives = tdbMaxLives(); // cada onada, el cristall sencer
+    tdbSnap();
+    for (const [type, count, gap, kind] of tdWaveSpec(tdb.world, tdb.wave)) for (let i = 0; i < count; i++) tdb.spawnQueue.push([type, gap, kind]);
+  } else for (const [type, count, gap] of tdb.world.waves[tdb.wave - 1]) for (let i = 0; i < count; i++) tdb.spawnQueue.push([type, gap]);
   tdb.spawnT = 0.3;
-  const w = td.worlds[tdb.world.id] || (td.worlds[tdb.world.id] = { best: 0, clears: 0 });
+  const w = tdRun(id);
   w.best = Math.max(w.best, tdb.wave - 1);
-  tdbBanner(`Onada ${tdb.wave}`);
+  tdbBanner(`Onada ${tdb.wave}${tdb.idle ? ` / ${TD_IDLE.waves}` : ""}`);
 }
 function tdbWaveDone() {
   tdb.waveRunning = false;
-  tdb.saber += TD_BATTLE.waveBonusSaber * tdb.wave;
-  const w = td.worlds[tdb.world.id];
-  w.best = Math.max(w.best, tdb.wave);
+  const n = tdb.wave, id = (tdb.world.base || tdb.world).id, w = tdRun(id);
+  tdb.saber += TD_BATTLE.waveBonusSaber * n * (tdb.idle && n > TD_IDLE.extAt ? TD_IDLE.lateSaber : 1);
+  const wasBest = w.best;
+  w.best = Math.max(w.best, n);
+  if (tdb.idle) {
+    const mana = tdbWaveMana(n);
+    tdb.mana += mana;
+    tdbBank();
+    // els caps amb nom: la primera vegada que cauen, pergamins de cada camp de la sala
+    const perg = TD_IDLE.bossScrolls[n];
+    if (perg && !(w.scrolls ||= []).includes(n)) {
+      w.scrolls.push(n);
+      for (const s of tdFieldsOf(tdb.world.mode)) td.pergamins[s] += perg;
+      toast(`📜 Caps derrotats! +${perg} pergamins de cada camp`, "good");
+    }
+    if (wasBest < TD_IDLE.openAt && n >= TD_IDLE.openAt) {
+      const next = TD_WORLDS.find(o => o.needs === id && !o.soon);
+      toast(next ? `🌀 Onada ${n}: s'obri «${next.name}» i ja pots anar a ×4` : `⏭ Onada ${n}: ja pots anar a ×4`, "good");
+      tdbSpeedBtn();
+    }
+    if (!$("td-battle").hidden) tdbNumber(...tdbS(...tdb.world.crystal), `+${mana} 🔮`, "#b48cff", true);
+  }
   tdSave();
-  if (tdb.wave >= tdb.world.waves.length) { tdbFinish(true); return; }
-  tdb.pause = TD_BATTLE.wavePause;
+  if (n >= tdbWaveCount()) { tdbFinish(true); return; }
+  tdb.pause = tdb.idle ? 3 : TD_BATTLE.wavePause;
 }
 function tdbBanner(text) {
   const b = $("tdb-banner");
@@ -1413,20 +1582,25 @@ function tdbShatter(e) {
     return `<g class="tdb-shard" style="--dx:${(Math.cos(a) * d).toFixed(0)}px;--dy:${(Math.sin(a) * d - 30).toFixed(0)}px;--rot:${Math.round(Math.random() * 540 - 270)}deg;animation-delay:${(0.35 + Math.random() * 0.1).toFixed(2)}s">
       <path d="M0 ${-r} L${r * 0.7} ${r * 0.2} L${-r * 0.4} ${r}" fill="${C[0]}" stroke="${C[1]}" stroke-width="2.5" stroke-linejoin="round"/></g>`; }).join("");
   const B = tdb;
+  if (B.idle) { setTimeout(() => { if (tdb === B && !B.ended) { $("tdb-crystal")?.classList.remove("shatter"); tdbWaveLost(); } }, 1500); return; }
   setTimeout(() => { if (tdb === B && !B.ended) { B.ended = true; tdbFinish(false); } }, 1500);
 }
 function tdbFinish(won, quiet = false) {
-  tdb.over = true;
+  tdb.over = true; tdb.won = won;
+  const id = (tdb.world.base || tdb.world).id;
   if (won) {
     tdb.saber += TD_BATTLE.worldBonusSaber;
-    td.worlds[tdb.world.id].clears++;
+    tdRun(id).clears++;
   }
-  const saber = Math.round(tdb.saber);
-  td.saber += saber;
+  const saber = Math.round(tdb.saber) + (tdb.saberTotal || 0);
+  td.saber += Math.round(tdb.saber);
+  tdb.saber = 0;
+  if (tdb.idle) { delete tdRun(id).run; td.idle = { world: 0, at: 0 }; } // món acabat: la pròxima vegada, des de zero
   tdSave();
   if (quiet) return;
+  if (tdb.idle && $("td-battle").hidden) { toast(`🏆 Has acabat les ${TD_IDLE.waves} onades de «${tdb.world.name}»!`, "good"); return; }
   $("tdb-end-title").textContent = won ? "🏆 Món superat!" : "💥 El cristall s'ha trencat";
-  $("tdb-end-body").innerHTML = `<p>Has arribat a l'onada <strong>${tdb.wave} / ${tdb.world.waves.length}</strong> i has eliminat <strong>${tdb.kills}</strong> distraccions.</p>
+  $("tdb-end-body").innerHTML = `<p>Has arribat a l'onada <strong>${tdb.wave} / ${tdbWaveCount()}</strong> i has eliminat <strong>${tdb.kills}</strong> distraccions.</p>
     <p class="tdb-end-saber">✨ +${fmtNum(saber)} de saber</p>
     ${tdb.artifactsWon.map(id => `<p>${TD_ARTIFACTS[id].icon} ${TD_ARTIFACTS[id].name} (nivell ${td.artifacts[id]})</p>`).join("")}
     <p class="muted">Amb el saber pots pujar de nivell les criatures al grimori.</p>`;
@@ -1471,14 +1645,17 @@ function tdbRender() {
 }
 function tdbHud() {
   $("tdb-world").textContent = `${tdWorldNum(tdb.world)}. ${tdb.world.name}`;
-  $("tdb-wave").textContent = `${Math.max(1, tdb.wave)} / ${tdb.world.waves.length}`;
-  $("tdb-lives").textContent = tdb.god ? "∞" : tdb.lives;
+  $("tdb-wave").textContent = `${Math.max(1, tdb.wave)} / ${tdbWaveCount()}`;
+  const bank = $("tdb-bank"), lost = $("tdb-lost");
+  if (bank) { bank.hidden = !(tdb.bank > 0); if (tdb.bank > 0) bank.textContent = `⏳ ×${TD_IDLE.offlineBoost} ${Math.ceil(tdb.bank / 60)} min`; }
+  if (lost) lost.hidden = !tdb.lost;
+  $("tdb-lives").textContent = tdb.god ? "∞" : Math.max(0, tdb.lives);
   $("tdb-lives-map") && ($("tdb-lives-map").textContent = tdb.god ? "∞" : tdb.lives);
   $("tdb-mana").textContent = Math.floor(tdb.mana);
   $("tdb-saber").textContent = fmtNum(Math.round(tdb.saber));
   const next = $("tdb-next");
   if (tdb.over) next.hidden = true;
-  else if (tdb.wave === 0) { next.hidden = false; next.textContent = "▶ Començar"; }
+  else if (tdb.wave === 0 && !tdb.started) { next.hidden = false; next.textContent = "▶ Començar"; }
   else if (!tdb.waveRunning && tdb.pause > 0) { next.hidden = false; next.textContent = `▶ Ja! (${Math.ceil(tdb.pause)})`; }
   else next.hidden = true;
   // cartes: les que no et pots permetre, apagades
@@ -1610,15 +1787,23 @@ function initTdBattle() {
     tdbStartWave();
   });
   $("tdb-speed").addEventListener("click", () => {
-    tdb.speed = tdb.speed === 2 ? 1 : 2;
+    const sp = tdbSpeeds();
+    tdb.speed = sp[(sp.indexOf(tdb.speed) + 1) % sp.length] || 1;
+    if (tdb.idle && tdRun((tdb.world.base || tdb.world).id).run) tdRun((tdb.world.base || tdb.world).id).run.speed = tdb.speed;
     tdbSpeedBtn();
   });
-  $("tdb-exit").addEventListener("click", () => {
-    if (!tdb.over && tdb.wave > 0 && !confirm("Eixir del combat? Et quedes el saber que has guanyat fins ara.")) return;
-    tdCloseBattle();
+  // eixir: el combat dels mons de 100 onades continua sol (es veu pel portal de la sala)
+  $("tdb-exit").addEventListener("click", () => tdCloseBattle());
+  $("tdb-end-lobby").addEventListener("click", () => { if (tdb?.idle) { tdStopBattle(); tdOpenLobby(tdRoom); } else tdCloseBattle(); });
+  $("tdb-end-retry").addEventListener("click", () => { const w = (tdb.world.base || tdb.world).id; if (tdb.idle) tdStopBattle(); else tdCloseBattle(false); tdOpenBattle(w); });
+  // amb el joc amagat (una altra pestanya, el mòbil bloquejat) el combat no avança: el temps es guarda i després va més ràpid
+  document.addEventListener("visibilitychange", () => {
+    if (!tdb?.idle) return;
+    if (document.hidden) { tdb.hiddenAt = Date.now(); td.idle = { world: (tdb.world.base || tdb.world).id, at: Date.now() }; tdSave(); }
+    else if (tdb.hiddenAt) { tdb.last = performance.now(); tdbOffline(tdb.hiddenAt); tdb.hiddenAt = 0; }
   });
-  $("tdb-end-lobby").addEventListener("click", () => tdCloseBattle());
-  $("tdb-end-retry").addEventListener("click", () => { const w = tdb.world.id; tdCloseBattle(false); tdOpenBattle(w); });
+  addEventListener("pagehide", () => { if (tdb?.idle) { tdbBank(); td.idle = { world: (tdb.world.base || tdb.world).id, at: Date.now() }; tdSave(); } });
+  setTimeout(() => { if (typeof tdResumeActive === "function") tdResumeActive(); }, 1200); // el món que estava en marxa continua
   // si es gira la pantalla, es torna a pintar el mapa
   let lastPortrait = null;
   addEventListener("resize", () => {

@@ -151,7 +151,7 @@ const fern = (x, y, s, flip = 1) => { // falguera: fulles corbades amb folíols
   const x = -2.5, z = 7.7, w = 1.0, h = 2.9;
   const [cx, cy] = P(x, h * 0.48, z), sc = cam.scale(z), prx = w * 0.72 * sc, pry = h * 0.42 * sc;
   s += `<ellipse cx="${r(cx)}" cy="${r(cy)}" rx="${r(prx * 1.5)}" ry="${r(pry * 1.25)}" fill="url(#fo-portal-glow)"/>`;
-  s += `<ellipse cx="${r(cx)}" cy="${r(cy)}" rx="${r(prx)}" ry="${r(pry)}" fill="url(#fo-portal)"/>`;
+  s += `<ellipse class="sl-portal-fill" cx="${r(cx)}" cy="${r(cy)}" rx="${r(prx)}" ry="${r(pry)}" fill="url(#fo-portal)"/>`; // transparent amb un combat en marxa
   s += `<g class="sl-swirl" style="transform-origin:${r(cx)}px ${r(cy)}px">${[0.8, 0.58, 0.36].map((k, i) => `<ellipse cx="${r(cx)}" cy="${r(cy)}" rx="${r(prx * k)}" ry="${r(pry * k)}" fill="none" stroke="${i % 2 ? GLOW : "#7fe0a0"}" stroke-width="3" stroke-dasharray="${20 + i * 8} ${14 + i * 6}" opacity="0.7"/>`).join("")}</g>`;
   // els dos troncs: pugen pels costats i es creuen dalt
   for (const sx of [-1, 1]) {
@@ -162,7 +162,7 @@ const fern = (x, y, s, flip = 1) => { // falguera: fulles corbades amb folíols
   for (const sx of [-1, 1]) s += ribbon(curve([[x + sx * w, 0.25, z], [x + sx * (w + 0.35), 0.03, z - 0.2], [x + sx * (w + 0.6), 0.01, z - 0.1]], 6), 0.18, 0.03, BARK);
   const [tx, ty] = P(x, h * 1.02, z);
   for (let i = 0; i < 16; i++) { const a = -Math.PI * (0.05 + i / 16 * 0.9); s += leaf(tx + Math.cos(a) * 70 * (0.6 + (i % 3) * 0.2), ty + Math.sin(a) * 30 + 6, 9 + (i % 3) * 3, a * 57 + 90, i % 3 ? LEAF : LEAF_L); }
-  add(s, { spot: "worlds", title: "Portal del bosc: anar a un món (combat)", hit: bbox([[x - w - 0.3, 0, z], [x + w + 0.3, h * 1.1, z]]) });
+  add(s, { spot: "worlds", title: "Portal del bosc: anar a un món (combat)", hit: bbox([[x - w - 0.3, 0, z], [x + w + 0.3, h * 1.1, z]]), portal: [r(cx), r(cy), r(prx), r(pry)] });
 }
 
 // ---------------------------------------------------------------- rellotge de sorra damunt d'una soca (tornar a començar)

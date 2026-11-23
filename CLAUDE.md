@@ -144,7 +144,19 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   (`spawn`: deja pestañas/hormigas detrás) y jefe L'Algoritme / Papallona irisada (`shift`: cambia de debilidad cada 6 s,
   icono encima, color `--shift`). Artefactos: Pell bioluminescent (Marc, `biolum`, +15 % saber) y Banyes de cervatell (Alba, `banyes`, cap).
   Balance de mundos: `python tools/td-progres.py [--mon=2]`.
-  Un jefe que llega al cristal lo rompe (`tdbShatter`: se pierde el mundo con las vidas que queden, animación de trozos).
+  Un jefe que llega al cristal lo rompe (`tdbShatter`: se pierde la oleada, animación de trozos).
+  **Mundos idle de 100 oleadas** (`TD_IDLE` en data.js, lógica al principio de battle.js): como la autoescola, nunca se pierde el
+  progreso. Las 10 oleadas de cada mundo son la plantilla (sin jefes) y crecen (`tdWaveSpec`, vida `tdIdleHp`); cada 10, una
+  distracción gigante (`giant`); los dos jefes con nombre en la 30 y la 50 (cada uno solo), la 70 (juntos) y la 100 (juntos y más
+  grandes); la primera vez, pergamins de cada campo (`bossScrolls`). Las distracciones no dan maná: se gana al pasar la oleada
+  (`tdbWaveMana`; Concentració +8 % por nivel). Vidas llenas en cada oleada; si se pierde, se repite tal como empezó
+  (`tdbSnap`/`tdbRestore`, `td.worlds[id].run.snap`). En la sala, el portal: continuar, volver a la última oleada tras un múltiplo de 10
+  (`run.tens`) o desde 0 (`tdResetWorld`). El combate sigue en segundo plano al salir (`tdb` vivo, `tdCloseBattle`); el portal de la
+  sala lo enseña detrás, más transparente (`tdPortalLive`, `<use href="#tdb-root">`, `portal` en las capas de las salas). Con el
+  juego cerrado u oculto, el tiempo se guarda (`td.idle`, máx. 2 h) y luego el combate va ×4 hasta gastarlo (`tdb.bank`). Al cargar
+  se reanuda solo (`tdResumeActive`). Desde la 50: ×4, mapa ampliado (`world.ext`: camino más largo y 4 huecos, `tdWorldExtended`),
+  se abre el mundo siguiente y hasta la 100 ×1,5 de saber. Balance: `python tools/td-progres.py [sala] [--mon=2] [--temps=s]` (onda
+  máxima por etapa; el bot es simple y da resultados con ruido).
 - Botiga, tests, compendio e inventario viven en la DGT (`js/hub.js`): pantalla completa con el interior dibujado y
   4 puntos interactivos (caixer, instructor, llibre, espill). Ya no hay panel derecho.
 - Cada zona nueva trae un enemigo nuevo y temático (nunca una "versión más fuerte"); jefe con nombre cada 3 zonas,

@@ -52,8 +52,9 @@ function tdRenderLobby() {
   const spots = [];
   const ART = TD_ROOMS[tdRoom].art();
   const layers = ART.layers.map(l => {
-    const svg = l.svg.replace("%STUDENT%", student).replace("%CRYSTAL%", crystal);
+    let svg = l.svg.replace("%STUDENT%", student).replace("%CRYSTAL%", crystal);
     if (!l.spot) return svg;
+    if (l.portal) svg = tdPortalLive(l.portal) + svg; // el combat en marxa, darrere del portal
     const [x, y, w, h] = l.hit;
     spots.push([w * h, `<rect class="hub-hit" data-td="${l.spot}" tabindex="0" role="button" aria-label="${l.title}" x="${x}" y="${y}" width="${w}" height="${h}" fill="transparent"><title>${l.title}</title></rect>`]);
     return `<g class="hub-art td-art" id="td-art-${l.spot}">${svg}</g>`;
@@ -62,6 +63,17 @@ function tdRenderLobby() {
   spots.push([0, tdMailboxHit]);
   $("td-lobby-scene").innerHTML = `<svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet" aria-label="${TD_ROOMS[tdRoom].label}"><defs>${ART.defs}</defs>${layers}${mailbox}${spots.sort((x, y) => y[0] - x[0]).map(x => x[1]).join("")}</svg>`; // les zones menudes, damunt
   tdLobbyHud();
+}
+// Dins del portal es veu el combat que continua sol: el mateix dibuix (un <use> de #tdb-root), retallat per l'el·lipse
+function tdPortalLive([cx, cy, rx, ry]) {
+  const on = tdb?.idle && tdb.world.mode === tdRoom && $("tdb-root");
+  document.getElementById("td-lobby-scene")?.classList.toggle("portal-live", !!on);
+  if (!on) return "";
+  const vb = $("tdb-svg").getAttribute("viewBox").split(" ").map(Number);
+  const k = Math.max(2 * rx / vb[2], 2 * ry / vb[3]) * 1.05; // omplir l'el·lipse
+  return `<defs><clipPath id="td-portal-clip"><ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"/></clipPath></defs>
+    <g class="td-portal-live" clip-path="url(#td-portal-clip)"><rect x="${cx - rx}" y="${cy - ry}" width="${2 * rx}" height="${2 * ry}" fill="#05060a"/>
+      <g transform="translate(${cx} ${cy}) scale(${k.toFixed(4)}) translate(${-(vb[0] + vb[2] / 2)} ${-(vb[1] + vb[3] / 2)})"><use href="#tdb-root"/></g></g>`;
 }
 function tdLobbyHud() {
   $("td-saber").textContent = fmtNum(Math.floor(td.saber));
@@ -576,12 +588,18 @@ function tdWorldsHtml() {
         return `<div class="td-portal-mon rar-${d.rar}${lent ? " lent" : ""}" title="${d.name} · ${TD_ELEMENTS[d.el].name}${lent ? " · prestada" : ""}">${tdElemDot(id)}<span class="td-portal-art">${tdCreatureSvg(id)}</span>
           <span class="td-portal-name">${d.name}${lent ? " 🤝" : ""}</span><span class="muted">Nv. ${s.level} ${"★".repeat(s.stars)} · 🔮 ${d.cost}</span></div>`; }).join("")}
       <button class="secondary small" data-go="grimori">📖 Canviar l'equip</button></aside>
-    <div class="td-portal-main"><p class="td-hint">Cada món té 10 onades i dos caps, que deixen artefactes per a l'estudiant. El saber que guanyes es queda sempre, encara que perdes.</p>
+    <div class="td-portal-main"><p class="td-hint">${TD_IDLE.waves} onades per món, i no es perd mai el que has fet: si una onada va mal, es torna a fer. El combat continua sol encara que te'n vages. A la 50, ×4, mapa més gran i el món següent.</p>
     <div class="td-worlds">${TD_WORLDS.filter(w => w.mode === tdRoom).map(w => {
       const p = td.worlds[w.id] || { best: 0, clears: 0 }, shut = tdWorldShut(w), prev = shut && TD_WORLDS.find(o => o.id === w.needs);
-      return `<div class="td-world${w.soon || shut ? " locked" : ""}"><div><strong>${tdWorldNum(w)}. ${w.name}</strong> <span class="muted">· ${w.layout}</span>
-        <div class="muted">${w.soon ? "Pròximament" : shut ? `Supera «${prev.name}» per a obrir-lo` : `Millor onada: ${p.best} / ${w.waves.length}${p.clears ? ` · superat ${p.clears}×` : ""}`}</div></div>
-        ${w.soon || shut ? "<span>🔒</span>" : `<button data-play="${w.id}">▶ Jugar</button>`}</div>`;
+      const run = p.run, live = tdb?.idle && (tdb.world.base || tdb.world).id === w.id, now = live ? Math.max(1, tdb.wave) : run?.snap?.wave;
+      const pct = Math.round(100 * Math.min(p.best, TD_IDLE.waves) / TD_IDLE.waves);
+      return `<div class="td-world${w.soon || shut ? " locked" : ""}${live ? " live" : ""}"><div class="td-world-info"><strong>${tdWorldNum(w)}. ${w.name}</strong> <span class="muted">· ${w.layout}</span>
+        ${w.soon ? `<div class="muted">Pròximament</div>` : shut ? `<div class="muted">Arriba a l'onada ${TD_IDLE.openAt} de «${prev.name}» per a obrir-lo</div>`
+          : `<div class="td-world-bar" title="Millor onada: ${p.best} / ${TD_IDLE.waves}"><i style="width:${pct}%"></i><b>${p.best} / ${TD_IDLE.waves}</b></div>
+          <div class="muted">${live ? `⚔️ En marxa · onada ${now}` : now ? `En pausa a l'onada ${now}` : "Encara no hi has jugat"}${p.clears ? ` · acabat ${p.clears}×` : ""}</div>`}</div>
+        ${w.soon || shut ? "<span>🔒</span>" : `<div class="td-world-btns"><button data-play="${w.id}">${live ? "👀 Mirar" : now ? "▶ Continuar" : "▶ Jugar"}</button>
+          ${run?.tens || live && tdRun(w.id).run?.tens ? `<button class="secondary small" data-wreset="${w.id}:10" title="Torna a com començava l'onada ${(run?.tens || tdRun(w.id).run.tens).wave}, amb les criatures i el maná d'aquell moment">↺ A l'onada ${(run?.tens || tdRun(w.id).run.tens).wave}</button>` : ""}
+          ${now ? `<button class="secondary small" data-wreset="${w.id}:0" title="Des de l'onada 1, sense criatures posades">⟲ Des de 0</button>` : ""}</div>`}</div>`;
     }).join("")}</div></div></div>`;
 }
 
@@ -696,6 +714,7 @@ function tdToggleEquip(id) {
 // ---- rellotge de sorra (tornar a començar sense perdre el que has guanyat estudiant)
 function tdAskRestart() {
   if (!confirm("Tornar a començar el joc d'estudi?\n\nEs conserven les criatures (còpies i estreles), els pergamins, els artefactes, l'equip i el que has apuntat.\nEs perden el saber, els nivells de les criatures, les millores del cristall i el progrés dels mons.")) return;
+  tdStopBattle();
   tdRestart();
   tdRenderLobby();
   toast("⏳ Has tornat a començar. Les criatures continuen amb tu.", "good");
@@ -748,6 +767,11 @@ function initTdLobby() {
     }
     else if (ds.team) tdToggleTeam(ds.team);
     else if (ds.go) { tdSpot(ds.go); if (ds.go === "grimori") { tdBook = { tab: "team", page: 0 }; tdRenderPanel(); } }
+    else if (ds.wreset) {
+      const [id, tens] = ds.wreset.split(":").map(Number), w = TD_WORLDS.find(o => o.id === id), at = tdRun(id).run?.tens?.wave;
+      if (!confirm(tens ? `Tornar «${w.name}» a l'onada ${at}, amb les criatures i el maná que hi havia?` : `Tornar a començar «${w.name}» des de l'onada 1? Les criatures es tornen a posar des de zero (el saber i el millor que has fet es queden).`)) return;
+      tdResetWorld(id, !!tens); tdRenderPanel(); tdRenderLobby();
+    }
     else if (ds.play) { tdClosePanel(); tdOpenBattle(Number(ds.play)); }
     else if (ds.up) { if (tdBuyUpgrade(ds.up)) { tdRenderPanel(); tdRenderLobby(); document.querySelector(".td-card .td-crys")?.classList.add("flash"); } }
     else if (ds.equip) tdToggleEquip(ds.equip);

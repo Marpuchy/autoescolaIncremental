@@ -19,7 +19,8 @@ function tdNewState() {
     upBank: {},                                       // millores dels cristalls de les altres sales
     artifacts: {},                                    // id → nivell
     equipped: [],                                     // artefactes que porta l'estudiant
-    worlds: {},                                       // id → { best: onada, clears: vegades }
+    worlds: {},                                       // id → { best: onada, clears: vegades, run: { snap, tens, speed }, scrolls: [onades amb pergamins ja donats] }
+    idle: { world: 0, at: 0 },                        // el món de 100 onades que està en marxa i quan es va guardar (per al temps fora)
     seen: [],                                         // enemics vistos (bestiari)
     log: [],                                          // què s'ha estudiat (els 40 últims)
     daily: { date: "", alg: 0, prg: 0 },
@@ -99,6 +100,17 @@ function tdLoad(fromRaw = null) { // fromRaw: una partida que no és la d'este d
     td.favs = td.favs.filter(id => TD_DEFENDERS[id]);
     td.mail = td.mail.filter(id => typeof id === "string");
     td.share = tdCleanShare(td.share);
+    // mons: només números i criatures que existixen (la partida pot vindre del núvol)
+    const okSnap = s => s && Number.isInteger(s.wave) && s.wave >= 1 && s.wave <= TD_IDLE.waves && Array.isArray(s.towers)
+      ? { wave: s.wave, mana: Math.max(0, Number(s.mana) || 0), towers: s.towers.filter(t => Array.isArray(t) && Number.isInteger(t[0]) && t[0] >= 0 && t[0] < 20 && TD_DEFENDERS[t[1]]).map(t => [t[0], t[1], Math.max(0, Math.min(2, t[2] | 0)), Math.max(0, Number(t[3]) || 0)]) } : null;
+    for (const [k, w] of Object.entries(td.worlds)) {
+      if (!w || typeof w !== "object") { delete td.worlds[k]; continue; }
+      w.best = Math.max(0, Math.min(TD_IDLE.waves, Math.floor(Number(w.best) || 0))); w.clears = Math.max(0, Math.floor(Number(w.clears) || 0));
+      w.scrolls = Array.isArray(w.scrolls) ? w.scrolls.filter(n => TD_IDLE.bossScrolls[n]) : [];
+      const snap = okSnap(w.run?.snap), tens = okSnap(w.run?.tens);
+      if (snap) w.run = { snap, ...(tens ? { tens } : {}), speed: [1, 2, 4].includes(w.run.speed) ? w.run.speed : 1 }; else delete w.run;
+    }
+    td.idle = { world: Number(td.idle?.world) || 0, at: Number(td.idle?.at) || 0 };
     td.record = tdCleanRecord(td.record, !data.record);
     td.loan = tdCleanLoan(td.loan);
     // un artefacte per espai

@@ -263,7 +263,7 @@ const tdArtSlot = id => TD_ARTIFACTS[id]?.slot;
 const TD_UPGRADES = {
   // més nivells que abans (fins a 30) però creixement més suau; la vida del cristall és la més cara
   vida:  { name: "Cristall resistent", icon: "💎", desc: "+3 de vida del cristall", per: lvl => `+${3 * lvl} de vida`, base: 110, growth: 1.38, max: 30 },
-  mana:  { name: "Concentració", icon: "🔮", desc: "+20 de maná inicial", per: lvl => `+${20 * lvl} de maná`, base: 50, growth: 1.3, max: 30 },
+  mana:  { name: "Concentració", icon: "🔮", desc: "+8 % de maná en passar cada onada", per: lvl => `+${8 * lvl} % de maná per onada`, base: 50, growth: 1.3, max: 30 },
   saber: { name: "Curiositat", icon: "✨", desc: "+10 % de saber guanyat", per: lvl => `+${10 * lvl} % de saber`, base: 80, growth: 1.33, max: 30 },
 };
 
@@ -302,6 +302,17 @@ const TD_BATTLE = {
   lives: 20, startMana: 100, upgradeCost: [0.8, 1.2], upgradeMult: [1, 1.35, 1.75], sellBack: 0.6,
   wavePause: 5, waveBonusSaber: 8, worldBonusSaber: 300, projSpeed: 950,
 };
+// Mons idle de 100 onades (com l'autoescola: no es perd mai el progrés). Les distraccions no donen maná: es guanya en passar
+// cada onada (waveMana: base + per onada, ×(1 + 8 % per nivell de Concentració)). Si una onada es perd, es torna a fer tal com
+// havia començat (criatures, maná). Cada 10 onades, una distracció gegant; els caps amb nom ixen a la 30 i a la 50 (cadascun
+// sol), a la 70 junts i a la 100 junts i gegants. A partir de la 50: ×4, el mapa s'amplia i s'obri el món següent; fins a la
+// 100, més saber.
+const TD_IDLE = {
+  waves: 100, waveMana: [45, 2.5], waveHp: 0.12, waveHp2: 0.0006, countGrow: 0.015, giantEvery: 10, giant: { size: 1.7, hp: 10, lives: 8, saber: 8 },
+  bossWaves: { 30: [0], 50: [1], 70: [0, 1], 100: [0, 1] }, bigBoss: { size: 1.25, hp: 2 }, // a la 100, els caps encara més grans
+  bossScrolls: { 30: 5, 50: 8, 70: 10, 100: 15 },  // pergamins de cada camp la primera vegada que cauen (per món i onada)
+  fastAt: 50, extAt: 50, openAt: 50, lateSaber: 1.5, offlineMax: 2 * 3600, offlineBoost: 4,
+};
 
 // Mons. path: punts del camí (del començament al cristall). slots: buits on es posen les criatures.
 // Al bosc, les mateixes distraccions (mateix nom, mateix truc) es disfressen de coses del bosc: look (què pareixen),
@@ -336,6 +347,8 @@ const TD_WORLDS = [
     path: [[-60, 150], [1300, 150], [1300, 430], [300, 430], [300, 710], [1460, 710]],
     slots: [[420, 290], [720, 290], [1020, 290], [1450, 290], [160, 570], [600, 570], [900, 570], [1200, 570], [760, 840], [1120, 840]],
     crystal: [1500, 710], student: [110, 790],
+    // a partir de l'onada 50 el mapa s'amplia: les distraccions entren per baix a l'esquerra i pugen per una columna nova
+    ext: { pre: [[-360, 960], [-160, 960], [-160, 150]], slots: [[-290, 330], [-290, 690], [-40, 300], [-40, 560]], view: [-400, -100, 2020, 1136] },
     // onades: [enemic, quantitat, interval en s] (en ordre)
     waves: [
       [["notificacio", 8, 0.9]],
@@ -359,6 +372,7 @@ const TD_WORLDS = [
     ],
     slots: [[160, 300], [160, 600], [500, 330], [820, 330], [500, 570], [820, 570], [660, 450], [1220, 300], [1220, 600], [1380, 640]],
     crystal: [1500, 450], student: [110, 800],
+    ext: { pre: [[-360, 960], [-160, 960], [-160, 450]], slots: [[-290, 290], [-290, 650], [-40, 290], [-40, 640]], view: [-400, -100, 2020, 1136] },
     waves: [
       [["notificacio", 10, 0.7]],
       [["notificacio", 8, 0.6], ["pestanyes", 2, 3]],
@@ -380,11 +394,12 @@ const TD_WORLDS = [
 // (fons a tdbBackground). Les distraccions són les mateixes, dibuixades com a coses del bosc (TD_FOREST_ENEMIES).
 TD_WORLDS.push(
   { ...TD_WORLDS[0], id: 101, mode: "forestal", name: "Sendera de les Arrels" },
-  { ...TD_WORLDS[1], id: 102, mode: "forestal", name: "La Pineda", needs: 101, hp: 0.95 }, // al bosc hi ha més criatures físiques, que les formigues resistixen
+  { ...TD_WORLDS[1], id: 102, mode: "forestal", name: "La Pineda", needs: 101, hp: 1.15 }, // al bosc hi ha més criatures físiques, que les formigues resistixen
   { id: 103, mode: "forestal", name: "El Barranc", layout: "Espiral", soon: true },
   { id: 104, mode: "forestal", name: "La Muntanya Cremada", layout: "Doble entrada", soon: true },
   { id: 105, mode: "forestal", name: "El Cor del Bosc", layout: "Doble entrada", soon: true },
 );
 // Un món s'obri quan s'ha superat el d'abans (needs)
-const tdWorldShut = w => !!w.needs && !(typeof td !== "undefined" && td.worlds?.[w.needs]?.clears > 0);
-const tdWorldNum = w => TD_WORLDS.filter(o => o.mode === w.mode).indexOf(w) + 1;
+// Un món s'obri quan el d'abans arriba a l'onada 50 (o, de les partides d'abans de les 100 onades, si ja l'havies superat)
+const tdWorldShut = w => !!w.needs && !(typeof td !== "undefined" && (td.worlds?.[w.needs]?.clears > 0 || td.worlds?.[w.needs]?.best >= TD_IDLE.openAt));
+const tdWorldNum = w => TD_WORLDS.filter(o => o.mode === w.mode).indexOf(w.base || w) + 1;
