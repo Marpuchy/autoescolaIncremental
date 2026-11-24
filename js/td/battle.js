@@ -289,6 +289,7 @@ const tdbWorldPaths = world => world.paths || [world.path];
 function tdbBackground(world) {
   if (world.mode === "forestal") return tdbForestBackground(world);
   if (world.id === 2) return tdbLabBackground(world);
+  if ((world.base || world).id === 3) return tdbServerBackground(world);
   const pts = world.path.map(p => p.join(",")).join(" ");
   // fons fosc amb paper quadriculat, fórmules que suren i el camí de runes
   let grid = "";
@@ -354,8 +355,42 @@ function tdbLabBackground(world) {
 
 // Bosc de nit vist des de dalt: terra de molsa i fulles, capçades fosques a les vores (continuen fora del mapa), el sender
 // de terra amb arrels que el creuen i pedretes, bolets i falgueres entre les lleixes de buits, i cucs de llum que suren.
+// Món 3: la sala de servidors. Terra de rajoles tècniques (amb reixetes), files de racks amb llumetes que fan
+// pampallugues i safates de cables; el camí és la passarel·la entre els racks
+function tdbServerBackground(world) {
+  const P = tdbWorldPaths(world), PP = P.map(tdbPath);
+  const lines = (w, attrs) => P.map(p => `<polyline points="${p.map(q => q.join(",")).join(" ")}" fill="none" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round" ${attrs}/>`).join("");
+  const free = (x, y, mx, my) => PP.every(pa => { for (let d = 0; d <= pa.total; d += 20) { const [px, py] = pa.at(d); if (Math.abs(px - x) < mx + 50 && Math.abs(py - y) < my + 50) return false; } return true; })
+    && world.slots.every(([sx, sy]) => Math.abs(sx - x) > mx + 60 || Math.abs(sy - y) > my + 60) && Math.hypot(world.student[0] - x, world.student[1] - y) > 170 && Math.hypot(world.crystal[0] - x, world.crystal[1] - y) > 150;
+  let seed = 41;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  let tiles = "";
+  for (let x = -1600; x <= 3200; x += 100) tiles += `<line x1="${x}" y1="-900" x2="${x}" y2="1800"/>`;
+  for (let y = -900; y <= 1800; y += 100) tiles += `<line x1="-1600" y1="${y}" x2="3200" y2="${y}"/>`;
+  const vents = Array.from({ length: 40 }, () => { const x = Math.round((-600 + rnd() * 2800) / 100) * 100 + 10, y = Math.round((-400 + rnd() * 1700) / 100) * 100 + 10;
+    return `<rect x="${x}" y="${y}" width="80" height="80" fill="#0e1622"/>${[0, 1, 2, 3, 4, 5].map(i => `<rect x="${x + 8}" y="${y + 8 + i * 11}" width="64" height="5" rx="2" fill="#1a2738"/>`).join("")}`; }).join("");
+  // un rack vist des de dalt i davant: caixa fosca amb ranures i llumetes (verdes, blaves i alguna roja)
+  const rack = (x, y, w, h) => { const leds = [];
+    for (let yy = y + 14; yy < y + h - 10; yy += 16) leds.push(`<rect x="${x + 8}" y="${yy}" width="${w - 16}" height="9" rx="2" fill="#141c2a"/>`,
+      ...[0, 1, 2].map(i => `<circle class="tdb-led" style="animation-delay:${(-rnd() * 3).toFixed(1)}s" cx="${x + 16 + i * 9}" cy="${yy + 4.5}" r="2.6" fill="${["#3fdc8a", "#4ad8ff", "#3fdc8a", "#ff4a5a"][Math.floor(rnd() * (rnd() < 0.1 ? 4 : 3))]}"/>`));
+    return `<g><rect x="${x + 10}" y="${y + 12}" width="${w}" height="${h}" rx="5" fill="#000" opacity="0.45"/><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="5" fill="#1c2434" stroke="#2e3a52" stroke-width="3"/>${leds.join("")}</g>`; };
+  let racks = "";
+  for (let i = 0, n = 0; i < 600 && n < 14; i++) {
+    const w = 70, h = 120 + Math.round(rnd() * 3) * 30, x = Math.round(-300 + rnd() * 2100), y = Math.round(-200 + rnd() * 1300);
+    if (!free(x + w / 2, y + h / 2, w / 2, h / 2)) continue;
+    racks += rack(x, y, w, h); n++;
+  }
+  return `<rect x="-1600" y="-900" width="4800" height="2700" fill="#0a0f18"/>
+    <radialGradient id="tdb-vig" gradientUnits="userSpaceOnUse" cx="800" cy="450" r="1150"><stop offset="0.5" stop-color="#000" stop-opacity="0"/><stop offset="0.85" stop-color="#000" stop-opacity="0.55"/></radialGradient>
+    <g stroke="#152033" stroke-width="3">${tiles}</g>${vents}${racks}
+    ${lines(100, 'stroke="#05080d" opacity="0.7"')}${lines(84, 'stroke="#2a3446"')}${lines(70, 'stroke="#3a465c"')}
+    ${lines(64, 'stroke="#56627a" stroke-dasharray="2 14" opacity="0.6"')}${lines(4, 'stroke="#ffd84a" stroke-dasharray="18 22" opacity="0.5"')}
+    ${lines(3, 'stroke="#4ad8ff" stroke-dasharray="8 40" opacity="0.6" class="tdb-flow"')}
+    <rect x="-1600" y="-900" width="4800" height="2700" fill="url(#tdb-vig)" pointer-events="none"/>`;
+}
 function tdbForestBackground(world) {
   const pine = world.id === 102; // la Pineda: terra de pinassa, pinyes i capçades de pi
+  const river = !!world.river; // el Riu: un riu creua el mapa i el sender el passa per ponts de fusta
   const P = tdbWorldPaths(world), PP = P.map(tdbPath), lines = (w, attrs) => P.map(p => `<polyline points="${p.map(q => q.join(",")).join(" ")}" fill="none" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round" ${attrs}/>`).join("");
   // lluny del camí i dels buits (per a no tapar res amb la decoració)
   const free = (x, y, m = 70) => PP.every(pa => { for (let d = 0; d <= pa.total; d += 20) { const [px, py] = pa.at(d); if (Math.hypot(px - x, py - y) < m) return false; } return true; })
@@ -397,13 +432,42 @@ function tdbForestBackground(world) {
   return `<rect x="-1600" y="-900" width="4800" height="2700" fill="#0c140c"/>
     <radialGradient id="tdb-vig" gradientUnits="userSpaceOnUse" cx="800" cy="450" r="1150"><stop offset="0.45" stop-color="#000" stop-opacity="0"/><stop offset="0.85" stop-color="#000" stop-opacity="0.6"/></radialGradient>
     <radialGradient id="tdb-moon" gradientUnits="userSpaceOnUse" cx="1100" cy="250" r="900"><stop offset="0" stop-color="#9fd0ff" stop-opacity="0.08"/><stop offset="1" stop-color="#9fd0ff" stop-opacity="0"/></radialGradient>
-    ${moss}<g>${leaves}</g>
+    ${moss}<g>${leaves}</g>${river ? tdbRiver(PP) : ""}
     ${lines(100, 'stroke="#1a120a" opacity="0.6"')}${lines(84, `stroke="${pine ? "#4a3420" : "#3a2c1c"}"`)}${lines(56, `stroke="${pine ? "#5e4428" : "#4a3824"}" opacity="0.7"`)}
     ${lines(3, 'stroke="#6a5234" stroke-dasharray="4 26" opacity="0.6"')}
-    ${pebbles}${roots}${deco}${crowns}
+    ${river ? tdbBridgesArt(PP) : ""}${pebbles}${roots}${deco}${crowns}
     <rect x="-1600" y="-900" width="4800" height="2700" fill="url(#tdb-moon)" pointer-events="none"/>
     <g class="tdb-fflies">${flies}</g>
     <rect x="-1600" y="-900" width="4800" height="2700" fill="url(#tdb-vig)" pointer-events="none"/>`;
+}
+
+// El riu del món 3 del bosc: travessa el mapa d'esquerra a dreta i baixa pel costat del final; aigua que corre
+const TDB_RIVER = "M-500 470 C-200 440 0 500 300 470 S700 430 900 480 S1180 520 1240 600 S1260 860 1300 1100";
+function tdbRiver() {
+  return `<path d="${TDB_RIVER}" stroke="#0a1a22" stroke-width="150" fill="none" stroke-linecap="round" opacity="0.8"/>
+    <path d="${TDB_RIVER}" stroke="#163a4a" stroke-width="120" fill="none" stroke-linecap="round"/>
+    <path d="${TDB_RIVER}" stroke="#1f5a6a" stroke-width="80" fill="none" stroke-linecap="round" opacity="0.7"/>
+    <path d="${TDB_RIVER}" stroke="#9fe0ff" stroke-width="3" fill="none" stroke-dasharray="22 60" opacity="0.5" class="tdb-flow"/>
+    <path d="${TDB_RIVER}" stroke="#cff4ff" stroke-width="2" fill="none" stroke-dasharray="8 90" stroke-dashoffset="30" opacity="0.45" class="tdb-flow slow"/>`;
+}
+// Ponts de fusta on el sender creua el riu (busca els punts del camí que cauen damunt de l'aigua)
+function tdbBridgesArt(PP) {
+  const tmp = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  tmp.setAttribute("d", TDB_RIVER);
+  $("tdb-svg").append(tmp); // (per a mesurar-lo ha d'estar dins d'un svg)
+  const L = tmp.getTotalLength(), riv = Array.from({ length: 160 }, (_, i) => { const p = tmp.getPointAtLength(L * i / 159); return [p.x, p.y]; });
+  tmp.remove();
+  const out = [];
+  for (const pa of PP) for (let d = 0; d <= pa.total; d += 10) {
+    const [x, y] = pa.at(d);
+    if (riv.some(([rx, ry]) => Math.hypot(rx - x, ry - y) < 30) && !out.some(o => Math.hypot(o[0] - x, o[1] - y) < 140)) {
+      const [x2, y2] = pa.at(d + 2);
+      out.push([x, y, Math.atan2(y2 - y, x2 - x) * 180 / Math.PI]);
+    }
+  }
+  return out.map(([x, y, a]) => `<g transform="translate(${x.toFixed(0)} ${y.toFixed(0)}) rotate(${a.toFixed(0)})"><rect x="-90" y="-52" width="180" height="104" fill="#000" opacity="0.3" transform="translate(8 10)"/>
+    ${Array.from({ length: 9 }, (_, i) => `<rect x="${-88 + i * 20}" y="-48" width="17" height="96" rx="3" fill="${i % 2 ? "#5a3e22" : "#6a4a2a"}"/>`).join("")}
+    <path d="M-92 -50 H92 M-92 50 H92" stroke="#3a2614" stroke-width="8" stroke-linecap="round"/></g>`).join("");
 }
 
 // ---------------------------------------------------------------- criatures (torres)
@@ -492,12 +556,13 @@ function tdbSpawn(type, dist = 0, small = false, P = null, kind = "") {
   P ||= tdb.paths[(tdb.pathTurn = ((tdb.pathTurn ?? -1) + 1) % tdb.paths.length)];
   const hp = def.hp * TD_DIFFICULTY.hp * (tdb.world.hp || 1) * (tdb.idle ? tdIdleHp(tdb.wave, def.boss) : 1 + TD_WAVE_HP * (def.boss ? 0.5 : 1) * (tdb.wave - 1)); // els caps ja són durs: pugen la meitat per onada
   const e = { uid: ++tdb.uid, type, def, P, hp, maxHp: hp, dist, slowT: 0, slowMult: 1, stunT: 0, vuln: 0, vulnT: 0,
-    dotT: 0, dot: 0, abilityT: 0, convertT: 0, size: def.size };
+    dotT: 0, dot: 0, abilityT: 0, convertT: 0, size: def.size, shield: def.shield ? def.shield.hits : 0 };
   e.el = el("g", { class: `tdb-enemy${def.boss || def.giant ? " boss" : ""}${def.giant ? " giant" : ""}` }, $("tdb-enemies"));
   const s = def.size;
   e.el.innerHTML = tdEnemySvg(def.art || type).replace("<svg ", `<svg x="${-s / 2}" y="${-s * 0.96}" width="${s}" height="${s}" `) +
     `<g class="tdb-hp" transform="translate(0 ${-s - 10})"><rect x="-26" y="-4" width="52" height="7" rx="3" fill="#000" opacity="0.6"/><rect class="tdb-hp-bar" x="-25" y="-3" width="50" height="5" rx="2.5" fill="#ff5a4a"/></g>`;
   e.hpBar = e.el.querySelector(".tdb-hp-bar");
+  if (e.shield) e.el.insertAdjacentHTML("beforeend", `<g class="tdb-shieldb"><ellipse cy="${(-s * 0.45).toFixed(1)}" rx="${(s * 0.56).toFixed(1)}" ry="${(s * 0.56).toFixed(1)}" fill="#ff5ab0" opacity="0.12" stroke="#ff9ad8" stroke-width="4" stroke-dasharray="10 6"/></g>`);
   tdb.enemies.push(e);
   if (!td.seen.includes(type) && !def.hidden) td.seen.push(type);
   if ((def.boss || def.giant) && !tdb.bossesSeen.has(`${type}${kind}${tdb.wave}`)) { tdb.bossesSeen.add(`${type}${kind}${tdb.wave}`); if (!$("td-battle").hidden) toast(`⚠️ ${def.giant ? "Gegant" : "Cap"}: ${def.name}`, "bad"); }
@@ -527,6 +592,12 @@ function tdbDualFill(a, b) {
 }
 function tdbDamage(e, amount, src = null, big = false, tick = 0) { // tick: segons d'un dany continu
   if (e.hp <= 0) return;
+  if (e.shield > 0 && !tick) { // l'escut dels Reels (la closca del cranc) para el colp; el dany continu el travessa
+    const [x, y] = tdbS(...tdbPos(e));
+    if (--e.shield <= 0) { e.el?.querySelector(".tdb-shieldb")?.remove(); tdbNumber(x, y - e.size, "💔", "#ff9ad8", true); tdbFx("ring", x, y - e.size * 0.45, "#ff9ad8", 50); }
+    else tdbNumber(x, y - e.size, "🛡", "#ff9ad8");
+    return;
+  }
   const elem = tdbElOf(src), el2 = src && typeof src === "object" ? TD_DEFENDERS[src.id]?.el2 : null;
   const k = el2 ? (tdElemMult(e.def, elem) + tdElemMult(e.def, el2)) / 2 : tdElemMult(e.def, elem);
   const color = el2 ? tdbDualFill(elem, el2) : TD_ELEMENTS[elem]?.color || "#fff";
@@ -761,6 +832,7 @@ function tdbHit(p, e) {
     if (p.part === "r") { dmg *= d.truth.f; tdbSlow(e, d.truth.slow, d.truth.slowDur * ab); } else { dmg *= d.truth.v; big = true; }
   }
   if (d.role === "ramp") dmg *= 1 + d.ramp.step * (p.t.convT > 0 ? d.ramp.max : p.t.ramp || 0);
+  if (d.role === "tape") tdbWriteBit(e, p.part === "r" ? 1 : 0, d.tape, ab);
   if (p.sprout) tdbZone(p.t, "sprout", tdbPos(e), { radius: 80, slow: 0.45, dur: 1.5 });
   if (d.role === "flora") tdbFlower(p.t, tdbPos(e));
   tdbMycLink(p.t, e);
@@ -1351,6 +1423,56 @@ function tdbFlower(t, [x, y]) {
     <g class="tdb-flowers">${[[-r * 0.45, 4], [0, -6], [r * 0.45, 2]].map(([fx, fy], i) => FLOR(fx.toFixed(1), fy, 1.8 + (i === 1) * 0.4, cols[(i + tdb.uid) % 3])).join("")}</g>`;
   tdb.zones.push(z);
 }
+// Màquina de Turing: escriu un bit a la distracció. 1: rep el doble de mal uns segons; 0: va més lenta
+function tdbWriteBit(e, bit, T, ab) {
+  const dur = T.dur * Math.min(1.5, ab);
+  if (bit) { e.vuln = Math.max(e.vuln, T.vuln); e.vulnT = Math.max(e.vulnT, dur); } else tdbSlow(e, T.slow, dur);
+  if (!e.el) return;
+  e.el.querySelector(".tdb-bit")?.remove();
+  const g = el("g", { class: `tdb-bit b${bit}`, transform: `translate(${(e.size * 0.42).toFixed(0)} ${(-e.size * 0.95).toFixed(0)})` }, e.el);
+  g.innerHTML = `<rect x="-11" y="-13" width="22" height="24" rx="4" fill="#140c0c" stroke="${bit ? "#ff8a7a" : "#7fd8ff"}" stroke-width="2.4"/><text y="6" text-anchor="middle" font-size="17" font-weight="900" font-family="ui-monospace, monospace" fill="${bit ? "#ff8a7a" : "#7fd8ff"}">${bit}</text>`;
+  clearTimeout(e.bitTimer);
+  e.bitTimer = setTimeout(() => g.remove(), dur * 1000 / Math.max(1, tdb?.speed || 1));
+}
+// Ós de la mel: ix del cau, va al camí més pròxim, corre en contra de les distraccions mossegant-les (la mel les
+// enverina), torna i descansa menjant mel. t.w = { mode, x, y, P, d0, d, walked, rest, biteT }
+function tdbWalker(t, dt) {
+  const D = TD_DEFENDERS[t.id], W = D.walker, home = tdb.world.slots[t.slot];
+  const w = t.w ||= { mode: "rest", x: home[0], y: home[1] + 20, rest: 0.5, biteT: 0, face: 1 };
+  const sp = W.speed * Math.min(1.4, t.stats.ability) * (t.stats.rate / D.rate);
+  const moveTo = (tx, ty) => { const dx = tx - w.x, dy = ty - w.y, L = Math.hypot(dx, dy), k = Math.min(1, sp * dt / (L || 1)); if (Math.abs(dx) > 1) w.face = dx > 0 ? 1 : -1; w.x += dx * k; w.y += dy * k; return L <= sp * dt; };
+  t.svg?.classList.toggle("eat", w.mode === "rest");
+  t.svg?.classList.toggle("go", w.mode !== "rest");
+  if (w.mode === "rest") {
+    if ((w.rest -= dt) > 0 || !tdb.enemies.some(tdbVisible)) return;
+    let best = null; // el punt del camí més pròxim al cau
+    for (const P of tdb.paths) for (let d = 0; d <= P.total; d += 12) { const q = P.at(d), r = Math.hypot(q[0] - home[0], q[1] - home[1]); if (!best || r < best.r) best = { r, P, d }; }
+    Object.assign(w, { mode: "out", P: best.P, d0: best.d, d: best.d, walked: 0 });
+  }
+  if (w.mode === "out" && moveTo(...w.P.at(w.d0))) w.mode = "run";
+  if (w.mode === "run" || w.mode === "back") {
+    const step = sp * dt * (w.mode === "run" ? -1 : 1);
+    w.d = Math.max(0, Math.min(w.d0, w.d + step)); w.walked += Math.abs(step);
+    const [nx, ny] = w.P.at(w.d);
+    if (Math.abs(nx - w.x) > 0.5) w.face = nx > w.x ? 1 : -1;
+    w.x = nx; w.y = ny;
+    if (w.mode === "run" && (w.walked >= W.reach * Math.min(1.4, t.stats.ability) || w.d <= 0)) w.mode = "back";
+    if (w.mode === "back" && w.d >= w.d0) w.mode = "home";
+  }
+  if (w.mode === "home" && moveTo(home[0], home[1] + 20)) { w.mode = "rest"; w.rest = W.rest; }
+  // mossos: a les que té davant (les que corre i també en tornar)
+  if ((w.biteT -= dt) <= 0 && w.mode !== "rest") {
+    const e = tdb.enemies.filter(o => tdbVisible(o) && Math.hypot(...tdbPos(o).map((v, i) => v - [w.x, w.y][i])) <= W.radius).sort((a, b) => b.hp - a.hp)[0];
+    if (e) {
+      w.biteT = W.bite;
+      tdbDamage(e, t.stats.dmg, t);
+      e.dot = Math.max(e.dotT > 0 ? e.dot : 0, t.stats.dmg * W.poison.dps); e.dotT = Math.max(e.dotT, W.poison.dur); e.poison = true; e.dotEl = "natura";
+      t.svg?.classList.remove("bite"); void t.svg?.getBoundingClientRect(); t.svg?.classList.add("bite");
+      t.shots++;
+      if (t.shots % D.special.every === 0) tdbSpecial(t, e);
+    }
+  }
+}
 function tdbSpecial(t, target) {
   const s = TD_DEFENDERS[t.id].special, ab = t.stats.ability;
   const [tx, ty] = tdb.world.slots[t.slot];
@@ -1362,6 +1484,18 @@ function tdbSpecial(t, target) {
     else if (s.type === "overload") { tdbBolt(tdbS(...from), tdbS(...tdbPos(target)).map((v, i) => v - (i ? target.size * 0.45 : 0)), TD_OVER_COLOR); tdbDamage(target, dmg, t, true); tdbChain(t, target, dmg, true); }
     else if (s.type === "roar") tdbBellow(t, true);
     else tdbZone(t, s.type, tdbPos(target)); // el plançó o la mel, directament al camí
+    return;
+  }
+  if (s.type === "halt") { // HALT: totes les del mapa es queden parades
+    tdbNumber(...tdbS(tx, ty - 120), "HALT", "#ff3b4e", true);
+    for (const e of tdb.enemies.filter(tdbVisible)) { e.stunT = Math.max(e.stunT, s.stun * Math.min(1.5, ab)); e.el?.classList.add("collapsed"); setTimeout(() => e.el?.classList.remove("collapsed"), 700); }
+    return;
+  }
+  if (s.type === "growl") { // l'ós grunyix: les del voltant reculen pel camí i es queden parades un moment
+    const [x, y] = t.w ? [t.w.x, t.w.y] : tdbPos(target);
+    tdbFx("ring", ...tdbS(x, y - 30), "#e8a64a", s.radius);
+    for (const e of tdb.enemies) if (tdbVisible(e) && Math.hypot(...tdbPos(e).map((v, i) => v - [x, y][i])) <= s.radius) { e.dist = Math.max(0, e.dist - s.push); e.stunT = Math.max(e.stunT, s.stun); }
+    tdbNumber(...tdbS(x, y - 90), "🐻 grrr!", "#e8a64a", true);
     return;
   }
   if (s.type === "converge") { // la mitjana convergix: uns segons pega al màxim (l'eco del Projecte, un colp al màxim)
@@ -1665,7 +1799,7 @@ function tdbUpdate(dt) {
       continue;
     }
     if (e.stunT > 0) continue;
-    e.dist += e.def.speed * e.slowMult * (tdb.rushT > 0 ? 1.35 : 1) * (1 - tdArtBonus("slowAll")) * dt;
+    e.dist += e.def.speed * tdbSpeedMult(e) * e.slowMult * (tdb.rushT > 0 ? 1.35 : 1) * (1 - tdArtBonus("slowAll")) * dt;
     if (e.dist >= tdbP(e).total) {
       e.hp = 0;
       e.el.remove();
@@ -1712,6 +1846,7 @@ function tdbUpdate(dt) {
     if (TD_DEFENDERS[t.id].role === "buffer" && (t.buffT = (t.buffT ?? TD_DEFENDERS[t.id].buff.every) - dt) <= 0 && (tdb.waveRunning || tdb.demo)) { t.buffT = TD_DEFENDERS[t.id].buff.every; tdbRoll(t, TD_DEFENDERS[t.id].buff.n); }
     if (TD_DEFENDERS[t.id].role === "drone") tdbDrone(t, dt);
     if (TD_DEFENDERS[t.id].role === "capacitor") { tdbCapacitor(t, dt); continue; } // no dispara: es carrega
+    if (TD_DEFENDERS[t.id].role === "walker") { tdbWalker(t, dt); continue; } // l'ós: ix a córrer pel camí
     t.cd -= dt;
     if (t.cd <= 0 && tdbFire(t)) t.cd = 1 / t.stats.rate;
     else if (t.cd < 0) t.cd = 0;
@@ -1746,6 +1881,14 @@ function tdbUpdate(dt) {
   tdb.projs = tdb.projs.filter(p => !p.done);
   // fi de l'onada
   if (tdb.waveRunning && !tdb.spawnQueue.length && !tdb.enemies.length) tdbWaveDone();
+}
+// Velocitat pròpia: els Reels sense escut corren; la data d'entrega va més ràpid com menys vida li queda
+function tdbSpeedMult(e) {
+  const d = e.def;
+  let k = 1;
+  if (d.shield && e.shield <= 0) k *= d.shield.rush;
+  if (d.deadline) k *= 1 + d.deadline.max * (1 - Math.max(0, e.hp) / e.maxHp);
+  return k;
 }
 function tdbEnemyAbility(e, dt) {
   const d = e.def;
@@ -1937,6 +2080,13 @@ function tdbRender() {
         const alt = tdb.portrait ? (t.alt || 0) : Math.min(t.alt || 0, Math.max(0, y - 90)); // que no se'n vaja per dalt de la pantalla
         fly.setAttribute("transform", `translate(${((x - hx) / k).toFixed(1)} ${((y - hy - alt) / k).toFixed(1)}) rotate(${(t.tilt || 0).toFixed(1)} 60 60)`);
         fly.querySelector(".fly-shadow")?.setAttribute("transform", `translate(0 ${(alt / k).toFixed(1)}) scale(${(1 - Math.min(0.5, alt / 400)).toFixed(2)})`);
+      }
+    }
+    if (t.w) { // l'ós: el grup .walk es mou pel mapa (unitats del dibuix: 124 px per 132), mirant cap on va
+      if (!t.walkEl?.isConnected || !t.el.contains(t.walkEl)) t.walkEl = t.el.querySelector(".walk");
+      if (t.walkEl) {
+        const [hx, hy] = tdbS(...tdb.world.slots[t.slot]), [x, y] = tdbS(t.w.x, t.w.y), k = 124 / 132, ox = 42, oy = 98, f = t.w.face;
+        t.walkEl.setAttribute("transform", `translate(${((x - hx) / k).toFixed(1)} ${((y - hy - 20) / k).toFixed(1)}) translate(${ox} ${oy}) scale(${f} 1) translate(${-ox} ${-oy})`);
       }
     }
     t.el.classList.toggle("asleep", t.sleepT > 0);

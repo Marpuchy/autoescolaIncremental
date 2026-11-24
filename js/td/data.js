@@ -179,6 +179,12 @@ const TD_DEFENDERS = {
   quantic:     { subj: "maq", rar: "mh", name: "Processador quàntic", dmg: 24, rate: 0.95, range: 320, cost: 170, role: "chain", projSpeed: 1.6, tick: 4,
                  chain: { jumps: 5, falloff: 0.85, radius: 220 }, special: { every: 10, type: "collapse", stun: 0.6, area: 1.8 },
                  desc: "El rellotge i la Tesla, en un xip amb un qubit. Llança la bola de càrrega i el raig salta de distracció en distracció; cada 4 tics del rellotge, salta el doble de vegades. Cada 10, col·lapse: tot el que hi ha fins a quasi el doble del seu abast es queda parat mig segon." },
+  turing:      { subj: "dad", rar: "mh", name: "Màquina de Turing", dmg: 30, rate: 0.9, range: 330, cost: 160, role: "tape", alt: true, regrow: 0.9,
+                 tape: { dur: 3, vuln: 1, slow: 0.4 }, special: { every: 12, type: "halt", stun: 2 },
+                 desc: "La taula de veritat i els quantificadors, fets cinta. Llança per torns el 0 i l'1 de la cinta i els escriu a les distraccions: les de l'1 reben el doble de mal 3 s i les del 0 van més lentes. Cada 12 tirs, HALT: totes les del mapa es queden parades 2 s." },
+  os:          { subj: "fau", rar: "mh", name: "Ós de la mel", dmg: 40, rate: 1, range: 300, cost: 160, role: "walker",
+                 walker: { speed: 170, reach: 560, rest: 3, bite: 0.45, radius: 60, poison: { dps: 0.35, dur: 3 } }, special: { every: 12, type: "growl", push: 140, stun: 0.6, radius: 200 },
+                 desc: "La mel del rusc i la canya de pescar l'han fet eixir del bosc. Ix del cau, corre pel camí en contra de les distraccions i les mossega (la mel les enverina); després torna al cau i descansa menjant mel. Cada 12 mossos, grunyit: les del voltant reculen i es queden parades." },
   spaghetti:   { subj: "prg", rar: "mh", name: "Codi Spaghetti", dmg: 20, rate: 1.1, range: 300, cost: 160, role: "bounce", bounces: 4, random: true, randDmg: [0.1, 1], alt: true, projSpeed: 0.55,
                  slow: 0.3, slowDur: 1.5, special: { every: 12, type: "goto", upTo: 0.85 },
                  desc: "L'If/else, quan el codi se n'ix de mare. Llança els caps dels fideus, que reboten entre 4 distraccions a l'atzar, i cada colp fa un dany a l'atzar (entre el 10 % i el 100 % del seu) i les deixen enredades (més lentes). Cada 12 tirs, GOTO: la distracció més avançada salta a un lloc a l'atzar del seu camí (pot tocar-li davant o darrere)." },
@@ -189,6 +195,8 @@ const TD_FORGE = {
   pimare:    { world: 102, from: ["pi", "anells"], key: "📜 Recepta del Pi Mare" },
   quantic:   { world: 2, from: ["rellotge", "tesla"], key: "📜 Recepta del processador" },
   spaghetti: { world: 1, evolve: "ifelse", key: "💎 Pedra del spaghetti" },
+  turing:    { world: 3, from: ["veritat", "quantif"], key: "📜 Recepta de la màquina de Turing" },
+  os:        { world: 103, from: ["rusc", "canya"], key: "📜 Recepta de l'ós de la mel" },
 };
 
 // Distraccions (enemics). lore: la descripció del bestiari (amb gràcia, com al compendi de l'autoescola); desc: què fa.
@@ -222,6 +230,14 @@ const TD_ENEMIES = {
   algoritme:      { name: "L'Algoritme", hp: 1900, speed: 30, lives: 15, mana: 100, saber: 80, size: 158, boss: true, shift: { every: 6 },
                     lore: "Sap què t'agrada abans que tu. Quan creus que l'has entés, canvia: el que el feia caure ja no li fa res, i el que no li feia res ara el tomba. Mira-li la icona del cap i canvia d'estratègia.",
                     desc: "Cada 6 s canvia de debilitat i de fortalesa (la icona de damunt diu a què és feble ara)." },
+  // Món 3: els Reels (al riu, el cranc) porten un escut de «m'agrada» que para els primers colps; quan es trenca, corren
+  reels:          { name: "Reels", hp: 60, speed: 52, lives: 2, mana: 7, saber: 3, size: 84, shield: { hits: 5, rush: 1.6 },
+                    lore: "Un vídeo de quinze segons, i un altre, i un altre. Porta un escut de cors i «m'agrada» que t'aguanta els primers intents de deixar-ho; quan per fi el trenques, fuig corrent cap al següent.",
+                    desc: "Un escut para els 5 primers colps (el verí i el foc el travessen). Quan es trenca, va un 60 % més ràpid." },
+  // Cap del món 3: la data d'entrega (al riu, la riuada) va més de pressa com menys vida li queda
+  deadline:       { name: "La data d'entrega", hp: 2400, speed: 22, lives: 15, mana: 110, saber: 90, size: 156, boss: true, deadline: { max: 1.6 },
+                    lore: "Al principi queda molt de temps i camina tranquil·la. Però com més s'acosta, més corre: l'última nit, a les tres de la matinada, ja va volant.",
+                    desc: "Com menys vida li queda, més ràpid va (fins a 2,6 vegades al final)." },
   diumenge:       { name: "Diumenge a la nit", hp: 2200, speed: 28, lives: 20, mana: 120, saber: 100, size: 160, boss: true, rush: { every: 4, mult: 1.35, dur: 2 },
                     lore: "La nit que tot ho accelera: els deures que no has fet, l'examen de dilluns, l'agenda en blanc. Quan arriba, ja vas tard.",
                     desc: "Cada 4 s accelera tots els enemics un 35 % durant 2 s." },
@@ -250,12 +266,12 @@ const TD_DEFENDER_ELEMENT = {
   prismatics: "fisic", canya: "fisic", rusc: "natura", cervol: "arca",
   pi: "natura", anells: "natura", contrafoc: "foc", carrasca: "natura",
   bruixola: "fisic", samara: "fisic", anellador: "fisic", projecte: "arca",
-  dron: "fisic", pimare: "natura", quantic: "electric", spaghetti: "arca",
+  dron: "fisic", pimare: "natura", quantic: "electric", spaghetti: "arca", turing: "electric", os: "fisic",
   veritat: "electric", grans: "buit", quantif: "arca", montecarlo: "arca",
   gla: "fisic", micorriza: "natura", ecoducte: "fisic", microreserva: "natura",
 };
 // Les Matrícules d'Honor tenen dos elements: cada colp fa la meitat del dany amb cadascun
-const TD_DEFENDER_ELEMENT2 = { dron: "electric", pimare: "arca", quantic: "buit", spaghetti: "foc" };
+const TD_DEFENDER_ELEMENT2 = { dron: "electric", pimare: "arca", quantic: "buit", spaghetti: "foc", turing: "arca", os: "natura" };
 for (const [id, d] of Object.entries(TD_DEFENDERS)) { d.el = TD_DEFENDER_ELEMENT[id] || "fisic"; if (TD_DEFENDER_ELEMENT2[id]) d.el2 = TD_DEFENDER_ELEMENT2[id]; }
 // weak: feble a; strong: forta contra; why: per què (al bestiari)
 const TD_ENEMY_ELEMENTS = {
@@ -269,6 +285,8 @@ const TD_ENEMY_ELEMENTS = {
   pestanyes:      { weak: "foc", strong: "fisic", why: "Quan el portàtil s'escalfa, es tanquen totes de colp; a colps, en canvi, només se n'obrin més." },
   pestanyeta:     { weak: "foc", strong: "fisic" },
   algoritme:      { why: "No té debilitat fixa: canvia cada pocs segons. Ara és feble a l'element que du damunt del cap." },
+  reels:          { weak: "foc", strong: "buit", why: "Si el mòbil s'escalfa massa, s'apaga i s'acaba el bucle; el buit, en canvi, és el que l'alimenta: sempre en vols un més." },
+  deadline:       { weak: "electric", strong: "natura", why: "Una nit amb l'energia a tope la tomba; anar a passejar per a despejar-se no fa més que acostar-la." },
   diumenge:       { weak: "arca", strong: "natura", why: "Un encanteri de concentració l'escurça; ni eixir a passejar el salva." },
 };
 for (const [id, e] of Object.entries(TD_ENEMIES)) Object.assign(e, TD_ENEMY_ELEMENTS[id] || {});
@@ -301,6 +319,11 @@ Object.assign(TD_ARTIFACTS, {
                 desc: lvl => `L'ajolot brilla en la foscor, verd neó. +${Math.round(0.15 * tdArtMult(lvl) * 100)} % de saber guanyat als mons.` },
   banyes:     { name: "Banyes de cervatell", icon: "🦌", slot: "cap", boss: "algoritme", world: 102, stat: "slowAll", value: 0.06,
                 desc: lvl => `Dues banyetes de cervatell entre les flors del cap: les distraccions van un ${Math.round(0.06 * tdArtMult(lvl) * 100)} % més lentes.` },
+  // Món 3 (la data d'entrega / la riuada): la corona de LEDs de l'ajolot i la fona de vímet de la granoteta
+  leds:       { name: "Corona de LEDs", icon: "💡", slot: "branquies", boss: "deadline", world: 3, stat: "range", value: 0.15,
+                desc: lvl => `LEDs de colors per les branquies, que fan pampallugues com un rack de servidors. +${Math.round(0.15 * tdArtMult(lvl) * 100)} % d'abast.` },
+  fona:       { name: "Fona de vímet", icon: "🪃", slot: "ma", boss: "deadline", world: 103, stat: "rate", value: 0.12,
+                desc: lvl => `Una fona de vímet trenat, amb una pedreta de riu a punt. +${Math.round(0.12 * tdArtMult(lvl) * 100)} % de velocitat d'atac.` },
 });
 const tdArtMult = lvl => 1 + 0.25 * (lvl - 1);
 const TD_ARTIFACT_SLOTS = 3;
@@ -396,6 +419,10 @@ const TD_FOREST_ENEMIES = {
   pestanyeta:     { look: "Formiga" },
   algoritme:      { look: "Papallona irisada",
                     lore: "Les ales li canvien de color segons com li dona la llum: ara blava, ara roja, ara verda. Cada color la fa feble a una cosa i forta contra una altra; mira quin porta abans de pegar." },
+  reels:          { look: "Cranc de riu",
+                    lore: "Un cranc americà que no para de multiplicar-se pel riu. La closca li aguanta els primers colps; quan se li trenca, fuig corrent de costat cap a l'aigua." },
+  deadline:       { look: "La riuada",
+                    lore: "Comença com un rierol que baixa tranquil i acaba portant-se'n tot: com més s'acosta, més aigua i més força. Si arriba a dalt, no hi ha qui l'aturi." },
   diumenge:       { look: "Llop de la lluna",
                     lore: "Ix quan es fa fosc el diumenge i udola a la lluna: els deures que no has fet, l'examen de dilluns… Quan udola, tot el bosc arranca a córrer." },
 };
@@ -446,7 +473,26 @@ const TD_WORLDS = [
       [["notificacio", 14, 0.4], ["algoritme", 1, 1], ["pestanyes", 4, 1.6], ["procrastinacio", 6, 1.3]],
     ],
   },
-  { id: 3, mode: "informatic", name: "Torre del Compilador", layout: "Espiral", soon: true },
+  {
+    // Món 3: la sala de servidors. El camí fa ziga-zaga entre les files de racks (columnes amunt i avall)
+    id: 3, mode: "informatic", name: "Sala de Servidors", layout: "Ziga-zaga", hp: 1.45, mana: 60, needs: 2,
+    path: [[-60, 140], [260, 140], [260, 780], [620, 780], [620, 140], [980, 140], [980, 780], [1340, 780], [1340, 450], [1460, 450]],
+    slots: [[110, 460], [440, 300], [440, 620], [800, 300], [800, 620], [1160, 300], [1160, 620], [1470, 640], [1470, 260], [110, 280]],
+    crystal: [1500, 450], student: [110, 790],
+    ext: { pre: [[-360, 960], [-160, 960], [-160, 140]], slots: [[-290, 330], [-290, 690], [-40, 330], [-40, 620]], view: [-400, -100, 2020, 1136] },
+    waves: [
+      [["notificacio", 10, 0.7], ["reels", 2, 2.4]],
+      [["reels", 5, 1.6], ["procrastinacio", 3, 2]],
+      [["son", 5, 1.3], ["reels", 4, 1.6]],
+      [["scroll", 8, 0.9], ["reels", 4, 1.4]],
+      [["meme", 8, 0.9], ["algoritme", 1, 1], ["reels", 4, 1.5]],
+      [["pestanyes", 4, 2], ["reels", 6, 1.2], ["notificacio", 12, 0.4]],
+      [["procrastinacio", 6, 1.3], ["reels", 6, 1.1], ["son", 6, 1]],
+      [["reels", 10, 0.9], ["meme", 8, 0.8]],
+      [["pestanyes", 5, 1.6], ["scroll", 10, 0.7], ["reels", 6, 1]],
+      [["notificacio", 14, 0.4], ["deadline", 1, 1], ["reels", 8, 1], ["procrastinacio", 6, 1.2]],
+    ],
+  },
   { id: 4, mode: "informatic", name: "El Núvol", layout: "Doble entrada", soon: true },
   { id: 5, mode: "informatic", name: "Servidor Abissal", layout: "Doble entrada", soon: true },
 ];
@@ -455,7 +501,8 @@ const TD_WORLDS = [
 TD_WORLDS.push(
   { ...TD_WORLDS[0], id: 101, mode: "forestal", name: "Sendera de les Arrels" },
   { ...TD_WORLDS[1], id: 102, mode: "forestal", name: "La Pineda", needs: 101, hp: 1.15 }, // al bosc hi ha més criatures físiques, que les formigues resistixen
-  { id: 103, mode: "forestal", name: "El Barranc", layout: "Espiral", soon: true },
+  { ...TD_WORLDS[2], id: 103, mode: "forestal", name: "El Riu", needs: 102, hp: 1.35, river: true }, // el mateix ziga-zaga, entre l'aigua i els ponts
+
   { id: 104, mode: "forestal", name: "La Muntanya Cremada", layout: "Doble entrada", soon: true },
   { id: 105, mode: "forestal", name: "El Cor del Bosc", layout: "Doble entrada", soon: true },
 );

@@ -1399,3 +1399,26 @@ body.tdb-away #tdb-svg .tdb-zone.flower .tdb-flowers > g { animation: none; }
 @media (max-width: 700px) { .td-tabs { gap: 4px; } .td-tabs .td-tab { font-size: 0.72rem; padding-left: 4px; padding-right: 4px; } }
 .td-tab.on.s-dad { background: #2e2810; color: #fff; border-color: #f5d04a; }
 .td-tab.on.s-cns { background: #26183a; color: #fff; border-color: #c58cff; }
+.tdb-flow.slow { animation-duration: 2.6s; }
+/* escut dels Reels / closca del cranc: gira a poc a poc */
+.tdb-shieldb ellipse { transform-box: fill-box; transform-origin: center; animation: td-spin 6s linear infinite; }
+.tde-deadline .ring { animation: td-spin 2.4s linear infinite; transform-box: view-box; }
+/* corona de LEDs de l'ajolot: pampallugues per torns */
+.leds .led { animation: tdl-blink 1.8s steps(2) infinite; }
+.leds .l1 { animation-delay: -0.6s; } .leds .l2 { animation-delay: -1.2s; }
+@keyframes tdl-blink { 50% { opacity: 0.45; } }
+/* ---- Màquina de Turing: la cinta avança i l'engranatge gira */
+.tdc-turing .tape { animation: tdc-tape 2.4s steps(4) infinite; }
+@keyframes tdc-tape { to { transform: translateX(-13px); } }
+.tdc-turing .gear { animation: td-spin 3s linear infinite; transform-box: view-box; }
+.tdb-bit { pointer-events: none; animation: tdb-buff-pop 0.3s cubic-bezier(.3, 1.6, .5, 1); transform-box: fill-box; transform-origin: center; }
+/* ---- Ós de la mel: corre movent les potes, mossega estirant el cap i, al cau, menja mel */
+.tdc-os .os-head { transform-box: fill-box; transform-origin: 30% 80%; }
+.tdc-os.go .walk :is(.legs-a, .legs-b) { transform-box: fill-box; transform-origin: 50% 0; animation: tde-leg 0.22s ease-in-out infinite alternate; }
+.tdc-os.go .walk .legs-b { animation-delay: -0.22s; }
+.tdc-os.go .walk > g { animation: tdc-os-run 0.44s ease-in-out infinite; }
+@keyframes tdc-os-run { 50% { transform: translateY(-2px); } }
+.tdc-os.eat .os-head { animation: tdc-os-eat 1.2s ease-in-out infinite; }
+@keyframes tdc-os-eat { 50% { transform: rotate(14deg) translateY(2px); } }
+.tdc-os.bite .os-head { animation: tdc-os-bite 0.3s ease-out; }
+@keyframes tdc-os-bite { 40% { transform: translateX(6px) rotate(-10deg); } }

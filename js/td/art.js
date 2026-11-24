@@ -290,7 +290,7 @@ const TD_ART = {
 
 // ---------------------------------------------------------------- DISTRACCIONS: icones corruptes, en roig i colors apagats
 // viewBox 0 0 100 100, base a y ≈ 96
-const TD_ENEMY_GLOW = { notificacio: "#ffb347", procrastinacio: "#c7a4ff", son: "#7fb8ff", scroll: "#ff8a6a", meme: "#ffd23f", series: "#ff5a4a", diumenge: "#7fb8ff" };
+const TD_ENEMY_GLOW = { reels: "#ff5ab0", deadline: "#ff8a3a", notificacio: "#ffb347", procrastinacio: "#c7a4ff", son: "#7fb8ff", scroll: "#ff8a6a", meme: "#ffd23f", series: "#ff5a4a", diumenge: "#7fb8ff" };
 const TD_ENEMY_ART = {
   notificacio: `<ellipse cx="50" cy="96" rx="16" ry="3.5" fill="${TD_GLOW.bad}" opacity="0.25"/>
     ${tube("M30 70 C34 62 32 50 34 42 C37 30 63 30 66 42 C68 50 66 62 70 70 Z M44 78 Q50 84 56 78", "#ffb347", 4.6)}
@@ -335,6 +335,18 @@ const TD_ENEMY_ART = {
     <path d="M30 24 L80 52 L30 80 Z" fill="#141024" stroke="#ff5ab0" stroke-width="4" stroke-linejoin="round"/>
     <path d="M30 52 Q44 38 58 52 Q44 66 30 52 Z" fill="#fff"/>
     <circle cx="44" cy="52" r="8" style="fill:var(--shift,#ff5ab0)"/><circle cx="44" cy="52" r="3.4" fill="#000"/><circle cx="41.5" cy="49.5" r="1.6" fill="#fff"/>`,
+  // Reels: un mòbil dret amb el «play» i, damunt, el cor de «m'agrada» que palpita; a la dreta, la barra que avança
+  reels: `<ellipse cx="50" cy="96" rx="20" ry="3.5" fill="#ff5ab0" opacity="0.22"/>
+    <rect x="30" y="18" width="40" height="72" rx="8" fill="#1a0f1a"/>${tube("M38 18 H62 Q70 18 70 26 V82 Q70 90 62 90 H38 Q30 90 30 82 V26 Q30 18 38 18 Z", "#ff5ab0", 4)}
+    <path d="M44 44 L60 54 L44 64 Z" fill="#fff" stroke="#ff5ab0" stroke-width="2" stroke-linejoin="round"/>${tube("M64 30 V78", "#ff9ad8", 2, 'opacity="0.6"')}
+    <g class="badge"><path d="M50 32 C46 26 38 30 42 36 L50 42 L58 36 C62 30 54 26 50 32 Z" fill="#ff3b6a" stroke="#fff" stroke-width="1.4"/></g>
+    ${tube("M38 80 H56", "#ff9ad8", 2.4)}`,
+  // La data d'entrega: un full de calendari amb el dia encerclat en roig i un rellotge que corre; flames a les vores
+  deadline: `<ellipse cx="50" cy="96" rx="36" ry="4.5" fill="#ff8a3a" opacity="0.3"/>
+    <path d="M18 24 H82 V90 H18 Z" fill="#1a120c"/>${tube("M18 24 H82 V90 H18 Z M18 38 H82 M32 16 V30 M68 16 V30", "#ff8a3a", 4)}
+    ${[[30, 52], [44, 52], [58, 52], [30, 66], [44, 66], [30, 80]].map(([x, y]) => `<rect x="${x - 4}" y="${y - 4}" width="8" height="8" rx="1.5" fill="#5a3a24"/>`).join("")}
+    ${tube("M66 74 m-12 0 a12 12 0 1 0 24 0 a12 12 0 1 0 -24 0", TD_GLOW.bad, 3.4)}<g class="ring" style="transform-origin:66px 74px">${tube("M66 74 V66 M66 74 L71 77", "#fff", 2)}</g>
+    <g class="badge">${tube("M14 30 Q10 20 16 12 Q16 20 22 22 M86 30 Q90 20 84 12 Q84 20 78 22", "#ffb347", 2.4)}</g>`,
   diumenge: `<ellipse cx="50" cy="96" rx="34" ry="4.5" fill="#4a7fc8" opacity="0.3"/>
     ${tube("M60 10 C34 12 16 34 18 58 C20 82 44 96 68 90 C48 84 34 68 36 48 C38 30 50 16 60 10 Z", "#7fb8ff", 4.4)}
     ${tube("M54 34 H88 V74 H54 Z M54 44 H88", TD_GLOW.bad, 3.4)}
@@ -408,6 +420,20 @@ const TD_FOREST_ENEMY_ART = {
     <circle cx="26" cy="34" r="7" fill="#141024"/><circle cx="26" cy="34" r="3" fill="#fff"/><circle cx="74" cy="34" r="7" fill="#141024"/><circle cx="74" cy="34" r="3" fill="#fff"/></g>
     <ellipse cx="50" cy="56" rx="4.5" ry="22" fill="#141024" stroke="#ffd8f0" stroke-width="2"/>
     ${tube("M48 36 Q42 22 36 18 M52 36 Q58 22 64 18", "#ffd8f0", 1.8)}`,
+  // Cranc de riu: de perfil mirant a l'esquerra, closca roja amb segments, pinces grans davant, antenes i potes
+  reels: `<ellipse cx="50" cy="96" rx="34" ry="4" fill="#ff5ab0" opacity="0.2"/>
+    <g class="legs-a">${tube("M44 74 L36 88 M60 76 L56 90", "#ff8a6a", 2.2)}</g><g class="legs-b">${tube("M52 76 L46 90 M68 74 L70 88", "#ff8a6a", 2.2)}</g>
+    <path d="M30 70 C30 56 46 50 62 52 C78 54 90 60 92 70 C88 78 70 80 56 80 C42 80 32 78 30 70 Z" fill="#6a1a12" stroke="#ff6a4a" stroke-width="3.4"/>
+    ${tube("M50 54 Q52 66 50 78 M64 53 Q66 66 64 79 M78 56 Q80 66 78 77", "#ff9a7a", 1.4, 'opacity="0.7"')}
+    <g class="ant">${tube("M30 64 Q16 50 6 52 M32 62 Q22 44 14 40", "#ff9a7a", 1.4)}</g>
+    <path d="M30 66 Q20 66 14 62" stroke="#ff6a4a" stroke-width="3" fill="none"/><path d="M14 62 C4 58 2 48 10 46 C16 46 18 54 14 56 C20 54 22 60 14 62 Z" fill="#8a2a1a" stroke="#ff6a4a" stroke-width="2.4"/>
+    <circle cx="34" cy="62" r="2" fill="#fff"/>`,
+  // La riuada: una ona d'aigua que es caragola, amb escuma blanca i un tronc que s'emporta
+  deadline: `<ellipse cx="50" cy="96" rx="40" ry="5" fill="#4ab8e8" opacity="0.3"/>
+    <path d="M6 94 C8 60 26 30 56 24 C80 20 94 36 90 52 C86 64 72 66 66 58 C62 52 68 44 74 46 C66 38 50 42 44 56 C36 74 50 90 94 94 Z" fill="#12405a" stroke="#4ab8e8" stroke-width="3.6" stroke-linejoin="round"/>
+    ${tube("M14 84 C20 62 34 42 56 36 M24 90 C30 74 40 62 54 56", "#9fe0ff", 1.8, 'opacity="0.7"')}
+    <g class="badge">${[[58, 24], [70, 22], [82, 30], [90, 42], [88, 52]].map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="${3 + (i % 2)}" fill="#e8f8ff"/>`).join("")}</g>
+    <g transform="rotate(-18 40 80)"><rect x="24" y="74" width="34" height="9" rx="4.5" fill="#6a4a2a" stroke="#c89a5a" stroke-width="1.6"/><circle cx="56" cy="78.5" r="3" fill="#c89a5a"/></g>`,
   diumenge: `<ellipse cx="50" cy="96" rx="34" ry="4.5" fill="#4a7fc8" opacity="0.3"/>
     ${tube("M84 6 C70 8 62 20 64 32 C66 44 78 50 90 46 C80 44 72 36 74 26 C75 16 80 10 84 6 Z", "#ffe8a0", 2.8)}
     <path d="M30 94 C26 76 30 60 36 50 L30 34 L22 22 L30 24 L34 16 L40 26 C44 30 48 34 50 40 C58 48 72 56 74 74 C76 86 70 94 60 94 Z" fill="#2a3450" stroke="#7fb8ff" stroke-width="3.4" stroke-linejoin="round"/>
@@ -530,6 +556,11 @@ const tdAxoSvg = (() => {
 })();
 // Artefactes posats a l'ajolot: `back` va darrere del cap (davant de les branquies) i `front`, damunt de tot
 const TD_AXO_WEAR = {
+  // Corona de LEDs (món 3): llumetes de colors cosides als ventalls de les branquies, que fan pampallugues per torns
+  leds: { front: `<g class="leds">${[[14, 52], [24, 66], [12, 80], [28, 90], [20, 100], [178, 52], [168, 66], [180, 80], [164, 90], [172, 100]]
+      .map(([x, y], i) => { const c = ["#3fdc8a", "#4ad8ff", "#ff4a5a", "#ffd84a", "#c58cff"][i % 5];
+        return `<g class="led l${i % 3}"><circle cx="${x}" cy="${y}" r="7" fill="${c}" opacity="0.3"/><circle cx="${x}" cy="${y}" r="3.4" fill="${c}" stroke="#1a1a1a" stroke-width="1"/><circle cx="${x - 1}" cy="${y - 1}" r="1.1" fill="#fff"/></g>`; }).join("")}
+      ${["M14 52 Q20 60 24 66 Q16 72 12 80 Q22 86 28 90 Q22 96 20 100", "M178 52 Q172 60 168 66 Q176 72 180 80 Q170 86 164 90 Q170 96 172 100"].map(d => `<path d="${d}" stroke="#2a2a2a" stroke-width="1.2" fill="none" opacity="0.7"/>`).join("")}</g>` },
   // Pols d'estrelles (id auriculars): purpurina daurada, cian i rosa sobre els ventalls de les branquies, que titil·la
   auriculars: { front: `<g class="pols">${[[14, 52, 5.4, "#ffe27a"], [26, 72, 4.2, "#bff3ff"], [10, 84, 3.6, "#ff9ae8"], [30, 46, 3, "#fff"], [22, 94, 3.8, "#ffe27a"], [34, 60, 2.6, "#ff9ae8"],
       [178, 52, 5.4, "#ffe27a"], [166, 72, 4.2, "#bff3ff"], [182, 84, 3.6, "#ff9ae8"], [162, 46, 3, "#fff"], [170, 94, 3.8, "#ffe27a"], [158, 60, 2.6, "#bff3ff"]]
@@ -547,6 +578,12 @@ const TD_AXO_WEAR = {
 // Peces dels artefactes: `back` es pinta davall del barret (diadema), `front` damunt de tot.
 // `hides`: parts de la granoteta que deixen de veure's (la mà dreta, si l'artefacte la fa servir: només en té dues)
 const TD_ARTIFACT_WEAR = {
+  // Fona de vímet (món 3 del bosc): una forca en Y de vímet trenat agafada amb la mà dreta, amb la goma tensa i una
+  // pedreta de riu a la bossa
+  fona: { front: `<g class="fona"><path d="M104 150 L104 118 M104 118 Q96 106 92 92 M104 118 Q112 106 116 92" stroke="#8a6438" stroke-width="7" fill="none" stroke-linecap="round"/>
+      <path d="M104 148 L104 120 M101 136 l6 -4 M101 128 l6 -4 M96 104 l5 -2 M108 102 l5 2" stroke="#c89a5a" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M92 92 Q104 112 116 92" stroke="#3a2a1a" stroke-width="2" fill="none"/><ellipse cx="104" cy="104" rx="5.5" ry="4" fill="#9aa4ae" stroke="#5a6470" stroke-width="1.4"/></g>
+      <ellipse cx="103" cy="140" rx="12" ry="7" fill="#4fa64d"/>` },
   // Banyes de cervatell (món 2 del bosc): dues banyetes curtes amb una forqueta, de vellut, que ixen d'entre les fulles
   // de la corona; van darrere de la corona perquè la base quede tapada per les fulles
   banyes: { back: `<g class="banyes">${[-1, 1].map(k => { const x = 70 + k * 18;
@@ -795,5 +832,37 @@ Object.assign(TD_ART, {
       <g class="grow">${FLOR(38, 92, 1.1)}${FLOR(58, 90, 1.35, "#c58cff")}${FLOR(80, 92, 1.05, "#ffd84a")}</g>${core(60, 100, TD_GLOW.myth, 2.4)}</g>
       <g class="al">${LLAVOR(22, 48)}</g><g class="ar">${LLAVOR(98, 48)}</g>${sparks(TD_GLOW.myth)}`,
     proj: LLAVOR(0, 0), throw: { l: [22, 48], r: [98, 48] },
+  },
+});
+
+// ---- Matrícules d'Honor del món 3
+// Màquina de Turing: la cinta (caselles de 0 i 1) que passa pel capçal de lectura (triangle) d'una caixa amb engranatges;
+// el 0 i l'1 dels extrems de la cinta són els que llança
+const OSO = (x, y, k = 1) => `<g transform="translate(${x} ${y}) scale(${k})">
+  <path d="M-24 -6 C-26 -22 -10 -30 6 -28 C18 -27 26 -20 26 -8 L26 0 H-24 Z" fill="#3a2414"/>
+  ${tube("M-24 -6 C-26 -22 -10 -30 6 -28 C18 -27 26 -20 26 -8", "#e8a64a", 2.6)}
+  <g class="os-legs"><g class="legs-a">${tube("M-16 -4 V8 M14 -4 V8", "#e8a64a", 3.4)}</g><g class="legs-b">${tube("M-8 -4 V8 M20 -4 V8", "#c8862a", 3.4)}</g></g>
+  <g class="os-head"><circle cx="30" cy="-24" r="11" fill="#3a2414"/>${tube("M30 -24 m-11 0 a11 11 0 1 0 22 0 a11 11 0 1 0 -22 0", "#e8a64a", 2.4)}
+  <circle cx="24" cy="-34" r="4" fill="#3a2414" stroke="#e8a64a" stroke-width="2"/><circle cx="36" cy="-34" r="4" fill="#3a2414" stroke="#e8a64a" stroke-width="2"/>
+  <ellipse cx="39" cy="-21" rx="5" ry="4" fill="#c8862a"/><circle cx="43" cy="-22" r="1.8" fill="#1a0c06"/></g></g>`;
+Object.assign(TD_ART, {
+  turing: {
+    svg: `${runeBase(GMH)}<g class="b"><rect x="38" y="66" width="44" height="34" rx="5" fill="#1a1010"/>${tube("M38 66 H82 V100 H38 Z", GMH, 3)}
+      <g class="gear" style="transform-origin:52px 84px">${tube("M52 84 m-7 0 a7 7 0 1 0 14 0 a7 7 0 1 0 -14 0 M52 74 V77 M52 91 V94 M42 84 H45 M59 84 H62", GD, 2)}</g>
+      ${core(70, 84, GMH, 2.6)}${tube("M60 66 L54 56 H66 Z", "#fff3c0", 2.2)}
+      <g class="tape"><rect x="14" y="40" width="92" height="16" fill="#140c0c"/>${tube("M14 40 H106 M14 56 H106", GD, 2)}
+      ${[0, 1, 2, 3, 4, 5, 6].map(i => `${tube(`M${20 + i * 13} 40 V56`, GD, 1)}${glif(26 + i * 13, 48, "0110101"[i], "#fff3c0", 9)}`).join("")}</g></g>
+      <g class="al">${glif(20, 26, "0", "#7fd8ff", 22)}</g><g class="ar">${glif(100, 26, "1", "#ff8a7a", 22)}</g>${sparks(GMH)}`,
+    proj: glif(0, 0, "0", "#7fd8ff", 22), projR: glif(0, 0, "1", "#ff8a7a", 22), throw: { l: [20, 26], r: [100, 26] },
+  },
+  // Ós de la mel: el cau (una roca amb la boca fosca) i el pot de mel al costat; l'ós (classe walk, es mou pel mapa)
+  // ix a córrer pel camí i torna a seure davant del cau a menjar mel
+  os: {
+    svg: `${runeBase(GMH)}<g class="b"><path d="M10 104 C8 70 30 46 58 46 C86 46 104 70 104 104 Z" fill="#20160e"/>${tube("M10 104 C8 70 30 46 58 46 C86 46 104 70 104 104", "#c8862a", 3)}
+      <path d="M34 104 C34 82 46 70 58 70 C70 70 80 82 80 104 Z" fill="#06040a"/>
+      <g class="pot"><path d="M88 86 H106 L104 104 H90 Z" fill="#8a5a1a" stroke="#ffc23f" stroke-width="2"/><path d="M86 86 H108" stroke="#ffc23f" stroke-width="3"/><path d="M92 86 Q94 92 92 96" stroke="#ffc23f" stroke-width="2.4" fill="none"/></g>
+      ${core(58, 58, GMH, 2.4)}</g>
+      <g class="walk">${OSO(42, 98, 0.78)}</g>${sparks(GMH)}`,
+    proj: ESPORA(0, 0), throw: { c: [58, 80] },
   },
 });

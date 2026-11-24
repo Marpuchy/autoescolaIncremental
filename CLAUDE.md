@@ -154,6 +154,14 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   (`tdbForestBackground` con `pine`), `hp`/`mana` propios del mundo (vida ×1,25 en el Laboratori; ×0,95 en la Pineda, porque las formigues resisten lo físico y el bosque tiene muchas físicas). Distracción nueva Pestanyes obertes / Formiga reina
   (`spawn`: deja pestañas/hormigas detrás) y jefe L'Algoritme / Papallona irisada (`shift`: cambia de debilidad cada 6 s,
   icono encima, color `--shift`). Artefactos: Pell bioluminescent (Marc, `biolum`, +15 % saber) y Banyes de cervatell (Alba, `banyes`, cap).
+  Mundo 3 de cada sala (Sala de Servidors, id 3 · El Riu, id 103 = mismo trazado en zigzag con un río que cruza y puentes de madera,
+  `world.river`, `tdbRiver`/`tdbBridgesArt`; fondo de racks `tdbServerBackground`; vida ×1,45 / ×1,35): distracción nueva Reels / Cranc de riu
+  (`shield`: un escudo para los 5 primeros golpes —el daño continuo lo atraviesa—; roto, va un 60 % más rápido, `tdbSpeedMult`) y jefe La data
+  d'entrega / La riuada (`deadline`: cuanta menos vida, más rápido, hasta ×2,6). Artefactos: Corona de LEDs (Marc, branquies, +15 % alcance,
+  `leds`) y Fona de vímet (Alba, mà, +12 % velocidad, `fona`). MH de la oleada 100: **Màquina de Turing** (Taula de veritat + Quantificadors;
+  `tape`: escribe 1 —recibe ×2 de daño— o 0 —más lenta— con un cartelito encima, `tdbWriteBit`; especial `halt`: todas paradas 2 s) y
+  **Ós de la mel** (Rusc + Canya; `walker`/`tdbWalker`: sale de su cueva al camino más cercano, corre en contra de las distracciones
+  mordiendo —la miel envenena—, vuelve y descansa comiendo miel; el grupo `.walk` se mueve por el mapa; especial `growl` cada 12 mordiscos).
   Balance de mundos: `python tools/td-progres.py [--mon=2]`.
   Fuera de los mundos de 100 oleadas, un jefe que llega al cristal lo rompe (`tdbShatter`); en los de 100, jefes y gigantes quitan 10 vidas (`TD_IDLE.bossLives`).
   **Límite de criaturas iguales en el mapa** (`TD_PLACE_LIMIT`: común 4, rara 3, épica 3, legendaria 2, mítica y MH 1; `tdbFull`); pagando 10.000 de maná (`TD_LIMIT_DOUBLE_COST`, botón en el selector) se dobla en ese mundo (`tdb.dbl`, va en el snapshot). La demo no tiene límite.
