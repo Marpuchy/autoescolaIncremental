@@ -211,6 +211,13 @@ function tdCloseBattle(toLobby = true) {
 
 
 // ---------------------------------------------------------------- vista
+// L'estudiant del combat amb els artefactes posats (es torna a pintar quan te'ls canvies, sense recarregar)
+function tdbRedrawStudent() {
+  const st = tdb && $("tdb-student");
+  if (!st) return;
+  st.innerHTML = tdStudentSvg(td.equipped, `x="-76" y="-84" width="152" height="160"`) +
+    `<title>Estudiant${td.equipped.length ? ": " + td.equipped.map(id => TD_ARTIFACTS[id].name).join(", ") : ""}</title>`;
+}
 function tdbBuildView() {
   tdb.portrait = innerWidth < innerHeight * 0.9;
   const svg = $("tdb-svg");
@@ -274,9 +281,8 @@ function tdbBuildView() {
     <ellipse cx="0" cy="58" rx="52" ry="11" fill="none" stroke="#b39dff" stroke-width="1.4" stroke-dasharray="4 6" opacity="0.8"/>
     ${[-1, 1].map(sx => `<circle cx="${sx * 60}" cy="54" r="5" fill="#ffc23f" opacity="0.9"/><circle cx="${sx * 60}" cy="54" r="11" fill="#ffc23f" opacity="0.18"/>`).join("")}`;
   }
-  const st = el("g", { id: "tdb-student", transform: `translate(${stx} ${sty})` }, play);
-  st.innerHTML = tdStudentSvg(td.equipped, `x="-76" y="-84" width="152" height="160"`) +
-    `<title>Estudiant${td.equipped.length ? ": " + td.equipped.map(id => TD_ARTIFACTS[id].name).join(", ") : ""}</title>`;
+  el("g", { id: "tdb-student", transform: `translate(${stx} ${sty})` }, play);
+  tdbRedrawStudent();
   // tornar a pintar les criatures que ja hi havia (canvi d'orientació)
   for (const t of Object.values(tdb.towers)) tdbDrawTower(t);
   // i les distraccions, els projectils i les zones que ja hi havia (en tornar a mirar un combat en marxa)

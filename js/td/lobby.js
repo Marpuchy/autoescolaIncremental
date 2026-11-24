@@ -834,6 +834,9 @@ function tdToggleEquip(id) {
   else td.equipped = [...td.equipped.filter(a => tdArtSlot(a) !== tdArtSlot(id)), id]; // canvia el de l'espai
   tdSave();
   tdRenderPanel();
+  // l'estudiant es canvia a l'acte (pell i peces), a la sala i al combat que va en marxa, sense haver de recarregar
+  if (!$("td-lobby").hidden) tdRenderLobby();
+  if (typeof tdbRedrawStudent === "function") tdbRedrawStudent();
 }
 
 // ---- rellotge de sorra (tornar a començar sense perdre el que has guanyat estudiant)
