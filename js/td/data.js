@@ -418,7 +418,7 @@ const TD_BATTLE = {
 const TD_IDLE = {
   waves: 100, waveMana: [30, 1.2], waveHp: 0.11, waveHp2: 0.0006, countGrow: 0.04, bossLives: 10, giantEvery: 10, giant: { size: 1.7, hp: 10, lives: 10, saber: 8 },
   bossWaves: { 30: [0], 50: [1], 70: [0, 1], 100: [0, 1] }, bigBoss: { size: 1.25, hp: 2 }, // a la 100, els caps encara més grans
-  bossScrolls: { 30: 5, 50: 8, 70: 10, 100: 15 },  // pergamins de cada camp la primera vegada que cauen (per món i onada)
+  bossScrolls: { 30: 3, 50: 4, 70: 5, 100: 8 },    // pergamins de cada camp la primera vegada que cauen (per món i onada)
   fastAt: 50, extAt: 50, openAt: 50, lateSaber: 1.5, offlineMax: 2 * 3600, offlineBoost: 4,
 };
 
