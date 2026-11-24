@@ -1708,13 +1708,45 @@ function tdbDrone(t, dt) {
   t.alt = (t.alt || 0) + Math.sign(want - (t.alt || 0)) * Math.min(Math.abs(want - (t.alt || 0)), 260 * dt);
 }
 // Stack Overflow: el desbordament explota per tot el mapa
+// Stack Overflow, la definitiva: damunt de la criatura s'apilen marcs de la pila a tota velocitat (push, push…), la torre
+// trontolla, salta «StackOverflowError» en roig i la pila es desborda: cada bloc ix volant en arc cap a una distracció
+// del mapa i hi pega quan arriba (el dany, en temps de joc, en arribar)
+const TDB_STACK = { build: 1, fly: 0.6 };
 function tdbBlast(t) {
-  const d = TD_DEFENDERS[t.id];
-  $("tdb-map").classList.remove("shake");
-  void $("tdb-map").offsetWidth;
-  $("tdb-map").classList.add("shake");
-  tdbFx("blast", ...tdbS(...tdb.world.slots[t.slot]), "#ff8a1f", 900);
-  for (const e of [...tdb.enemies]) if (e.hp > 0 && !e.convertT) tdbDamage(e, t.stats.dmg * d.blast * t.stats.ability, t, true);
+  const d = TD_DEFENDERS[t.id], dmg = t.stats.dmg * d.blast * t.stats.ability;
+  const targets = [...tdb.enemies].filter(e => e.hp > 0 && !e.convertT);
+  const [sx, sy] = tdbS(...tdb.world.slots[t.slot]), top = sy - 34, sp = Math.max(1, tdb.speed || 1);
+  const hitAll = () => {
+    for (const e of targets) if (e.hp > 0) tdbDamage(e, dmg, t, true);
+  };
+  (tdb.later ||= []).push({ at: tdb.time + TDB_STACK.build + TDB_STACK.fly, fn: hitAll });
+  if (!tdbFxOn()) return;
+  const N = 12, g = el("g", { class: "tdb-overflow", transform: `translate(${sx.toFixed(0)} ${top.toFixed(0)})`, style: `--sp:${sp}` }, $("tdb-fx"));
+  const cols = ["#3fdc8a", "#3fdc8a", "#7fffb0", "#ff8a1f"];
+  // la pila: N marcs que van apareixent de baix a dalt, cada vegada més torts
+  g.innerHTML = `<g class="ov-stack">${Array.from({ length: N }, (_, i) => `<g class="ov-frame" style="animation-delay:${(i * TDB_STACK.build / N / sp).toFixed(3)}s; --tilt:${((i % 2 ? 1 : -1) * i * 0.7).toFixed(1)}deg">
+      <rect x="-44" y="${-i * 18 - 16}" width="88" height="15" rx="3" fill="#0c2018" stroke="${cols[i % 4]}" stroke-width="3"/>
+      <text x="0" y="${-i * 18 - 4.5}" text-anchor="middle" font-size="11" font-weight="800" font-family="ui-monospace, monospace" fill="#bfffd8">f(${i + 1})</text></g>`).join("")}</g>
+    <text class="ov-err" x="0" y="${-N * 18 - 34}" text-anchor="middle" font-size="26" font-weight="900" font-family="ui-monospace, monospace" fill="#ff3b4e" stroke="#000" stroke-width="5" paint-order="stroke">StackOverflowError</text>`;
+  setTimeout(() => { // es desborda: tremolor i els blocs ixen volant cap a les distraccions
+    if (!g.isConnected) return;
+    $("tdb-map").classList.remove("shake"); void $("tdb-map").offsetWidth; $("tdb-map").classList.add("shake");
+    g.querySelector(".ov-stack")?.classList.add("spill");
+    targets.slice(0, 24).forEach((e, i) => {
+      if (e.hp <= 0) return;
+      const [ex, ey] = tdbS(...tdbPos(e)), from = [sx + (i % 3 - 1) * 20, top - (i % N) * 18], mid = [(from[0] + ex) / 2, Math.min(from[1], ey) - 160];
+      const b = el("g", { class: "ov-block" }, $("tdb-fx"));
+      b.innerHTML = `<rect x="-24" y="-7" width="48" height="14" rx="3" fill="#0c2018" stroke="${cols[i % 4]}" stroke-width="3"/><rect x="-24" y="-7" width="48" height="14" rx="3" fill="${cols[i % 4]}" opacity="0.25"/>`;
+      const dur = TDB_STACK.fly * 1000 / sp;
+      b.animate([
+        { transform: `translate(${from[0]}px, ${from[1]}px) rotate(0deg)` },
+        { transform: `translate(${mid[0]}px, ${mid[1]}px) rotate(${i % 2 ? 200 : -200}deg)`, offset: 0.5 },
+        { transform: `translate(${ex}px, ${ey - e.size * 0.45}px) rotate(${i % 2 ? 400 : -400}deg)` },
+      ], { duration: dur, easing: "cubic-bezier(.3,.1,.6,1)", fill: "forwards" });
+      setTimeout(() => { b.remove(); tdbFx("ring", ex, ey - e.size * 0.45, cols[i % 4], 46); }, dur);
+    });
+    setTimeout(() => g.remove(), 500 / sp);
+  }, TDB_STACK.build * 1000 / sp);
 }
 
 // Peces en vol de cada costat: quan torna l'última, la peça es torna a formar
@@ -1810,6 +1842,8 @@ function tdbLoop(now) {
 }
 function tdbUpdate(dt) {
   tdb.time += dt;
+  // coses que han de passar d'ací a un moment, en temps de joc (p. ej. els blocs de l'Stack Overflow quan arriben)
+  if (tdb.later?.length) { const now = tdb.later.filter(l => l.at <= tdb.time); tdb.later = tdb.later.filter(l => l.at > tdb.time); now.forEach(l => l.fn()); }
   // pausa entre onades (als mons de 100 onades, la següent comença sola)
   if (!tdb.waveRunning && (tdb.wave > 0 || tdb.started) && tdb.pause > 0 && !tdb.hold) { // (parat per a reorganitzar: espera a «Continuar»)
     tdb.pause -= dt;

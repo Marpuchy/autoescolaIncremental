@@ -1430,3 +1430,14 @@ body.tdb-away #tdb-svg .tdb-zone.flower .tdb-flowers > g { animation: none; }
 .tdb-smoke { animation: tdb-smoke 5s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
 @keyframes tdb-smoke { 0%, 100% { opacity: 0.05; transform: translateX(0); } 50% { opacity: 0.12; transform: translateX(10px); } }
 .tdb-lock { animation: tdb-buff-pop 0.35s cubic-bezier(.3, 1.6, .5, 1); transform-box: fill-box; transform-origin: center; }
+/* ---- Stack Overflow: la pila que creix, trontolla i es desborda */
+.tdb-overflow { pointer-events: none; }
+.tdb-overflow .ov-frame { opacity: 0; transform-box: fill-box; transform-origin: 50% 100%; animation: ov-push calc(0.12s / var(--sp, 1)) ease-out forwards; }
+@keyframes ov-push { from { opacity: 0; transform: translateY(-30px) scale(1.2, 0.6); } to { opacity: 1; transform: rotate(var(--tilt, 0deg)); } }
+.tdb-overflow .ov-stack { transform-box: fill-box; transform-origin: 50% 100%; animation: ov-wobble calc(0.25s / var(--sp, 1)) ease-in-out infinite alternate; }
+@keyframes ov-wobble { from { transform: rotate(-2deg); } to { transform: rotate(2deg); } }
+.tdb-overflow .ov-stack.spill { animation: ov-spill calc(0.45s / var(--sp, 1)) ease-in forwards; }
+@keyframes ov-spill { to { transform: rotate(35deg) translateY(40px); opacity: 0; } }
+.tdb-overflow .ov-err { opacity: 0; animation: ov-err calc(1.1s / var(--sp, 1)) calc(0.55s / var(--sp, 1)) ease-out forwards; transform-box: fill-box; transform-origin: center; }
+@keyframes ov-err { 0% { opacity: 0; transform: scale(0.4); } 20% { opacity: 1; transform: scale(1.15); } 35% { transform: scale(1) translateX(-4px); } 45% { transform: translateX(4px); } 55% { transform: translateX(0); } 85% { opacity: 1; } 100% { opacity: 0; transform: translateY(-20px); } }
+.ov-block { pointer-events: none; filter: drop-shadow(0 0 6px #3fdc8a); }
