@@ -265,7 +265,7 @@ const TD_ENEMIES = {
 };
 const TD_WAVE_HP = 0.3; // cada onada, +30 % de vida als enemics
 // Dificultat dels mons: vida de totes les distraccions (×) i saber que donen (×). Ajustat amb tools/td-progres.py
-const TD_DIFFICULTY = { hp: 1.95, saber: 2, count: 1.25 }; // 24/11: +30 % de vida i +25 % de distraccions per onada (anaven massa fàcils)
+const TD_DIFFICULTY = { hp: 1.95, saber: 2, count: 1.15 }; // 24/11: +30 % de vida i +15 % de distraccions per onada (anaven massa fàcils)
 
 // ---- Elements: el tipus de dany de cada criatura (segons com pega). Cada distracció és feble a un (×2) i forta contra
 // un altre (×0,3). La llum i l'ombra peguen sempre amb avantatge (encara no les té cap criatura).
