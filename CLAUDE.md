@@ -2,7 +2,7 @@
 
 Juego incremental en el navegador: una granoteta que se saca el carnet luchando contra el tráfico de pueblos y
 ciudades valencianas. Lo juegan amigos del autor en escritorio y móvil. La "moneda" principal (L) sale de tests
-reales de autoescuela que el jugador registra a mano. Publicado desde `main` (GitHub: Marpuchy/autoescolaIncremental).
+reales de autoescuela que el jugador registra a mano. La web se llama **Estudi Incremental** (título y favicon de libro en `index.html`). Publicado desde `main` (GitHub: Marpuchy/autoescolaIncremental).
 
 ## Stack
 HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que comparten el ámbito global
