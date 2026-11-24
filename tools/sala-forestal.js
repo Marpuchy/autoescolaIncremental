@@ -357,16 +357,7 @@ function openBook(plane, { cover, page, line: lc, lines = [7, 7], ink = [] }) {
   add(s, { spot: "bestiary", title: "Bestiari: les distraccions que has vist", hit: bbox([[2.65, 0, 2.5], [3.35, 0, 2.9], [3.0, 1.6, 2.7]]) });
 }
 
-// ---------------------------------------------------------------- estudiant damunt de la catifa de molsa
-{
-  let s = "";
-  const [sx, sy] = P(1.5, 0, 2.3), k = cam.scale(2.3) / 100;
-  s += `<ellipse cx="${r(sx)}" cy="${r(sy)}" rx="${r(46 * k)}" ry="${r(10 * k)}" fill="#000" opacity="0.35"/>`;
-  s += `<g transform="translate(${r(sx)} ${r(sy)}) scale(${k.toFixed(3)})"><g transform="translate(-50 -101)">%STUDENT%</g></g>`;
-  add(s, { spot: "student", title: "Estudiant: artefactes", hit: [r(sx - 60 * k), r(sy - 112 * k), r(120 * k), r(120 * k)] });
-}
-
-// ---------------------------------------------------------------- faristol del registre (dreta, al fons): el quadern de camp on queda tot el que has estudiat
+// ---------------------------------------------------------------- faristol del registre (abans que l'estudiant: és al fons i ell al davant) (dreta, al fons): el quadern de camp on queda tot el que has estudiat
 {
   let s = "";
   const rl = rootLectern(3.2, 4.8);
@@ -378,6 +369,15 @@ function openBook(plane, { cover, page, line: lc, lines = [7, 7], ink = [] }) {
   const [gx, gy] = P(3.2, 1.62, 4.8), gk = cam.scale(4.8) / 100;
   s += `<ellipse cx="${r(gx)}" cy="${r(gy)}" rx="${r(62 * gk)}" ry="${r(34 * gk)}" fill="${AMBER}" opacity="0.12"/>`;
   add(s, { spot: "record", title: "Registre: tot el que has estudiat (pàgines, exercicis, notes)", hit: bbox([[2.85, 0, 4.6], [3.55, 0, 5.0], [3.2, 1.9, 4.8]]) });
+}
+
+// ---------------------------------------------------------------- estudiant damunt de la catifa de molsa
+{
+  let s = "";
+  const [sx, sy] = P(1.5, 0, 2.3), k = cam.scale(2.3) / 100;
+  s += `<ellipse cx="${r(sx)}" cy="${r(sy)}" rx="${r(46 * k)}" ry="${r(10 * k)}" fill="#000" opacity="0.35"/>`;
+  s += `<g transform="translate(${r(sx)} ${r(sy)}) scale(${k.toFixed(3)})"><g transform="translate(-50 -101)">%STUDENT%</g></g>`;
+  add(s, { spot: "student", title: "Estudiant: artefactes", hit: [r(sx - 60 * k), r(sy - 112 * k), r(120 * k), r(120 * k)] });
 }
 
 // ---------------------------------------------------------------- vida del bosc: lianes del sostre, falgueres, bolets a les parets, fulles caigudes i cuques de llum
