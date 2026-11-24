@@ -44,6 +44,17 @@ const TD_DEMO_SCENES = {
   spaghetti: { view: [420, 170, 720, 500], path: TD_DEMO_ROAD, slots: [[620, 320]], spawn: [["notificacio", "procrastinacio", "notificacio", "notificacio"], 3.6], gap: 0.45 },
   projecte:  { view: [260, 110, 1060, 740], path: TD_DEMO_ROAD, slots: [[640, 320], [380, 320], [900, 320], [1160, 320]], allies: ["carrasca", "contrafoc", "anells"],
                spawn: [["notificacio", "notificacio", "procrastinacio", "notificacio"], 3.2], gap: 0.35 },
+  // Lògica i dades: la llei, contra una de molta vida (es veu créixer l'histograma); els quantificadors, amb un grup
+  // escampat (el ∀ els toca a totes); el Montecarlo, amb dues amigues per a repartir-los les millores
+  veritat:   { path: TD_DEMO_ROAD, slots: [[640, 320]], spawn: [["notificacio", "notificacio", "notificacio"], 3], gap: 0.7 },
+  grans:     { path: TD_DEMO_ROAD, slots: [[640, 320]], spawn: [["procrastinacio"], 4.5] },
+  quantif:   { view: [380, 150, 760, 530], path: TD_DEMO_ROAD, slots: [[640, 320]], spawn: [["notificacio", "notificacio", "notificacio", "notificacio", "notificacio"], 4], gap: 0.5 },
+  montecarlo:{ view: [360, 150, 780, 540], path: TD_DEMO_ROAD, slots: [[640, 320], [440, 320], [840, 320]], allies: ["sumador", "puntcoma"], spawn: [["notificacio", "notificacio", "notificacio", "notificacio"], 3], gap: 0.4 },
+  // Conservació: la gla rebota en grups; la micorriza, connectada a dues amigues; el pont, damunt del camí; les flors, al camí
+  gla:       { path: TD_DEMO_ROAD, slots: [[640, 320]], spawn: [["notificacio", "notificacio", "notificacio"], 3], gap: 0.35 },
+  micorriza: { view: [380, 150, 760, 530], path: TD_DEMO_ROAD, slots: [[640, 320], [440, 320], [840, 320]], allies: ["pi", "prismatics"], spawn: [["notificacio", "notificacio", "notificacio"], 3], gap: 0.5 },
+  ecoducte:  { path: TD_DEMO_ROAD, slots: [[640, 320]], spawn: [["notificacio", "notificacio", "procrastinacio", "notificacio"], 2.6], gap: 0.5 },
+  microreserva: { path: TD_DEMO_ROAD, slots: [[640, 320]], spawn: [["notificacio", "notificacio", "notificacio"], 3], gap: 0.6 },
 };
 
 function tdDemoBoot() {
@@ -73,6 +84,8 @@ function tdDemoBoot() {
   if (d.role === "clock") main.ticks = Math.floor(d.every / 2);
   if (d.role === "stacks") main.stacks = Math.floor(d.stacks / 2);
   if (d.role === "capacitor") main.charge = 0.5;
+  if (d.role === "bridge") main.crossed = Math.floor(d.special.every / 2);
+  if (d.role === "buffer") main.buffT = d.buff.every / 2;
   // les distraccions passen en grups, una vegada i una altra (com a la primera onada)
   const [group, every] = scene.spawn, gap = scene.gap || 0.4;
   let next = 0;

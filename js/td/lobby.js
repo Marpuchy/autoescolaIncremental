@@ -153,6 +153,11 @@ function tdBannerBg(s) {
       [40, 110, 190, 270, 520, 600, 690, 760].map((x, i) => `<path d="M${x} ${300 - (i % 3) * 10} l20 -70 l20 70 z" fill="${c(9)}"/>`).join(""),
     pin: Array.from({ length: 6 }, (_, i) => `<path d="M0 ${300 - i * 22} Q200 ${250 - i * 26} 400 ${280 - i * 20} T800 ${260 - i * 24}" stroke="${c(65, 0.22)}" stroke-width="2" fill="none"/>`).join("") +
       `<g transform="translate(110 90)" stroke="${c(75, 0.35)}" stroke-width="2" fill="none"><circle r="44"/><path d="M0 -58 V58 M-58 0 H58"/><path d="M0 -44 L8 0 L0 44 L-8 0 Z" fill="${c(70, 0.3)}"/></g>`,
+    dad: Array.from({ length: 8 }, (_, i) => `<rect x="${60 + i * 46}" y="${300 - [40, 70, 110, 150, 160, 120, 80, 50][i]}" width="36" height="${[40, 70, 110, 150, 160, 120, 80, 50][i]}" fill="${c(55, 0.28)}" stroke="${c(75, 0.4)}"/>`).join("") +
+      `<path d="M60 262 C140 250 200 120 260 132 C320 140 360 250 440 260" stroke="${c(80, 0.6)}" stroke-width="2.5" fill="none"/><text x="600" y="240" font-size="110" fill="${c(60, 0.18)}" font-weight="800">∀∃</text>`,
+    cns: `<path d="M0 300 L0 240 Q200 200 400 236 T800 220 V300 Z" fill="${c(14, 0.85)}"/>` +
+      [80, 150, 230, 520, 610, 700].map((x, i) => `<g transform="translate(${x} ${262 - (i % 2) * 8})"><path d="M0 0 V-24" stroke="${c(40)}" stroke-width="2"/><circle cy="-28" r="6" fill="${c(70, 0.8)}"/><circle cy="-28" r="2.4" fill="#fff3c0"/></g>`).join("") +
+      `<g transform="translate(640 90)" fill="${c(80, 0.5)}"><path d="M0 0 C-6 -16 -26 -18 -24 -4 C-22 6 -6 6 0 0 Z M0 0 C6 -16 26 -18 24 -4 C22 6 6 6 0 0 Z"/></g>`,
     fau: `<circle cx="640" cy="70" r="34" fill="#f4f9ff" opacity="0.8"/><path d="M0 220 Q200 190 400 214 T800 206 V300 H0 Z" fill="${c(30, 0.6)}"/>
       <path d="M0 246 Q200 232 400 248 T800 240 V300 H0 Z" fill="${c(18, 0.85)}"/>${[600, 630, 660, 690].map((x, i) => `<path d="M${x - 20} ${236 + i * 8} h40" stroke="#f4f9ff" stroke-width="2" opacity="${0.5 - i * 0.1}"/>`).join("")}
       ${[60, 80, 96, 740, 760].map((x, i) => `<path d="M${x} 300 Q${x - 6} 230 ${x + (i % 2 ? 8 : -8)} 170" stroke="${c(12)}" stroke-width="4" fill="none"/><ellipse cx="${x + (i % 2 ? 8 : -8)}" cy="176" rx="4" ry="12" fill="${c(12)}"/>`).join("")}`,
@@ -325,6 +330,7 @@ const TDS_BIG = ["llegendari", "mitic"]; // aquestes no es poden saltar: es veu 
 const TDS_GLYPHS = { alg: ["+", "×", "λ", "Σ", "det", "[ ]", "Aᵀ", "v⃗", "−", "∑"], prg: [";", "{ }", "if", "for", "//", "</>", "( )", "==", "[i]", "++"],
   maq: ["Ω", "V", "A", "∿", "⏚", "Hz", "1", "0", "+", "−"],
   fau: ["≈", "∿", "⋔", "ψ", "↟", "∴", "◦", "⌒", "~", "○"],
+  dad: ["∀", "∃", "¬", "∧", "∨", "→", "σ", "μ", "P(A)", "n!"], cns: ["❀", "✿", "⚘", "ψ", "∗", "❦", "⁂", "⌘", "◌", "✾"],
   mnt: ["ᚠ", "ᚱ", "ᛉ", "ᛃ", "ᚦ", "ᛟ", "ᚨ", "ᛒ", "ᛚ", "ᛗ"], pin: ["N", "↗", "E", "⌖", "S", "↙", "O", "⊕", "△", "◯"] };
 function tdsGlyphs(subj) {
   const list = TDS_GLYPHS[subj] || TDS_GLYPHS.alg;
@@ -427,7 +433,7 @@ function tdsTap(ev) {
 let tdExamOpen = null;  // camp de l'examen obert (llibre d'exàmens)
 let tdExamClass = {};   // assignatura triada a l'examen, per camp
 const TD_SHELF_ROWS = 4; // lleixes de la prestatgeria: una per camp; les que sobren, buides de moment
-const TD_FIELD_HUE = { alg: 258, prg: 150, maq: 195, mnt: 105, pin: 32, fau: 174 };
+const TD_FIELD_HUE = { alg: 258, prg: 150, maq: 195, dad: 48, mnt: 105, pin: 32, fau: 174, cns: 275 };
 // Color del llom: tots els llibres d'un camp són de la mateixa gamma
 const tdSpineColor = (f, i) => `hsl(${TD_FIELD_HUE[f] + ((i * 5) % 3 - 1) * 14} ${42 + (i % 3) * 8}% ${26 + ((i * 3) % 4) * 5}%)`;
 function tdMissionsHtml() {
@@ -537,6 +543,8 @@ const TD_FIELD_INTRO = {
   maq: "Criatures de la màquina: bobines, condensadors i corrent elèctric. Carreguen energia i la descarreguen de colp, saltant d'una distracció a l'altra.",
   mnt: "Criatures del mateix bosc: pins, anells de tronc, foc controlat i carrasques velles. Aguanten el camí i protegixen les del costat.",
   pin: "El quadern de camp: brúixoles, llavors que volen lluny, anelles de marcatge i el projecte que ho ajunta tot.",
+  dad: "Criatures de lògica i estadística: taules de veritat, quantificadors, lleis i simulacions. Juguen amb l'atzar i amb les probabilitats.",
+  cns: "Criatures de la conservació del medi: glans, fongs, passos de fauna i flora protegida. Cuiden el camí i fan créixer coses on passen les distraccions.",
 };
 function tdIndexPages(tab, list) {
   const f = TD_SUBJECTS[tab], have = list.filter(id => td.owned[id]).length;

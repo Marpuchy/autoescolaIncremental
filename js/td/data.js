@@ -5,23 +5,26 @@
 const TD_SUBJECTS = {
   // Camps d'estudi: cada camp ajunta diverses assignatures (pergamins, garantia i criatures compartits),
   // perquè no cal estudiar tant per a omplir cada gacha. Les claus (alg, prg) són de la partida: no canviar-les.
-  // Informàtica (1r del grau a l'UJI, pla EI26xx), per zones: Matemàtiques, Programació i Màquina. Pròxima zona: Lògica
-  // i dades (Discreta i Estadística); fins que tinga criatures, les seues assignatures continuen a Matemàtiques.
+  // Informàtica (1r del grau a l'UJI, pla EI26xx), per zones: Matemàtiques, Programació, Màquina i Lògica i dades.
   alg: { name: "Matemàtiques", short: "Matemàtiques", icon: "➕", mode: "informatic",
-         classes: ["Àlgebra Lineal", "Càlcul", "Matemàtica Discreta", "Estadística"] },
+         classes: ["Àlgebra Lineal", "Càlcul"] },
   prg: { name: "Programació", short: "Programació", icon: "⌨️", mode: "informatic",
          classes: ["Programació I", "Programació II", "Eines de Programació", "Dret de les TIC"] },
   maq: { name: "Màquina", short: "Màquina", icon: "⚡", mode: "informatic",
          classes: ["Electrònica", "Fonaments de Computadors"] },
+  dad: { name: "Lògica i dades", short: "Lògica", icon: "∀", mode: "informatic",
+         classes: ["Matemàtica Discreta", "Estadística"] },
   // Forestal (2n del cicle superior de Gestió Forestal i del Medi Natural). Llista provisional: falta que Alba la confirme.
-  // Camps per zones temàtiques: Monts, Quadern de camp i Fauna (cinegètica i pesca).
+  // Camps per zones temàtiques: Monts, Quadern de camp, Fauna (cinegètica i pesca) i Conservació.
   mnt: { name: "Gestió de monts", short: "Monts", icon: "🌲", mode: "forestal",
-         classes: ["Gestió de monts", "Defensa contra incendis forestals", "Gestió de la conservació del medi natural"] },
+         classes: ["Gestió de monts", "Defensa contra incendis forestals"] },
   pin: { name: "Quadern de camp", short: "Quadern", icon: "📒", mode: "forestal",
          classes: ["Projecte intermodular", "Itinerari personal per a l'ocupabilitat II",
                    "Digitalització aplicada al sistema productiu", "Sostenibilitat aplicada al sistema productiu", "Mòdul optatiu"] },
   fau: { name: "Fauna", short: "Fauna", icon: "🦌", mode: "forestal",
          classes: ["Gestió cinegètica", "Gestió de la pesca continental"] },
+  cns: { name: "Conservació", short: "Conservació", icon: "🦋", mode: "forestal",
+         classes: ["Gestió de la conservació del medi natural"] },
 };
 const tdFieldsOf = mode => Object.keys(TD_SUBJECTS).filter(s => TD_SUBJECTS[s].mode === mode);
 // Temps que tarda a tornar a créixer la peça que llança una criatura (regrow a la seua fitxa; per defecte 0,7 s)
@@ -114,6 +117,31 @@ const TD_DEFENDERS = {
   rusc:       { subj: "fau", rar: "llegendari", name: "Rusc d'abelles", dmg: 6, rate: 0.5, range: 270, cost: 120, role: "swarm", projSpeed: 0.7, regrow: 1.6,
                 poison: { dps: 8, dur: 4 }, special: { every: 8, type: "honey", radius: 75, slow: 0.55, dur: 6 },
                 desc: "Deixa anar les abelles: cadascuna persegueix una distracció diferent i la pica amb verí, que li fa mal durant uns segons. Després tornen al rusc. Cada 8 eixides, l'abella porta mel i en deixa un toll al camí que frena el que el trepitja." },
+  // ---- Lògica i dades (Informàtica)
+  veritat:     { subj: "dad", rar: "rar", name: "Taula de veritat", dmg: 14, rate: 1.0, range: 260, cost: 60, role: "truth", alt: true, regrow: 0.8,
+                 truth: { v: 1.6, f: 0.6, slow: 0.35, slowDur: 1.6 },
+                 desc: "Una taula de veritat que llança, per torns, la V i la F de la seua columna. La V és certa: pega fort. La F és falsa: pega poc però deixa la distracció més lenta." },
+  grans:       { subj: "dad", rar: "llegendari", name: "Llei dels grans nombres", dmg: 20, rate: 1.0, range: 300, cost: 120, role: "ramp", regrow: 0.8,
+                 ramp: { step: 0.15, max: 12 }, special: { every: 10, type: "converge", dur: 5 },
+                 desc: "Llança les dades de l'histograma. Com més tirs seguits fa a la mateixa distracció, més mal fa (+15 % cada tir, fins a quasi el triple); si en canvia, torna a començar. Cada 10 tirs, convergència: durant 5 s pega al màxim encara que canvie d'objectiu." },
+  quantif:     { subj: "dad", rar: "llegendari", name: "Quantificadors ∀∃", dmg: 22, rate: 0.55, range: 320, cost: 120, role: "quant", alt: true, regrow: 1.2,
+                 quant: { all: 0.35, one: 3 }, special: { every: 12, type: "forall", mult: 3 },
+                 desc: "Alterna els dos quantificadors. ∀ (per a tot): un colp menut a totes les distraccions del mapa a la vegada. ∃ (existix): en tria una a l'atzar i li fa un colp enorme. Cada 12 tirs, ∀ triple." },
+  montecarlo:  { subj: "dad", rar: "mitic", name: "Mètode de Montecarlo", dmg: 24, rate: 0.9, range: 300, cost: 150, role: "buffer", regrow: 0.9,
+                 buff: { every: 4, n: 3, dur: 5 }, special: { every: 12, type: "simulate" },
+                 desc: "Llança els punts de la seua simulació. Cada 4 s tira els daus i dona una millora a l'atzar a 3 aliades durant 5 s: més dany, més rapidesa, més abast o l'especial carregat. Cada 12 tirs, simulació completa: la tirada és per a totes." },
+  // ---- Conservació (Forestal)
+  gla:         { subj: "cns", rar: "rar", name: "Gla", dmg: 15, rate: 0.9, range: 270, cost: 65, role: "bounce", bounces: 2, alt: true, regrow: 0.9, sproutEvery: 5,
+                 desc: "Una branca de carrasca amb dues glans. Les llança i reboten en 2 distraccions. Cada 5 tirs, la gla brota on cau: el brot frena un moment el que passa." },
+  micorriza:   { subj: "cns", rar: "epic", name: "Micorriza", dmg: 14, rate: 0.8, range: 260, cost: 85, role: "link", alt: true, regrow: 1,
+                 link: { radius: 300, mult: 0.5, cd: 0.6 }, special: { every: 10, type: "spores", mult: 2, slow: 0.3, dur: 2 },
+                 desc: "Un bolet amb la xarxa de fongs davall de terra. Llança espores i, a més, connecta les criatures del voltant: quan una d'elles pega, el fong també hi fa mal. Cada 10 tirs, esporada: totes les del seu abast, colpejades i més lentes." },
+  ecoducte:    { subj: "cns", rar: "llegendari", name: "Ecoducte", dmg: 10, rate: 0.5, range: 320, cost: 120, role: "bridge",
+                 bridge: { tax: 0.06, big: 0.6, width: 80 }, special: { every: 8, type: "fauna", stun: 1.2 },
+                 desc: "Un pas de fauna que creua el camí més pròxim. Les distraccions que passen per davall perden un 6 % de la vida que els queda (un poc menys les grosses). Cada 8 que hi passen, travessen els animals: les que estan davall es queden parades 1,2 s." },
+  microreserva:{ subj: "cns", rar: "mitic", name: "Microreserva", dmg: 20, rate: 0.7, range: 320, cost: 150, role: "flora", alt: true, regrow: 1,
+                 flora: { life: 20, radius: 60, slow: 0.3, dps: 0.6, max: 6 }, special: { every: 12, type: "bloom", mult: 2, dur: 4, extra: 3 },
+                 desc: "Una parcel·la de flora protegida. Llança llavors al camí i on cauen hi creix una flor que frena i fa mal al que passa; dura 20 s i després es marcix (6 com a molt). Cada 12 tirs, floració: les flors fan el doble 4 s i en naixen 3 més." },
   cervol:     { subj: "fau", rar: "mitic", name: "Cérvol de la brama", dmg: 34, rate: 0.25, range: 900, cost: 150, role: "bellow",
                 bellow: { push: 50, stun: 0.3 }, special: { every: 5, type: "roar", mult: 3, push: 2.5, stun: 1.2 },
                 desc: "Un tòtem de cérvol tallat en fusta: cada poc brama i l'ona recorre tot el camí, fa mal a totes les distraccions i les fa recular uns passos (els caps, la meitat). Cada 5 bramits, el gran bramit: una explosió molt més gran que fa 3 × el dany, les fa recular molt més i les deixa parades." },
@@ -149,8 +177,8 @@ const TD_DEFENDERS = {
                  aura: { radius: 360, dmg: 0.25, el: "natura" }, special: { every: 12, type: "root", radius: 220, dur: 1.6 },
                  desc: "El pi i els anells, en un pi vell que naix d'un tronc tallat. Llança pinyes i, cada 3 atacs, del tronc ix un anell que s'eixampla per terra. Les seues arrels arriben a les criatures de natura del voltant (+25 % de dany). Cada 12 atacs, les arrels atrapen tot el que hi ha al voltant de la distracció tocada." },
   quantic:     { subj: "maq", rar: "mh", name: "Processador quàntic", dmg: 24, rate: 0.95, range: 320, cost: 170, role: "chain", projSpeed: 1.6, tick: 4,
-                 chain: { jumps: 5, falloff: 0.85, radius: 220 }, special: { every: 10, type: "collapse", stun: 0.6 },
-                 desc: "El rellotge i la Tesla, en un xip amb un qubit. Llança la bola de càrrega i el raig salta de distracció en distracció; cada 4 tics del rellotge, salta el doble de vegades. Cada 10, col·lapse: tot el que té a l'abast es queda parat mig segon." },
+                 chain: { jumps: 5, falloff: 0.85, radius: 220 }, special: { every: 10, type: "collapse", stun: 0.6, area: 1.8 },
+                 desc: "El rellotge i la Tesla, en un xip amb un qubit. Llança la bola de càrrega i el raig salta de distracció en distracció; cada 4 tics del rellotge, salta el doble de vegades. Cada 10, col·lapse: tot el que hi ha fins a quasi el doble del seu abast es queda parat mig segon." },
   spaghetti:   { subj: "prg", rar: "mh", name: "Codi Spaghetti", dmg: 20, rate: 1.1, range: 300, cost: 160, role: "bounce", bounces: 4, random: true, randDmg: [0.1, 1], alt: true, projSpeed: 0.55,
                  slow: 0.3, slowDur: 1.5, special: { every: 12, type: "goto", upTo: 0.85 },
                  desc: "L'If/else, quan el codi se n'ix de mare. Llança els caps dels fideus, que reboten entre 4 distraccions a l'atzar, i cada colp fa un dany a l'atzar (entre el 10 % i el 100 % del seu) i les deixen enredades (més lentes). Cada 12 tirs, GOTO: la distracció més avançada salta a un lloc a l'atzar del seu camí (pot tocar-li davant o darrere)." },
@@ -223,6 +251,8 @@ const TD_DEFENDER_ELEMENT = {
   pi: "natura", anells: "natura", contrafoc: "foc", carrasca: "natura",
   bruixola: "fisic", samara: "fisic", anellador: "fisic", projecte: "arca",
   dron: "fisic", pimare: "natura", quantic: "electric", spaghetti: "arca",
+  veritat: "electric", grans: "buit", quantif: "arca", montecarlo: "arca",
+  gla: "fisic", micorriza: "natura", ecoducte: "fisic", microreserva: "natura",
 };
 // Les Matrícules d'Honor tenen dos elements: cada colp fa la meitat del dany amb cadascun
 const TD_DEFENDER_ELEMENT2 = { dron: "electric", pimare: "arca", quantic: "buit", spaghetti: "foc" };

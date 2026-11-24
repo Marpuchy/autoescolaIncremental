@@ -5,7 +5,7 @@
 // com a projectil i es tornen a formar (td.css). Totes: viewBox 0 0 120 120, base a y ≈ 108.
 // Projectils (`proj`): dibuix menut centrat en 0,0 (≈ 20×20).
 
-const TD_GLOW = { alg: "#9d8bff", prg: "#3fdc8a", maq: "#5ad8ff", mnt: "#8fd45a", pin: "#e8a64a", fau: "#4fd1c5", gold: "#ffc23f", myth: "#ff5ab0", bad: "#ff5a4a" };
+const TD_GLOW = { alg: "#9d8bff", prg: "#3fdc8a", maq: "#5ad8ff", mnt: "#8fd45a", pin: "#e8a64a", fau: "#4fd1c5", dad: "#f5d04a", cns: "#c58cff", gold: "#ffc23f", myth: "#ff5ab0", bad: "#ff5a4a" };
 
 // Traç de neó: halo ample i transparent + tub de color + nucli blanc
 function tube(d, c, w = 7, extra = "") {
@@ -619,6 +619,8 @@ const TD_SCROLLS = {
   maq: { paper: "#1c4a7a", edge: "#7fe8ff", roll: "#12304f", seal: "#ffc23f", lines: "#7fe8ff", glyph: `<path d="M-3.5 2 L-1 -3 L0.5 0.5 L3.5 -2.5" stroke="#3a2a00" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>` },
   mnt: { paper: "#e9dcc0", edge: "#8a6a3a", roll: "#6b4a2b", seal: "#4f9a3a", glyph: `<path d="M0 -4 C3 -2 3 2 0 4 C-3 2 -3 -2 0 -4 Z M0 -3 V4" fill="#bff7a0" stroke="#2f6a2a" stroke-width="0.8"/>` },
   pin: { paper: "#f2e6c4", edge: "#c9a050", roll: "#8a5a2a", seal: "#e0703a", map: true, glyph: `<circle r="3.4" fill="none" stroke="#fff" stroke-width="1"/><path d="M0 -3 L1 0 L0 3 L-1 0 Z" fill="#fff"/>` },
+  dad: { paper: "#2a2410", edge: "#f5d04a", roll: "#6a5410", seal: "#f5d04a", lines: "#f5d04a", glyph: `<text x="0" y="3.4" text-anchor="middle" font-size="8.5" font-weight="800" fill="#2a2410">∀</text>` },
+  cns: { paper: "#efe4ff", edge: "#a98ad8", roll: "#5a3a8a", seal: "#8a5ad6", glyph: `<path d="M0 0 C-1 -3 -4 -4 -4 -1 C-4 1 -1 1 0 0 C1 1 4 1 4 -1 C4 -4 1 -3 0 0 Z M0 0 C-1 2 -3 3 -2 4 M0 0 C1 2 3 3 2 4" fill="#fff" stroke="#fff" stroke-width="0.5"/>` },
   fau: { paper: "#d8eef0", edge: "#4aa8b0", roll: "#2a6a70", seal: "#2a8a8e", glyph: `<circle cx="0" cy="1.4" r="1.8" fill="#fff"/><circle cx="-2.4" cy="-1.4" r="0.9" fill="#fff"/><circle cx="0" cy="-2.6" r="0.9" fill="#fff"/><circle cx="2.4" cy="-1.4" r="0.9" fill="#fff"/>` },
 };
 function tdScrollSvg(s, cls = "") {
@@ -698,5 +700,96 @@ Object.assign(TD_ART, {
     <g class="al">${tube("M40 48 C34 40 28 46 22 38 C18 32 24 26 20 20", GP, 4)}</g>
     <g class="ar">${tube("M88 70 C96 64 100 72 106 64 C110 58 104 52 108 46", "#7fd49c", 3)}</g>${sparks(GMH)}`,
     proj: tube("M-13 6 C-9 -3 -3 9 1 0 C5 -9 10 3 13 -6", GP, 3), projR: tube("M-13 6 C-9 -3 -3 9 1 0 C5 -9 10 3 13 -6", "#7fd49c", 3), throw: { l: [22, 32], r: [104, 58] },
+  },
+});
+
+// ---- Lògica i dades (Informàtica, groc) i Conservació (Forestal, lila)
+const GD = TD_GLOW.dad, GC = TD_GLOW.cns;
+// Peces: lletres de neó (V, F, ∀, ∃) centrades en x, y; un punt de dades; una espora; una llavor
+const glif = (x, y, t, c, size = 22) => glyphText(x, y + size * 0.36, size, t, c);
+const PUNT = (x, y, c = GD) => `<g><circle cx="${x}" cy="${y}" r="9" fill="${c}" opacity="0.25"/><circle cx="${x}" cy="${y}" r="4.6" fill="#fff" stroke="${c}" stroke-width="2"/></g>`;
+const ESPORA = (x, y) => `<g><circle cx="${x}" cy="${y}" r="9" fill="${GC}" opacity="0.22"/><circle cx="${x}" cy="${y}" r="4" fill="#f4e8ff" stroke="${GC}" stroke-width="1.8"/>
+  <circle cx="${x - 5}" cy="${y - 4}" r="1.6" fill="#f4e8ff"/><circle cx="${x + 5}" cy="${y + 3}" r="1.4" fill="#f4e8ff"/></g>`;
+const LLAVOR = (x, y) => `<g><ellipse cx="${x}" cy="${y}" rx="10" ry="8" fill="${GC}" opacity="0.2"/><path d="M${x} ${y - 7} C${x + 6} ${y - 3} ${x + 5} ${y + 5} ${x} ${y + 7} C${x - 5} ${y + 5} ${x - 6} ${y - 3} ${x} ${y - 7} Z" fill="#5a3a1a" stroke="#e8c070" stroke-width="1.8"/>
+  <path d="M${x} ${y - 4} V${y + 4}" stroke="#ffd9a0" stroke-width="1"/></g>`;
+// Flor de la microreserva (centrada a la base de la tija, x, y; k = mida)
+const FLOR = (x, y, k = 1, c = "#ff9ad8") => `<g transform="translate(${x} ${y}) scale(${k})">${tube("M0 0 Q-2 -10 0 -20", "#8ad06a", 2.2)}
+  <path d="M0 -10 C-7 -10 -9 -15 -9 -17 C-4 -17 -1 -14 0 -10 Z" fill="#7cd36a"/>
+  ${[0, 72, 144, 216, 288].map(a => `<ellipse cx="0" cy="-27" rx="3.6" ry="6.4" fill="${c}" stroke="#fff" stroke-width="0.8" transform="rotate(${a} 0 -21)"/>`).join("")}
+  <circle cx="0" cy="-21" r="3" fill="#fff3c0"/></g>`;
+Object.assign(TD_ART, {
+  // Taula de veritat: el marc de la taula (capçalera p | ¬p i files de 0 i 1) i, damunt dels cantons, la V i la F que llança
+  veritat: {
+    svg: `${runeBase(GD)}<g class="b">${tube("M32 50 H88 V98 H32 Z M32 62 H88 M60 50 V98", GD, 3)}
+      ${glif(46, 56, "p", "#fff3c0", 10)}${glif(74, 56, "¬p", "#fff3c0", 10)}
+      ${[[46, 72, "1"], [74, 72, "0"], [46, 86, "0"], [74, 86, "1"]].map(([x, y, t]) => glif(x, y, t, GD, 11)).join("")}
+      ${core(60, 104, GD, 2.6)}</g>
+      <g class="al">${glif(40, 32, "V", "#7fff9a")}</g><g class="ar">${glif(80, 32, "F", "#ff8a7a")}</g>${sparks(GD)}`,
+    proj: glif(0, 0, "V", "#7fff9a"), projR: glif(0, 0, "F", "#ff8a7a"), throw: { l: [40, 32], r: [80, 32] },
+  },
+  // Llei dels grans nombres: un histograma (les barres creixen amb la ràfega, --ramp) i la campana que s'hi ajusta;
+  // el punt de dalt de la campana és el que llança
+  grans: {
+    svg: `${runeBase(GD)}<g class="b">${tube("M26 100 H94", GD, 2.4)}
+      <g class="bars">${[[32, 14], [42, 30], [52, 46], [62, 52], [72, 40], [82, 22]].map(([x, h]) => `<rect x="${x - 4}" y="${100 - h}" width="8" height="${h}" rx="1.5" fill="${GD}" opacity="0.55" stroke="#fff3c0" stroke-width="1.4"/>`).join("")}</g>
+      ${tube("M24 96 C40 94 46 50 60 46 C74 50 80 94 96 96", "#fff3c0", 2.4)}${glif(92, 40, "∞", GD, 13)}${core(60, 74, GD, 2.6)}</g>
+      <g class="al">${PUNT(60, 38)}</g>${sparks(GD)}`,
+    proj: PUNT(0, 0), throw: { l: [60, 38] },
+  },
+  // Quantificadors: el conjunt (una el·lipse amb els seus elements) i, a cada costat, la ∀ i la ∃ que es llancen per torns
+  quantif: {
+    svg: `${runeBase(GD)}<g class="b">${tube("M60 54 m-26 0 a26 22 0 1 0 52 0 a26 22 0 1 0 -52 0", GD, 3)}
+      ${[[48, 48], [62, 42], [72, 56], [54, 64], [44, 58], [66, 66]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.6" fill="#fff3c0"/>`).join("")}
+      ${tube("M60 76 V102 M50 102 H70", GD, 3)}${core(60, 54, GD, 3)}</g>
+      <g class="al">${glif(26, 34, "∀", "#fff3c0", 26)}</g><g class="ar">${glif(94, 34, "∃", "#fff3c0", 26)}</g>${sparks(GD)}`,
+    proj: glif(0, 0, "∀", "#fff3c0", 26), projR: glif(0, 0, "∃", "#fff3c0", 26), throw: { l: [26, 34], r: [94, 34] },
+  },
+  // Mètode de Montecarlo: el quadrat amb el quart de cercle (per a calcular π) ple de punts a l'atzar (dins grocs, fora
+  // roses) i el dau que gira quan tira; els dos punts dels cantons són els que llança
+  montecarlo: {
+    svg: `${runeBase(TD_GLOW.myth)}<g class="b">${tube("M32 44 H88 V100 H32 Z", GD, 3)}${tube("M32 44 A56 56 0 0 1 88 100", TD_GLOW.myth, 2.6)}
+      ${[[38, 92], [46, 84], [52, 94], [40, 76], [58, 80], [50, 64], [64, 90], [44, 56]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.2" fill="${GD}"/>`).join("")}
+      ${[[76, 54], [82, 66], [70, 50]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.2" fill="${TD_GLOW.myth}"/>`).join("")}
+      <g class="dice"><rect x="50" y="16" width="20" height="20" rx="4" fill="#1a1626" stroke="#fff" stroke-width="2"/>${[[55, 21], [65, 31], [60, 26]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.9" fill="#fff"/>`).join("")}</g>
+      ${core(60, 72, TD_GLOW.myth, 3.2)}</g>
+      <g class="al">${PUNT(24, 40, TD_GLOW.myth)}</g><g class="ar">${PUNT(96, 40)}</g>${sparks(TD_GLOW.myth)}`,
+    proj: PUNT(0, 0, TD_GLOW.myth), projR: PUNT(0, 0), throw: { l: [24, 40], r: [96, 40] },
+  },
+  // Gla: una branca de carrasca (fulles amb punxes) amb dues glans penjant, que són les que llança
+  gla: {
+    svg: `${runeBase(GC)}<g class="b">${tube("M60 104 V70 Q60 54 46 44 M60 70 Q62 54 76 44 M60 84 Q50 78 40 80", GB, 4)}
+      ${[[40, 36, -30], [80, 36, 30], [60, 30, 0], [32, 78, -70]].map(([x, y, r]) => `<g transform="rotate(${r} ${x} ${y})">${tube(`M${x} ${y + 10} L${x - 5} ${y + 5} L${x - 3} ${y} L${x - 6} ${y - 5} L${x} ${y - 10} L${x + 6} ${y - 5} L${x + 3} ${y} L${x + 5} ${y + 5} Z`, GM, 2)}</g>`).join("")}
+      ${core(60, 70, GC, 2.6)}</g>
+      <g class="al">${gla(44, 56)}</g><g class="ar">${gla(76, 56)}</g>${sparks(GC)}`,
+    proj: gla(0, 0), throw: { l: [44, 60], r: [76, 60] },
+  },
+  // Micorriza: un bolet (barret amb làmines, peu) i, davall de terra, la xarxa de fongs que s'escampa; les espores dels
+  // costats del barret són les que llança
+  micorriza: {
+    svg: `${runeBase(GC)}<g class="b"><g class="myc-net">${tube("M60 98 Q44 104 30 100 M60 98 Q74 106 92 100 M44 102 Q40 110 30 112 M78 103 Q84 110 94 112", GC, 1.6, 'opacity="0.8"')}</g>
+      ${tube("M54 98 Q52 80 55 64 H65 Q68 80 66 98 Z", "#f4e8ff", 3)}
+      <path d="M30 64 C30 40 46 30 60 30 C74 30 90 40 90 64 Z" fill="#2a1a3a"/>${tube("M30 64 C30 40 46 30 60 30 C74 30 90 40 90 64 Z", GC, 3.6)}
+      ${tube("M38 64 L42 58 M48 64 L50 57 M60 64 V56 M72 64 L70 57 M82 64 L78 58", GC, 1.4, 'opacity="0.8"')}
+      ${[[46, 44], [62, 38], [74, 48]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3" fill="#f4e8ff" opacity="0.85"/>`).join("")}${core(60, 80, GC, 2.4)}</g>
+      <g class="al">${ESPORA(22, 50)}</g><g class="ar">${ESPORA(98, 50)}</g>${sparks(GC)}`,
+    proj: ESPORA(0, 0), throw: { l: [22, 50], r: [98, 50] },
+  },
+  // Ecoducte: el pont d'arc vist de davant, amb herba damunt i un cérvol menut que el creua (classe deer)
+  ecoducte: {
+    svg: `${runeBase(GC)}<g class="b"><path d="M20 58 H100 V104 H84 V86 C84 70 72 62 60 62 C48 62 36 70 36 86 V104 H20 Z" fill="#1e1830"/>
+      ${tube("M20 58 H100 V104 H84 V86 C84 70 72 62 60 62 C48 62 36 70 36 86 V104 H20 Z", GC, 3.2)}
+      ${tube("M24 72 H34 M86 72 H96 M24 86 H32 M88 86 H96", GC, 1.4, 'opacity="0.6"')}
+      ${tube("M20 56 Q24 50 28 56 Q32 49 36 56 Q42 50 46 56 Q52 49 56 56 Q62 50 66 56 Q72 49 76 56 Q82 50 86 56 Q92 49 96 56 Q98 52 100 56", GM, 2.2)}
+      <g class="deer">${tube("M52 50 V42 M62 50 V42 M50 42 Q56 38 64 40 L68 32 M68 32 L64 26 M68 32 L72 26", "#fff3d8", 2)}</g>
+      ${core(60, 90, GC, 2.6)}</g>${sparks(GC)}`,
+    proj: ESPORA(0, 0), throw: { c: [60, 58] },
+  },
+  // Microreserva: una parcel·la tancada (tanca de fusta) amb flors que hi creixen; les dues llavors dels costats, les que llança
+  microreserva: {
+    svg: `${runeBase(TD_GLOW.myth)}<g class="b"><path d="M24 96 Q60 86 96 96 V104 H24 Z" fill="#2a1a10"/>
+      ${tube("M28 104 V74 M46 104 V74 M64 104 V74 M82 104 V74 M96 104 V76 M24 82 H98 M24 94 H98", GB, 2.6)}
+      <g class="grow">${FLOR(38, 92, 1.1)}${FLOR(58, 90, 1.35, "#c58cff")}${FLOR(80, 92, 1.05, "#ffd84a")}</g>${core(60, 100, TD_GLOW.myth, 2.4)}</g>
+      <g class="al">${LLAVOR(22, 48)}</g><g class="ar">${LLAVOR(98, 48)}</g>${sparks(TD_GLOW.myth)}`,
+    proj: LLAVOR(0, 0), throw: { l: [22, 48], r: [98, 48] },
   },
 });

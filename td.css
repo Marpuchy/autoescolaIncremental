@@ -1356,3 +1356,46 @@ body.tdb-away #tdb-svg .tdb-num { animation: none !important; }
 .tdb-best-item.locked .tdb-best-art { filter: brightness(0) opacity(0.5); }
 .tdb-best-k { display: inline-block; min-width: 5.6em; color: #aab3c0; font-size: 0.74rem; }
 .tdb-best-boss { font-size: 0.62rem; background: #ff5a4a; color: #fff; padding: 0 5px; border-radius: 6px; vertical-align: middle; }
+
+/* ---- Lògica i dades i Conservació */
+/* Llei dels grans nombres: les barres creixen amb la ràfega (--ramp, 0-12) */
+.tdc-grans .bars rect { transform-box: fill-box; transform-origin: 50% 100%; transform: scaleY(calc(0.55 + var(--ramp, 0) * 0.05)); transition: transform 0.3s ease; }
+/* Montecarlo: el dau gira quan tira */
+.tdc-montecarlo .dice { transform-box: fill-box; transform-origin: center; }
+.tdc-montecarlo.roll .dice { animation: tdc-roll 0.6s cubic-bezier(.3, 1.4, .5, 1); }
+@keyframes tdc-roll { from { transform: rotate(-360deg) scale(1.3); } }
+/* Quantificadors: la ∀ i la ∃ suren un poc desfasades */
+.tdc-quantif :is(.al, .ar) > g { animation: td-float 2.4s ease-in-out infinite; }
+.tdc-quantif .ar > g { animation-delay: -1.2s; }
+/* Taula de veritat: la V i la F parpellegen com un bit */
+.tdc-veritat :is(.al, .ar) > g { animation: tdc-bit 1.6s steps(2) infinite; }
+.tdc-veritat .ar > g { animation-delay: -0.8s; }
+@keyframes tdc-bit { 50% { opacity: 0.75; } }
+/* Micorriza: la xarxa de davall de terra batega */
+.tdc-micorriza .myc-net { animation: tde-myc 2.4s ease-in-out infinite; }
+/* Ecoducte: el cervatell va i ve pel pont */
+.tdc-ecoducte .deer { animation: tdc-deer 6s ease-in-out infinite; }
+@keyframes tdc-deer { 0%, 100% { transform: translateX(-26px); } 50% { transform: translateX(26px) ; } }
+/* Microreserva: les flors es gronxen */
+.tdc-microreserva .grow > g { transform-box: fill-box; transform-origin: 50% 100%; animation: tde-ant 2.6s ease-in-out infinite; }
+.tdc-microreserva .grow > g:nth-child(2) { animation-delay: -0.9s; }
+.tdc-microreserva .grow > g:nth-child(3) { animation-delay: -1.7s; }
+/* millora del Montecarlo damunt de la criatura */
+.tdb-buff { animation: tdb-buff-pop 0.4s cubic-bezier(.3, 1.6, .5, 1); transform-box: fill-box; transform-origin: center; }
+@keyframes tdb-buff-pop { from { transform: scale(0.2); opacity: 0; } }
+/* xarxa de la Micorriza entre criatures: fils lila */
+.tdb-myc .tdb-auraroot { stroke: #c58cff; stroke-width: 4; opacity: 0.75; }
+.tdb-myc .tdb-auraroot.thin { stroke-width: 2; opacity: 0.5; }
+/* pont de l'Ecoducte: els animals el creuen quan fa l'especial */
+.tdb-bridge-deer.run { animation: tdb-deer-run 1.2s ease-in-out; }
+@keyframes tdb-deer-run { 0% { opacity: 0; transform: translateX(-70px); } 15%, 85% { opacity: 1; } 100% { opacity: 0; transform: translateX(70px); } }
+/* flors de la Microreserva al camí: creixen, es gronxen; en floració, brillen */
+.tdb-zone.flower .tdb-flowers > g { transform-box: fill-box; transform-origin: 50% 100%; animation: tdb-sprout 0.6s cubic-bezier(.3, 1.6, .5, 1); }
+.tdb-zone.flower.bloom .tdb-flowers { filter: drop-shadow(0 0 8px #ff9ad8) brightness(1.3); }
+body.tdb-away #tdb-svg .tdb-zone.flower .tdb-flowers > g { animation: none; }
+/* quatre camps per sala: les pestanyes es reparteixen l'ample (al mòbil, més menudes) */
+.td-tabs { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); }
+.td-tabs .td-tab { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 700px) { .td-tabs { gap: 4px; } .td-tabs .td-tab { font-size: 0.72rem; padding-left: 4px; padding-right: 4px; } }
+.td-tab.on.s-dad { background: #2e2810; color: #fff; border-color: #f5d04a; }
+.td-tab.on.s-cns { background: #26183a; color: #fff; border-color: #c58cff; }

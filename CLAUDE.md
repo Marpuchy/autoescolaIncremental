@@ -133,12 +133,19 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   que el campo no tiene, da puntos de estrella (`td.stelles[mode]`; «espores» en el bosque, `TD_POINTS`) que en el grimorio
   compran copias de cualquier criatura de la carrera menos la mítica (`tdBuyCopy`). Las retiradas se fusionan con `TD_MERGED`.
   Hoy: Informàtica (1.º del grado en la UJI, plan EI26xx) por zonas: Matemàtiques (`alg`: Sumador, Vector épico, Determinant, λ;
-  Càlcul y Àlgebra, más Discreta y Estadística hasta que exista la zona Lògica i dades), Programació (`prg`: Punt i coma,
+  Càlcul y Àlgebra), Lògica i dades (`dad`, amarillo: Discreta y Estadística; Taula de veritat rara —alterna V fuerte y F que frena, `truth`—,
+  Llei dels grans nombres —más daño cuanto más seguido pega a la misma, `ramp`, especial `converge`—, Quantificadors ∀∃ —∀ golpe pequeño a
+  todas las del mapa y ∃ golpe enorme a una al azar, `quant`, especial `forall`— y Mètode de Montecarlo mítico —mejoras al azar a 3 aliadas
+  cada 4 s, `buffer`/`tdbRoll`/`tdbApplyBuff`, especial `simulate` para todas—), Programació (`prg`: Punt i coma,
   If/else, Compilador, Stack; Prog I y II, Eines, Dret TIC) y Màquina (`maq`: Resistència, Rellotge de CPU, Bobina de Tesla, Condensador; Electrònica y
   Fonaments de Computadors). Forestal (Alba, asignaturas provisionales de 2.º de Gestió Forestal) con Gestió de monts (`mnt`: Pi,
-  Anells, Contrafoc, Carrasca) Quadern de camp (`pin`, projecte intermodular, IPO y transversales: Brúixola, Disàmara (id `samara`), Anellador, Projecte integrador) y
+  Anells, Contrafoc, Carrasca) Quadern de camp (`pin`, projecte intermodular, IPO y transversales; Brúixola, Disàmara (id `samara`), Anellador, Projecte integrador) y
   Fauna (`fau`, cinegètica y pesca: Prismàtics, Canya de pescar —arrastra hacia atrás, `hook`—, Rusc d'abelles —veneno, `swarm`— y
-  Cérvol de la brama —onda que hace retroceder a todas, `bellow`—). Los campos se hacen por zonas temáticas; las asignaturas de
+  Cérvol de la brama —onda que hace retroceder a todas, `bellow`—) y Conservació (`cns`, lila: Gestió de la conservació del medi natural;
+  Gla rara —rebota en 2 y cada 5 tiros brota, `sproutEvery`—, Micorriza épica —red de hongos: cuando una criatura conectada pega, el hongo
+  también, `link`/`tdbMycLink`, especial `spores`—, Ecoducte legendario —puente sobre el tramo más cercano (capa `#tdb-over`): las que pasan
+  por debajo pierden un 6 % de la vida que les queda, `bridge`/`tdbBridges`, especial `fauna` cada 8 que pasan— y Microreserva mítica
+  —flores en el camino que frenan y dañan 20 s, como mucho 6, `flora`/`tdbFlower`, especial `bloom`—). Los campos se hacen por zonas temáticas; las asignaturas de
   una zona futura siguen en su campo actual hasta que la zona tenga criaturas. En el
   bosque los enemigos son los mismos (mismo nombre y truco) con otro aspecto (`TD_FOREST_ENEMIES`, `TD_FOREST_ENEMY_ART`,
   `tdEnemy`), y el mundo 1 es el mismo trazado con fondo de bosque (`tdbForestBackground`).
