@@ -69,6 +69,8 @@ const TD_PITY = { epic: 30, llegendari: 50, mitic: 200 }; // garantia per camp: 
 // Pujar d'estrella costa saber (a més de les còpies): base × √(valor de la raresa) × multiplicador de l'estrella
 const TD_STAR_COST = [1, 3, 8, 20];
 const TD_STAR_COPIES = [1, 2, 4, 7, 11];
+// Matrícula d'Honor: una còpia per estrela (cada vegada que tornes a passar l'onada 100 del seu món, una còpia més)
+const TD_MH_COPIES = [1, 2, 3, 4, 5];
 
 // Criatures. dmg: dany per atac · rate: atacs per segon · range: abast · cost: maná per a posar-la
 // role: què fa a més del dany (vegeu js/td/battle.js). Tots els defensors fan dany.

@@ -181,9 +181,12 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   se abre el mundo siguiente y hasta la 100 ×1,5 de saber. Balance: `python tools/td-progres.py [sala] [--mon=2] [--temps=s]` (onda
   máxima por etapa; el bot es simple y da resultados con ruido).
   **Matrícula d'Honor** (raresa `mh`, roja; nunca sale en el altar): en la oleada 100 de cada mundo se gana una receta o la piedra
-  (`TD_FORGE`, `td.forge`); en el altar, pestaña **Fusió** (`tdForgeHtml`, `tdForge`): la nueva en medio y las ingredientes (o la criatura y la pedra) a los lados; al fusionar, ceremonia a pantalla completa (`tdForgeAnim`, `#td-forge-show`; más grande que la de las míticas): las ingredientes se desmontan pieza a pieza (cada traço vuela a orbitar el núcleo) y la nueva se monta como un robot, de abajo arriba, encajando cada pieza con chispa y temblor; al final estalla el núcleo, giran los rayos y sale el nombre. Fusión: las dos criaturas desaparecen y queda
-  la nueva con la media de estrellas y de nivel (hacia abajo) y las copias sumadas; para subirla de estrella pide el doble de
-  copias (`tdCopyMult`), y las copias que salgan luego de las ingredientes van a ella (`tdForgedInto` en `tdGrant`). Evolución:
+  (`TD_FORGE`, `td.forge`); en el altar, pestaña **Fusió** (`tdForgeHtml`, `tdForge`): la nueva en medio y las ingredientes (o la criatura y la pedra) a los lados; al fusionar, ceremonia a pantalla completa (`tdForgeAnim`, `#td-forge-show`; más grande que la de las míticas): las ingredientes se desmontan pieza a pieza (cada traço vuela a orbitar el núcleo) y la nueva se monta como un robot, de abajo arriba, encajando cada pieza con chispa y temblor; al final estalla el núcleo, giran los rayos y sale el nombre. Fusión: las ingredientes desaparecen (también del grimorio y del
+  altar) y queda la nueva con ★1, 1 copia y el nivel medio (hasta el máximo de ★1); todas las copias de las ingredientes, y las que
+  salgan luego en el altar, se convierten en puntos de estrella / espores (valor de la rareza por copia, `tdCopiesToPoints`). Las MH
+  suben con **una copia por estrella** (`TD_MH_COPIES`, `tdStarCopies`): cada vez que se vuelve a pasar la oleada 100 de su mundo, una copia
+  más (`tdbFinish`). Migración única (`td.mhFix`): todas las MH a 1 copia y ★1 (nivel hasta 5); por cada una que tenía más de ★1, 1 M de
+  saber y 10 puntos por estrella, que se recogen en un mensaje del buzón (`td.mhComp`, `tdMhMail`). Evolución:
   If/else + pedra → Codi Spaghetti (se queda con todo). Las 4: **Dron de mostreig** (Brúixola + Prismàtics, Sendera; `drone`: el círculo de runas se queda en su hueco —desde ahí se
   mejora— y el dron (`.fly`) despega y vuela a `height` sobre la distracción más avanzada, disparando hacia abajo, `tdbDrone`/`tdbTPos`; especial `scan`: marca y revela), **Pi Mare** (Pi + Anells,
   Pineda; piñas y un anillo cada 3 que sale del tronco cortado `throw.pulse`, aura +25 % solo a las de natura `aura.el`, especial `root`), **Processador quàntic** (Rellotge +

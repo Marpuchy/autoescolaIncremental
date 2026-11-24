@@ -56,7 +56,7 @@ const tdShareDoneByOther = n => Array.isArray(tdShareOther?.data?.share?.done) &
 function tdShareOtherCreature(id) {
   const o = tdShareOther?.data?.owned?.[id];
   if (!o || typeof o !== "object" || !TD_DEFENDERS[id] || tdModeOf(id) !== tdShareOtherRoom()) return null;
-  const stars = Math.max(1, Math.min(Math.floor(Number(o.stars) || 1), tdStarsByCopies(Number(o.copies) || 0) || 1));
+  const stars = Math.max(1, Math.min(Math.floor(Number(o.stars) || 1), tdStarsByCopies(Number(o.copies) || 0, id) || 1));
   return { level: Math.max(1, Math.min(TD_LEVEL_PER_STAR * stars, Math.floor(Number(o.level) || 1))), stars };
 }
 const tdShareOtherList = () => Object.keys(tdShareOther?.data?.owned || {}).filter(id => tdShareOtherCreature(id));

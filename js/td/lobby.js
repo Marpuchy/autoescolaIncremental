@@ -176,7 +176,7 @@ const tdForgeHow = k => { const F = TD_FORGE[k], w = TD_WORLDS.find(o => o.id ==
 function tdForgeHtml() {
   const list = Object.keys(TD_FORGE).filter(k => tdModeOf(k) === tdRoom);
   const mini = (id, ok) => `<div class="td-forge-in rar-${TD_DEFENDERS[id].rar}${ok ? "" : " missing"}" title="${TD_DEFENDERS[id].name}${ok ? "" : " (no la tens)"}">${tdCreatureSvg(id)}<span>${TD_DEFENDERS[id].name}</span></div>`;
-  return `<p class="td-hint">A l'onada ${TD_IDLE.waves} de cada món guanyes una recepta o una pedra. Les criatures que fusiones desapareixen i queda la nova, de <strong style="color:${TD_RARITIES.mh.color}">Matrícula d'Honor</strong> (amb la mitjana de les estrelles; per a pujar-la, les còpies de les dues).</p>
+  return `<p class="td-hint">A l'onada ${TD_IDLE.waves} de cada món guanyes una recepta o una pedra. Les criatures que fusiones desapareixen i queda la nova, de <strong style="color:${TD_RARITIES.mh.color}">Matrícula d'Honor</strong> amb ★1. Cada vegada que tornes a passar l'onada 100 del seu món te'n dona una còpia, i cada estrela costa una còpia. Les còpies de les que fusiones es tornen ${TD_POINTS[tdRoom].name}.</p>
     <div class="td-forge">${list.map(k => { const F = TD_FORGE[k], have = td.forge.includes(k), own = !!td.owned[k], parts = tdForgeParts(k);
       const d = TD_DEFENDERS[k], w = TD_WORLDS.find(o => o.id === F.world);
       // la nova al mig i les ingredients (o la criatura i la pedra) als costats
@@ -195,6 +195,7 @@ function tdForgeAnim(k) {
   const F = TD_FORGE[k], parts = tdForgeParts(k);
   if (!tdForge(k)) return;
   tdClosePanel();
+  if (tdForgePoints) setTimeout(() => toast(`${TD_POINTS[tdModeOf(k)].icon} Les còpies que sobraven: +${tdForgePoints} ${TD_POINTS[tdModeOf(k)].name}`, "good"), 600);
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const box = document.createElement("div");
   box.id = "td-forge-show";
@@ -284,7 +285,7 @@ function tdGachaHtml() {
 function tdSummonHtml() {
   const s = tdSubj, F = TD_SUBJECTS[s], p = td.pity[s] || { epic: 0, llegendari: 0, mitic: 0 }, n = td.pergamins[s] || 0, P = TD_POINTS[tdRoom];
   const ord = ["comu", "rar", "epic", "llegendari", "mitic"]; // el que pot eixir, de menys a més rar
-  const pool = Object.entries(TD_DEFENDERS).filter(([, d]) => d.subj === s && d.rar !== "mh").sort((a, b) => ord.indexOf(a[1].rar) - ord.indexOf(b[1].rar));
+  const pool = Object.entries(TD_DEFENDERS).filter(([id, d]) => d.subj === s && d.rar !== "mh" && !tdForgedInto(id)).sort((a, b) => ord.indexOf(a[1].rar) - ord.indexOf(b[1].rar));
   const R = tdRates(s), boost = !!td.boost[s], pct = x => String(+(x * 100).toFixed(1)).replace(".", ",") + " %";
   const small = pool.filter(([, d]) => !["llegendari", "mitic"].includes(d.rar)), feat = pool.filter(([, d]) => ["llegendari", "mitic"].includes(d.rar));
   const card = ([id, d]) => `<div class="td-banner-c rar-${d.rar}" title="${d.name} · ${TD_RARITIES[d.rar].name} · ${pct(R[d.rar])}${d.rar === "mitic" ? ` (segura amb un ${TD_MYTHIC_GRADE} o més a l'examen final)` : ""}">
@@ -344,7 +345,7 @@ function tdsInfo(r) {
   if (!r.points) { const d = TD_DEFENDERS[r.id]; return { rar: d.rar, name: d.name, art: tdCreatureSvg(r.id), desc: d.desc, subj: d.subj }; }
   const P = TD_POINTS[r.mode];
   return { rar: r.rar, name: `+${r.points} ${r.points === 1 ? P.one : P.name}`, art: tdPointsSvg(r.mode), subj: r.subj,
-    desc: `${tdPool(r.subj, r.rar).length ? `En lloc d'una còpia ${TD_RARITIES[r.rar].name.toLowerCase()}` : `${TD_SUBJECTS[r.subj].name} no té cap criatura ${TD_RARITIES[r.rar].name.toLowerCase()}`}. Al grimori, ${P.name} es canvien per còpies de qualsevol criatura.` };
+    desc: `${r.from ? `${TD_DEFENDERS[r.from].name}, però ja l'has fusionada: la còpia es torna ${P.name}` : tdPool(r.subj, r.rar).length ? `En lloc d'una còpia ${TD_RARITIES[r.rar].name.toLowerCase()}` : `${TD_SUBJECTS[r.subj].name} no té cap criatura ${TD_RARITIES[r.rar].name.toLowerCase()}`}. Al grimori, ${P.name} es canvien per còpies de qualsevol criatura.` };
 }
 // Dibuix dels punts: una estrella de neó (Informàtica) o una espora que brilla (bosc)
 function tdPointsSvg(mode) {
@@ -510,7 +511,8 @@ const TD_TEAM_SORTS = {
 const TD_RAR_ORDER = ["comu", "rar", "epic", "llegendari", "mitic", "mh"];
 function tdBookList(kind, tab) {
   if (kind === "bestiary") return Object.keys(TD_ENEMIES).filter(id => !TD_ENEMIES[id].hidden);  // les mateixes a les dues sales (al bosc, amb una altra pell)
-  return Object.keys(TD_DEFENDERS).filter(id => TD_DEFENDERS[id].subj === tab).sort((a, b) => TD_RAR_ORDER.indexOf(TD_DEFENDERS[a].rar) - TD_RAR_ORDER.indexOf(TD_DEFENDERS[b].rar));
+  // (les que s'han fusionat ja no hi són)
+  return Object.keys(TD_DEFENDERS).filter(id => TD_DEFENDERS[id].subj === tab && !tdForgedInto(id)).sort((a, b) => TD_RAR_ORDER.indexOf(TD_DEFENDERS[a].rar) - TD_RAR_ORDER.indexOf(TD_DEFENDERS[b].rar));
 }
 function tdBookHtml(kind) {
   const tabs = kind === "bestiary" ? [] : [...tdFields().map(s => [s, `${TD_SUBJECTS[s].icon} ${TD_SUBJECTS[s].short}`]), ["team", "⚔️ Equip"]];

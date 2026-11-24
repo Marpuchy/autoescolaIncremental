@@ -2024,7 +2024,13 @@ function tdbFinish(won, quiet = false) {
     tdb.saber += TD_BATTLE.worldBonusSaber;
     tdRun(id).clears++;
     // onada 100: la recepta (o la pedra) de Matrícula d'Honor del món
-    if (tdb.idle) for (const [k, F] of Object.entries(TD_FORGE)) if (F.world === id && !td.forge.includes(k)) { td.forge.push(k); toast(`${F.key}! Ves a l'altar → Fusió`, "good"); }
+    if (tdb.idle) for (const [k, F] of Object.entries(TD_FORGE)) if (F.world === id) {
+      if (!td.forge.includes(k)) { td.forge.push(k); toast(`${F.key}! Ves a l'altar → Fusió`, "good"); }
+      else if (td.owned[k]) { // ja la tens: una còpia més (una còpia per estrela)
+        const r = tdGrant(k);
+        toast(r.saber ? `🎓 ${TD_DEFENDERS[k].name} ja té ★5: +${fmtNum(r.saber)} de saber` : `🎓 Còpia de ${TD_DEFENDERS[k].name}${tdCanAscend(k) ? ": ja pots pujar-la d'estrela al grimori" : ""}`, "good");
+      }
+    }
   }
   const saber = Math.round(tdb.saber) + (tdb.saberTotal || 0);
   td.saber += Math.round(tdb.saber);
