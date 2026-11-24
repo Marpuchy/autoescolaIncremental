@@ -323,21 +323,6 @@ add(rugSvg(-W + 0.02, -2.6, 6.75, 7.65, { base: "#1f2a4a", inner: "#2a3a66", lin
   add(s);
 }
 
-// ---------------------------------------------------------------- faristol del registre (abans que l'estudiant: és al fons i ell al davant) (dreta, al fons, al costat del cristall): el llibre on queda tot el que has estudiat
-{
-  let s = "";
-  const rl = lectern({ x: 3.55, z: 6.1, top: 0.95 });
-  s += rl.svg;
-  const [rx, ry] = P(3.55, 1.2, 6.1), rk = cam.scale(6.1) / 100;
-  s += `<ellipse cx="${r(rx)}" cy="${r(ry)}" rx="${r(62 * rk)}" ry="${r(34 * rk)}" fill="${GOLD}" opacity="0.13"/>`;
-  // llibre de comptes: a l'esquerra, ratlles de recompte (||||/); a la dreta, una gràfica de barres i una nota
-  s += openBook(rl.plane, { cover: "#5a3a12", page: "#efe6d0", line: "#b09060", lines: [0, 3], ink: [
-    ["#7a4a12", 2.2, [[0.1, 0.3], [0.1, 0.5]]], ["#7a4a12", 2.2, [[0.16, 0.3], [0.16, 0.5]]], ["#7a4a12", 2.2, [[0.22, 0.3], [0.22, 0.5]]], ["#7a4a12", 2.2, [[0.28, 0.3], [0.28, 0.5]]], ["#a8321e", 2.2, [[0.06, 0.48], [0.32, 0.32]]],
-    ["#7a4a12", 2.2, [[0.1, 0.62], [0.1, 0.82]]], ["#7a4a12", 2.2, [[0.16, 0.62], [0.16, 0.82]]], ["#7a4a12", 2.2, [[0.22, 0.62], [0.22, 0.82]]],
-    ["#3a6ea8", 4, [[0.6, 0.85], [0.6, 0.6]]], ["#3a8a5a", 4, [[0.7, 0.85], [0.7, 0.45]]], ["#a8463a", 4, [[0.8, 0.85], [0.8, 0.3]]], ["#7a4a12", 1.6, [[0.55, 0.88], [0.88, 0.88]]]] });
-  add(s, { spot: "record", title: "Registre: tot el que has estudiat (pàgines, exercicis, notes)", hit: bbox([[3.25, 0, 5.9], [3.85, 0, 6.3], [3.55, 1.65, 6.1]]) });
-}
-
 // ---------------------------------------------------------------- estudiant (dreta, davant): els artefactes que porta
 {
   // catifa rectangular amb vora, rombe al centre i serrell davant; l'estudiant hi trepitja de veritat
@@ -357,6 +342,40 @@ add(rugSvg(-W + 0.02, -2.6, 6.75, 7.65, { base: "#1f2a4a", inner: "#2a3a66", lin
   rug += `<ellipse cx="${r(sx)}" cy="${r(sy)}" rx="${r(46 * k)}" ry="${r(10 * k)}" fill="#000" opacity="0.35"/>`;
   add(`${rug}<g transform="translate(${r(sx)} ${r(sy)}) scale(${k.toFixed(3)})"><g transform="translate(-50 -101)">%STUDENT%</g></g>`,
     { spot: "student", title: "Estudiant: artefactes", hit: [r(sx - 60 * k), r(sy - 112 * k), r(120 * k), r(120 * k)] });
+}
+
+// ---------------------------------------------------------------- bústia (esquerra, davant): correu i préstecs. La bandereta (td-mailbox-flag)
+// s'alça i la carta (td-mailbox-letter) treu el cap quan hi ha alguna cosa nova (js/td/lobby.js i td.css)
+{
+  const x = -1.43, z = 1.8, X0 = x - 0.19, X1 = x + 0.19, Z0 = z - 0.17, Z1 = z + 0.17, Y0 = 0.9, Y1 = 1.1, R = 0.19;
+  let s = shadow({ x0: X0, x1: X1, z0: Z0, z1: Z1 }, 0.05, 0.3);
+  s += box({ x0: x - 0.15, x1: x + 0.15, y0: 0, y1: 0.03, z0: z - 0.12, z1: z + 0.12 }, { front: "#3b3160", side: "#2d2548", top: "#463a72" });
+  s += box({ x0: x - 0.04, x1: x + 0.04, y0: 0.03, y1: Y0, z0: z - 0.04, z1: z + 0.04 }, { front: "#2d2548", side: "#221c3a" });
+  // cos: caixa de metall fosc amb el sostre en mig cilindre (tires del darrere cap al davant, de l'esquerra a la dreta)
+  s += box({ x0: X0, x1: X1, y0: Y0, y1: Y1, z0: Z0, z1: Z1 }, { front: "#3b3160", side: "#2d2548" });
+  const arc = (a, zz) => [x - R * Math.cos(a), Y1 + R * Math.sin(a), zz], N = 12;
+  for (let i = 0; i < N; i++) {
+    const a0 = Math.PI * i / N, a1 = Math.PI * (i + 1) / N, lit = 0.35 + 0.5 * Math.sin((a0 + a1) / 2 + 0.6);
+    s += poly([arc(a0, Z1), arc(a1, Z1), arc(a1, Z0), arc(a0, Z0)], `fill="#4a3d80" stroke="#4a3d80" stroke-width="0.6" opacity="1"`) +
+      poly([arc(a0, Z1), arc(a1, Z1), arc(a1, Z0), arc(a0, Z0)], `fill="#8b7bff" opacity="${(lit * 0.25).toFixed(2)}"`);
+  }
+  const front = [...Array(N + 1)].map((_, i) => arc(Math.PI * i / N, Z0));
+  s += poly([[X0, Y0, Z0], ...front.reverse(), [X1, Y0, Z0]].reverse(), `fill="#3b3160"`);
+  // vora de neó, la boca i les runes del davant
+  const edge = [[X0, Y0, Z0], ...[...Array(N + 1)].map((_, i) => arc(Math.PI * i / N, Z0)), [X1, Y0, Z0]].map(p => P(...p).map(r).join(" "));
+  s += neon(`M${edge.join(" L")} Z`, "#8b7bff", 2.2);
+  s += quad(face({ x0: X0, x1: X1, y0: Y0, y1: Y1 + R, z0: Z0, z1: Z1 }, "front"), 0.22, 0.12, 0.78, 0.2, `fill="#120e22"`);
+  const fr = face({ x0: X0, x1: X1, y0: Y0, y1: Y1, z0: Z0, z1: Z1 }, "front"), pt = (u, v) => P(...fr(u, v)).map(r).join(" ");
+  s += neon(`M${pt(0.3, 0.35)} L${pt(0.7, 0.35)} L${pt(0.7, 0.8)} L${pt(0.3, 0.8)} Z M${pt(0.3, 0.35)} L${pt(0.5, 0.58)} L${pt(0.7, 0.35)}`, "#b9adff", 1.4);
+  // bandereta al costat dret (el que es veu), girada cap avall quan no hi ha res
+  const [fx, fy] = P(X1 + 0.01, Y0 + 0.04, z + 0.05);
+  s += `<g class="td-mailbox-flag" style="transform-origin:${r(fx)}px ${r(fy)}px">` +
+    box({ x0: X1 + 0.005, x1: X1 + 0.02, y0: Y0 + 0.04, y1: Y1 + 0.24, z0: z + 0.04, z1: z + 0.06 }, { front: "#9a8fb8", side: "#7a6f98" }) +
+    poly([[X1 + 0.02, Y1 + 0.24, z + 0.05], [X1 + 0.02, Y1 + 0.24, z - 0.12], [X1 + 0.02, Y1 + 0.19, z - 0.09], [X1 + 0.02, Y1 + 0.14, z - 0.12], [X1 + 0.02, Y1 + 0.14, z + 0.05]], `fill="#ff5a6e"`) + `</g>`;
+  // carta que treu el cap per la boca
+  const cf = face({ x0: x - 0.1, x1: x + 0.1, y0: Y1 + 0.09, y1: Y1 + 0.21, z0: Z0 - 0.005, z1: Z0 }, "front"), cp = (u, v) => P(...cf(u, v)).map(r).join(" ");
+  s += `<g class="td-mailbox-letter">${quad(cf, 0, 0, 1, 1, `fill="#fffaf0" stroke="#c9b48a" stroke-width="1"`)}<path d="M${cp(0, 0)} L${cp(0.5, 0.55)} L${cp(1, 0)}" fill="none" stroke="#c9b48a" stroke-width="1.2"/></g>`;
+  add(s, { spot: "mail", title: "Bústia: correu i préstecs", hit: bbox([[X0 - 0.05, 0, Z0], [X1 + 0.15, Y1 + R + 0.12, Z0], [X0 - 0.05, Y1 + R + 0.12, Z0], [X1 + 0.15, 0, Z1]]) });
 }
 
 // ---------------------------------------------------------------- definicions

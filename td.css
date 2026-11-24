@@ -1121,7 +1121,7 @@
 @keyframes tdb-shard { 0% { opacity: 1; transform: translate(0, 0) rotate(0); } 70% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--dx), calc(var(--dy) + 60px)) rotate(var(--rot)); } }
 
 /* ---- bústia de cada sala i préstecs entre Marc i Alba (js/td/share.js) */
-.td-mailbox .td-mailbox-flag { transform-box: view-box; transform-origin: 461px 752px; transform: rotate(80deg); transition: transform 0.4s; }
+.td-mailbox .td-mailbox-flag { transform-box: view-box; transform: rotate(80deg); transition: transform 0.4s; } /* el punt de gir, a l'estil del dibuix */
 .td-mailbox.has-news .td-mailbox-flag { transform: none; }
 .td-mailbox .td-mailbox-letter { opacity: 0; transition: opacity 0.3s; }
 .td-mailbox.has-news .td-mailbox-letter { opacity: 1; animation: td-mailbox-peek 2.4s ease-in-out infinite; }
@@ -1441,3 +1441,80 @@ body.tdb-away #tdb-svg .tdb-zone.flower .tdb-flowers > g { animation: none; }
 .tdb-overflow .ov-err { opacity: 0; animation: ov-err calc(1.1s / var(--sp, 1)) calc(0.55s / var(--sp, 1)) ease-out forwards; transform-box: fill-box; transform-origin: center; }
 @keyframes ov-err { 0% { opacity: 0; transform: scale(0.4); } 20% { opacity: 1; transform: scale(1.15); } 35% { transform: scale(1) translateX(-4px); } 45% { transform: translateX(4px); } 55% { transform: translateX(0); } 85% { opacity: 1; } 100% { opacity: 0; transform: translateY(-20px); } }
 .ov-block { pointer-events: none; filter: drop-shadow(0 0 6px #3fdc8a); }
+
+/* llibre del registre, davall de les assignatures de la prestatgeria: la coberta s'obri cap a l'esquerra en tocar-lo */
+.td-study-right { display: flex; flex-direction: column; gap: 14px; }
+.td-recbook { position: relative; align-self: center; width: 150px; height: 190px; padding: 0; border: 0; background: none; cursor: pointer; perspective: 700px; margin-top: 4px; }
+.td-recbook-pages { position: absolute; inset: 4px 2px 4px 10px; border-radius: 2px 8px 8px 2px; background: repeating-linear-gradient(#fffaf0 0 3px, #e8dcc0 3px 4px); box-shadow: 0 8px 16px rgba(0, 0, 0, 0.45); }
+.td-recbook-cover { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 12px;
+  border-radius: 3px 10px 10px 3px; background: linear-gradient(90deg, #3a2410 0 12px, #6a4318 12px 14px, #7a4e1c 14px); color: #ffe2b0; text-align: center;
+  box-shadow: inset 0 0 0 3px rgba(255, 210, 140, 0.25), inset 0 0 0 7px rgba(0, 0, 0, 0.15), 0 8px 16px rgba(0, 0, 0, 0.5);
+  transform-origin: left center; transition: transform 0.5s cubic-bezier(.3, .7, .3, 1); backface-visibility: hidden; }
+.td-recbook.forest .td-recbook-cover { background: linear-gradient(90deg, #26401a 0 12px, #3f6a2a 12px 14px, #4a7a32 14px); color: #e8ffd0; }
+.td-recbook-ic { font-size: 2rem; }
+.td-recbook-cover b { font-size: 0.95rem; line-height: 1.15; }
+.td-recbook-cover small { font-size: 0.72rem; opacity: 0.85; }
+.td-recbook:hover .td-recbook-cover, .td-recbook:focus-visible .td-recbook-cover { transform: rotateY(-18deg); }
+.td-recbook.opening .td-recbook-cover { transform: rotateY(-160deg); }
+.td-rec-back { margin-bottom: 8px; }
+@media (max-width: 1100px) { .td-study-right { grid-column: 1 / -1; flex-direction: row; align-items: stretch; } .td-study-right .td-subjlist { flex: 1; }
+  .td-recbook { width: 120px; height: 160px; align-self: center; flex-shrink: 0; } }
+@media (max-width: 700px) { .td-study-right { flex-direction: column; } .td-recbook { width: 100%; height: 64px; perspective: none; }
+  .td-recbook-cover { flex-direction: row; border-radius: 6px; } .td-recbook-ic { font-size: 1.4rem; } .td-recbook.opening .td-recbook-cover { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .td-recbook-cover { transition: none; } }
+
+/* Forja de Matrícula d'Honor: l'altar amb la fusió triada (pedestals, runes, nucli) i, davall, les receptes que falten */
+.td-forge2 { display: flex; flex-direction: column; gap: 10px; --mh: #ff3b4e; }
+.td-forge2.empty { align-items: center; text-align: center; padding: 30px 10px; }
+.td-forge2-done { font-size: 3rem; filter: drop-shadow(0 0 14px var(--mh)); }
+.td-fg-altar { position: relative; border-radius: 16px; padding: 14px 10px 12px; overflow: hidden; isolation: isolate;
+  background: radial-gradient(ellipse 60% 70% at 50% 45%, #3a0a1888, transparent 70%), linear-gradient(#140a12, #0c0710); border: 1px solid #ff3b4e44; }
+.td-fg-altar.locked { border-color: #3a3346; background: radial-gradient(ellipse 60% 70% at 50% 45%, #2a243a88, transparent 70%), linear-gradient(#110e18, #0b0910); }
+.td-fg-runes { position: absolute; left: 50%; top: 44%; width: 300px; height: 300px; margin: -150px 0 0 -150px; z-index: -1; border-radius: 50%; opacity: 0.55;
+  border: 2px dashed #ff3b4e55; box-shadow: inset 0 0 0 18px #ff3b4e0d, inset 0 0 0 20px #ff3b4e33; animation: td-spin 40s linear infinite; }
+.td-fg-altar.locked .td-fg-runes { border-color: #5a5270; box-shadow: inset 0 0 0 20px #5a527033; animation: none; }
+.td-fg-row { display: flex; align-items: flex-end; justify-content: center; gap: clamp(4px, 2vw, 22px); }
+.td-fg-ped { display: flex; flex-direction: column; align-items: center; text-align: center; width: 120px; font-size: 0.8rem; color: #f2e8ff; }
+.td-fg-ped small { color: #b8a8d0; font-size: 0.7rem; }
+.td-fg-art { width: 84px; height: 84px; display: grid; place-items: center; animation: td-fg-float 3.2s ease-in-out infinite; }
+.td-fg-art > svg { width: 100%; height: 100%; }
+.td-fg-stone { width: 86px; height: 16px; margin: -4px 0 6px; border-radius: 50%; background: radial-gradient(ellipse at 50% 30%, #4a4060, #1a1528 70%); box-shadow: 0 6px 10px #0008; }
+.td-fg-ped.in.missing .td-fg-art { opacity: 0.3; filter: grayscale(1); animation: none; }
+.td-fg-ped.in.missing small { color: #ff8a96; }
+.td-fg-ped.out { width: 150px; color: #ffd0d6; }
+.td-fg-ped.out .td-fg-art { width: 124px; height: 124px; filter: drop-shadow(0 0 12px #ff3b4eaa); animation-duration: 2.6s; }
+.td-fg-ped.out .td-fg-stone { width: 128px; height: 22px; background: radial-gradient(ellipse at 50% 30%, #ff3b4e, #5a0a18 55%, #1a0710 80%); box-shadow: 0 0 22px #ff3b4e88, 0 6px 10px #0008; }
+.td-fg-ped.out strong { font-size: 1rem; text-shadow: 0 0 10px #ff3b4e; }
+.td-fg-ped.out.unknown .td-fg-art { filter: none; }
+.td-fg-ped.out.unknown .td-fg-stone { background: radial-gradient(ellipse at 50% 30%, #4a4060, #1a1528 70%); box-shadow: 0 6px 10px #0008; }
+.td-fg-q { font-size: 4rem; font-weight: 900; color: #5a5270; }
+.td-fg-gem { width: 70px; height: 70px; filter: drop-shadow(0 0 10px #7fe8ff); }
+.td-fg-sign { align-self: center; margin-bottom: 40px; font-size: 1.6rem; color: var(--mh); text-shadow: 0 0 10px var(--mh); animation: td-fg-pulse 1.6s ease-in-out infinite; }
+.td-fg-altar.locked .td-fg-sign { color: #5a5270; text-shadow: none; animation: none; }
+.td-fg-act { display: flex; justify-content: center; margin-top: 12px; min-height: 36px; align-items: center; }
+.td-fg-go { font-size: 1.05rem; padding: 10px 26px; background: linear-gradient(#ff5a6a, #c8102e); color: #fff; border: 0; box-shadow: 0 0 18px #ff3b4e88; animation: td-fg-pulse 1.6s ease-in-out infinite; }
+.td-fg-note { color: #d8cce8; font-size: 0.85rem; text-align: center; }
+.td-fg-hint { margin: 0; font-size: 0.78rem; text-align: center; }
+.td-fg-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+.td-fg-card { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 6px; border-radius: 10px; background: #161b28; border: 1px solid #2c3448; color: #e8e0f4; cursor: pointer; font: inherit; }
+.td-fg-card.sel { border-color: var(--mh); box-shadow: 0 0 0 2px #ff3b4e55; }
+.td-fg-card.ready { background: linear-gradient(#2a0f18, #161b28); }
+.td-fg-card.locked { opacity: 0.65; }
+.td-fg-recipe { display: flex; align-items: center; gap: 2px; }
+.td-fg-recipe i { font-style: normal; color: #ff8a96; font-weight: 900; font-size: 0.8rem; }
+.td-fg-mini { width: 34px; height: 34px; display: grid; place-items: center; font-size: 1.2rem; color: #5a5270; font-weight: 900; }
+.td-fg-mini svg { width: 100%; height: 100%; }
+.td-fg-mini.off { opacity: 0.3; filter: grayscale(1); }
+.td-fg-mini.out { width: 40px; height: 40px; border-radius: 50%; background: radial-gradient(circle, #ff3b4e33, transparent 70%); }
+.td-fg-cname { font-weight: 800; font-size: 0.82rem; }
+.td-fg-cst { font-size: 0.7rem; color: #b8a8d0; }
+.td-fg-card.ready .td-fg-cst { color: #ffd27a; }
+@keyframes td-fg-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@keyframes td-fg-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.65; } }
+@media (max-width: 600px) {
+  .td-fg-ped { width: 84px; font-size: 0.7rem; } .td-fg-art { width: 58px; height: 58px; } .td-fg-stone { width: 60px; height: 12px; }
+  .td-fg-ped.out { width: 104px; } .td-fg-ped.out .td-fg-art { width: 84px; height: 84px; } .td-fg-ped.out .td-fg-stone { width: 90px; height: 16px; }
+  .td-fg-sign { font-size: 1.2rem; margin-bottom: 30px; } .td-fg-runes { width: 220px; height: 220px; margin: -110px 0 0 -110px; }
+  .td-fg-list { grid-template-columns: 1fr 1fr; } .td-fg-mini { width: 26px; height: 26px; } .td-fg-mini.out { width: 30px; height: 30px; }
+}
+@media (prefers-reduced-motion: reduce) { .td-fg-art, .td-fg-sign, .td-fg-go, .td-fg-runes { animation: none; } }

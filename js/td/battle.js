@@ -68,7 +68,7 @@ const tdWorldTypes = world => [...new Set(world.waves.flat().map(x => x[0]).filt
 // gegant; a la 30, 50, 70 i 100, els caps amb nom
 function tdWaveSpec(world, n) {
   const I = TD_IDLE, src = world.base || world, T = src.waves[(n - 1) % src.waves.length].filter(([t]) => !TD_ENEMIES[t].boss);
-  const grow = 1 + I.countGrow * (n - 1);
+  const grow = (1 + I.countGrow * (n - 1)) * (TD_DIFFICULTY.count || 1);
   const spec = (T.length ? T : src.waves[0]).map(([t, c, g]) => [t, Math.max(1, Math.round(c * grow)), +(g / Math.sqrt(grow)).toFixed(2), ""]);
   const bosses = tdWorldBosses(src);
   if (I.bossWaves[n]) for (const i of I.bossWaves[n]) spec.push([bosses[i] || bosses[0], 1, 3, n === I.waves ? "big" : ""]);
@@ -89,7 +89,7 @@ function tdbBank() {
 // Com comença l'onada: per a repetir-la si es perd (i, després de cada múltiple de 10, per a poder-hi tornar)
 function tdbSnap() {
   const run = tdRun(tdb.world.id), snap = { wave: tdb.wave, mana: Math.floor(tdb.mana),
-    towers: Object.values(tdb.towers).map(t => [t.slot, t.id, t.up, t.spent]), ...(tdb.dbl ? { dbl: true } : {}) };
+    towers: Object.values(tdb.towers).map(t => [t.slot, t.id, t.up, t.spent]), ...(tdb.dbl ? { dbl: true } : {}), ...(tdb.up5 ? { up5: true } : {}) };
   run.run = { ...(run.run || {}), snap, speed: tdb.speed };
   if (tdb.wave > 1 && (tdb.wave - 1) % 10 === 0) run.run.tens = snap;
   td.idle = { world: tdb.world.id, at: Date.now() };
@@ -107,6 +107,7 @@ function tdbRestore(snap) {
   tdb.wave = snap.wave - 1;
   tdb.mana = snap.mana;
   tdb.dbl = !!snap.dbl;
+  tdb.up5 = !!snap.up5;
   tdb.lives = tdbMaxLives();
   tdbBuildView();
   for (const [slot, id, up, spent] of snap.towers) tdbPut(slot, id, up, spent);
@@ -577,7 +578,13 @@ function tdbRefreshStats() {
   if (!tdb?.towers || tdb.demo) return;
   for (const t of Object.values(tdb.towers)) tdbApplyBuff(t); // el dibuix no canvia: només dany, ritme, abast… (i la millora del Montecarlo, si en té)
 }
-const tdbUpCost = t => t.up >= 2 ? null : Math.round(TD_DEFENDERS[t.id].cost * TD_BATTLE.upgradeCost[t.up]);
+const tdbUpMax = () => tdb.up5 ? 4 : 2; // ◆◆◆, o ◆◆◆◆◆ si s'han pagat els 5.000
+const tdbUpCost = t => t.up >= tdbUpMax() ? null : Math.round(TD_DEFENDERS[t.id].cost * TD_BATTLE.upgradeCost[t.up]);
+function tdbBuyUp5() {
+  if (tdb.up5 || !tdb.idle || tdb.mana < TD_UP5_COST) return;
+  tdb.mana -= TD_UP5_COST; tdb.up5 = true;
+  toast("◆ Ara les criatures d'aquest món es poden potenciar fins a ◆◆◆◆◆", "good"); tdbHud();
+}
 function tdbUpgrade(t) {
   const cost = tdbUpCost(t);
   if (cost == null || tdb.mana < cost) return;
@@ -2261,6 +2268,7 @@ function tdbHud() {
   // cartes: les que no et pots permetre, apagades
   document.querySelectorAll("#tdb-deck [data-card]").forEach(c => c.classList.toggle("poor", tdb.mana < TD_DEFENDERS[c.dataset.card].cost));
   const dblBtn = document.querySelector('#tdb-deck [data-pick="dbl"]'); if (dblBtn) dblBtn.disabled = tdb.mana < TD_LIMIT_DOUBLE_COST;
+  const up5Btn = document.querySelector('#tdb-deck [data-pick="up5"]'); if (up5Btn) up5Btn.disabled = tdb.mana < TD_UP5_COST;
   const pb = document.querySelector("#tdb-deck [data-place]");
   if (pb && tdb.pickId && pb.disabled !== tdb.mana < TD_DEFENDERS[tdb.pickId].cost) $("tdb-deck").querySelector(".tdb-pick-info").outerHTML = tdbPickInfo();
   if (tdb.selectedTower) tdbTowerPanel();
@@ -2270,7 +2278,9 @@ function tdbHud() {
 // L'equip no està sempre a la vista: ix quan toques un buit buit. En passar per damunt d'una criatura (o enfocar-la),
 // el buit mostra el seu abast; en tocar-la, es posa.
 function tdbRenderDeck() {
-  const dbl = !tdb.dbl && tdb.idle ? `<button class="secondary small tdb-dbl" data-pick="dbl" ${tdb.mana < TD_LIMIT_DOUBLE_COST ? "disabled" : ""} title="Dobla quantes criatures iguals es poden posar en aquest món">×2 límit · 🔮 ${fmtNum(TD_LIMIT_DOUBLE_COST)}</button>` : "";
+  // primer ◆5 (5.000) i, després, ×2 de límit (10.000)
+  const dbl = !tdb.idle ? "" : !tdb.up5 ? `<button class="secondary small tdb-dbl" data-pick="up5" ${tdb.mana < TD_UP5_COST ? "disabled" : ""} title="Les criatures d'aquest món es poden potenciar fins a ◆◆◆◆◆">◆5 · 🔮 ${fmtNum(TD_UP5_COST)}</button>`
+    : !tdb.dbl ? `<button class="secondary small tdb-dbl" data-pick="dbl" ${tdb.mana < TD_LIMIT_DOUBLE_COST ? "disabled" : ""} title="Dobla quantes criatures iguals es poden posar en aquest món">×2 límit · 🔮 ${fmtNum(TD_LIMIT_DOUBLE_COST)}</button>` : "";
   $("tdb-deck").innerHTML = `<div class="tdb-pick-head"><span>Tria una criatura per al buit</span><span class="tdb-pick-tools">${dbl}<button class="secondary small tdb-peek-btn" data-pick="peek" aria-label="Veure el mapa" title="Veure el mapa">👁</button><button class="secondary small" data-pick="close" aria-label="Tancar">✕</button></span></div>
     <div class="tdb-pick-cards">${tdDeck(tdb.world.mode).map(id => {
       const d = TD_DEFENDERS[id], lent = !td.owned[id] && td.loan?.def === id;
@@ -2342,7 +2352,8 @@ function tdbTowerPanel() {
     <div class="tdb-panel-info"><strong>${d.name}</strong> <span class="td-stars">${"★".repeat(t.stats.stars)}</span> · Nv. ${t.stats.level} · ${"◆".repeat(t.up + 1)}
       <div class="muted">⚔️ ${tdDmgText(t.id, t.stats.dmg)} · ⏱ ${t.stats.rate.toFixed(1)}/s · 🎯 ${Math.round(t.stats.range)}</div><div class="tdb-panel-desc">${d.desc}</div></div>
     <div class="tdb-panel-btns">
-      ${cost != null ? `<button data-tp="up" ${tdb.mana < cost ? "disabled" : ""}>⬆ Potenciar · 🔮 ${cost}</button>` : `<button disabled>◆◆◆ Al màxim</button>`}
+      ${cost != null ? `<button data-tp="up" ${tdb.mana < cost ? "disabled" : ""}>⬆ Potenciar · 🔮 ${cost}</button>`
+        : !tdb.up5 && tdb.idle ? `<button data-tp="up5" ${tdb.mana < TD_UP5_COST ? "disabled" : ""} title="Totes les criatures d'aquest món, fins a ◆◆◆◆◆">◆5 per a totes · 🔮 ${fmtNum(TD_UP5_COST)}</button>` : `<button disabled>${"◆".repeat(t.up + 1)} Al màxim</button>`}
       <button class="secondary" data-tp="sell">♻ Retirar · +${Math.round(t.spent * TD_BATTLE.sellBack)} 🔮</button>
       <button class="secondary small" data-tp="close" aria-label="Tancar">✕</button></div>`;
   // només es torna a pintar si ha canviat (si es pinta a cada fotograma, els botons no reben el clic)
@@ -2394,6 +2405,7 @@ function initTdBattle() {
     if (sheet.classList.contains("peek") && !ev.target.closest('[data-pick="close"]')) { sheet.classList.remove("peek"); return; } // amagat: el toc el torna a obrir
     if (ev.target.closest('[data-pick="close"]')) { tdbCloseBottom(); return; }
     if (ev.target.closest('[data-pick="peek"]')) { ev.currentTarget.closest(".tdb-bottom").classList.add("peek"); return; }
+    if (ev.target.closest('[data-pick="up5"]')) { tdbBuyUp5(); tdbRenderDeck(); return; }
     if (ev.target.closest('[data-pick="dbl"]')) {
       if (tdb.dbl || tdb.mana < TD_LIMIT_DOUBLE_COST) return;
       tdb.mana -= TD_LIMIT_DOUBLE_COST; tdb.dbl = true;
@@ -2414,6 +2426,7 @@ function initTdBattle() {
     const b = ev.target.closest("[data-tp]");
     if (!b || !tdb.selectedTower) return;
     if (b.dataset.tp === "up") tdbUpgrade(tdb.selectedTower);
+    if (b.dataset.tp === "up5") tdbBuyUp5();
     if (b.dataset.tp === "sell") tdbSell(tdb.selectedTower);
     if (b.dataset.tp === "close" || b.dataset.tp === "sell") tdbCloseBottom();
     else if (tdb.selectedTower) tdbShowRange(tdb.selectedTower);

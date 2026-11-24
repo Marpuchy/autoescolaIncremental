@@ -57,11 +57,11 @@ function tdRenderLobby() {
     if (l.portal) svg = tdPortalLive(l.portal) + svg; // el combat en marxa, darrere del portal
     const [x, y, w, h] = l.hit;
     spots.push([w * h, `<rect class="hub-hit" data-td="${l.spot}" tabindex="0" role="button" aria-label="${l.title}" x="${x}" y="${y}" width="${w}" height="${h}" fill="transparent"><title>${l.title}</title></rect>`]);
+    // la bústia (dibuixada en perspectiva amb la sala): la bandereta s'alça si hi ha alguna cosa nova
+    if (l.spot === "mail") return `<g class="hub-art td-art td-mailbox${tdMailNews() ? " has-news" : ""}" id="td-mailbox">${svg}</g>`;
     return `<g class="hub-art td-art" id="td-art-${l.spot}">${svg}</g>`;
   }).join("");
-  const mailbox = `<g class="hub-art td-art td-mailbox${tdMailNews() ? " has-news" : ""}" id="td-mailbox">${TD_MAILBOX_SVG[tdRoom]}</g>`;
-  spots.push([0, tdMailboxHit]);
-  $("td-lobby-scene").innerHTML = `<svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet" aria-label="${TD_ROOMS[tdRoom].label}"><defs>${ART.defs}</defs>${layers}${mailbox}${spots.sort((x, y) => y[0] - x[0]).map(x => x[1]).join("")}</svg>`; // les zones menudes, damunt
+  $("td-lobby-scene").innerHTML = `<svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet" aria-label="${TD_ROOMS[tdRoom].label}"><defs>${ART.defs}</defs>${layers}${spots.sort((x, y) => y[0] - x[0]).map(x => x[1]).join("")}</svg>`; // les zones menudes, damunt
   tdLobbyHud();
 }
 // Dins del portal es veu el combat que continua sol: el mateix dibuix (un <use> de #tdb-root), retallat per l'el·lipse
@@ -173,20 +173,42 @@ let tdAltarTab = "summon"; // altar: invocar o Fusió (Matrícula d'Honor)
 const tdForgeHow = k => { const F = TD_FORGE[k], w = TD_WORLDS.find(o => o.id === F.world);
   return `${F.from ? F.from.map(id => TD_DEFENDERS[id].name).join(" + ") : `${TD_DEFENDERS[F.evolve].name} + pedra`} · onada ${TD_IDLE.waves} de «${w?.name}»`; };
 // Fusió: les receptes de la sala (Matrícula d'Honor). Cada una s'obri a l'onada 100 d'un món
+// Forja: al mig, l'altar amb la fusió triada (la nova damunt d'un pedestal i les ingredients als costats, unides per
+// runes); davall, totes les receptes que falten (les ja fetes desapareixen), també les tancades, amb on es guanyen.
+let tdForgeSel = null;
 function tdForgeHtml() {
-  const list = Object.keys(TD_FORGE).filter(k => tdModeOf(k) === tdRoom);
-  const mini = (id, ok) => `<div class="td-forge-in rar-${TD_DEFENDERS[id].rar}${ok ? "" : " missing"}" title="${TD_DEFENDERS[id].name}${ok ? "" : " (no la tens)"}">${tdCreatureSvg(id)}<span>${TD_DEFENDERS[id].name}</span></div>`;
-  return `<p class="td-hint">A l'onada ${TD_IDLE.waves} de cada món guanyes una recepta o una pedra. Les criatures que fusiones desapareixen i queda la nova, de <strong style="color:${TD_RARITIES.mh.color}">Matrícula d'Honor</strong> amb ★1. Cada vegada que tornes a passar l'onada 100 del seu món te'n dona una còpia, i cada estrela costa una còpia. Les còpies de les que fusiones es tornen ${TD_POINTS[tdRoom].name}.</p>
-    <div class="td-forge">${list.map(k => { const F = TD_FORGE[k], have = td.forge.includes(k), own = !!td.owned[k], parts = tdForgeParts(k);
-      const d = TD_DEFENDERS[k], w = TD_WORLDS.find(o => o.id === F.world);
-      // la nova al mig i les ingredients (o la criatura i la pedra) als costats
-      const left = mini(parts[0], !!td.owned[parts[0]] || own), right = F.evolve ? `<div class="td-forge-in td-forge-key${have ? "" : " missing"}" title="${F.key}"><span class="td-forge-gem">💎</span><span>Pedra</span></div>` : mini(parts[1], !!td.owned[parts[1]] || own);
-      return `<div class="td-forge-row${own ? " done" : have ? "" : " locked"}" data-forgerow="${k}">
-        <div class="td-forge-trio"><div class="td-forge-side l">${left}</div><b class="td-forge-arrow">→</b>
-        <div class="td-forge-out rar-mh${own || have ? "" : " hidden"}">${own || have ? tdCreatureSvg(k) : `<span class="tdbook-q">?</span>`}<span>${own || have ? d.name : "???"}</span></div>
-        <b class="td-forge-arrow">←</b><div class="td-forge-side r">${right}</div></div>
-        <div class="td-forge-act">${own ? `<span class="muted">✔ Ja la tens</span>` : !have ? `<span class="muted">🔒 Onada ${TD_IDLE.waves} de «${w?.name}»</span>`
-          : `<button data-forge="${k}" ${tdCanForge(k) ? "" : "disabled"}>${F.from ? "⚗️ Fusionar" : "✨ Evolucionar"}</button>${tdCanForge(k) ? "" : `<span class="muted">Et falta alguna criatura</span>`}`}</div></div>`; }).join("")}</div>`;
+  const list = Object.keys(TD_FORGE).filter(k => tdModeOf(k) === tdRoom && !td.owned[k]);
+  if (!list.length) return `<div class="td-forge2 empty"><div class="td-forge2-done">🎓</div><p><strong>Ja tens totes les Matrícules d'Honor d'aquesta sala.</strong></p>
+    <p class="muted">Cada vegada que tornes a passar l'onada ${TD_IDLE.waves} del seu món, una còpia més (una còpia per estrela).</p></div>`;
+  const state = k => td.forge.includes(k) ? (tdCanForge(k) ? "ready" : "need") : "locked";
+  const order = { ready: 0, need: 1, locked: 2 };
+  list.sort((x, y) => order[state(x)] - order[state(y)] || TD_FORGE[x].world - TD_FORGE[y].world);
+  if (!list.includes(tdForgeSel)) tdForgeSel = list[0];
+  const k = tdForgeSel, F = TD_FORGE[k], st = state(k), d = TD_DEFENDERS[k], parts = tdForgeParts(k), w = TD_WORLDS.find(o => o.id === F.world);
+  const known = st !== "locked"; // la recepta encara no s'ha guanyat: la nova és un misteri
+  const ped = (inner, cls, label, sub = "") => `<div class="td-fg-ped ${cls}"><div class="td-fg-art">${inner}</div><div class="td-fg-stone"></div><strong>${label}</strong>${sub ? `<small>${sub}</small>` : ""}</div>`;
+  const ing = id => { const ok = !!td.owned[id]; return ped(tdCreatureSvg(id), `in rar-${TD_DEFENDERS[id].rar}${ok ? "" : " missing"}`, TD_DEFENDERS[id].name, ok ? `Nv. ${td.owned[id].level} ${"★".repeat(tdStars(id))}` : "No la tens"); };
+  const gem = ped(`<svg viewBox="0 0 100 100" class="td-fg-gem"><path d="M50 8 L88 40 L50 94 L12 40 Z" fill="#12303f" stroke="#7fe8ff" stroke-width="4" stroke-linejoin="round"/><path d="M12 40 H88 M50 8 L36 40 L50 94 L64 40 Z" stroke="#bff4ff" stroke-width="2" fill="none"/></svg>`,
+    `in gem${known ? "" : " missing"}`, "Pedra", known ? "La tens" : `Onada ${TD_IDLE.waves}`);
+  const out = ped(known ? tdCreatureSvg(k) : `<span class="td-fg-q">?</span>`, `out${known ? "" : " unknown"}`, known ? d.name : "???",
+    known ? `${TD_ELEMENTS[d.el].icon} ${TD_ELEMENTS[d.el].name}${d.el2 ? ` + ${TD_ELEMENTS[d.el2].icon} ${TD_ELEMENTS[d.el2].name}` : ""}` : "Matrícula d'Honor");
+  const missing = parts.filter(id => !td.owned[id]).map(id => TD_DEFENDERS[id].name);
+  const act = st === "ready" ? `<button class="td-fg-go" data-forge="${k}">${F.from ? "⚗️ Fusionar" : "✨ Evolucionar"}</button>`
+    : st === "need" ? `<span class="td-fg-note">Et falta: <strong>${missing.join(" i ")}</strong></span>`
+    : `<span class="td-fg-note">🔒 ${F.from ? "Recepta" : "Pedra"} a l'onada ${TD_IDLE.waves} de <strong>«${w?.name}»</strong></span>`;
+  const sign = F.from ? "+" : "✦";
+  const card = id => { const s2 = state(id), F2 = TD_FORGE[id], k2 = s2 !== "locked", w2 = TD_WORLDS.find(o => o.id === F2.world);
+    const mini = x => `<span class="td-fg-mini${td.owned[x] ? "" : " off"}">${tdCreatureSvg(x)}</span>`;
+    return `<button class="td-fg-card ${s2}${id === k ? " sel" : ""}" data-forgesel="${id}" aria-pressed="${id === k}">
+      <span class="td-fg-recipe">${tdForgeParts(id).map(mini).join(`<i>+</i>`)}${F2.evolve ? `<i>+</i><span class="td-fg-mini gem${k2 ? "" : " off"}">💎</span>` : ""}<i>→</i><span class="td-fg-mini out">${k2 ? tdCreatureSvg(id) : "?"}</span></span>
+      <span class="td-fg-cname">${k2 ? TD_DEFENDERS[id].name : "???"}</span>
+      <span class="td-fg-cst">${s2 === "ready" ? "✨ Llesta" : s2 === "need" ? "Falta criatura" : `🔒 ${w2?.name}`}</span></button>`; };
+  return `<div class="td-forge2">
+    <div class="td-fg-altar ${st}"><div class="td-fg-runes" aria-hidden="true"></div>
+      <div class="td-fg-row">${ing(parts[0])}<b class="td-fg-sign">${sign}</b>${out}<b class="td-fg-sign">${sign}</b>${F.evolve ? gem : ing(parts[1])}</div>
+      <div class="td-fg-act">${act}</div></div>
+    <p class="td-fg-hint muted">Les ingredients desapareixen i queda la nova amb ★1; les seues còpies es tornen ${TD_POINTS[tdRoom].name}. Cada vegada que tornes a passar l'onada ${TD_IDLE.waves} del seu món, una còpia més.</p>
+    <div class="td-fg-list" role="list" aria-label="Receptes">${list.map(card).join("")}</div></div>`;
 }
 // Cerimònia de la fusió (més gran que la de les mítiques): les ingredients es desmunten peça a peça (cada traç d'energia
 // salta i va a fer voltes al nucli del mig) i, amb eixes peces, la nova es munta com un robot, de baix a dalt: cada peça
@@ -463,8 +485,16 @@ function tdStudyHtml() {
     <div class="td-study"><div class="td-study-side">${tdMissionsHtml()}
         <div class="td-log-card"><h4>🗒️ Últim que has apuntat</h4>${log.length ? `<ul class="td-log">${log.map(l => `<li><span>${l.what}</span><span>+${l.rolls} ${tdScrollSvg(l.subj)}${l.mythic ? " ✨" : ""}</span></li>`).join("")}</ul>` : `<p class="muted">Encara res.</p>`}</div></div>
       <div class="td-bookcase">${Array.from({ length: TD_SHELF_ROWS }, (_, i) => row(i)).join("")}</div>
-      ${tdSubjectListHtml()}</div>
+      <div class="td-study-right">${tdSubjectListHtml()}${tdRecordBookHtml()}</div></div>
     ${tdExamOpen ? tdExamBookHtml(tdExamOpen) : ""}`;
+}
+// El llibre del registre, davall de les assignatures: en tocar-lo s'obri la coberta i ix el registre (abans era un faristol de la sala)
+function tdRecordBookHtml() {
+  const forest = tdRoom === "forestal", R = td.record;
+  const n = tdFields().reduce((a, s) => a + Object.values(R.acts[s] || {}).reduce((x, y) => x + y, 0), 0);
+  return `<button class="td-recbook${forest ? " forest" : ""}" data-recbook="1" title="Obri el registre: tot el que has estudiat">
+    <span class="td-recbook-pages"></span><span class="td-recbook-cover"><span class="td-recbook-ic">${forest ? "🌿" : "📒"}</span>
+      <b>${forest ? "Quadern de camp" : "Registre d'estudi"}</b><small>${R.days.length} dies · ${n} coses</small></span></button>`;
 }
 // Llibre d'exàmens obert al mig de la pantalla: a l'esquerra l'assignatura, a la dreta la nota
 function tdExamBookHtml(f) {
@@ -677,7 +707,7 @@ function tdToggleTeam(id) {
   tdSave();
   tdRenderPanel();
 }
-// ---- faristol del registre: tot el que s'ha apuntat per camp (activitats, pàgines, exàmens i notes)
+// ---- registre (el llibre de la prestatgeria): tot el que s'ha apuntat per camp (activitats, pàgines, exàmens i notes)
 function tdRecordHtml() {
   if (!tdFields().includes(tdSubj)) tdSubj = tdFields()[0];
   const R = td.record, f = tdSubj, F = TD_SUBJECTS[f], acts = R.acts[f] || {};
@@ -688,7 +718,7 @@ function tdRecordHtml() {
   const noCls = ex.filter(e => !e.cls);
   const date = t => t ? new Date(t).toLocaleDateString("ca", { day: "numeric", month: "short" }) : "";
   const grade = e => `<span class="td-rec-grade${e.nota >= 5 ? "" : " fail"}${e.final ? " final" : ""}" title="${e.final ? "Final" : "Parcial"} · ${date(e.t)}">${fmt(e.nota)}</span>`;
-  return `<div class="td-record">
+  return `<div class="td-record"><button class="secondary small td-rec-back" data-go="study">← Prestatgeria</button>
     <div class="td-rec-sum"><span>📅 <strong>${R.days.length}</strong> dies estudiant</span><span>📚 <strong>${all}</strong> coses apuntades</span>
       <span>🎓 <strong>${R.exams.filter(e => tdFields().includes(e.f)).length}</strong> exàmens · mitjana <strong>${fmt(avg(R.exams.filter(e => tdFields().includes(e.f))))}</strong></span></div>
     ${tdSubjTabs()}
@@ -871,6 +901,7 @@ function initTdLobby() {
     const ds = b.dataset;
     if (ds.share) tdShareAction(b);
     else if (ds.atab) { tdAltarTab = ds.atab; tdRenderPanel(); }
+    else if (ds.forgesel) { tdForgeSel = ds.forgesel; tdRenderPanel(); }
     else if (ds.forge) {
       const F = TD_FORGE[ds.forge], parts = tdForgeParts(ds.forge).map(id => TD_DEFENDERS[id].name).join(" i ");
       if (!confirm(F.from ? `Fusionar ${parts}? Les dues desapareixen i et queda ${TD_DEFENDERS[ds.forge].name}.` : `Evolucionar ${parts} amb la pedra? Es convertix en ${TD_DEFENDERS[ds.forge].name} (amb el seu nivell, estrelles i còpies).`)) return;
@@ -891,6 +922,7 @@ function initTdLobby() {
       b.classList.add("taken");
       setTimeout(() => tdDoStudy(ds.act, ds.field), 380);
     }
+    else if (ds.recbook) { b.classList.add("opening"); setTimeout(() => tdSpot("record"), matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 520); }
     else if (ds.exambook) { tdExamOpen = ds.exambook; tdRenderPanel(); setTimeout(() => $("td-nota")?.focus(), 350); }
     else if (ds.examclose) { tdExamOpen = null; tdRenderPanel(); }
     else if (ds.examcls) { tdExamClass[tdExamOpen] = ds.examcls; const v = $("td-nota")?.value; tdRenderPanel(); if (v) $("td-nota").value = v; }

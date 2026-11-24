@@ -136,7 +136,7 @@ function tdLoad(fromRaw = null) { // fromRaw: una partida que no és la d'este d
     if (td.mhComp && !(td.mhComp.saber >= 0 && typeof td.mhComp.points === "object")) td.mhComp = null;
     // mons: només números i criatures que existixen (la partida pot vindre del núvol)
     const okSnap = s => s && Number.isInteger(s.wave) && s.wave >= 1 && s.wave <= TD_IDLE.waves && Array.isArray(s.towers)
-      ? { wave: s.wave, mana: Math.max(0, Number(s.mana) || 0), towers: s.towers.filter(t => Array.isArray(t) && Number.isInteger(t[0]) && t[0] >= 0 && t[0] < 20 && TD_DEFENDERS[t[1]]).map(t => [t[0], t[1], Math.max(0, Math.min(2, t[2] | 0)), Math.max(0, Number(t[3]) || 0)]), ...(s.dbl === true ? { dbl: true } : {}) } : null;
+      ? { wave: s.wave, mana: Math.max(0, Number(s.mana) || 0), towers: s.towers.filter(t => Array.isArray(t) && Number.isInteger(t[0]) && t[0] >= 0 && t[0] < 20 && TD_DEFENDERS[t[1]]).map(t => [t[0], t[1], Math.max(0, Math.min(s.up5 === true ? 4 : 2, t[2] | 0)), Math.max(0, Number(t[3]) || 0)]), ...(s.dbl === true ? { dbl: true } : {}), ...(s.up5 === true ? { up5: true } : {}) } : null;
     for (const [k, w] of Object.entries(td.worlds)) {
       if (!w || typeof w !== "object") { delete td.worlds[k]; continue; }
       w.best = Math.max(0, Math.min(TD_IDLE.waves, Math.floor(Number(w.best) || 0))); w.clears = Math.max(0, Math.floor(Number(w.clears) || 0));

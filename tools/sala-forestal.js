@@ -357,20 +357,6 @@ function openBook(plane, { cover, page, line: lc, lines = [7, 7], ink = [] }) {
   add(s, { spot: "bestiary", title: "Bestiari: les distraccions que has vist", hit: bbox([[2.65, 0, 2.5], [3.35, 0, 2.9], [3.0, 1.6, 2.7]]) });
 }
 
-// ---------------------------------------------------------------- faristol del registre (abans que l'estudiant: és al fons i ell al davant) (dreta, al fons): el quadern de camp on queda tot el que has estudiat
-{
-  let s = "";
-  const rl = rootLectern(3.2, 4.8);
-  s += rl.svg;
-  s += openBook(rl.plane, { cover: "#6a4a1a", page: "#efe6d0", line: "#a09060", lines: [0, 3], ink: [
-    ["#5a3a12", 2.2, [[0.1, 0.3], [0.1, 0.5]]], ["#5a3a12", 2.2, [[0.16, 0.3], [0.16, 0.5]]], ["#5a3a12", 2.2, [[0.22, 0.3], [0.22, 0.5]]], ["#5a3a12", 2.2, [[0.28, 0.3], [0.28, 0.5]]], ["#a8321e", 2.2, [[0.06, 0.48], [0.32, 0.32]]],
-    ["#5a3a12", 2.2, [[0.1, 0.62], [0.1, 0.82]]], ["#5a3a12", 2.2, [[0.16, 0.62], [0.16, 0.82]]], ["#5a3a12", 2.2, [[0.22, 0.62], [0.22, 0.82]]],
-    ["#4f9a3a", 4, [[0.6, 0.85], [0.6, 0.6]]], ["#c9a040", 4, [[0.7, 0.85], [0.7, 0.45]]], ["#2f6a2a", 4, [[0.8, 0.85], [0.8, 0.3]]], ["#5a3a12", 1.6, [[0.55, 0.88], [0.88, 0.88]]]] });
-  const [gx, gy] = P(3.2, 1.62, 4.8), gk = cam.scale(4.8) / 100;
-  s += `<ellipse cx="${r(gx)}" cy="${r(gy)}" rx="${r(62 * gk)}" ry="${r(34 * gk)}" fill="${AMBER}" opacity="0.12"/>`;
-  add(s, { spot: "record", title: "Registre: tot el que has estudiat (pàgines, exercicis, notes)", hit: bbox([[2.85, 0, 4.6], [3.55, 0, 5.0], [3.2, 1.9, 4.8]]) });
-}
-
 // ---------------------------------------------------------------- estudiant damunt de la catifa de molsa
 {
   let s = "";
@@ -397,6 +383,39 @@ function openBook(plane, { cover, page, line: lc, lines = [7, 7], ink = [] }) {
   // cuques de llum que van i venen
   for (let i = 0; i < 16; i++) { const x = -3.5 + ((i * 0.53) % 1) * 7, y = 0.8 + ((i * 0.29) % 1) * 2.6, z = 1.5 + ((i * 0.71) % 1) * 6.5, [px, py] = P(x, y, z); s += `<g class="fo-fly" style="animation-delay:-${(i * 0.7) % 5}s"><circle cx="${r(px)}" cy="${r(py)}" r="5" fill="${FLY}" opacity="0.25"/><circle cx="${r(px)}" cy="${r(py)}" r="1.8" fill="#fffde0"/></g>`; }
   add(s);
+}
+
+// ---------------------------------------------------------------- bústia (esquerra, davant): una caseta de fusta damunt d'un pal, com les dels
+// ocells, amb molsa al teulat. La bandereta (td-mailbox-flag) s'alça i la carta (td-mailbox-letter) ix quan hi ha correu nou
+{
+  const x = -1.43, z = 1.8, X0 = x - 0.18, X1 = x + 0.18, Z0 = z - 0.16, Z1 = z + 0.16, Y0 = 0.9, Y1 = 1.12, RT = 1.3;
+  let s = shadow({ x0: X0, x1: X1, z0: Z0, z1: Z1 }, 0.05, 0.3);
+  s += box({ x0: x - 0.05, x1: x + 0.05, y0: 0, y1: Y0, z0: z - 0.05, z1: z + 0.05 }, { front: "#6b4a2b", side: "#4e3420" });
+  s += line([x - 0.05, 0.42, z - 0.05], [x + 0.05, 0.42, z - 0.05], `stroke="#4e3420" stroke-width="2"`);
+  s += box({ x0: X0, x1: X1, y0: Y0, y1: Y1, z0: Z0, z1: Z1 }, { front: "#8a5f36", side: "#6e4a28" });
+  // teulat a dues aigües (vessant esquerre i dret) i el frontó de davant
+  const e = 0.04;
+  s += poly([[X0 - e, Y1, Z1 + e], [x, RT, Z1 + e], [x, RT, Z0 - e], [X0 - e, Y1, Z0 - e]], `fill="#4a3018"`);
+  s += poly([[x, RT, Z1 + e], [X1 + e, Y1, Z1 + e], [X1 + e, Y1, Z0 - e], [x, RT, Z0 - e]], `fill="#5a3b1f"`);
+  s += poly([[X0, Y1, Z0], [x, RT - 0.02, Z0], [X1, Y1, Z0]], `fill="#7a5230"`);
+
+
+  // molsa per damunt del caiver i caient pels vessants
+  const moss = [[x - 0.2, Y1 + 0.02, Z0 - e], [x - 0.1, RT - 0.08, Z0 - e], [x, RT + 0.005, Z0 - e], [x + 0.1, RT - 0.08, Z0 - e], [x + 0.2, Y1 + 0.02, Z0 - e]].map(p => P(...p).map(r).join(" "));
+  s += `<path d="M${moss.join(" L")}" fill="none" stroke="#7fbf4a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>`;
+  s += line([x, RT + 0.005, Z0 - e], [x, RT + 0.005, Z1 + e], `stroke="#7fbf4a" stroke-width="4" stroke-linecap="round"`);
+  // boca i veta de la fusta
+  const fr = face({ x0: X0, x1: X1, y0: Y0, y1: Y1, z0: Z0, z1: Z1 }, "front");
+  s += quad(fr, 0.22, 0.18, 0.78, 0.32, `fill="#2e1d0e"`);
+  s += quad(fr, 0.08, 0.7, 0.92, 0.73, `fill="#5a3b1f" opacity="0.6"`);
+  // bandereta al costat dret
+  const [fx, fy] = P(X1 + 0.01, Y0 + 0.03, z + 0.06);
+  s += `<g class="td-mailbox-flag" style="transform-origin:${r(fx)}px ${r(fy)}px">` +
+    box({ x0: X1 + 0.005, x1: X1 + 0.02, y0: Y0 + 0.03, y1: Y1 + 0.22, z0: z + 0.05, z1: z + 0.07 }, { front: "#b58a5a", side: "#8a6a40" }) +
+    poly([[X1 + 0.02, Y1 + 0.22, z + 0.06], [X1 + 0.02, Y1 + 0.22, z - 0.11], [X1 + 0.02, Y1 + 0.17, z - 0.08], [X1 + 0.02, Y1 + 0.12, z - 0.11], [X1 + 0.02, Y1 + 0.12, z + 0.06]], `fill="#ff7a3d"`) + `</g>`;
+  const cf = face({ x0: x - 0.1, x1: x + 0.1, y0: Y1 - 0.06, y1: Y1 + 0.06, z0: Z0 - 0.005, z1: Z0 }, "front"), cp = (u, v) => P(...cf(u, v)).map(r).join(" ");
+  s += `<g class="td-mailbox-letter">${quad(cf, 0, 0, 1, 1, `fill="#fffaf0" stroke="#c9b48a" stroke-width="1"`)}<path d="M${cp(0, 0)} L${cp(0.5, 0.55)} L${cp(1, 0)}" fill="none" stroke="#c9b48a" stroke-width="1.2"/></g>`;
+  add(s, { spot: "mail", title: "Bústia: correu i préstecs", hit: bbox([[X0 - 0.05, 0, Z0], [X1 + 0.15, RT + 0.05, Z0], [X0 - 0.05, RT + 0.05, Z0], [X1 + 0.15, 0, Z1]]) });
 }
 
 // ---------------------------------------------------------------- definicions

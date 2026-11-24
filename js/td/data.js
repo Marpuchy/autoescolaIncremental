@@ -65,6 +65,9 @@ const TD_RARITIES = {
 // mateixa). Pagant 10.000 de maná en el combat, el límit es dobla per a aquella partida del món (es guarda amb l'onada).
 const TD_PLACE_LIMIT = { comu: 4, rar: 3, epic: 3, llegendari: 2, mitic: 1, mh: 1 };
 const TD_LIMIT_DOUBLE_COST = 10000;
+// Abans del ×2 de límit: pagant 5.000 de maná, les criatures d'aquell món es poden potenciar fins a ◆◆◆◆◆ (normalment, ◆◆◆).
+// Es guarda amb l'onada (tdb.up5, va en el snapshot). El ×2 de límit ix després d'este.
+const TD_UP5_COST = 5000;
 const TD_PITY = { epic: 30, llegendari: 50, mitic: 200 }; // garantia per camp: èpic a la tirada 30, llegendari a la 50, mític a la 200
 // Còpies totals per a cada estrela (★1 en traure-la; ★5 amb 11 còpies). Les que sobren es tornen saber.
 // Pujar d'estrella costa saber (a més de les còpies): base × √(valor de la raresa) × multiplicador de l'estrella
@@ -262,7 +265,7 @@ const TD_ENEMIES = {
 };
 const TD_WAVE_HP = 0.3; // cada onada, +30 % de vida als enemics
 // Dificultat dels mons: vida de totes les distraccions (×) i saber que donen (×). Ajustat amb tools/td-progres.py
-const TD_DIFFICULTY = { hp: 1.5, saber: 2 };
+const TD_DIFFICULTY = { hp: 1.95, saber: 2, count: 1.25 }; // 24/11: +30 % de vida i +25 % de distraccions per onada (anaven massa fàcils)
 
 // ---- Elements: el tipus de dany de cada criatura (segons com pega). Cada distracció és feble a un (×2) i forta contra
 // un altre (×0,3). La llum i l'ombra peguen sempre amb avantatge (encara no les té cap criatura).
@@ -407,7 +410,7 @@ const TD_RATES = {
 
 // Combat
 const TD_BATTLE = {
-  lives: 20, startMana: 100, upgradeCost: [0.8, 1.2], upgradeMult: [1, 1.35, 1.75], sellBack: 0.6,
+  lives: 20, startMana: 100, upgradeCost: [0.8, 1.2, 1.8, 2.6], upgradeMult: [1, 1.35, 1.75, 2.2, 2.7], sellBack: 0.6,
   wavePause: 5, waveBonusSaber: 8, worldBonusSaber: 300, projSpeed: 950,
 };
 // Mons idle de 100 onades (com l'autoescola: no es perd mai el progrés). Les distraccions no donen maná: es guanya en passar
