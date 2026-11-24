@@ -89,11 +89,11 @@ def main():
         by_rar = {}
         for r in rows:
             by_rar.setdefault(r["rar"], []).append(r["dps"])
-        print(f"{'criatura':24} {'raresa':11} {'cost':>5} {'DPS':>7} {'DPS/100 maná':>13} {'vs raresa':>10}")
+        print(f"{'criatura':24} {'raresa':11} {'cost':>5} {'DPS':>7} {'DPS/100 maná':>13} {'vs mediana':>10}")
         for r in rows:
             if ids_wanted and r["id"] not in ids_wanted:
                 continue
-            avg = sum(by_rar[r["rar"]]) / len(by_rar[r["rar"]])
+            v = sorted(by_rar[r["rar"]]); avg = (v[(len(v) - 1) // 2] + v[len(v) // 2]) / 2  # mediana: una de % de vida (l'Ecoducte) no la desfà
             print(f"{r['name'][:24]:24} {r['rar']:11} {r['cost']:>5} {r['dps']:>7.1f} {100 * r['dps'] / r['cost']:>13.1f} {r['dps'] / avg * 100 if avg else 0:>9.0f}%")
         print("(DPS només de dany, contra 14 distraccions que passen: les de zona hi ixen inflades i les que paren, marquen o")
         print(" milloren altres no hi compten. Per a eixes, mirar la prova del món o fer-ne una demostració amb amigues)")

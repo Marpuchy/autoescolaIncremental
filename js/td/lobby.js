@@ -510,7 +510,7 @@ const TD_TEAM_SORTS = {
 };
 const TD_RAR_ORDER = ["comu", "rar", "epic", "llegendari", "mitic", "mh"];
 function tdBookList(kind, tab) {
-  if (kind === "bestiary") return Object.keys(TD_ENEMIES).filter(id => !TD_ENEMIES[id].hidden);  // les mateixes a les dues sales (al bosc, amb una altra pell)
+  if (kind === "bestiary") return Object.keys(TD_ENEMIES);  // les mateixes a les dues sales (al bosc, amb una altra pell)
   // (les que s'han fusionat ja no hi són)
   return Object.keys(TD_DEFENDERS).filter(id => TD_DEFENDERS[id].subj === tab && !tdForgedInto(id)).sort((a, b) => TD_RAR_ORDER.indexOf(TD_DEFENDERS[a].rar) - TD_RAR_ORDER.indexOf(TD_DEFENDERS[b].rar));
 }
@@ -803,7 +803,9 @@ function tdTeamMailHtml() {
   return `<div class="td-mail">${tdMailList().map(m => { const got = td.mail.includes(m.id); return `<article class="td-mail-item${got ? " read" : ""}">
     <div class="td-mail-head"><span class="td-mail-ic">${got ? "📭" : "📬"}</span><div><strong>${E(m.title)}</strong><div class="muted">${E(m.from)} · ${E(m.date)}</div></div></div>
     <p>${E(m.text)}</p>
-    ${m.gift?.pergamins || m.gift?.saber ? `<div class="td-mail-gift">🎁 ${[...(m.gift.pergamins ? fields.map(s => `${tdScrollSvg(s)} ${m.gift.pergamins | 0} de ${TD_SUBJECTS[s].short}`) : []), ...(m.gift.saber ? [`✨ ${fmtNum(m.gift.saber | 0)} de saber`] : [])].join(" · ")}</div>` : ""}
+    ${m.gift?.pergamins || m.gift?.saber || m.gift?.stelles ? `<div class="td-mail-gift">🎁 ${[...(m.gift.pergamins ? fields.map(s => `${tdScrollSvg(s)} ${m.gift.pergamins | 0} de ${TD_SUBJECTS[s].short}`) : []),
+      ...(m.gift.saber ? [`✨ ${fmtNum(Math.round(Number(m.gift.saber) || 0))} de saber`] : []),
+      ...(m.local && m.gift.stelles ? Object.entries(m.gift.stelles).filter(([k, n]) => TD_POINTS[k] && n > 0).map(([k, n]) => `${TD_POINTS[k].icon} ${n | 0} ${TD_POINTS[k].name}`) : [])].join(" · ")}</div>` : ""}
     ${got ? `<div class="muted">✔ Recollit</div>` : tdViewingOf ? `<div class="muted">És la partida de l'altra persona</div>` : `<button data-mail="${E(m.id)}">Recollir</button>`}</article>`; }).join("") || `<p class="muted">No tens cap missatge.</p>`}</div>`;
 }
 

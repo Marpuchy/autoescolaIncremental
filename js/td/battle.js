@@ -618,7 +618,7 @@ function tdbSpawn(type, dist = 0, small = false, P = null, kind = "") {
   e.hpBar = e.el.querySelector(".tdb-hp-bar");
   if (e.shield) e.el.insertAdjacentHTML("beforeend", `<g class="tdb-shieldb"><ellipse cy="${(-s * 0.45).toFixed(1)}" rx="${(s * 0.56).toFixed(1)}" ry="${(s * 0.56).toFixed(1)}" fill="#ff5ab0" opacity="0.12" stroke="#ff9ad8" stroke-width="4" stroke-dasharray="10 6"/></g>`);
   tdb.enemies.push(e);
-  if (!td.seen.includes(type) && !def.hidden) td.seen.push(type);
+  if (!td.seen.includes(type)) td.seen.push(type); // també les menudes (scrolls menuts, pestanyes): van al bestiari
   if ((def.boss || def.giant) && !tdb.bossesSeen.has(`${type}${kind}${tdb.wave}`)) { tdb.bossesSeen.add(`${type}${kind}${tdb.wave}`); if (!$("td-battle").hidden) toast(`⚠️ ${def.giant ? "Gegant" : "Cap"}: ${def.name}`, "bad"); }
   return e;
 }
@@ -1290,17 +1290,23 @@ function tdbDrawLine(l, layer) {
 // Com a molt 2 (TD_DEFENDERS.contrafoc.line.max), als trams que més camí li deixen dins (abans, en un revolt dins de
 // l'abast, només posava la del tram més pròxim i en deixava un de llarg sense)
 function tdbFireSpots(slot, range) {
-  const [x, y] = tdb.world.slots[slot], out = [];
+  // només els trams que toquen el buit (el camí que té just al costat de la plataforma, no els de més enllà): així es
+  // premia triar bé el lloc. La distància es mesura des de la plataforma (l'anell, 34 per davall del centre del buit)
+  const [x, y0] = tdb.world.slots[slot], y = y0 + 34, out = [], far = [], L = TD_DEFENDERS.contrafoc.line;
   for (const P of tdb.paths) for (const s of P.segs) { // a cada camí; on comparteixen tram, la línia només una vegada
     const dx = (s.x1 - s.x0) / s.len, dy = (s.y1 - s.y0) / s.len;
-    const t0 = (x - s.x0) * dx + (y - s.y0) * dy, h2 = range * range - ((x - s.x0) * dy - (y - s.y0) * dx) ** 2;
+    const t0 = (x - s.x0) * dx + (y0 - s.y0) * dy, h2 = range * range - ((x - s.x0) * dy - (y0 - s.y0) * dx) ** 2;
     if (h2 <= 0) continue;
+    const tc = Math.max(0, Math.min(s.len, (x - s.x0) * dx + (y - s.y0) * dy));
+    const gap = Math.hypot(s.x0 + dx * tc - x, s.y0 + dy * tc - y);
     const a = Math.max(0, t0 - Math.sqrt(h2)), b = Math.min(s.len, t0 + Math.sqrt(h2));
     if (b - a < 60) continue; // només hi toca una punta
-    const m = (a + b) / 2, px = s.x0 + dx * m, py = s.y0 + dy * m;
-    if (!out.some(o => Math.hypot(o.x - px, o.y - py) < 60)) out.push({ x: px, y: py, ang: Math.atan2(dy, dx) + Math.PI / 2, len: b - a });
+    const m = (a + b) / 2, px = s.x0 + dx * m, py = s.y0 + dy * m, spot = { x: px, y: py, ang: Math.atan2(dy, dx) + Math.PI / 2, len: b - a, gap };
+    const list = gap <= (L.touch || 190) ? out : far; // els que no el toquen, només si no n'hi ha cap que el toque
+    if (!list.some(o => Math.hypot(o.x - px, o.y - py) < 60)) list.push(spot);
   }
-  return out.sort((p, q) => q.len - p.len).slice(0, TD_DEFENDERS.contrafoc.line.max || 2);
+  if (!out.length && far.length) return [far.sort((p, q) => p.gap - q.gap)[0]]; // lluny de tot: una sola, la del camí més pròxim
+  return out.sort((p, q) => q.len - p.len).slice(0, L.max || 3);
 }
 // Quan el camí canvia (el mapa s'amplia), el Contrafoc torna a posar les línies
 function tdbRelines() {

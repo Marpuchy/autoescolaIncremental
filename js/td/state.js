@@ -84,6 +84,12 @@ function tdLoad(fromRaw = null) { // fromRaw: una partida que no és la d'este d
     for (const o of Object.values(td.owned)) if (o && typeof o === "object") o.stars = Math.max(1, Math.min(TD_STAR_COPIES.length, Math.floor(Number(o.stars) || 1)));
     // criatures o artefactes que ja no existixen: fora
     for (const id of Object.keys(td.owned)) if (!TD_DEFENDERS[id]) delete td.owned[id];
+    // còpies i nivell: números possibles (la partida pot vindre del núvol o d'una importació)
+    for (const [id, o] of Object.entries(td.owned)) {
+      if (!o || typeof o !== "object" || Array.isArray(o)) { delete td.owned[id]; continue; }
+      o.copies = Math.max(1, Math.min(TD_STAR_COPIES[TD_STAR_COPIES.length - 1], Math.floor(Number(o.copies) || 1)));
+      o.level = Math.max(1, Math.min(TD_LEVEL_MAX, Math.floor(Number(o.level) || 1)));
+    }
     for (const id of Object.keys(td.artifacts)) if (!TD_ARTIFACTS[id]) delete td.artifacts[id];
     // artefactes de les altres sales: només objectes ben formats
     if (!["informatic", "forestal"].includes(td.artRoom)) td.artRoom = "informatic";
@@ -101,6 +107,9 @@ function tdLoad(fromRaw = null) { // fromRaw: una partida que no és la d'este d
     for (const k of Object.keys(td.upBank)) { if (k === td.upRoom || !["informatic", "forestal"].includes(k)) delete td.upBank[k]; else td.upBank[k] = okUps(td.upBank[k]); }
     for (const [m, n] of Object.entries(td.stelles)) if (!TD_POINTS[m] || !(n >= 0)) delete td.stelles[m];
     td.favs = td.favs.filter(id => TD_DEFENDERS[id]);
+    // bestiari: les menudes que naixen d'una altra (abans no es registraven): si has vist la mare, també les has vistes
+    td.seen = td.seen.filter((id, i, a) => TD_ENEMIES[id] && a.indexOf(id) === i);
+    for (const id of [...td.seen]) { const kid = TD_ENEMIES[id].splitInto || TD_ENEMIES[id].spawn?.type; if (kid && TD_ENEMIES[kid] && !td.seen.includes(kid)) td.seen.push(kid); }
     td.mail = td.mail.filter(id => typeof id === "string");
     td.share = tdCleanShare(td.share);
     td.forge = td.forge.filter((id, i, a) => TD_FORGE[id] && a.indexOf(id) === i);
@@ -380,7 +389,7 @@ function tdClaimMail(id) {
 }
 
 // ---------------------------------------------------------------- estudi registrat → pergamins
-const tdToday = () => new Date().toISOString().slice(0, 10);
+const tdToday = () => tdDayKey(); // el dia d'ací (abans era el d'UTC: les missions canviaven a la 1 de la nit)
 function tdDailyLeft(subj) {
   if (td.daily.date !== tdToday()) td.daily = { date: tdToday(), alg: 0, prg: 0 };
   return Math.max(0, TD_DAILY_CAP - (td.daily[subj] || 0));

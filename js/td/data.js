@@ -14,7 +14,8 @@ const TD_SUBJECTS = {
          classes: ["Electrònica", "Fonaments de Computadors"] },
   dad: { name: "Lògica i dades", short: "Lògica", icon: "∀", mode: "informatic",
          classes: ["Matemàtica Discreta", "Estadística"] },
-  // Forestal (2n del cicle superior de Gestió Forestal i del Medi Natural). Llista provisional: falta que Alba la confirme.
+  // Forestal (2n del cicle superior de Gestió Forestal i Conservació del Medi): les 10 assignatures del pla d'estudis
+  // (confirmades per Alba). La conservació (cns) ja té camp propi; les altres, agrupades per zones.
   // Camps per zones temàtiques: Monts, Quadern de camp, Fauna (cinegètica i pesca) i Conservació.
   mnt: { name: "Gestió de monts", short: "Monts", icon: "🌲", mode: "forestal",
          classes: ["Gestió de monts", "Defensa contra incendis forestals"] },
@@ -153,8 +154,8 @@ const TD_DEFENDERS = {
   anells:      { subj: "mnt", rar: "epic", name: "Anells del tronc", dmg: 5, rate: 1.6, range: 230, cost: 60, role: "pulse", pulse: 620,
                  special: { every: 12, type: "freeze", radius: 120, dur: 1.2 },
                  desc: "Li ixen anells grans del centre que s'eixamplen fins a l'abast i fan mal a tot el que travessen. Ataca molt sovint, amb poc dany. Cada 12 atacs, la resina deixa enganxada la zona 1,2 s." },
-  contrafoc:   { subj: "mnt", rar: "llegendari", name: "Contrafoc", dmg: 16, rate: 1, range: 300, cost: 120, role: "line", line: { dps: 3, width: 70, len: 150, max: 2 },
-                 desc: "No dispara: a cada tram de camí que té a l'abast hi deixa una línia de foc que el travessa i crema sempre (entre dos trams, en fa dues). Tria bé el lloc." },
+  contrafoc:   { subj: "mnt", rar: "llegendari", name: "Contrafoc", dmg: 16, rate: 1, range: 300, cost: 120, role: "line", line: { dps: 3, width: 70, len: 150, max: 3, touch: 190 },
+                 desc: "No dispara: a cada tram de camí que té a l'abast hi deixa una línia de foc que el travessa i crema sempre (només els trams que toquen la seua plataforma: entre dos, dues; envoltada per tres costats, tres). Tria bé el lloc." },
   carrasca:    { subj: "mnt", rar: "mitic", name: "Carrasca mil·lenària", dmg: 26, rate: 0.9, range: 320, cost: 150, role: "single",
                  aura: { radius: 340, dmg: 0.3 }, special: { every: 14, type: "root", radius: 150, dur: 1.5 },
                  desc: "Les criatures que té a prop fan un 30 % més de dany. Cada 14 atacs deixa caure una gla: brollen arrels que atrapen els enemics 1,5 s." },

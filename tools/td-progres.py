@@ -9,6 +9,7 @@ Serveix per a vore si el món és un mur o massa fàcil, i si pujar de nivell le
     python tools/td-progres.py --temps=3600   (segons de joc com a molt per etapa; per defecte 5400)
 Cada etapa juga el món de 100 onades fins que perd dues vegades la mateixa onada: dona la millor onada.
     python tools/td-progres.py forestal   (només una)
+    python tools/td-progres.py forestal --equip=pi,bruixola,anells,rusc   (un equip fix en totes les etapes)
 No toca cap partida real: navegador nou i local (versió de proves), no escriu al núvol.
 """
 import pathlib, shutil, sys
@@ -18,6 +19,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 URL = (ROOT / "index.html").as_uri()
 ROOMS = [a for a in sys.argv[1:] if not a.startswith("--")] or ["informatic", "forestal"]
 WORLD = next((int(a.split("=")[1]) for a in sys.argv[1:] if a.startswith("--mon=")), 1)  # quin món de la sala (1, 2…)
+EQUIP = next((a.split("=")[1].split(",") for a in sys.argv[1:] if a.startswith("--equip=")), [])  # equip fix (ids), en lloc del triat sol
 MAXT = next((int(a.split("=")[1]) for a in sys.argv[1:] if a.startswith("--temps=")), 5400)  # segons de joc com a molt per tirada
 # (nom, nivell, estrelles, quines raresas té l'equip)
 STAGES = [
@@ -28,7 +30,7 @@ STAGES = [
     ("Final (Nv25 ★5, totes)", 25, 5, ["comu", "rar", "epic", "llegendari", "mitic"]),
 ]
 
-RUN_JS = """([mode, level, stars, rars, nth, maxT]) => {
+RUN_JS = """([mode, level, stars, rars, nth, maxT, force]) => {
   const world = TD_WORLDS.filter(w => w.mode === mode && !w.soon)[nth - 1];
   td.worlds = {}; td.idle = { world: 0, at: 0 };
   for (const w of TD_WORLDS) if (w.mode === mode) td.worlds[w.id] = { best: 50, clears: 1 }; // tots oberts (i sense partida a mitges)
@@ -37,7 +39,7 @@ RUN_JS = """([mode, level, stars, rars, nth, maxT]) => {
   // equip: les 2 més barates (per a obrir) i les 4 de més raresa
   const pool = Object.keys(TD_DEFENDERS).filter(k => tdModeOf(k) === mode && rars.includes(TD_DEFENDERS[k].rar));
   const cheap = [...pool].sort((a, b) => TD_DEFENDERS[a].cost - TD_DEFENDERS[b].cost).slice(0, 2);
-  const team = [...cheap, ...pool.filter(k => !cheap.includes(k)).sort((a, b) => order.indexOf(TD_DEFENDERS[a].rar) - order.indexOf(TD_DEFENDERS[b].rar))].slice(0, 6);
+  const team = force.length ? force.filter(k => tdModeOf(k) === mode) : [...cheap, ...pool.filter(k => !cheap.includes(k)).sort((a, b) => order.indexOf(TD_DEFENDERS[a].rar) - order.indexOf(TD_DEFENDERS[b].rar))].slice(0, 6);
   for (const k of team) td.owned[k] = { copies: 11, level: Math.min(level, 5 * stars), stars };
   td.team = td.team.filter(k => tdModeOf(k) !== mode).concat(team);
   td.upgrades = { vida: 0, mana: 0, saber: 0 };
@@ -89,7 +91,7 @@ def main():
             print(f"\n== {mode} · món {WORLD} ==")
             print(f"{'moment':40} {'onada':>7} {'min':>5} {'saber':>8}")
             for name, lvl, st, rars in STAGES:
-                r = pg.evaluate(RUN_JS, [mode, lvl, st, rars, WORLD, MAXT])
+                r = pg.evaluate(RUN_JS, [mode, lvl, st, rars, WORLD, MAXT, EQUIP])
                 print(f"{name:40} {r['wave']:>3} /100 {r['min']:>5} {r['saber']:>8}", flush=True)
         if errs:
             print("\nErrors de JavaScript:", *set(errs), sep="\n  ")
