@@ -1331,7 +1331,7 @@ function tdbBridges() {
       if (!tdbVisible(e) || tdbLineDist({ ...b, len: b.len }, ...tdbPos(e)) > b.half) continue;
       if ((e.taxed ||= new Set()).has(t.uid)) continue;
       e.taxed.add(t.uid);
-      tdbDamage(e, e.hp * B.tax * Math.min(1.5, t.stats.ability) * (e.def.boss || e.def.giant ? B.big : 1), t);
+      tdbDamage(e, e.hp * tdBridgeTax(t.stats.dmg) * (e.def.boss || e.def.giant ? B.big : 1), t);
       t.crossed = (t.crossed || 0) + 1;
       if (t.crossed % TD_DEFENDERS[t.id].special.every === 0) tdbSpecial(t, e);
     }

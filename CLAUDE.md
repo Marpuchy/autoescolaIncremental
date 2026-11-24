@@ -144,7 +144,7 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   Cérvol de la brama —onda que hace retroceder a todas, `bellow`—) y Conservació (`cns`, lila: Gestió de la conservació del medi natural;
   Gla rara —rebota en 2 y cada 5 tiros brota, `sproutEvery`—, Micorriza épica —red de hongos: cuando una criatura conectada pega, el hongo
   también, `link`/`tdbMycLink`, especial `spores`—, Ecoducte legendario —puente sobre el tramo más cercano (capa `#tdb-over`): las que pasan
-  por debajo pierden un 6 % de la vida que les queda, `bridge`/`tdbBridges`, especial `fauna` cada 8 que pasan— y Microreserva mítica
+  por debajo pierden un % de la vida que les queda (6 % a Nv1, sube con el daño de la criatura hasta el 35 %, `tdBridgeTax`), `bridge`/`tdbBridges`, especial `fauna` cada 8 que pasan— y Microreserva mítica
   —flores en el camino que frenan y dañan 20 s, como mucho 6, `flora`/`tdbFlower`, especial `bloom`—). Los campos se hacen por zonas temáticas; las asignaturas de
   una zona futura siguen en su campo actual hasta que la zona tenga criaturas. En el
   bosque los enemigos son los mismos (mismo nombre y truco) con otro aspecto (`TD_FOREST_ENEMIES`, `TD_FOREST_ENEMY_ART`,
