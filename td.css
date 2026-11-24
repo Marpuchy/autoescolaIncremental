@@ -1422,3 +1422,11 @@ body.tdb-away #tdb-svg .tdb-zone.flower .tdb-flowers > g { animation: none; }
 @keyframes tdc-os-eat { 50% { transform: rotate(14deg) translateY(2px); } }
 .tdc-os.bite .os-head { animation: tdc-os-bite 0.3s ease-out; }
 @keyframes tdc-os-bite { 40% { transform: translateX(6px) rotate(-10deg); } }
+/* ---- món 4: paquets de dades pels cables del núvol, brases i fum de la muntanya cremada, cadenat i niu de seda */
+.tdb-packet { offset-rotate: 0deg; animation: tdb-packet 6s linear infinite; }
+@keyframes tdb-packet { from { offset-distance: 0%; } to { offset-distance: 100%; } }
+.tdb-ember { animation: tdb-ember 2.6s ease-in-out infinite; }
+@keyframes tdb-ember { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+.tdb-smoke { animation: tdb-smoke 5s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes tdb-smoke { 0%, 100% { opacity: 0.05; transform: translateX(0); } 50% { opacity: 0.12; transform: translateX(10px); } }
+.tdb-lock { animation: tdb-buff-pop 0.35s cubic-bezier(.3, 1.6, .5, 1); transform-box: fill-box; transform-origin: center; }

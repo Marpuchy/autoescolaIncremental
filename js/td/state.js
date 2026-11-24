@@ -243,7 +243,7 @@ function tdStats(id, up = 0) {
   const d = TD_DEFENDERS[id], o = td.owned[id] || loan || { level: 1 };
   const stars = loan ? loan.stars : Math.max(1, tdStars(id));
   // cada nivell +7 % de dany i cada estrela +15 % (+5 % de velocitat): a Nv25 ★5, uns 3,9 × el dany de Nv1 ★1
-  const dmgMult = (1 + 0.07 * (o.level - 1)) * (1 + 0.15 * (stars - 1)) * TD_BATTLE.upgradeMult[up];
+  const dmgMult = (1 + 0.07 * (o.level - 1)) * (1 + 0.15 * (stars - 1)) * TD_BATTLE.upgradeMult[up] * (1 + tdArtBonus("dmg"));
   return {
     dmg: d.dmg * dmgMult,
     rate: d.rate * (1 + 0.05 * (stars - 1)) * (1 + tdArtBonus("rate")),

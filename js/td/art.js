@@ -290,7 +290,7 @@ const TD_ART = {
 
 // ---------------------------------------------------------------- DISTRACCIONS: icones corruptes, en roig i colors apagats
 // viewBox 0 0 100 100, base a y ≈ 96
-const TD_ENEMY_GLOW = { reels: "#ff5ab0", deadline: "#ff8a3a", notificacio: "#ffb347", procrastinacio: "#c7a4ff", son: "#7fb8ff", scroll: "#ff8a6a", meme: "#ffd23f", series: "#ff5a4a", diumenge: "#7fb8ff" };
+const TD_ENEMY_GLOW = { videojoc: "#7a5cff", ransomware: "#ff3b4e", reels: "#ff5ab0", deadline: "#ff8a3a", notificacio: "#ffb347", procrastinacio: "#c7a4ff", son: "#7fb8ff", scroll: "#ff8a6a", meme: "#ffd23f", series: "#ff5a4a", diumenge: "#7fb8ff" };
 const TD_ENEMY_ART = {
   notificacio: `<ellipse cx="50" cy="96" rx="16" ry="3.5" fill="${TD_GLOW.bad}" opacity="0.25"/>
     ${tube("M30 70 C34 62 32 50 34 42 C37 30 63 30 66 42 C68 50 66 62 70 70 Z M44 78 Q50 84 56 78", "#ffb347", 4.6)}
@@ -335,6 +335,18 @@ const TD_ENEMY_ART = {
     <path d="M30 24 L80 52 L30 80 Z" fill="#141024" stroke="#ff5ab0" stroke-width="4" stroke-linejoin="round"/>
     <path d="M30 52 Q44 38 58 52 Q44 66 30 52 Z" fill="#fff"/>
     <circle cx="44" cy="52" r="8" style="fill:var(--shift,#ff5ab0)"/><circle cx="44" cy="52" r="3.4" fill="#000"/><circle cx="41.5" cy="49.5" r="1.6" fill="#fff"/>`,
+  // Videojoc: un comandament amb la creu i els botons de colors; dalt, un «+1 nivell» que puja
+  videojoc: `<ellipse cx="50" cy="96" rx="30" ry="4" fill="#7a5cff" opacity="0.25"/>
+    <path d="M22 50 C14 50 8 62 10 76 C12 88 22 90 28 82 L36 72 H64 L72 82 C78 90 88 88 90 76 C92 62 86 50 78 50 Z" fill="#160f2a"/>
+    ${tube("M22 50 C14 50 8 62 10 76 C12 88 22 90 28 82 L36 72 H64 L72 82 C78 90 88 88 90 76 C92 62 86 50 78 50 Z", "#7a5cff", 3.6)}
+    ${tube("M28 56 V68 M22 62 H34", "#bfb0ff", 2.6)}${[[70, 56, "#ff5a6a"], [78, 62, "#3fdc8a"], [62, 62, "#4ad8ff"], [70, 68, "#ffd84a"]].map(([x, y, c]) => `<circle cx="${x}" cy="${y}" r="3.2" fill="${c}"/>`).join("")}
+    <g class="badge">${glyphText(50, 38, 11, "+1", "#bfb0ff")}</g>`,
+  // Ransomware: un cadenat roig amb la calavera al pany i monedes que el volten (el rescat)
+  ransomware: `<ellipse cx="50" cy="96" rx="34" ry="4.5" fill="#ff3b4e" opacity="0.3"/>
+    ${tube("M34 46 V32 A16 16 0 0 1 66 32 V46", "#ff8a8a", 5)}
+    <rect x="22" y="44" width="56" height="46" rx="8" fill="#2a0c10"/>${tube("M30 44 H70 Q78 44 78 52 V82 Q78 90 70 90 H30 Q22 90 22 82 V52 Q22 44 30 44 Z", "#ff3b4e", 4)}
+    <path d="M42 62 C42 54 58 54 58 62 C58 66 55 68 54 72 H46 C45 68 42 66 42 62 Z" fill="#fff"/><circle cx="46.5" cy="62" r="2.4" fill="#2a0c10"/><circle cx="53.5" cy="62" r="2.4" fill="#2a0c10"/>
+    <g class="ring" style="transform-origin:50px 66px">${[0, 1, 2, 3].map(i => { const a = i / 4 * Math.PI * 2, x = 50 + Math.cos(a) * 40, y = 66 + Math.sin(a) * 36; return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5" fill="#ffc23f" stroke="#8a5a1a" stroke-width="1.4"/>`; }).join("")}</g>`,
   // Reels: un mòbil dret amb el «play» i, damunt, el cor de «m'agrada» que palpita; a la dreta, la barra que avança
   reels: `<ellipse cx="50" cy="96" rx="20" ry="3.5" fill="#ff5ab0" opacity="0.22"/>
     <rect x="30" y="18" width="40" height="72" rx="8" fill="#1a0f1a"/>${tube("M38 18 H62 Q70 18 70 26 V82 Q70 90 62 90 H38 Q30 90 30 82 V26 Q30 18 38 18 Z", "#ff5ab0", 4)}
@@ -420,6 +432,19 @@ const TD_FOREST_ENEMY_ART = {
     <circle cx="26" cy="34" r="7" fill="#141024"/><circle cx="26" cy="34" r="3" fill="#fff"/><circle cx="74" cy="34" r="7" fill="#141024"/><circle cx="74" cy="34" r="3" fill="#fff"/></g>
     <ellipse cx="50" cy="56" rx="4.5" ry="22" fill="#141024" stroke="#ffd8f0" stroke-width="2"/>
     ${tube("M48 36 Q42 22 36 18 M52 36 Q58 22 64 18", "#ffd8f0", 1.8)}`,
+  // Llebre: de perfil mirant a l'esquerra, amb les orelles llargues enrere i les potes de darrere grosses, a mig salt
+  videojoc: `<ellipse cx="50" cy="96" rx="26" ry="3.5" fill="#c8a07a" opacity="0.25"/>
+    <g class="legs-a">${tube("M34 78 L28 90 M42 80 L40 92", "#e8d8c0", 2.4)}</g><g class="legs-b">${tube("M66 76 Q80 80 84 92 M60 78 Q70 86 72 94", "#e8d8c0", 3)}</g>
+    <path d="M26 66 C26 54 40 48 56 50 C72 52 82 60 80 72 C78 82 64 84 50 82 C36 82 26 78 26 66 Z" fill="#5a4a3a" stroke="#e8d8c0" stroke-width="3"/>
+    <circle cx="80" cy="66" r="5" fill="#f4ece0"/>
+    <path d="M30 62 C22 62 16 56 18 50 C20 44 30 44 34 50 Z" fill="#5a4a3a" stroke="#e8d8c0" stroke-width="2.6"/>
+    <g class="ant">${tube("M28 48 Q34 30 44 22 M30 48 Q40 34 50 30", "#e8d8c0", 2.8)}</g><circle cx="24" cy="52" r="2" fill="#fff"/>`,
+  // La processionària: una filera d'erugues peludes, una darrere l'altra, i el niu de seda damunt
+  ransomware: `<ellipse cx="50" cy="96" rx="42" ry="4.5" fill="#ff3b4e" opacity="0.25"/>
+    ${tube("M10 70 Q30 64 50 72 T92 70", "#f4f0e4", 1, 'opacity="0.5"')}
+    ${[[16, 82], [30, 84], [44, 85], [58, 85], [72, 84], [86, 82]].map(([x, y], i) => `<g class="${i % 2 ? "legs-a" : "legs-b"}"><circle cx="${x}" cy="${y}" r="7.5" fill="#5a3a1a" stroke="#ff8a3a" stroke-width="2"/>
+      ${tube(`M${x - 6} ${y - 6} l-3 -4 M${x} ${y - 7} v-5 M${x + 6} ${y - 6} l3 -4`, "#ffc23f", 1, 'opacity="0.8"')}</g>`).join("")}
+    <circle cx="12" cy="80" r="2" fill="#fff"/>`,
   // Cranc de riu: de perfil mirant a l'esquerra, closca roja amb segments, pinces grans davant, antenes i potes
   reels: `<ellipse cx="50" cy="96" rx="34" ry="4" fill="#ff5ab0" opacity="0.2"/>
     <g class="legs-a">${tube("M44 74 L36 88 M60 76 L56 90", "#ff8a6a", 2.2)}</g><g class="legs-b">${tube("M52 76 L46 90 M68 74 L70 88", "#ff8a6a", 2.2)}</g>
@@ -486,6 +511,8 @@ const TD_STUDENT_FRONT = `<g class="td-book">
 const TD_AXO_SKINS = {
   leucistic: { body: "#fde6ee", body2: "#f6cddb", shade: "#f2c3d3", belly: "#fff6f9", line: "#2e1d26", gill: "#f59ab0", gillL: "#cf5a7c", mouth: "#e96a8e", tongue: "#f7a6c0" },
   // Pell bioluminescent (món 2): verd neó, com els ajolots que brillen amb llum ultraviolada; a més, una aura verda (CSS)
+  // Pell de núvol (món 4): blanc i blau cel, amb borrallons de núvol per damunt (TD_AXO_WEAR.nuvol)
+  nuvol:     { body: "#f6f9ff", body2: "#e2ecfe", shade: "#cfdcf8", belly: "#ffffff", line: "#1e2a44", gill: "#9fc8ff", gillL: "#5a8ad8", mouth: "#7aa0e0", tongue: "#bcd6ff" },
   biolum:    { body: "#9affb8", body2: "#6af094", shade: "#4fd87c", belly: "#d8ffe4", line: "#0c3a1c", gill: "#2aff7a", gillL: "#10b850", mouth: "#18a04e", tongue: "#7aff9a" },
 };
 const tdAxoSvg = (() => {
@@ -556,6 +583,9 @@ const tdAxoSvg = (() => {
 })();
 // Artefactes posats a l'ajolot: `back` va darrere del cap (davant de les branquies) i `front`, damunt de tot
 const TD_AXO_WEAR = {
+  // Pell de núvol: la textura, borrallons de núvol (cercles junts amb l'ombra blava a baix) pel cap i el cos
+  nuvol: { front: `<g class="nuvol-tex" opacity="0.75">${[[44, 74, 0.9], [148, 74, 0.9], [40, 96, 0.7], [152, 96, 0.7], [78, 120, 0.8], [116, 124, 0.85], [96, 138, 0.7]].map(([x, y, k]) =>
+      `<g transform="translate(${x} ${y}) scale(${k})"><path d="M-14 4 C-18 4 -18 -3 -13 -3 C-13 -9 -5 -10 -3 -5 C-1 -11 8 -11 9 -5 C14 -6 16 0 13 4 Z" fill="#ffffff" stroke="#c4d6f6" stroke-width="1.2"/><path d="M-13 4 Q0 1 13 4" stroke="#9fb8e6" stroke-width="1.2" fill="none"/></g>`).join("")}</g>` },
   // Corona de LEDs (món 3): llumetes de colors cosides als ventalls de les branquies, que fan pampallugues per torns
   leds: { front: `<g class="leds">${[[14, 52], [24, 66], [12, 80], [28, 90], [20, 100], [178, 52], [168, 66], [180, 80], [164, 90], [172, 100]]
       .map(([x, y], i) => { const c = ["#3fdc8a", "#4ad8ff", "#ff4a5a", "#ffd84a", "#c58cff"][i % 5];
@@ -578,6 +608,11 @@ const TD_AXO_WEAR = {
 // Peces dels artefactes: `back` es pinta davall del barret (diadema), `front` damunt de tot.
 // `hides`: parts de la granoteta que deixen de veure's (la mà dreta, si l'artefacte la fa servir: només en té dues)
 const TD_ARTIFACT_WEAR = {
+  // Corona de cendra (món 4 del bosc): branquetes negres cremades entre les fulles de la corona, amb flors noves (blanques
+  // i roses) que hi han tornat a nàixer
+  cendra: { front: `<g class="cendra">${[[44, 40, -30], [58, 32, -10], [82, 32, 10], [96, 40, 30]].map(([x, y, r]) => `<path d="M${x} ${y} l${(r / 5).toFixed(0)} -12" stroke="#1a1412" stroke-width="3.2" stroke-linecap="round"/><path d="M${x + r / 5} ${y - 12} l-3 -4 M${x + r / 5} ${y - 12} l3 -5" stroke="#1a1412" stroke-width="2" stroke-linecap="round"/>`).join("")}
+      ${[[50, 36, "#fff"], [70, 30, "#ffb3d0"], [90, 36, "#fff"]].map(([x, y, c]) => `<g transform="translate(${x} ${y})">${[0, 72, 144, 216, 288].map(a => `<ellipse cy="-3.4" rx="2.2" ry="3.4" fill="${c}" transform="rotate(${a})"/>`).join("")}<circle r="1.8" fill="#ffd84a"/></g>`).join("")}
+      ${[[62, 26], [78, 26]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.6" fill="#ff8a3a" class="tdb-ember"/>`).join("")}</g>` },
   // Fona de vímet (món 3 del bosc): una forca en Y de vímet trenat agafada amb la mà dreta, amb la goma tensa i una
   // pedreta de riu a la bossa
   fona: { front: `<g class="fona"><path d="M104 150 L104 118 M104 118 Q96 106 92 92 M104 118 Q112 106 116 92" stroke="#8a6438" stroke-width="7" fill="none" stroke-linecap="round"/>
@@ -846,6 +881,23 @@ const OSO = (x, y, k = 1) => `<g transform="translate(${x} ${y}) scale(${k})">
   <circle cx="24" cy="-34" r="4" fill="#3a2414" stroke="#e8a64a" stroke-width="2"/><circle cx="36" cy="-34" r="4" fill="#3a2414" stroke="#e8a64a" stroke-width="2"/>
   <ellipse cx="39" cy="-21" rx="5" ry="4" fill="#c8862a"/><circle cx="43" cy="-22" r="1.8" fill="#1a0c06"/></g></g>`;
 Object.assign(TD_ART, {
+  // Matriu inversa: dos claudàtors grans amb les entrades de la matriu i el −1 a dalt; els claudàtors són el que llança
+  matriu: {
+    svg: `${runeBase(GMH)}<g class="b">${[[48, 52, "a"], [72, 52, "b"], [48, 76, "c"], [72, 76, "d"]].map(([x, y, t]) => glif(x, y, t, "#fff3c0", 14)).join("")}
+      ${glif(92, 26, "-1", GA, 14)}${core(60, 98, GMH, 2.6)}</g>
+      <g class="al">${tube("M38 34 H30 V94 H38", GA, 4)}</g><g class="ar">${tube("M82 34 H90 V94 H82", GA, 4)}</g>${sparks(GMH)}`,
+    proj: tube("M6 -20 H-2 V20 H6", GA, 4), projR: tube("M-6 -20 H2 V20 H-6", GA, 4), throw: { l: [34, 64], r: [86, 64] },
+  },
+  // Xarxa del Bosc: tres bolets (el del mig, gros) units per davall per una xarxa de fongs que brilla; les espores dels
+  // costats, el que llança
+  xarxa: {
+    svg: `${runeBase(GMH)}<g class="b"><g class="myc-net">${tube("M60 102 Q40 108 22 102 M60 102 Q80 110 98 102 M34 104 Q30 112 18 114 M86 105 Q92 112 104 114 M60 102 Q60 110 60 116", GC, 1.6, 'opacity="0.85"')}</g>
+      ${[[24, 102, 0.55], [96, 102, 0.58], [60, 100, 0.95]].map(([x, y, k]) => `<g transform="translate(${x} ${y}) scale(${k})">${tube("M-6 0 Q-8 -20 -4 -36 H4 Q8 -20 6 0 Z", "#f4e8ff", 3)}
+        <path d="M-30 -36 C-30 -60 -14 -70 0 -70 C14 -70 30 -60 30 -36 Z" fill="#2a1a3a"/>${tube("M-30 -36 C-30 -60 -14 -70 0 -70 C14 -70 30 -60 30 -36 Z", GC, 3.4)}
+        ${[[-14, -52], [2, -60], [14, -48]].map(([a, b]) => `<circle cx="${a}" cy="${b}" r="3.2" fill="#f4e8ff" opacity="0.85"/>`).join("")}</g>`).join("")}${core(60, 84, GMH, 2.4)}</g>
+      <g class="al">${ESPORA(14, 46)}</g><g class="ar">${ESPORA(106, 46)}</g>${sparks(GMH)}`,
+    proj: ESPORA(0, 0), throw: { l: [14, 46], r: [106, 46] },
+  },
   turing: {
     svg: `${runeBase(GMH)}<g class="b"><rect x="38" y="66" width="44" height="34" rx="5" fill="#1a1010"/>${tube("M38 66 H82 V100 H38 Z", GMH, 3)}
       <g class="gear" style="transform-origin:52px 84px">${tube("M52 84 m-7 0 a7 7 0 1 0 14 0 a7 7 0 1 0 -14 0 M52 74 V77 M52 91 V94 M42 84 H45 M59 84 H62", GD, 2)}</g>

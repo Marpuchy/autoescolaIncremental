@@ -162,6 +162,16 @@ HTML + CSS + JavaScript sin dependencias ni compilación. Scripts clásicos que 
   `tape`: escribe 1 —recibe ×2 de daño— o 0 —más lenta— con un cartelito encima, `tdbWriteBit`; especial `halt`: todas paradas 2 s) y
   **Ós de la mel** (Rusc + Canya; `walker`/`tdbWalker`: sale de su cueva al camino más cercano, corre en contra de las distracciones
   mordiendo —la miel envenena—, vuelve y descansa comiendo miel; el grupo `.walk` se mueve por el mapa; especial `growl` cada 12 mordiscos).
+  Mundo 4 de cada sala (El Núvol, id 4 · La Muntanya Cremada, id 104): «doble entrada», dos caminos que salen de arriba y de abajo y
+  se juntan antes del cristal (`ext.pres`: un trozo nuevo por camino a la 50; el estudiante arriba a la derecha); fondos de nubes con
+  cables y paquetes de datos (`tdbCloudBackground`) y de monte quemado con brasas, troncos negros, humo y brotes (`world.burnt`,
+  `tdbAsh`/`tdbBurntDeco`); vida ×1,3 / ×1,25, maná +170. Distracción Videojoc / Llebre (`blink`: salta 130 adelante cada 3,5 s) y jefe
+  Ransomware / La processionària (`lock`: «cifra» —candado / nido de seda— una criatura al azar, que no ataca hasta que el jefe pierde
+  un 20 % de vida, `t.lock`). Artefactos: Pell de núvol (Marc, pell, +10 % maná por oleada `waveMana`, piel blanca y azul con textura de
+  nubes `TD_AXO_WEAR.nuvol`) y Corona de cendra (Alba, cap, +10 % daño `dmg`). MH: **Matriu inversa** (Vector + Determinant; lanza
+  sus corchetes que atraviesan y rematan por debajo del 15 % `execute`; especial `invert`: las de su alcance andan hacia atrás 2 s,
+  `e.revT`) y **Xarxa del Bosc** (evolución de la Micorriza con la piedra; red a TODAS las criaturas del mapa, especial `spores` con
+  `all`: esporada en el alcance de cada criatura).
   Balance de mundos: `python tools/td-progres.py [--mon=2]`.
   Fuera de los mundos de 100 oleadas, un jefe que llega al cristal lo rompe (`tdbShatter`); en los de 100, jefes y gigantes quitan 10 vidas (`TD_IDLE.bossLives`).
   **Límite de criaturas iguales en el mapa** (`TD_PLACE_LIMIT`: común 4, rara 3, épica 3, legendaria 2, mítica y MH 1; `tdbFull`); pagando 10.000 de maná (`TD_LIMIT_DOUBLE_COST`, botón en el selector) se dobla en ese mundo (`tdb.dbl`, va en el snapshot). La demo no tiene límite.

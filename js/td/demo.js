@@ -57,6 +57,8 @@ const TD_DEMO_SCENES = {
   // Matrícules del món 3: la Turing escriu bits a un grup; l'ós ix del cau i corre pel camí
   turing:    { view: [380, 150, 760, 530], path: TD_DEMO_ROAD, slots: [[640, 320]], spawn: [["notificacio", "notificacio", "procrastinacio", "notificacio"], 3.4], gap: 0.5 },
   os:        { view: [300, 120, 900, 630], path: TD_DEMO_ROAD, slots: [[560, 300]], spawn: [["notificacio", "notificacio", "procrastinacio", "notificacio"], 3.2], gap: 0.6 },
+  matriu:    { view: [200, 150, 720, 500], path: TD_DEMO_ROAD, slots: [[380, 330]], spawn: [["notificacio", "notificacio", "procrastinacio", "notificacio"], 3.6], gap: 0.3 },
+  xarxa:     { view: [300, 130, 900, 620], path: TD_DEMO_ROAD, slots: [[640, 320], [400, 320], [880, 320]], allies: ["pi", "prismatics"], spawn: [["notificacio", "notificacio", "notificacio", "procrastinacio"], 3], gap: 0.5 },
   microreserva: { path: TD_DEMO_ROAD, slots: [[640, 320]], spawn: [["notificacio", "notificacio", "notificacio"], 3], gap: 0.6 },
 };
 

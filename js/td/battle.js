@@ -59,8 +59,8 @@ const tdIdleWorld = w => !w.demo && TD_WORLDS.includes(w) && w.id !== 999;
 const tdRun = id => td.worlds[id] || (td.worlds[id] = { best: 0, clears: 0 });
 function tdWorldExtended(world) {
   if (!world.ext || world.extended) return world;
-  const pre = world.ext.pre;
-  return { ...world, path: world.path && [...pre, ...world.path], paths: world.paths?.map(p => [...pre, ...p]), slots: [...world.slots, ...world.ext.slots], extended: true, base: world };
+  const pre = world.ext.pre, pres = world.ext.pres; // pres: un tros nou per a cada camí (si entren per llocs diferents)
+  return { ...world, path: world.path && [...(pre || pres[0]), ...world.path], paths: world.paths?.map((p, i) => [...(pres ? pres[i] : pre), ...p]), slots: [...world.slots, ...world.ext.slots], extended: true, base: world };
 }
 const tdWorldBosses = world => [...new Set(world.waves.flat().map(x => x[0]).filter(t => TD_ENEMIES[t]?.boss))];
 const tdWorldTypes = world => [...new Set(world.waves.flat().map(x => x[0]).filter(t => TD_ENEMIES[t] && !TD_ENEMIES[t].boss && !TD_ENEMIES[t].hidden))];
@@ -79,7 +79,7 @@ function tdWaveSpec(world, n) {
 const tdIdleHp = (n, boss) => 1 + (boss ? 0.5 : 1) * (TD_IDLE.waveHp * (n - 1) + TD_IDLE.waveHp2 * (n - 1) ** 2);
 const tdbWaveCount = () => tdb.idle ? TD_IDLE.waves : tdb.world.waves.length;
 const tdbMaxLives = () => TD_BATTLE.lives + 3 * td.upgrades.vida;
-const tdbWaveMana = n => Math.round((TD_IDLE.waveMana[0] + TD_IDLE.waveMana[1] * n) * (1 + 0.08 * td.upgrades.mana));
+const tdbWaveMana = n => Math.round((TD_IDLE.waveMana[0] + TD_IDLE.waveMana[1] * n) * (1 + 0.08 * td.upgrades.mana + tdArtBonus("waveMana")));
 // El saber guanyat passa a la partida (a cada onada, en perdre-la i en eixir)
 function tdbBank() {
   if (!tdb?.idle || tdbViewing()) return;
@@ -290,6 +290,7 @@ function tdbBackground(world) {
   if (world.mode === "forestal") return tdbForestBackground(world);
   if (world.id === 2) return tdbLabBackground(world);
   if ((world.base || world).id === 3) return tdbServerBackground(world);
+  if ((world.base || world).id === 4) return tdbCloudBackground(world);
   const pts = world.path.map(p => p.join(",")).join(" ");
   // fons fosc amb paper quadriculat, fórmules que suren i el camí de runes
   let grid = "";
@@ -357,6 +358,29 @@ function tdbLabBackground(world) {
 // de terra amb arrels que el creuen i pedretes, bolets i falgueres entre les lleixes de buits, i cucs de llum que suren.
 // Món 3: la sala de servidors. Terra de rajoles tècniques (amb reixetes), files de racks amb llumetes que fan
 // pampallugues i safates de cables; el camí és la passarel·la entre els racks
+// Món 4: el núvol. Cel de nit blau fosc, núvols de cotó per tot arreu i cables de llum que baixen; el camí, plataformes
+// de llum que suren (amb la vora brillant)
+function tdbCloudBackground(world) {
+  const P = tdbWorldPaths(world);
+  const lines = (w, attrs) => P.map(p => `<polyline points="${p.map(q => q.join(",")).join(" ")}" fill="none" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round" ${attrs}/>`).join("");
+  let seed = 53;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const cloud = (x, y, k, o) => `<g transform="translate(${x.toFixed(0)} ${y.toFixed(0)}) scale(${k.toFixed(2)})" opacity="${o.toFixed(2)}">
+    <path d="M-90 20 C-110 20 -112 -8 -88 -10 C-90 -40 -50 -48 -36 -26 C-28 -58 22 -58 28 -26 C44 -44 82 -36 78 -8 C104 -8 108 20 86 20 Z" fill="#dfe9ff"/>
+    <path d="M-90 20 C-60 10 60 10 86 20 Z" fill="#b8c8ef"/></g>`;
+  const far = Array.from({ length: 26 }, () => cloud(-500 + rnd() * 2700, -300 + rnd() * 1500, 0.8 + rnd() * 1.6, 0.06 + rnd() * 0.08)).join("");
+  const near = Array.from({ length: 12 }, () => cloud(-300 + rnd() * 2300, -100 + rnd() * 1100, 0.6 + rnd() * 0.8, 0.12 + rnd() * 0.1)).join("");
+  const stars = Array.from({ length: 90 }, () => `<circle cx="${(-600 + rnd() * 2800).toFixed(0)}" cy="${(-400 + rnd() * 1700).toFixed(0)}" r="${(0.8 + rnd() * 1.8).toFixed(1)}" fill="#fff" opacity="${(0.2 + rnd() * 0.5).toFixed(2)}"/>`).join("");
+  const cables = Array.from({ length: 10 }, (_, i) => { const x = -200 + i * 220 + rnd() * 80;
+    return `<path d="M${x.toFixed(0)} -400 C${(x + 40).toFixed(0)} 0 ${(x - 40).toFixed(0)} 400 ${(x + 20).toFixed(0)} 1300" stroke="#4ad8ff" stroke-width="2" fill="none" opacity="0.18"/>
+      <circle r="4" fill="#bff4ff" class="tdb-packet" style="offset-path: path('M${x.toFixed(0)} -400 C${(x + 40).toFixed(0)} 0 ${(x - 40).toFixed(0)} 400 ${(x + 20).toFixed(0)} 1300'); animation-delay:${(-rnd() * 6).toFixed(1)}s"/>`; }).join("");
+  return `<rect x="-1600" y="-900" width="4800" height="2700" fill="#0b1430"/>
+    <radialGradient id="tdb-vig" gradientUnits="userSpaceOnUse" cx="800" cy="450" r="1150"><stop offset="0.5" stop-color="#000" stop-opacity="0"/><stop offset="0.85" stop-color="#000" stop-opacity="0.5"/></radialGradient>
+    ${stars}${far}${cables}${near}
+    ${lines(110, 'stroke="#000" opacity="0.35" transform="translate(10 26)"')}${lines(92, 'stroke="#2a4a8a"')}${lines(78, 'stroke="#3a64b4"')}
+    ${lines(60, 'stroke="#5a86d8" opacity="0.55"')}${lines(4, 'stroke="#bff4ff" stroke-dasharray="14 26" opacity="0.6" class="tdb-flow"')}
+    <rect x="-1600" y="-900" width="4800" height="2700" fill="url(#tdb-vig)" pointer-events="none"/>`;
+}
 function tdbServerBackground(world) {
   const P = tdbWorldPaths(world), PP = P.map(tdbPath);
   const lines = (w, attrs) => P.map(p => `<polyline points="${p.map(q => q.join(",")).join(" ")}" fill="none" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round" ${attrs}/>`).join("");
@@ -391,6 +415,7 @@ function tdbServerBackground(world) {
 function tdbForestBackground(world) {
   const pine = world.id === 102; // la Pineda: terra de pinassa, pinyes i capçades de pi
   const river = !!world.river; // el Riu: un riu creua el mapa i el sender el passa per ponts de fusta
+  const burnt = !!world.burnt; // la Muntanya Cremada: terra de cendra, troncs negres, brases que brillen, fum i brots nous
   const P = tdbWorldPaths(world), PP = P.map(tdbPath), lines = (w, attrs) => P.map(p => `<polyline points="${p.map(q => q.join(",")).join(" ")}" fill="none" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round" ${attrs}/>`).join("");
   // lluny del camí i dels buits (per a no tapar res amb la decoració)
   const free = (x, y, m = 70) => PP.every(pa => { for (let d = 0; d <= pa.total; d += 20) { const [px, py] = pa.at(d); if (Math.hypot(px - x, py - y) < m) return false; } return true; })
@@ -432,15 +457,38 @@ function tdbForestBackground(world) {
   return `<rect x="-1600" y="-900" width="4800" height="2700" fill="#0c140c"/>
     <radialGradient id="tdb-vig" gradientUnits="userSpaceOnUse" cx="800" cy="450" r="1150"><stop offset="0.45" stop-color="#000" stop-opacity="0"/><stop offset="0.85" stop-color="#000" stop-opacity="0.6"/></radialGradient>
     <radialGradient id="tdb-moon" gradientUnits="userSpaceOnUse" cx="1100" cy="250" r="900"><stop offset="0" stop-color="#9fd0ff" stop-opacity="0.08"/><stop offset="1" stop-color="#9fd0ff" stop-opacity="0"/></radialGradient>
-    ${moss}<g>${leaves}</g>${river ? tdbRiver(PP) : ""}
+    ${burnt ? tdbAsh() : `${moss}<g>${leaves}</g>`}${river ? tdbRiver(PP) : ""}
     ${lines(100, 'stroke="#1a120a" opacity="0.6"')}${lines(84, `stroke="${pine ? "#4a3420" : "#3a2c1c"}"`)}${lines(56, `stroke="${pine ? "#5e4428" : "#4a3824"}" opacity="0.7"`)}
     ${lines(3, 'stroke="#6a5234" stroke-dasharray="4 26" opacity="0.6"')}
-    ${river ? tdbBridgesArt(PP) : ""}${pebbles}${roots}${deco}${crowns}
+    ${river ? tdbBridgesArt(PP) : ""}${pebbles}${burnt ? tdbBurntDeco(free) : `${roots}${deco}${crowns}`}
     <rect x="-1600" y="-900" width="4800" height="2700" fill="url(#tdb-moon)" pointer-events="none"/>
     <g class="tdb-fflies">${flies}</g>
     <rect x="-1600" y="-900" width="4800" height="2700" fill="url(#tdb-vig)" pointer-events="none"/>`;
 }
 
+// La Muntanya Cremada: terra de cendra amb taques de carbó i brases que bateguen
+function tdbAsh() {
+  let seed = 61;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  return `<rect x="-1600" y="-900" width="4800" height="2700" fill="#1a1614"/>
+    ${Array.from({ length: 50 }, () => `<ellipse cx="${(-600 + rnd() * 2800).toFixed(0)}" cy="${(-400 + rnd() * 1700).toFixed(0)}" rx="${(50 + rnd() * 130).toFixed(0)}" ry="${(25 + rnd() * 60).toFixed(0)}" fill="${rnd() < 0.5 ? "#0e0b0a" : "#2a2420"}" opacity="0.7"/>`).join("")}
+    ${Array.from({ length: 70 }, (_, i) => `<circle class="tdb-ember" style="animation-delay:${(-rnd() * 3).toFixed(1)}s" cx="${(-400 + rnd() * 2400).toFixed(0)}" cy="${(-200 + rnd() * 1300).toFixed(0)}" r="${(2 + rnd() * 3).toFixed(1)}" fill="${["#ff6a1a", "#ff9a3a", "#ffc23f"][i % 3]}"/>`).join("")}`;
+}
+// troncs cremats drets (vistos des de dalt: soca negra amb esquerdes que brillen), brots verds i fum que puja
+function tdbBurntDeco(free) {
+  let seed = 67, out = "";
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  for (let i = 0, n = 0; i < 500 && n < 22; i++) {
+    const x = Math.round(-100 + rnd() * 1800), y = Math.round(20 + rnd() * 860);
+    if (!free(x, y, 80)) continue;
+    n++;
+    if (n % 3) out += `<g transform="translate(${x} ${y})"><circle r="26" fill="#000" opacity="0.35" transform="translate(8 10)"/><circle r="22" fill="#141010"/><circle r="22" fill="none" stroke="#2a2220" stroke-width="4"/>
+      <path d="M-12 -6 L-2 2 L6 -8 M-4 10 L4 4 L12 12" stroke="#ff6a1a" stroke-width="2" fill="none" class="tdb-ember" style="animation-delay:${(-rnd() * 3).toFixed(1)}s"/>
+      <path d="M${(rnd() * 10 - 5).toFixed(0)} -10 C-20 -60 30 -90 0 -150" stroke="#9a9490" stroke-width="16" fill="none" stroke-linecap="round" opacity="0.08" class="tdb-smoke"/></g>`;
+    else out += `<g transform="translate(${x} ${y})">${[-1, 0, 1].map(k => `<path d="M${k * 8} 6 Q${k * 10} -6 ${k * 14} -14" stroke="#7cd36a" stroke-width="3" fill="none" stroke-linecap="round"/><ellipse cx="${k * 14}" cy="-16" rx="4" ry="6" fill="#9fe07a" transform="rotate(${k * 30} ${k * 14} -16)"/>`).join("")}</g>`;
+  }
+  return out;
+}
 // El riu del món 3 del bosc: travessa el mapa d'esquerra a dreta i baixa pel costat del final; aigua que corre
 const TDB_RIVER = "M-500 470 C-200 440 0 500 300 470 S700 430 900 480 S1180 520 1240 600 S1260 860 1300 1100";
 function tdbRiver() {
@@ -852,7 +900,7 @@ function tdbHit(p, e) {
   if (d.role === "vuln") { e.vuln = Math.max(e.vuln, d.vuln); e.vulnT = d.vulnDur * ab; }
   if (d.role === "lasso") { e.stunT = Math.max(e.stunT, d.stun * ab); e.dot = d.dot; e.dotT = d.stun * ab; e.dotEl = d.el; }
   const willDie = e.hp - dmg * (1 + e.vuln) <= 0;
-  if (d.role === "execute" && !willDie && (e.hp - dmg * (1 + e.vuln)) / e.maxHp < d.execute * ab) {
+  if ((d.role === "execute" || d.execute) && !willDie && (e.hp - dmg * (1 + e.vuln)) / e.maxHp < d.execute * ab) {
     tdbNumber(...tdbS(...tdbPos(e)).map((v, i) => v - (i ? e.size : 0)), "det = 0", TD_GLOW.gold, true);
     tdbKill(e, p.t);
     return;
@@ -1514,11 +1562,20 @@ function tdbSpecial(t, target) {
     return;
   }
   if (s.type === "simulate") { tdbNumber(...tdbS(tx, ty - 120), "🎲 simulació", TD_GLOW.myth, true); tdbRoll(t, Infinity); return; }
-  if (s.type === "spores") { // esporada: totes les del seu abast, colpejades i frenades
-    const [x, y] = tdb.world.slots[t.slot], r = t.stats.range;
-    tdbFx("ring", ...tdbS(x, y - 30), TD_GLOW.cns, r);
-    for (const e of tdb.enemies) if (tdbVisible(e) && Math.hypot(...tdbPos(e).map((v, i) => v - [x, y][i])) <= r) { tdbDamage(e, t.stats.dmg * s.mult, t, true); tdbSlow(e, s.slow, s.dur * Math.min(1.5, ab)); }
-    tdbNumber(...tdbS(x, y - 120), "🍄 esporada", TD_GLOW.cns, true);
+  if (s.type === "spores") { // esporada: totes les del seu abast (la Xarxa del Bosc: de l'abast de cada criatura), colpejades i frenades
+    const [x, y] = tdb.world.slots[t.slot], hit = new Set();
+    const spots = s.all ? Object.values(tdb.towers).map(o => [tdb.world.slots[o.slot], o.stats.range]) : [[[x, y], t.stats.range]];
+    for (const [[sx, sy], r] of spots) {
+      tdbFx("ring", ...tdbS(sx, sy - 30), TD_GLOW.cns, Math.min(r, 260));
+      for (const e of tdb.enemies) if (!hit.has(e) && tdbVisible(e) && Math.hypot(...tdbPos(e).map((v, i) => v - [sx, sy][i])) <= r) { hit.add(e); tdbDamage(e, t.stats.dmg * s.mult, t, true); tdbSlow(e, s.slow, s.dur * Math.min(1.5, ab)); }
+    }
+    tdbNumber(...tdbS(x, y - 120), s.all ? "🍄 esporada del bosc" : "🍄 esporada", TD_GLOW.cns, true);
+    return;
+  }
+  if (s.type === "invert") { // A⁻¹: les del seu abast caminen cap enrere uns segons
+    const [x, y] = tdb.world.slots[t.slot];
+    for (const e of tdb.enemies) if (tdbVisible(e) && Math.hypot(...tdbPos(e).map((v, i) => v - [x, y][i])) <= t.stats.range) { e.revT = s.dur * Math.min(1.5, ab); e.el?.classList.remove("warped"); void e.el?.getBoundingClientRect(); e.el?.classList.add("warped"); }
+    tdbNumber(...tdbS(x, y - 120), "A⁻¹", TD_GLOW.alg, true);
     return;
   }
   if (s.type === "fauna") { // els animals creuen el pont: les de davall (o, l'eco, les del voltant de l'objectiu) es queden parades
@@ -1799,7 +1856,8 @@ function tdbUpdate(dt) {
       continue;
     }
     if (e.stunT > 0) continue;
-    e.dist += e.def.speed * tdbSpeedMult(e) * e.slowMult * (tdb.rushT > 0 ? 1.35 : 1) * (1 - tdArtBonus("slowAll")) * dt;
+    if (e.revT > 0) e.revT -= dt; // A⁻¹: camina cap enrere
+    e.dist += (e.revT > 0 ? -0.8 : 1) * e.def.speed * tdbSpeedMult(e) * e.slowMult * (tdb.rushT > 0 ? 1.35 : 1) * (1 - tdArtBonus("slowAll")) * dt;
     if (e.dist >= tdbP(e).total) {
       e.hp = 0;
       e.el.remove();
@@ -1816,6 +1874,11 @@ function tdbUpdate(dt) {
   // criatures
   for (const t of Object.values(tdb.towers)) {
     if (t.sleepT > 0) { t.sleepT -= dt; continue; }
+    if (t.lock) { // xifrada pel Ransomware: no fa res fins que li baixes prou la vida (o mor)
+      const L = tdb.enemies.find(o => o.uid === t.lock.uid && o.hp > 0);
+      if (L && L.hp > t.lock.until) continue;
+      t.lock = null; t.el?.querySelector(".tdb-lock")?.remove();
+    }
     if (t.burst > 0) {
       t.burstT -= dt;
       if (t.burstT <= 0) {
@@ -1914,6 +1977,32 @@ function tdbEnemyAbility(e, dt) {
   if (d.spawn && (e.spawned || 0) < d.spawn.max) {
     e.spawnT = (e.spawnT || 0) + dt;
     if (e.spawnT >= d.spawn.every) { e.spawnT = 0; e.spawned = (e.spawned || 0) + 1; tdbSpawn(d.spawn.type, Math.max(0, e.dist - 30), false, tdbP(e)); }
+  }
+  // Videojoc / llebre: salt cap avant pel camí (es desfà en píxels on era)
+  if (d.blink) {
+    e.blinkT = (e.blinkT || 0) + dt;
+    if (e.blinkT >= d.blink.every) {
+      e.blinkT = 0;
+      const [x0, y0] = tdbS(...tdbPos(e));
+      e.dist = Math.min(tdbP(e).total - 60, e.dist + d.blink.dist);
+      tdbFx("ring", x0, y0 - e.size * 0.4, TD_ENEMY_GLOW[e.def.art || e.type] || "#fff", 30);
+      e.el?.classList.remove("warped"); void e.el?.getBoundingClientRect(); e.el?.classList.add("warped");
+    }
+  }
+  // Ransomware / processionària: xifra una criatura a l'atzar (fins que perd un 20 % de vida; llavors, una altra)
+  if (d.lock && !Object.values(tdb.towers).some(t => t.lock?.uid === e.uid)) {
+    e.lockT = (e.lockT || 0) + dt;
+    const pool = Object.values(tdb.towers).filter(t => !t.lock);
+    if (e.lockT >= d.lock.every && pool.length) {
+      e.lockT = 0;
+      const t = pool[Math.floor(Math.random() * pool.length)];
+      t.lock = { uid: e.uid, until: e.hp - e.maxHp * d.lock.hp };
+      const forest = tdRoom === "forestal";
+      t.el?.insertAdjacentHTML("beforeend", forest
+        ? `<g class="tdb-lock"><ellipse cx="0" cy="-30" rx="54" ry="64" fill="#f4f0e4" opacity="0.55"/>${[-40, -20, 0, 20].map(y => `<path d="M-48 ${y - 30} Q0 ${y - 22} 48 ${y - 34}" stroke="#fff" stroke-width="2" fill="none" opacity="0.7"/>`).join("")}</g>`
+        : `<g class="tdb-lock"><rect x="-22" y="-58" width="44" height="36" rx="6" fill="#ff3b4e" stroke="#fff" stroke-width="3"/><path d="M-12 -58 V-70 A12 12 0 0 1 12 -70 V-58" stroke="#fff" stroke-width="5" fill="none"/><circle cy="-42" r="5" fill="#fff"/></g>`);
+      tdbNumber(...tdbS(...tdb.world.slots[t.slot]).map((v, i) => v - (i ? 90 : 0)), forest ? "🕸 embolicada" : "🔒 xifrada", "#ff3b4e", true);
+    }
   }
   // l'Algoritme / la papallona: canvia de debilitat i de fortalesa
   if (d.shift) {

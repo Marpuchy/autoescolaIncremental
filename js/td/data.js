@@ -187,6 +187,12 @@ const TD_DEFENDERS = {
   os:          { subj: "fau", rar: "mh", name: "Ós de la mel", dmg: 40, rate: 1, range: 300, cost: 160, role: "walker",
                  walker: { speed: 170, reach: 560, rest: 3, bite: 0.45, radius: 60, poison: { dps: 0.35, dur: 3 } }, special: { every: 12, type: "growl", push: 140, stun: 0.6, radius: 200 },
                  desc: "La mel del rusc i la canya de pescar l'han fet eixir del bosc. Ix del cau, corre pel camí en contra de les distraccions i les mossega (la mel les enverina); després torna al cau i descansa menjant mel. Cada 12 mossos, grunyit: les del voltant reculen i es queden parades." },
+  matriu:      { subj: "alg", rar: "mh", name: "Matriu inversa", dmg: 44, rate: 0.55, range: 440, cost: 160, role: "pierce", alt: true, regrow: 1.2, execute: 0.15, projSpeed: 1.3,
+                 special: { every: 12, type: "invert", dur: 2 },
+                 desc: "El vector i el determinant, en una matriu. Llança els seus dos claudàtors, que travessen tot el que troben en línia recta; si a una li queda menys d'un 15 % de vida, l'elimina (det = 0). Cada 12 tirs, A⁻¹: les del seu abast caminen cap enrere 2 s." },
+  xarxa:       { subj: "cns", rar: "mh", name: "Xarxa del Bosc", dmg: 22, rate: 0.9, range: 300, cost: 160, role: "link", alt: true, regrow: 1,
+                 link: { radius: 9999, mult: 0.6, cd: 0.5 }, special: { every: 10, type: "spores", mult: 2.4, slow: 0.35, dur: 2.5, all: true },
+                 desc: "La micorriza, feta bosc: tres bolets i una xarxa de fongs que arriba a totes les criatures del mapa. Quan qualsevol d'elles pega, el fong també hi fa mal. Cada 10 tirs, esporada a tot el bosc: totes les distraccions de l'abast de cada criatura, colpejades i més lentes." },
   spaghetti:   { subj: "prg", rar: "mh", name: "Codi Spaghetti", dmg: 20, rate: 1.1, range: 300, cost: 160, role: "bounce", bounces: 4, random: true, randDmg: [0.1, 1], alt: true, projSpeed: 0.55,
                  slow: 0.3, slowDur: 1.5, special: { every: 12, type: "goto", upTo: 0.85 },
                  desc: "L'If/else, quan el codi se n'ix de mare. Llança els caps dels fideus, que reboten entre 4 distraccions a l'atzar, i cada colp fa un dany a l'atzar (entre el 10 % i el 100 % del seu) i les deixen enredades (més lentes). Cada 12 tirs, GOTO: la distracció més avançada salta a un lloc a l'atzar del seu camí (pot tocar-li davant o darrere)." },
@@ -199,6 +205,8 @@ const TD_FORGE = {
   spaghetti: { world: 1, evolve: "ifelse", key: "💎 Pedra del spaghetti" },
   turing:    { world: 3, from: ["veritat", "quantif"], key: "📜 Recepta de la màquina de Turing" },
   os:        { world: 103, from: ["rusc", "canya"], key: "📜 Recepta de l'ós de la mel" },
+  matriu:    { world: 4, from: ["vector", "determinant"], key: "📜 Recepta de la matriu inversa" },
+  xarxa:     { world: 104, evolve: "micorriza", key: "💎 Pedra de la micorriza" },
 };
 
 // Distraccions (enemics). lore: la descripció del bestiari (amb gràcia, com al compendi de l'autoescola); desc: què fa.
@@ -240,6 +248,13 @@ const TD_ENEMIES = {
   deadline:       { name: "La data d'entrega", hp: 2400, speed: 22, lives: 15, mana: 110, saber: 90, size: 156, boss: true, deadline: { max: 1.6 },
                     lore: "Al principi queda molt de temps i camina tranquil·la. Però com més s'acosta, més corre: l'última nit, a les tres de la matinada, ja va volant.",
                     desc: "Com menys vida li queda, més ràpid va (fins a 2,6 vegades al final)." },
+  // Món 4: el Videojoc (al bosc, la llebre) fa salts cap avant; el Ransomware (la processionària) bloqueja una criatura
+  videojoc:       { name: "Videojoc", hp: 55, speed: 50, lives: 2, mana: 7, saber: 3, size: 82, blink: { every: 3.5, dist: 130 },
+                    lore: "«Una partida i ho deixe». Quan creus que el tens controlat, fa un salt de nivell i se t'ha menjat la vesprada. Mai està on el deixes.",
+                    desc: "Cada 3,5 s fa un salt cap avant pel camí." },
+  ransomware:     { name: "Ransomware", hp: 2600, speed: 24, lives: 15, mana: 120, saber: 100, size: 156, boss: true, lock: { every: 5, hp: 0.2 },
+                    lore: "T'ha xifrat els apunts i et demana un rescat. Mentre no li baixes la vida, la criatura que ha bloquejat no pot fer res.",
+                    desc: "Bloqueja una criatura a l'atzar (cadenat): no ataca fins que el Ransomware perd un 20 % de vida. Després en bloqueja una altra." },
   diumenge:       { name: "Diumenge a la nit", hp: 2200, speed: 28, lives: 20, mana: 120, saber: 100, size: 160, boss: true, rush: { every: 4, mult: 1.35, dur: 2 },
                     lore: "La nit que tot ho accelera: els deures que no has fet, l'examen de dilluns, l'agenda en blanc. Quan arriba, ja vas tard.",
                     desc: "Cada 4 s accelera tots els enemics un 35 % durant 2 s." },
@@ -268,12 +283,12 @@ const TD_DEFENDER_ELEMENT = {
   prismatics: "fisic", canya: "fisic", rusc: "natura", cervol: "arca",
   pi: "natura", anells: "natura", contrafoc: "foc", carrasca: "natura",
   bruixola: "fisic", samara: "fisic", anellador: "fisic", projecte: "arca",
-  dron: "fisic", pimare: "natura", quantic: "electric", spaghetti: "arca", turing: "electric", os: "fisic",
+  dron: "fisic", pimare: "natura", quantic: "electric", spaghetti: "arca", turing: "electric", os: "fisic", matriu: "buit", xarxa: "natura",
   veritat: "electric", grans: "buit", quantif: "arca", montecarlo: "arca",
   gla: "fisic", micorriza: "natura", ecoducte: "fisic", microreserva: "natura",
 };
 // Les Matrícules d'Honor tenen dos elements: cada colp fa la meitat del dany amb cadascun
-const TD_DEFENDER_ELEMENT2 = { dron: "electric", pimare: "arca", quantic: "buit", spaghetti: "foc", turing: "arca", os: "natura" };
+const TD_DEFENDER_ELEMENT2 = { dron: "electric", pimare: "arca", quantic: "buit", spaghetti: "foc", turing: "arca", os: "natura", matriu: "arca", xarxa: "arca" };
 for (const [id, d] of Object.entries(TD_DEFENDERS)) { d.el = TD_DEFENDER_ELEMENT[id] || "fisic"; if (TD_DEFENDER_ELEMENT2[id]) d.el2 = TD_DEFENDER_ELEMENT2[id]; }
 // weak: feble a; strong: forta contra; why: per què (al bestiari)
 const TD_ENEMY_ELEMENTS = {
@@ -289,6 +304,8 @@ const TD_ENEMY_ELEMENTS = {
   algoritme:      { why: "No té debilitat fixa: canvia cada pocs segons. Ara és feble a l'element que du damunt del cap." },
   reels:          { weak: "foc", strong: "buit", why: "Si el mòbil s'escalfa massa, s'apaga i s'acaba el bucle; el buit, en canvi, és el que l'alimenta: sempre en vols un més." },
   deadline:       { weak: "electric", strong: "natura", why: "Una nit amb l'energia a tope la tomba; anar a passejar per a despejar-se no fa més que acostar-la." },
+  videojoc:       { weak: "fisic", strong: "electric", why: "Desendolla la consola d'un colp i s'acaba; amb més corrent, en canvi, encara juga més." },
+  ransomware:     { weak: "arca", strong: "fisic", why: "Només un encanteri de desxifrat el desfà; a colps contra l'ordinador no es recupera res." },
   diumenge:       { weak: "arca", strong: "natura", why: "Un encanteri de concentració l'escurça; ni eixir a passejar el salva." },
 };
 for (const [id, e] of Object.entries(TD_ENEMIES)) Object.assign(e, TD_ENEMY_ELEMENTS[id] || {});
@@ -324,6 +341,11 @@ Object.assign(TD_ARTIFACTS, {
   // Món 3 (la data d'entrega / la riuada): la corona de LEDs de l'ajolot i la fona de vímet de la granoteta
   leds:       { name: "Corona de LEDs", icon: "💡", slot: "branquies", boss: "deadline", world: 3, stat: "range", value: 0.15,
                 desc: lvl => `LEDs de colors per les branquies, que fan pampallugues com un rack de servidors. +${Math.round(0.15 * tdArtMult(lvl) * 100)} % d'abast.` },
+  // Món 4 (el Ransomware / la processionària): la pell de núvol de l'ajolot i la corona de cendra de la granoteta
+  nuvol:      { name: "Pell de núvol", icon: "☁️", slot: "pell", boss: "ransomware", world: 4, stat: "waveMana", value: 0.1, skin: "nuvol",
+                desc: lvl => `L'ajolot es torna blanc i blau cel, amb la pell de cotó de núvol. +${Math.round(0.1 * tdArtMult(lvl) * 100)} % de maná a cada onada.` },
+  cendra:     { name: "Corona de cendra", icon: "🌸", slot: "cap", boss: "ransomware", world: 104, stat: "dmg", value: 0.1,
+                desc: lvl => `Branquetes cremades i flors que han tornat a nàixer després del foc. +${Math.round(0.1 * tdArtMult(lvl) * 100)} % de dany.` },
   fona:       { name: "Fona de vímet", icon: "🪃", slot: "ma", boss: "deadline", world: 103, stat: "rate", value: 0.12,
                 desc: lvl => `Una fona de vímet trenat, amb una pedreta de riu a punt. +${Math.round(0.12 * tdArtMult(lvl) * 100)} % de velocitat d'atac.` },
 });
@@ -425,6 +447,10 @@ const TD_FOREST_ENEMIES = {
                     lore: "Un cranc americà que no para de multiplicar-se pel riu. La closca li aguanta els primers colps; quan se li trenca, fuig corrent de costat cap a l'aigua." },
   deadline:       { look: "La riuada",
                     lore: "Comença com un rierol que baixa tranquil i acaba portant-se'n tot: com més s'acosta, més aigua i més força. Si arriba a dalt, no hi ha qui l'aturi." },
+  videojoc:       { look: "Llebre",
+                    lore: "Corre per la cendra fent salts llarguíssims: ara la veus allà, ara ja és molt més avant. No para quieta ni un moment." },
+  ransomware:     { look: "La processionària",
+                    lore: "Una filera d'erugues que baixa del pi. Teixix un niu de seda damunt d'una criatura i la deixa embolicada fins que li fas prou mal a la filera." },
   diumenge:       { look: "Llop de la lluna",
                     lore: "Ix quan es fa fosc el diumenge i udola a la lluna: els deures que no has fet, l'examen de dilluns… Quan udola, tot el bosc arranca a córrer." },
 };
@@ -495,7 +521,30 @@ const TD_WORLDS = [
       [["notificacio", 14, 0.4], ["deadline", 1, 1], ["reels", 8, 1], ["procrastinacio", 6, 1.2]],
     ],
   },
-  { id: 4, mode: "informatic", name: "El Núvol", layout: "Doble entrada", soon: true },
+  {
+    // Món 4: el núvol. Dos camins que entren per llocs diferents (dalt i baix) i s'ajunten abans del cristall
+    id: 4, mode: "informatic", name: "El Núvol", layout: "Doble entrada", hp: 1.3, mana: 170, needs: 3,
+    paths: [
+      [[-60, 150], [700, 150], [700, 450], [1180, 450], [1180, 700], [1460, 700]],
+      [[-60, 760], [460, 760], [460, 450], [700, 450], [1180, 450], [1180, 700], [1460, 700]],
+    ],
+    slots: [[100, 450], [300, 300], [300, 600], [580, 300], [580, 600], [860, 300], [860, 600], [1040, 300], [1040, 600], [1320, 850]],
+    crystal: [1500, 700], student: [1450, 180],
+    // a la 50, cada camí s'allarga per fora (el de dalt baixa del cel; el de baix ve de més avall)
+    ext: { pres: [[[-360, -60], [-160, -60], [-160, 150]], [[-360, 1000], [-160, 1000], [-160, 760]]], slots: [[-290, 330], [-290, 620], [-40, 330], [-40, 600]], view: [-400, -100, 2020, 1136] },
+    waves: [
+      [["notificacio", 12, 0.6], ["videojoc", 2, 2]],
+      [["videojoc", 5, 1.5], ["reels", 3, 1.6]],
+      [["procrastinacio", 4, 1.6], ["videojoc", 4, 1.4]],
+      [["scroll", 8, 0.8], ["videojoc", 5, 1.2]],
+      [["meme", 8, 0.8], ["deadline", 1, 1], ["videojoc", 4, 1.3]],
+      [["pestanyes", 4, 1.8], ["videojoc", 6, 1.1], ["reels", 4, 1.2]],
+      [["son", 6, 1], ["videojoc", 6, 1], ["procrastinacio", 6, 1.2]],
+      [["videojoc", 10, 0.8], ["meme", 8, 0.7]],
+      [["reels", 6, 1], ["scroll", 10, 0.6], ["videojoc", 6, 0.9]],
+      [["notificacio", 16, 0.35], ["ransomware", 1, 1], ["videojoc", 8, 0.9], ["pestanyes", 4, 1.5]],
+    ],
+  },
   { id: 5, mode: "informatic", name: "Servidor Abissal", layout: "Doble entrada", soon: true },
 ];
 // Mons del bosc: el primer té el mateix traçat i les mateixes onades que la Biblioteca, però és un sender entre arrels
@@ -504,8 +553,9 @@ TD_WORLDS.push(
   { ...TD_WORLDS[0], id: 101, mode: "forestal", name: "Sendera de les Arrels" },
   { ...TD_WORLDS[1], id: 102, mode: "forestal", name: "La Pineda", needs: 101, hp: 1.15 }, // al bosc hi ha més criatures físiques, que les formigues resistixen
   { ...TD_WORLDS[2], id: 103, mode: "forestal", name: "El Riu", needs: 102, hp: 1.35, river: true }, // el mateix ziga-zaga, entre l'aigua i els ponts
+  { ...TD_WORLDS[3], id: 104, mode: "forestal", name: "La Muntanya Cremada", needs: 103, hp: 1.25, burnt: true }, // els dos camins entre troncs cremats i brases
 
-  { id: 104, mode: "forestal", name: "La Muntanya Cremada", layout: "Doble entrada", soon: true },
+
   { id: 105, mode: "forestal", name: "El Cor del Bosc", layout: "Doble entrada", soon: true },
 );
 // Un món s'obri quan s'ha superat el d'abans (needs)
